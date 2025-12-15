@@ -1,0 +1,14 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-CalligraphyPlatformApplication<SpringBoot-Platform>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.calligraphy.platform.CalligraphyPlatformApplication",
+      "projectName": "SpringBoot-Platform",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台 - 仪表盘</title>
+    <!-- 引入Layui -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui@2.9.10/dist/css/layui.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f0f2f5;
+        }
+        
+        /* 修复浏览器扩展可能导致的JavaScript重复声明问题 */
+        .extension-script-fix {
+            display: none;
+        }
+        .layui-layout-admin .layui-logo {
+            background-color: #393D49;
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .layui-nav-itemed > a, .layui-nav-tree .layui-nav-title a, .layui-nav-tree .layui-nav-title a:hover {
+            color: #fff;
+        }
+        .layui-nav-tree .layui-nav-item a:hover {
+            background-color: #009688;
+            color: #fff;
+        }
+        .layui-nav-tree .layui-nav-itemed > a, .layui-nav-tree .layui-nav-itemed > a:hover {
+            background-color: #009688;
+        }
+        .dashboard-cards {
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .dashboard-card {
+            flex: 1;
+            min-width: 200px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+        .card-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .card-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #009688;
+        }
+        .card-icon {
+            font-size: 36px;
+            color: #009688;
+            float: right;
+        }
+        .recent-activities {
+            margin: 20px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+<body class="layui-layout-body">
+    <div class="layui-layout layui-layout-admin">
+        <!-- 头部导航 -->
+        <div class="layui-header">
+            <div class="layui-logo">书法练习平台 - 管理后台</div>
+            <!-- 头部右侧菜单 -->
+            <ul class="layui-nav layui-layout-right">
+                <li class="layui-nav-item">
+                    <a href="javascript:;">
+                        <img th:src="@{/admin/images/avatar.png}" class="layui-nav-img" alt="用户头像">
+                        <span th:text="${#authentication?.name ?: '管理员'}">管理员</span>
+                    </a>
+                    <div class="layui-nav-child">
+                        <a href="/admin/settings">个人设置</a>
+                        <a href="/auth/logout" id="logoutLink">退出登录</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- 左侧菜单 -->
+        <div class="layui-side layui-bg-black">
+            <div class="layui-side-scroll">
+                <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                    <li class="layui-nav-item layui-nav-itemed">
+                        <a class="" href="javascript:;">管理中心</a>
+                        <div class="layui-nav-child">
+                            <a href="/admin/dashboard" class="layui-this">仪表盘</a>
+                            <a href="/admin/users">用户管理</a>
+                            <a href="/admin/settings">系统设置</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 主内容区域 -->
+        <div class="layui-body">
+            <!-- 统计卡片 -->
+            <div class="dashboard-cards">
+                <div class="dashboard-card">
+                    <i class="layui-icon card-icon">&#xe612;</i>
+                    <div class="card-title">用户总数</div>
+                    <div class="card-value" th:text="${userCount}">0</div>
+                </div>
+                <div class="dashboard-card">
+                    <i class="layui-icon card-icon">&#xe60c;</i>
+                    <div class="card-title">今日登录</div>
+                    <div class="card-value">0</div>
+                </div>
+                <div class="dashboard-card">
+                    <i class="layui-icon card-icon">&#xe62c;</i>
+                    <div class="card-title">活跃用户</div>
+                    <div class="card-value">0</div>
+                </div>
+            </div>
+            
+            <!-- 最近活动 -->
+            <div class="recent-activities">
+                <div class="section-title">最近活动</div>
+                <table class="layui-table">
+                    <thead>
+                        <tr>
+                            <th>用户</th>
+                            <th>操作</th>
+                            <th>时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>系统管理员</td>
+                            <td>登录系统</td>
+                            <td th:text="${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm:ss')}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 底部 -->
+        <div class="layui-footer">
+            <!-- 底部固定内容 -->
+            © 书法练习平台 管理后台
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/layui@2.9.10/dist/layui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script>
+        // 处理浏览器扩展可能导致的JavaScript重复声明问题
+        (function() {
+            // 检查并修复screen-shader.js可能导致的重复声明
+            if (typeof afterBodyReadyScreenshader === 'function') {
+                // 保存原始函数
+                const originalAfterBodyReadyScreenshader = afterBodyReadyScreenshader;
+                // 尝试重新定义函数，防止重复声明错误
+                try {
+                    window.afterBodyReadyScreenshader = function() {
+                        if (originalAfterBodyReadyScreenshader) {
+                            try {
+                                originalAfterBodyReadyScreenshader();
+                            } catch (e) {
+                                console.warn('Screen shader function error:', e);
+                            }
+                        }
+                    };
+                } catch (e) {
+                    console.warn('Cannot redefine afterBodyReadyScreenshader:', e);
+                }
+            }
+            
+            // 检查并修复night-mode.js可能导致的重复声明
+            if (typeof afterBodyReady === 'function') {
+                // 保存原始函数
+                const originalAfterBodyReady = afterBodyReady;
+                // 尝试重新定义函数，防止重复声明错误
+                try {
+                    window.afterBodyReady = function() {
+                        if (originalAfterBodyReady) {
+                            try {
+                                originalAfterBodyReady();
+                            } catch (e) {
+                                console.warn('Night mode function error:', e);
+                            }
+                        }
+                    };
+                } catch (e) {
+                    console.warn('Cannot redefine afterBodyReady:', e);
+                }
+            }
+        })();
+        
+        layui.use(['element', 'layer'], function() {
+            var element = layui.element;
+            var layer = layui.layer;
+            
+            // 退出登录处理
+            $('#logoutLink').click(function(e) {
+                e.preventDefault();
+                layer.confirm('确定要退出登录吗？', function(index) {
+                    $.ajax({
+                        url: '/auth/logout',
+                        type: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem('token')
+                        },
+                        success: function() {
+                            // 清除本地存储的token
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('refreshToken');
+                            // 重定向到登录页面
+                            window.location.href = '/admin/login';
+                        },
+                        error: function() {
+                            // 即使出错也清除token并跳转到登录页面
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('refreshToken');
+                            window.location.href = '/admin/login';
+                        }
+                    });
+                    layer.close(index);
+                });
+            });
+            
+            // 简单的模拟数据更新（实际项目中可以通过定时请求API获取最新数据）
+            function updateDashboardData() {
+                // 这里可以添加AJAX请求来更新仪表盘数据
+            }
+            
+            // 初始化时更新一次数据
+            updateDashboardData();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统设置 - 管理后台</title>
+    <!-- 引入Layui -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui@2.9.10/dist/css/layui.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f0f2f5;
+        }
+        .layui-layout-admin .layui-logo {
+            background-color: #393D49;
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .layui-nav-itemed > a, .layui-nav-tree .layui-nav-title a, .layui-nav-tree .layui-nav-title a:hover {
+            color: #fff;
+        }
+        .layui-nav-tree .layui-nav-item a:hover {
+            background-color: #009688;
+            color: #fff;
+        }
+        .layui-nav-tree .layui-nav-itemed > a, .layui-nav-tree .layui-nav-itemed > a:hover {
+            background-color: #009688;
+        }
+        .content-container {
+            padding: 20px;
+        }
+        .settings-card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e6e6e6;
+        }
+        .layui-form-item {
+            margin-bottom: 20px;
+        }
+        .tab-content {
+            min-height: 400px;
+        }
+    </style>
+</head>
+<body class="layui-layout-body">
+    <div class="layui-layout layui-layout-admin">
+        <!-- 头部导航 -->
+        <div class="layui-header">
+            <div class="layui-logo">书法练习平台 - 管理后台</div>
+            <!-- 头部右侧菜单 -->
+            <ul class="layui-nav layui-layout-right">
+                <li class="layui-nav-item">
+                    <a href="javascript:;">
+                        <img th:src="@{/admin/images/avatar.png}" class="layui-nav-img" alt="用户头像">
+                        <span th:text="${#authentication.name}">管理员</span>
+                    </a>
+                    <dl class="layui-nav-child" title="用户操作">
+                        <dd><a href="/admin/settings">个人设置</a></dd>
+                        <dd><a href="/auth/logout" id="logoutLink">退出登录</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- 左侧菜单 -->
+        <div class="layui-side layui-bg-black">
+            <div class="layui-side-scroll">
+                <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                    <li class="layui-nav-item">
+                        <a href="/admin/dashboard">仪表盘</a>
+                    </li>
+                    <li class="layui-nav-item">
+                        <a href="/admin/users">用户管理</a>
+                    </li>
+                    <li class="layui-nav-item layui-nav-itemed">
+                        <a href="javascript:;">系统设置</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 主内容区域 -->
+        <div class="layui-body">
+            <div class="content-container">
+                <!-- 系统设置内容 -->
+                <div class="settings-card">
+                    <div class="card-title">系统基本设置</div>
+                    
+                    <!-- 设置标签页 -->
+                    <div class="layui-tab" lay-filter="settingsTab">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this">基本设置</li>
+                            <li>安全设置</li>
+                            <li>缓存管理</li>
+                            <li>关于系统</li>
+                        </ul>
+                        <div class="layui-tab-content tab-content">
+                            <!-- 基本设置 -->
+                            <div class="layui-tab-item layui-show">
+                                <form class="layui-form" id="basicSettingsForm">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">网站名称</label>
+                                        <div class="layui-input-block">
+                                            <input type="text" name="siteName" lay-verify="required" 
+                                                   th:value="${systemSettings.siteName}" placeholder="请输入网站名称" 
+                                                   autocomplete="off" class="layui-input">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">网站描述</label>
+                                        <div class="layui-input-block">
+                                            <textarea name="siteDescription" placeholder="请输入网站描述" 
+                                                      class="layui-textarea" th:text="${systemSettings.siteDescription}"></textarea>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">网站关键词</label>
+                                        <div class="layui-input-block">
+                                            <input type="text" name="siteKeywords" 
+                                                   th:value="${systemSettings.siteKeywords}" placeholder="请输入网站关键词，用逗号分隔" 
+                                                   autocomplete="off" class="layui-input">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">注册开关</label>
+                                        <div class="layui-input-block">
+                                            <input type="checkbox" name="enableRegistration" lay-skin="switch" 
+                                                   lay-text="开启|关闭" th:checked="${systemSettings.enableRegistration}" 
+                                                   title="注册开关" placeholder="注册开关">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">默认用户角色</label>
+                                        <div class="layui-input-block">
+                                            <select name="defaultUserRole" title="默认用户角色">
+                                                <option value="USER" th:selected="${systemSettings.defaultUserRole == 'USER'}">普通用户</option>
+                                                <option value="ADMIN" th:selected="${systemSettings.defaultUserRole == 'ADMIN'}">管理员</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">每页显示条数</label>
+                                        <div class="layui-input-block">
+                                            <input type="number" name="pageSize" lay-verify="required|number" 
+                                                   th:value="${systemSettings.pageSize}" min="1" max="100" 
+                                                   placeholder="请输入每页显示条数" autocomplete="off" class="layui-input">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="layui-form-item">
+                                        <div class="layui-input-block">
+                                            <button type="submit" class="layui-btn layui-btn-normal" 
+                                                    lay-submit lay-filter="saveBasicSettings">保存设置</button>
+                                            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <!-- 安全设置 -->
+                            <div class="layui-tab-item">
+                                <form class="layui-form" id="securitySettingsForm">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">登录失败次数限制</label>
+                                        <div class="layui-input-block">
+                                            <input type="number" name="loginAttemptLimit" lay-verify="required|number" 
+                                                   th:value="${systemSettings.loginAttemptLimit}" min="1" max="100" 
+                                                   placeholder="请输入登录失败次数限制" autocomplete="off" class="layui-input">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">账号锁定时间(分钟)</label>
+                                        <div class="layui-input-block">
+                                            <input type="number" name="accountLockTime" lay-verify="required|number" 
+                                                   th:value="${systemSettings.accountLockTime}" min="1" max="1440" 
+                                                   placeholder="请输入账号锁定时间" autocomplete="off" class="layui-input">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">密码有效期(天)</label>
+                                        <div class="layui-input-block">
+                                            <input type="number" name="passwordExpiryDays" lay-verify="required|number" 
+                                                   th:value="${systemSettings.passwordExpiryDays}" min="0" max="365" 
+                                                   placeholder="请输入密码有效期，0表示永不过期" autocomplete="off" class="layui-input">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="layui-form-item">
+                                        <div class="layui-input-block">
+                                            <button type="submit" class="layui-btn layui-btn-normal" 
+                                                    lay-submit lay-filter="saveSecuritySettings">保存设置</button>
+                                            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <!-- 缓存管理 -->
+                            <div class="layui-tab-item">
+                                <div class="layui-form">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">系统缓存</label>
+                                        <div class="layui-input-block">
+                                            <div class="layui-form-mid layui-word-aux" th:text="${cacheSize}">正在计算...</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">缓存状态</label>
+                                        <div class="layui-input-block">
+                                            <span class="layui-badge layui-bg-green" th:text="${cacheEnabled ? '已启用' : '已禁用'}"></span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="layui-form-item">
+                                        <div class="layui-input-block">
+                                            <button type="button" class="layui-btn layui-btn-danger" id="clearCacheBtn">清除缓存</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 关于系统 -->
+                            <div class="layui-tab-item">
+                                <div class="layui-form">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">系统名称</label>
+                                        <div class="layui-input-block">
+                                            <div class="layui-form-mid layui-word-aux">书法练习平台</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">版本号</label>
+                                        <div class="layui-input-block">
+                                            <div class="layui-form-mid layui-word-aux" th:text="${systemInfo.version}">1.0.0</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">技术框架</label>
+                                        <div class="layui-input-block">
+                                            <div class="layui-form-mid layui-word-aux">Spring Boot 3.x</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">后端运行时间</label>
+                                        <div class="layui-input-block">
+                                            <div class="layui-form-mid layui-word-aux" id="serverUpTime">正在计算...</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">开发团队</label>
+                                        <div class="layui-input-block">
+                                            <div class="layui-form-mid layui-word-aux">书法练习平台开发团队</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部 -->
+        <div class="layui-footer">
+            <!-- 底部固定内容 -->
+            © 书法练习平台 管理后台
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/layui@2.9.10/dist/layui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script>
+        layui.use(['element', 'form', 'layer'], function() {
+            var element = layui.element;
+            var form = layui.form;
+            var layer = layui.layer;
+            
+            // 退出登录处理
+            $('#logoutLink').click(function(e) {
+                e.preventDefault();
+                layer.confirm('确定要退出登录吗？', function(index) {
+                    $.ajax({
+                        url: '/auth/logout',
+                        type: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem('token')
+                        },
+                        success: function() {
+                            // 清除本地存储的token
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('refreshToken');
+                            // 重定向到登录页面
+                            window.location.href = '/admin/login';
+                        },
+                        error: function() {
+                            // 即使出错也清除token并跳转到登录页面
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('refreshToken');
+                            window.location.href = '/admin/login';
+                        }
+                    });
+                    layer.close(index);
+                });
+            });
+            
+            // 保存基本设置
+            form.on('submit(saveBasicSettings)', function(data) {
+                // 发送保存设置请求
+                $.ajax({
+                    url: '/api/settings/basic',
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data.field),
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
+                    success: function() {
+                        layer.msg('基本设置保存成功', { icon: 1 });
+                    },
+                    error: function(xhr) {
+                        var errorMsg = xhr.responseJSON?.message || '保存设置失败';
+                        layer.msg(errorMsg, { icon: 2 });
+                    }
+                });
+                return false; // 阻止表单默认提交
+            });
+            
+            // 保存安全设置
+            form.on('submit(saveSecuritySettings)', function(data) {
+                // 发送保存设置请求
+                $.ajax({
+                    url: '/api/settings/security',
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data.field),
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
+                    success: function() {
+                        layer.msg('安全设置保存成功', { icon: 1 });
+                    },
+                    error: function(xhr) {
+                        var errorMsg = xhr.responseJSON?.message || '保存设置失败';
+                        layer.msg(errorMsg, { icon: 2 });
+                    }
+                });
+                return false; // 阻止表单默认提交
+            });
+            
+            // 清除缓存按钮事件
+            $('#clearCacheBtn').click(function() {
+                layer.confirm('确定要清除系统缓存吗？', function(index) {
+                    $.ajax({
+                        url: '/api/settings/clear-cache',
+                        type: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem('token')
+                        },
+                        success: function() {
+                            layer.msg('缓存清除成功', { icon: 1 });
+                            // 重新加载页面或更新缓存大小显示
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1500);
+                        },
+                        error: function() {
+                            layer.msg('缓存清除失败', { icon: 2 });
+                        }
+                    });
+                    layer.close(index);
+                });
+            });
+            
+            // 计算服务器运行时间（前端模拟）
+            function updateServerUpTime() {
+                // 这里应该是从服务器获取真实的启动时间，这里模拟计算
+                var startTime = new Date(Date.now() - 86400000); // 假设服务器已经运行了1天
+                var now = new Date();
+                var diff = now - startTime;
+                
+                // 计算天、小时、分钟、秒
+                var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                var minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                $('#serverUpTime').text(days + '天 ' + hours + '小时 ' + minutes + '分钟 ' + seconds + '秒');
+            }
+            
+            // 初始化服务器运行时间
+            updateServerUpTime();
+            // 每秒更新一次
+            setInterval(updateServerUpTime, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台 - 用户管理</title>
+    <!-- 引入Layui -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui@2.9.10/dist/css/layui.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f0f2f5;
+        }
+        .layui-layout-admin .layui-logo {
+            background-color: #393D49;
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .layui-nav-itemed > a, .layui-nav-tree .layui-nav-title a, .layui-nav-tree .layui-nav-title a:hover {
+            color: #fff;
+        }
+        .layui-nav-tree .layui-nav-item a:hover {
+            background-color: #009688;
+            color: #fff;
+        }
+        .layui-nav-tree .layui-nav-itemed > a, .layui-nav-tree .layui-nav-itemed > a:hover {
+            background-color: #009688;
+        }
+        .content-container {
+            padding: 20px;
+        }
+        .search-form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .data-table {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+        .table-actions {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .layui-badge-normal {
+            background-color: #52c41a;
+        }
+        .layui-badge-disabled {
+            background-color: #d9d9d9;
+        }
+    </style>
+</head>
+<body class="layui-layout-body">
+    <div class="layui-layout layui-layout-admin">
+        <!-- 头部导航 -->
+        <div class="layui-header">
+            <div class="layui-logo">书法练习平台 - 管理后台</div>
+            <!-- 头部右侧菜单 -->
+            <ul class="layui-nav layui-layout-right">
+                <li class="layui-nav-item">
+                    <a href="javascript:;">
+                        <img th:src="@{/admin/images/avatar.png}" class="layui-nav-img" alt="用户头像">
+                        <span th:text="${currentUser}">管理员</span>
+                    </a>
+                    <div class="layui-nav-child">
+                        <a href="/admin/settings">个人设置</a>
+                        <a href="/auth/logout" id="logoutLink">退出登录</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- 左侧菜单 -->
+        <div class="layui-side layui-bg-black">
+            <div class="layui-side-scroll">
+                <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                    <li class="layui-nav-item">
+                        <a href="/admin/dashboard">仪表盘</a>
+                    </li>
+                    <li class="layui-nav-item layui-nav-itemed">
+                        <a href="javascript:;">用户管理</a>
+                    </li>
+                    <li class="layui-nav-item">
+                        <a href="/admin/settings">系统设置</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 主内容区域 -->
+        <div class="layui-body">
+            <div class="content-container">
+                <!-- 搜索表单 -->
+                <div class="search-form">
+                    <form class="layui-form" id="searchForm">
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label" title="搜索关键词">搜索关键词</label>
+                                <div class="layui-input-inline keyword-input">
+                                    <input type="text" name="keyword" placeholder="用户名/邮箱/姓名" 
+                                           th:value="${keyword}" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label">用户状态</label>
+                                <div class="layui-input-inline">
+                                    <select name="active" title="用户状态">
+                                        <option value="">全部状态</option>
+                                        <option value="true" th:selected="${active == true}">启用</option>
+                                        <option value="false" th:selected="${active == false}">禁用</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <button class="layui-btn layui-btn-primary" type="submit">搜索</button>
+                                <button class="layui-btn layui-btn-primary" type="button" id="resetBtn">重置</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- 数据表格 -->
+                <div class="data-table">
+                    <div class="table-actions">
+                        <h3>用户列表</h3>
+                        <button class="layui-btn layui-btn-normal" id="addUserBtn">添加用户</button>
+                    </div>
+                    
+                    <table class="layui-table" lay-data="{url:'/api/users', page:true, id:'userTable'}" lay-filter="userTable">
+                        <thead>
+                            <tr>
+                                <th lay-data="{type:'checkbox'}"></th>
+                                <th lay-data="{field:'id', width:80}">ID</th>
+                                <th lay-data="{field:'username'}">用户名</th>
+                                <th lay-data="{field:'email'}">邮箱</th>
+                                <th lay-data="{field:'fullName'}">姓名</th>
+                                <th lay-data="{field:'role'}">角色</th>
+                                <th lay-data="{field:'active'}">状态</th>
+                                <th lay-data="{field:'createdAt'}">创建时间</th>
+                                <th lay-data="{fixed:'right', width:160, align:'center', toolbar:'#barTool'}">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="user : ${users}">
+                                <td><input type="checkbox" name="userId" th:value="${user.id}" title="选择用户"></td>
+                                <td th:text="${user.id}"></td>
+                                <td th:text="${user.username}"></td>
+                                <td th:text="${user.email}"></td>
+                                <td th:text="${user.fullName}"></td>
+                                <td>
+                                    <span th:class="${user.role == 'SUPER_ADMIN' ? 'layui-badge layui-bg-red' : 'layui-badge'}" 
+                                          th:text="${user.role == 'SUPER_ADMIN' ? '超级管理员' : user.role == 'ADMIN' ? '管理员' : '普通用户'}"></span>
+                                </td>
+                                <td>
+                                    <input type="checkbox" name="active" lay-skin="switch" lay-text="启用|禁用" 
+                                           title="用户状态" placeholder="用户状态">
+                                           th:checked="${user.active}" 
+                                           th:data-id="${user.id}" 
+                                           th:disabled="${user.role == 'SUPER_ADMIN'}" 
+                                           class="status-switch">
+                                </td>
+                                <td th:text="${#dates.format(user.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                                <td>
+                                    <button class="layui-btn layui-btn-sm edit-btn" th:data-id="${user.id}" th:disabled="${user.role == 'SUPER_ADMIN'}">编辑</button>
+                                    <button class="layui-btn layui-btn-sm layui-btn-danger delete-btn" th:data-id="${user.id}" th:disabled="${user.role == 'SUPER_ADMIN'}">删除</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部 -->
+        <div class="layui-footer">
+            <!-- 底部固定内容 -->
+            © 书法练习平台 管理后台
+        </div>
+    </div>
+
+    <!-- 操作栏模板 -->
+    <script type="text/html" id="barTool">
+        <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delete">删除</a>
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/layui@2.9.10/dist/layui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script>
+        layui.use(['element', 'form', 'layer', 'table'], function() {
+            var element = layui.element;
+            var form = layui.form;
+            var layer = layui.layer;
+            var table = layui.table;
+            
+            // 退出登录处理
+            $('#logoutLink').click(function(e) {
+                e.preventDefault();
+                layer.confirm('确定要退出登录吗？', function(index) {
+                    $.ajax({
+                        url: '/auth/logout',
+                        type: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem('token')
+                        },
+                        success: function() {
+                            // 清除本地存储的token
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('refreshToken');
+                            // 重定向到登录页面
+                            window.location.href = '/admin/login';
+                        },
+                        error: function() {
+                            // 即使出错也清除token并跳转到登录页面
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('refreshToken');
+                            window.location.href = '/admin/login';
+                        }
+                    });
+                    layer.close(index);
+                });
+            });
+            
+            // 重置按钮事件
+            $('#resetBtn').click(function() {
+                $('#searchForm')[0].reset();
+            });
+            
+            // 添加用户按钮事件
+            $('#addUserBtn').click(function() {
+                layer.open({
+                    type: 2,
+                    title: '添加用户',
+                    area: ['500px', '400px'],
+                    content: '/admin/users/add',
+                    success: function(layero, index) {
+                        // 成功打开弹窗后的处理
+                    }
+                });
+            });
+            
+            // 处理JWT错误的函数
+            function handleJwtError(xhr) {
+                // 检查是否是JWT相关错误
+                if (xhr.status === 401) {
+                    var errorMsg = 'JWT令牌无效或已过期';
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        errorMsg = response.message || errorMsg;
+                    } catch (e) {}
+                    
+                    layer.alert(errorMsg + '，请重新登录', function(index) {
+                        // 清除本地存储的token
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('refreshToken');
+                        // 重定向到登录页面
+                        window.location.href = '/admin/login';
+                        layer.close(index);
+                    });
+                    return true;
+                }
+                return false;
+            }
+            
+            // 用户状态切换事件
+            $('.status-switch').change(function() {
+                var userId = $(this).data('id');
+                var active = $(this).is(':checked');
+                var switchElement = $(this);
+                
+                $.ajax({
+                    url: '/api/users/' + userId + '/status',
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ active: active }),
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
+                    success: function() {
+                        layer.msg('状态更新成功');
+                    },
+                    error: function(xhr) {
+                        // 先恢复原状态
+                        switchElement.prop('checked', !active);
+                        
+                        // 处理JWT错误
+                        if (handleJwtError(xhr)) {
+                            return;
+                        }
+                        
+                        // 处理其他错误
+                        var errorMsg = '状态更新失败';
+                        try {
+                            var response = JSON.parse(xhr.responseText);
+                            errorMsg = response.message || errorMsg;
+                        } catch (e) {}
+                        
+                        layer.msg(errorMsg);
+                    }
+                });
+            });
+            
+            // 编辑按钮事件
+            $('.edit-btn').click(function() {
+                var userId = $(this).data('id');
+                if ($(this).is(':disabled')) {
+                    layer.msg('超级管理员不可编辑');
+                    return;
+                }
+                
+                layer.open({
+                    type: 2,
+                    title: '编辑用户',
+                    area: ['500px', '400px'],
+                    content: '/admin/users/edit/' + userId,
+                    success: function(layero, index) {
+                        // 成功打开弹窗后的处理
+                    }
+                });
+            });
+            
+            // 删除按钮事件
+            $('.delete-btn').click(function() {
+                var userId = $(this).data('id');
+                if ($(this).is(':disabled')) {
+                    layer.msg('超级管理员不可删除');
+                    return;
+                }
+                
+                layer.confirm('确定要删除此用户吗？', function(index) {
+                    $.ajax({
+                        url: '/api/users/' + userId,
+                        type: 'DELETE',
+                        headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem('token')
+                        },
+                        success: function() {
+                            layer.msg('删除成功');
+                            // 刷新页面或移除该行
+                            location.reload();
+                        },
+                        error: function(xhr) {
+                            // 处理JWT错误
+                            if (handleJwtError(xhr)) {
+                                return;
+                            }
+                            
+                            // 处理其他错误
+                            var errorMsg = '删除失败';
+                            try {
+                                var response = JSON.parse(xhr.responseText);
+                                errorMsg = response.message || errorMsg;
+                            } catch (e) {}
+                            
+                            layer.msg(errorMsg);
+                        }
+                    });
+                    layer.close(index);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

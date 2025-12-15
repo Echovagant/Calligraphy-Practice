@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编辑用户 - 管理后台</title>
+    <!-- 引入Layui -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui@2.9.10/dist/css/layui.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f0f2f5;
+        }
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+        .form-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e6e6e6;
+        }
+        .layui-form-item {
+            margin-bottom: 20px;
+        }
+        .layui-form-label {
+            width: 100px;
+        }
+        .layui-input-block {
+            margin-left: 130px;
+        }
+        .form-actions {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e6e6e6;
+            text-align: center;
+        }
+        .password-tip {
+            color: #999;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .required-mark {
+            color: #ff0000;
+        }
+        .hidden-container {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-title">编辑用户</div>
+        
+        <form class="layui-form" id="userForm" th:action="@{/api/users/{id}(id=${user.id})}" th:object="${user}" method="put">
+            <input type="hidden" name="id" th:value="${user.id}">
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label">用户名</label>
+                <div class="layui-input-block">
+                    <input type="text" name="username" th:value="${user.username}" 
+                           title="用户名" placeholder="用户名不可修改" autocomplete="off" class="layui-input" disabled>
+                    <div class="layui-word-aux">用户名不可修改</div>
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label">密码</label>
+                <div class="layui-input-block">
+                    <input type="password" name="password" placeholder="请输入新密码（留空表示不修改）" 
+                           autocomplete="off" class="layui-input" maxlength="30">
+                    <div class="password-tip">若要修改密码，请输入6-30个字符的新密码；不修改请留空</div>
+                </div>
+            </div>
+            
+            <div class="layui-form-item" id="confirmPasswordContainer" class="hidden-container">
+                <label class="layui-form-label">确认密码</label>
+                <div class="layui-input-block">
+                    <input type="password" name="confirmPassword" placeholder="请再次输入新密码" 
+                           autocomplete="off" class="layui-input" maxlength="30">
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label">邮箱 <span class="required-mark">*</span></label>
+                <div class="layui-input-block">
+                    <input type="text" name="email" lay-verify="required|email" 
+                           th:value="${user.email}" placeholder="请输入邮箱" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label">姓名 <span class="required-mark">*</span></label>
+                <div class="layui-input-block">
+                    <input type="text" name="fullName" lay-verify="required" 
+                           th:value="${user.fullName}" placeholder="请输入姓名" autocomplete="off" class="layui-input" maxlength="50">
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label">用户角色</label>
+                <div class="layui-input-block">
+                    <select name="role" lay-verify="required" title="用户角色">
+                        <option value="USER" th:selected="${user.role == 'USER'}">普通用户</option>
+                        <option value="ADMIN" th:selected="${user.role == 'ADMIN'}" th:disabled="${user.role == 'SUPER_ADMIN'}">管理员</option>
+                        <option value="SUPER_ADMIN" th:selected="${user.role == 'SUPER_ADMIN'}" disabled>超级管理员</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="layui-form-item">
+                <label class="layui-form-label">用户状态</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" name="active" lay-skin="switch" lay-text="启用|禁用" 
+                           title="用户状态" placeholder="用户状态"
+                           th:checked="${user.active}" th:disabled="${user.role == 'SUPER_ADMIN'}">
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="layui-btn layui-btn-normal" lay-submit lay-filter="submitBtn">保存</button>
+                <button type="button" class="layui-btn layui-btn-primary" id="cancelBtn">取消</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/layui@2.9.10/dist/layui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script>
+        layui.use(['form', 'layer'], function() {
+            var form = layui.form;
+            var layer = layui.layer;
+            
+            // 初始化表单
+            form.render();
+            
+            // 监听密码输入框变化
+            $('input[name="password"]').on('input', function() {
+                if ($(this).val().length > 0) {
+                    $('#confirmPasswordContainer').show();
+                } else {
+                    $('#confirmPasswordContainer').hide();
+                    $('input[name="confirmPassword"]').val('');
+                }
+            });
+            
+            // 自定义验证规则
+            form.verify({
+                password: function(value) {
+                    if (value && (value.length < 6 || value.length > 30)) {
+                        return '密码长度必须在6到30个字符之间';
+                    }
+                },
+                confirmPassword: function(value) {
+                    var password = $('input[name="password"]').val();
+                    if (password && value !== password) {
+                        return '两次输入的密码不一致';
+                    }
+                }
+            });
+            
+            // 监听表单提交
+            form.on('submit(submitBtn)', function(data) {
+                // 构建请求数据
+                var userId = data.field.id;
+                var userData = {
+                    email: data.field.email,
+                    fullName: data.field.fullName,
+                    role: data.field.role,
+                    active: data.field.active === 'on'
+                };
+                
+                // 如果输入了密码，则添加到请求数据中
+                if (data.field.password) {
+                    userData.password = data.field.password;
+                }
+                
+                // 发送更新用户请求
+                $.ajax({
+                    url: '/api/users/' + userId,
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify(userData),
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
+                    success: function() {
+                        layer.msg('更新用户成功', { icon: 1 });
+                        // 关闭当前弹窗并刷新父页面
+                        setTimeout(function() {
+                            var index = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(index);
+                            parent.location.reload();
+                        }, 1500);
+                    },
+                    error: function(xhr) {
+                        var errorMsg = xhr.responseJSON?.message || '更新用户失败';
+                        layer.msg(errorMsg, { icon: 2 });
+                    }
+                });
+                return false; // 阻止表单默认提交
+            });
+            
+            // 取消按钮事件
+            $('#cancelBtn').click(function() {
+                var index = parent.layer.getFrameIndex(window.name);
+                parent.layer.close(index);
+            });
+        });
+    </script>
+</body>
+</html>
