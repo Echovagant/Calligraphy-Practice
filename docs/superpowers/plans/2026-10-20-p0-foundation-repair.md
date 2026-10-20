@@ -46,15 +46,18 @@ config/JwtConfig.java:14
 
 损坏是**有损**的（实测有字节被改写，如 `0xb8`→`0xbd`），所以**无法完全自动逆变换**。但其中三类损伤是可机械还原的，第四类需要语义判断——本计划 Task 1/2 精确覆盖这一点。
 
-实测损伤规模（一次一致的扫描口径）：
+实测损伤规模（`scripts/mojibake.py detect` 的口径）：
 
 | 损伤类型 | 规模 | 修复方式 |
 |---|---|---|
-| 受损范围 | **仅 `src/main/java`**（90 个文件）。`src/main/resources` 与 `src/test` **完全干净** | — |
+| 受损范围 | **仅 `src/main/java`**。`src/main/resources`（含 `application.properties`、两个 `.sql`）与 `src/test` **实测完全干净** | — |
+| 受污染文件 | **89** | — |
 | A 无损 CJK 片段（可逆） | 751 处 | 字节往返还原（自动） |
-| B 字符串字面量丢失收尾引号 | 217 行 | `?` 还原为 `"`（自动） |
+| B 字符串字面量丢失收尾引号 | 213 行（引号数为奇数的行） | `?` 还原为 `"`（自动） |
 | C `//` 注释吞掉下一行代码 | 105 行 | `?` 还原为换行（自动） |
-| D `?` 吞掉一个 ASCII 字符（数字等） | 约 400 行残留 | 需语义判断（Task 2） |
+| D `?` 吞掉一个 ASCII 字符（数字等） | 约 430 行残留 | 需语义判断（Task 2） |
+
+> 「引号数为奇数」是 `detect` 的计数口径：同时丢掉**两个**引号的行引号数仍为偶数，`detect` 数不到，但工具的修复逻辑是按 `?` 走的，这些行仍会被正确处理。751 这个数字与独立扫描完全吻合，说明核心识别逻辑没有偏差。
 
 ---
 
@@ -385,11 +388,21 @@ Expected: `APPLIED`；`git status` 中有大量 ` M src/main/java/...`
 - [ ] **Step 5: 复查 diff 规模，确认没有误伤正常中文**
 
 Run: `git diff --stat -- SpringBoot-Platform/src/main/java | Select-Object -Last 5`
-Expected: 只应看到 `.java` 文件的改动，**不应出现 `.class` / `target/`**
+Expected: 约 **111 个 `.java` 文件**有真实内容改动
+
+> 口径说明：`repair --apply` 报 `files changed: 145`，但其中 49 个文件**只差 CRLF→LF**
+> （内容一字未改），git 的 `core.autocrlf=true` 会把它们归一化掉，`git diff` 看不到。
+> 真实内容损坏是 **96 个文件**，叠加工作区里原本就带差异的 15 个文件后，
+> `git diff` 预期约 111 个。**只要 `git diff` 里出现的全是 `.java`、没有 `target/` 命中，就算对。**
 
 再抽查 3 个文件，确认正常中文没被改坏：
 Run: `git diff -- SpringBoot-Platform/src/main/java/com/calligraphy/platform/service/UserDetailsServiceImpl.java`
 Expected: 原本正确的 `// 鍏堝皾璇曚粠鏅...` 等注释变成正常中文，原本的 `涓嶅瓨鍦?` 变成 `不存在：`（收尾引号补回）
+
+> 另外：工作区里原本就有 15 个源文件带**纯空白/缩进**的改动（IDE 重排痕迹，
+> 例如 `FrontendUserUpdateDto.java` 80/80、`RegisterRequestDto.java` 26/26），
+> 语义完全没变。Task 2 的 `git add` 会把它们和修复内容一起提交，这是对的——
+> 修复后的文件状态本来就该覆盖掉那些重排痕迹。
 
 - [ ] **Step 6: 提交**
 
@@ -414,8 +427,15 @@ git commit -m "chore: 增加编码污染检测与机械修复脚本"
 
 - [ ] **Step 1: 跑编译，拿到当前剩余错误**
 
-Run: `cd SpringBoot-Platform && mvn -o compile`
+**必须用 `clean`**：`target/classes` 是陈旧的，不加 `clean` 时 maven 编译插件会报
+`Nothing to compile - all classes are up to date` 并**成功退出**，把损坏完全掩盖掉。
+
+Run: `cd SpringBoot-Platform && mvn -o clean compile`
 Expected: 失败。记录错误条数。此时错误应从最初的数百条大幅下降（规则 B/C 已修掉绝大部分）。
+
+> `mvn clean` 会删掉 `target/`，而 `target/` 里有一部分 `.class` 与
+> `target/generated-sources/annotations/.../*MapperImpl.java` 是被 git 跟踪的
+> （Task 8 会把它们从索引里摘掉）。这是预期内的，不用管。
 
 - [ ] **Step 2: 写一致性校验脚本 `scripts/check_messages.py`**
 
@@ -519,7 +539,7 @@ Expected: 打印 `problems: <N>  (report written to message-check-report.txt)`�
 
 - [ ] **Step 5: 编译，必须通过**
 
-Run: `cd SpringBoot-Platform && mvn -o compile`
+Run: `cd SpringBoot-Platform && mvn -o clean compile`
 Expected: `BUILD SUCCESS`，退出码 0
 
 如果还报错，**继续按错误信息修**，直到 BUILD SUCCESS。不要跳到下一个 Task。
@@ -677,7 +697,7 @@ class CopybookRepositoryTest {
 
 - [ ] **Step 2: 跑测试，确认失败**
 
-Run: `cd SpringBoot-Platform && mvn -o test -Dtest=CopybookRepositoryTest`
+Run: `cd SpringBoot-Platform && mvn -o clean test -Dtest=CopybookRepositoryTest`
 Expected: 编译失败，报 `找不到符号: 类 CopybookRepository`
 
 - [ ] **Step 3: 创建 `Copybook` 实体**
@@ -819,7 +839,7 @@ Expected: `copybook_id | varchar`
 
 - [ ] **Step 7: 跑测试，确认通过**
 
-Run: `cd SpringBoot-Platform && mvn -o test -Dtest=CopybookRepositoryTest`
+Run: `cd SpringBoot-Platform && mvn -o clean test -Dtest=CopybookRepositoryTest`
 Expected: `Tests run: 2, Failures: 0, Errors: 0`，`BUILD SUCCESS`
 
 > 如果 `mvn test` 因为其他既有测试失败而整体红，**只看这个测试类的结果**；其它测试类的问题记到 Task 8 的待办里，不在本任务处理。
@@ -914,7 +934,7 @@ class JwtServiceImplTest {
 
 - [ ] **Step 2: 跑测试**
 
-Run: `cd SpringBoot-Platform && mvn -o test -Dtest=JwtServiceImplTest`
+Run: `cd SpringBoot-Platform && mvn -o clean test -Dtest=JwtServiceImplTest`
 Expected: 失败（`JwtService` 接口在 `service` 包下存在，但 Spring 上下文里同时有 `security.JwtService` 两个 `@Service`，可能 `NoUniqueBeanDefinitionException`）
 
 - [ ] **Step 3: 删掉两套多余实现**
@@ -956,7 +976,7 @@ import com.calligraphy.platform.service.JwtService;
 
 - [ ] **Step 6: 跑测试，确认通过**
 
-Run: `cd SpringBoot-Platform && mvn -o test -Dtest=JwtServiceImplTest`
+Run: `cd SpringBoot-Platform && mvn -o clean test -Dtest=JwtServiceImplTest`
 Expected: `Tests run: 3, Failures: 0, Errors: 0`
 
 - [ ] **Step 7: 确认没有残留引用**
@@ -1045,7 +1065,7 @@ class SecurityConfigTest {
 
 - [ ] **Step 2: 跑测试，确认失败**
 
-Run: `cd SpringBoot-Platform && mvn -o test -Dtest=SecurityConfigTest`
+Run: `cd SpringBoot-Platform && mvn -o clean test -Dtest=SecurityConfigTest`
 Expected: 失败，报 `NoSuchBeanDefinitionException: No qualifying bean of type 'PasswordEncoder'`
 
 - [ ] **Step 3: 创建 `config/SecurityConfig.java`**
@@ -1262,7 +1282,7 @@ public class MailConfig {
 
 - [ ] **Step 8: 跑测试，确认通过**
 
-Run: `cd SpringBoot-Platform && mvn -o test -Dtest=SecurityConfigTest`
+Run: `cd SpringBoot-Platform && mvn -o clean test -Dtest=SecurityConfigTest`
 Expected: `Tests run: 3, Failures: 0, Errors: 0`，`BUILD SUCCESS`
 
 - [ ] **Step 9: 启动应用，确认能起来**
@@ -1500,7 +1520,7 @@ git commit -m "chore: 清理构建产物入库、一次性修复脚本与死代�
 |---|---|---|---|
 | 1 | 后端能编译 | `cd SpringBoot-Platform && mvn -o clean compile` | BUILD SUCCESS |
 | 2 | 后端能启动 | `cd SpringBoot-Platform && mvn -o spring-boot:run` | `Tomcat started on port 8083` |
-| 3 | 后端测试通过 | `cd SpringBoot-Platform && mvn -o test` | BUILD SUCCESS |
+| 3 | 后端测试通过 | `cd SpringBoot-Platform && mvn -o clean test` | BUILD SUCCESS |
 | 4 | 无编码污染 | `cd SpringBoot-Platform && python scripts/mojibake.py detect --root .` | 0 命中，退出码 0 |
 | 5 | 消息数字一致 | `cd SpringBoot-Platform && python scripts/check_messages.py` | `problems: 0` |
 | 6 | 前端能构建 | `cd Practice-Platform && npm run build` | 退出码 0 |
