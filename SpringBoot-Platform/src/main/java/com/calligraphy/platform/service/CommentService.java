@@ -60,11 +60,12 @@ public interface CommentService {
     
     void removeLike(String commentId, String userId);
     
-    // 鎼滅储鍜岀瓫閫?    Page<CommentDto> searchComments(String keyword, Pageable pageable);
+    // 鎼滅储鍜岀瓫閫
+    Page<CommentDto> searchComments(String keyword, Pageable pageable);
     
     List<CommentDto> searchComments(String keyword);
     
-    // 缁熻鐩稿叧
+    // 缁熻相关
     long getTotalCommentCount();
     
     long getCommentCountByWorkId(String workId);
@@ -84,18 +85,19 @@ public interface CommentService {
     
     long getPendingReviewCount();
     
-    // 鐑棬鍜屾帹鑽?    List<CommentDto> getTopLikedComments(int limit);
+    // 鐑棬鍜屾帹鑽
+    List<CommentDto> getTopLikedComments(int limit);
     
     List<CommentDto> getRecentComments(int limit);
     
-    // 鎵归噺鎿嶄綔
+    // 批量操作
     void bulkDeleteComments(List<String> commentIds);
     
     void bulkUpdateStatus(List<String> commentIds, Comment.CommentStatus status);
     
     void bulkUpdateReviewStatus(List<String> commentIds, Comment.CommentStatus reviewStatus, String reviewerId);
     
-    // 鍥炲鐩稿叧
+    // 鍥炲相关
     CommentDto createReply(String parentCommentId, String userId, CommentCreateDto createDto);
     
     List<CommentDto> getRepliesByCommentId(String commentId);

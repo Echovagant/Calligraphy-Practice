@@ -77,7 +77,7 @@ public class FileMetadata {
         this.updatedAt = updatedAt;
     }
     
-    // Getter 鍜?Setter 鏂规硶
+    // Getter 鍜?Setter 方法
     public String getFileId() {
         return fileId;
     }
@@ -194,7 +194,8 @@ public class FileMetadata {
         this.updatedAt = updatedAt;
     }
     
-    // Builder 绫?    public static class Builder {
+    // Builder 绫
+    public static class Builder {
         private String fileId;
         private String userId;
         private String fileName;

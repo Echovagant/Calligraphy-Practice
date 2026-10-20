@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface AuthenticationService {
     
-    // 鍓嶇鐢ㄦ埛璁よ瘉
+    // 鍓嶇用户认证
     LoginResponseDto loginFrontendUser(LoginDto loginDto);
     
     LoginResponseDto registerFrontendUser(RegisterDto registerDto);
@@ -20,7 +20,8 @@ public interface AuthenticationService {
     
     void logoutAllFrontendUserDevices(String userId);
     
-    // 鍚庣绠＄悊鍛樿璇?    LoginResponseDto loginBackendUser(LoginDto loginDto);
+    // 鍚庣绠＄悊鍛樿璇
+    LoginResponseDto loginBackendUser(LoginDto loginDto);
     
     LoginResponseDto registerBackendUser(RegisterDto registerDto);
     
@@ -30,7 +31,7 @@ public interface AuthenticationService {
     
     void logoutAllBackendUserDevices(String userId);
     
-    // 閫氱敤璁よ瘉鏂规硶
+    // 通用认证方法
     boolean validateToken(String token);
     
     String extractUserIdFromToken(String token);
@@ -48,7 +49,8 @@ public interface AuthenticationService {
     
     boolean checkPassword(String userId, String password);
     
-    // 鍙屽洜绱犺璇?    void enableTwoFactorAuth(String userId);
+    // 鍙屽洜绱犺璇
+    void enableTwoFactorAuth(String userId);
     
     void disableTwoFactorAuth(String userId);
     
@@ -65,7 +67,7 @@ public interface AuthenticationService {
     
     boolean isAccountLocked(String userId);
     
-    // 鐧诲綍灏濊瘯
+    // 登录尝试
     void recordFailedLoginAttempt(String identifier);
     
     void resetFailedLoginAttempts(String userId);
@@ -88,13 +90,15 @@ public interface AuthenticationService {
     
     void recordPasswordChangeActivity(String userId, String ipAddress, String userAgent);
     
-    // 鐢ㄦ埛鐘舵€佹鏌?    boolean isUserActive(String userId);
+    // 鐢ㄦ埛鐘舵€佹鏌
+    boolean isUserActive(String userId);
     
     boolean isUserVerified(String userId);
     
     boolean isUserDeleted(String userId);
     
-    // 鏉冮檺妫€鏌?    boolean hasPermission(String userId, String permissionCode);
+    // 鏉冮檺妫€鏌
+    boolean hasPermission(String userId, String permissionCode);
     
     boolean hasAnyPermission(String userId, List<String> permissionCodes);
     
@@ -106,7 +110,7 @@ public interface AuthenticationService {
     
     boolean hasAllRoles(String userId, List<String> roleCodes);
     
-    // 鐢ㄦ埛绫诲瀷鍒ゆ柇
+    // 用户类型判断
     boolean isFrontendUser(String userId);
     
     boolean isBackendUser(String userId);
@@ -129,12 +133,12 @@ public interface AuthenticationService {
     
     boolean isTrustedIp(String userId, String ipAddress);
     
-    // 瀹夊叏璁剧疆
+    // 安全设置
     void updateSecuritySettings(String userId, boolean requireTwoFactorAuth, boolean requireStrongPassword, int maxFailedAttempts);
     
     java.util.Map<String, Object> getSecuritySettings(String userId);
     
-    // 瀹¤鏃ュ織
+    // 瀹¤日志
     List<com.calligraphy.platform.dto.UserActivityLogDto> getUserLoginHistory(String userId, int limit);
     
     List<com.calligraphy.platform.dto.UserActivityLogDto> getUserSecurityEvents(String userId, int limit);

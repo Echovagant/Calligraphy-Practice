@@ -11,7 +11,7 @@ import java.util.function.Function;
 
 public interface JwtService {
     
-    // JWT鐢熸垚
+    // JWT生成
     String generateToken(String userId, String userType, String username);
     
     String generateToken(Map<String, Object> extraClaims, String userId, String userType, String username);
@@ -30,7 +30,7 @@ public interface JwtService {
     
     long getAdminJwtExpiration();
     
-    // JWT楠岃瘉
+    // JWT验证
     boolean isTokenValid(String token, UserDetails userDetails);
     
     boolean isTokenExpired(String token);
@@ -56,7 +56,7 @@ public interface JwtService {
     
     Claims extractAllClaims(String token);
     
-    // JWT閰嶇疆
+    // JWT配置
     long getJwtExpiration();
     
     long getRefreshTokenExpiration();
@@ -78,18 +78,19 @@ public interface JwtService {
     
     boolean isTokenInvalidated(String token);
     
-    // 浠ょ墝鍒锋柊
+    // 令牌刷新
     String refreshAccessToken(String refreshToken);
     
     boolean canRefreshToken(String refreshToken);
     
-    // 鑷畾涔夊０鏄?    String addCustomClaim(String token, String claimName, Object claimValue);
+    // 鑷畾涔夊０鏄
+    String addCustomClaim(String token, String claimName, Object claimValue);
     
     Object getCustomClaim(String token, String claimName);
     
     Map<String, Object> getAllCustomClaims(String token);
     
-    // 瀹夊叏鐩稿叧
+    // 安全相关
     String getTokenFingerprint(String token);
     
     boolean validateTokenFingerprint(String token, String fingerprint);
@@ -123,7 +124,8 @@ public interface JwtService {
     
     boolean isTokenSessionActive(String token);
     
-    // 榛戝悕鍗曠鐞?    void addToBlacklist(String token);
+    // 榛戝悕鍗曠鐞
+    void addToBlacklist(String token);
     
     void removeFromBlacklist(String token);
     

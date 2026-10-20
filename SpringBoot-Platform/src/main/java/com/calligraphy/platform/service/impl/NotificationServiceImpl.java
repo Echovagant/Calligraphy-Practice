@@ -34,10 +34,10 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional
     public NotificationDto createNotification(NotificationCreateRequestDto createRequest) {
-        log.info("鍒涘缓閫氱煡: 鎺ユ敹鑰?{}, 绫诲瀷={}", createRequest.getRecipientId(), createRequest.getType());
+        log.info("创建通知: 鎺ユ敹鑰?{}, 类型={}", createRequest.getRecipientId(), createRequest.getType());
 
         Notification notification = Notification.builder()
-                .title(createRequest.getTitle() != null ? createRequest.getTitle() : "閫氱煡")
+                .title(createRequest.getTitle() != null ? createRequest.getTitle() : "通知")
                 .content(createRequest.getContent())
                 .type(createRequest.getType())
                 .recipientId(createRequest.getRecipientId())
@@ -51,14 +51,14 @@ public class NotificationServiceImpl implements NotificationService {
                 .build();
 
         Notification savedNotification = notificationRepository.save(( Notification) notification);
-        log.info("閫氱煡鍒涘缓鎴愬姛: ID={}", savedNotification.getId());
+        log.info("通知创建成功: ID={}", savedNotification.getId());
 
         return notificationMapper.toDto(savedNotification);
     }
     @Override
     @Transactional
     public NotificationDto updateNotification(Long notificationId, NotificationUpdateRequestDto updateRequest) {
-        log.info("鏇存柊閫氱煡: ID={}", notificationId);
+        log.info("更新通知: ID={}", notificationId);
 
         Notification notification = notificationRepository.findById(( Long) notificationId)
                 .orElseThrow(() -> new ResourceNotFoundException("閫氱煡涓嶅瓨鍦? " + notificationId));
@@ -85,23 +85,24 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setUpdatedAt(LocalDateTime.now());
 
         Notification updatedNotification = notificationRepository.save(notification);
-        log.info("閫氱煡鏇存柊鎴愬姛: ID={}", updatedNotification.getId());
+        log.info("通知更新成功: ID={}", updatedNotification.getId());
 
         return notificationMapper.toDto(updatedNotification);
     }
     @Override
     @Transactional
     public void deleteNotification(Long notificationId) {
-        log.info("鍒犻櫎閫氱煡: ID={}", notificationId);
+        log.info("删除通知: ID={}", notificationId);
 
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new ResourceNotFoundException("閫氱煡涓嶅瓨鍦? " + notificationId));
 
-        // 杞垹闄?        notification.setIsDeleted(true);
+        // 杞垹闄
+        notification.setIsDeleted(true);
         notification.setUpdatedAt(LocalDateTime.now());
         notificationRepository.save(notification);
 
-        log.info("閫氱煡鍒犻櫎鎴愬姛: ID={}", notificationId);
+        log.info("通知删除成功: ID={}", notificationId);
     }
     @Override
     public NotificationDto getNotificationById(Long notificationId) {
@@ -178,7 +179,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional
     public void markAllAsRead(Long userId) {
-        log.info("鏍囪鎵€鏈夐€氱煡涓哄凡璇? 鐢ㄦ埛ID={}", userId);
+        log.info("鏍囪鎵€鏈夐€氱煡涓哄凡璇? 用户ID={}", userId);
 
         List<Notification> unreadNotifications = notificationRepository
                 .findByRecipientIdAndIsReadFalseAndIsDeletedFalse(String.valueOf(userId));
@@ -190,7 +191,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         notificationRepository.saveAll(( Iterable<Notification>) unreadNotifications);
 
-        log.info("鎵€鏈夐€氱煡宸叉爣璁颁负宸茶: 鐢ㄦ埛ID={}, 鏁伴噺={}", userId, unreadNotifications.size());
+        log.info("鎵€鏈夐€氱煡宸叉爣璁颁负宸茶: 用户ID={}, 数量={}", userId, unreadNotifications.size());
     }
 
     public long getUnreadCount(Long userId) {
@@ -214,7 +215,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Transactional
     public void sendCommentNotification(Long workId, Long commentId, Long authorId, Long commenterId) {
-        log.info("鍙戦€佽瘎璁洪€氱煡: 浣滃搧ID={}, 璇勮ID={}, 浣滆€匢D={}, 璇勮鑰匢D={}", workId, commentId, authorId, commenterId);
+        log.info("鍙戦€佽瘎璁洪€氱煡: 作品ID={}, 璇勮ID={}, 浣滆€匢D={}, 璇勮鑰匢D={}", workId, commentId, authorId, commenterId);
 
         // 閬垮厤缁欒嚜宸卞彂閫侀€氱煡
         if (authorId.equals(commenterId)) {
@@ -229,7 +230,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Transactional
     public void sendLikeNotification(Long workId, Long authorId, Long likerId) {
-        log.info("鍙戦€佺偣璧為€氱煡: 浣滃搧ID={}, 浣滆€匢D={}, 鐐硅禐鑰匢D={}", workId, authorId, likerId);
+        log.info("鍙戦€佺偣璧為€氱煡: 作品ID={}, 浣滆€匢D={}, 鐐硅禐鑰匢D={}", workId, authorId, likerId);
 
         // 閬垮厤缁欒嚜宸卞彂閫侀€氱煡
         if (authorId.equals(likerId)) {
@@ -252,14 +253,14 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         NotificationCreateRequestDto createRequest = new NotificationCreateRequestDto(String.valueOf(followingId),
-                "鏈変汉鍏虫敞浜嗘偍", "FOLLOW", "鏂板叧娉?, String.valueOf(followerId), "USER");
+                "有人关注了您", "FOLLOW", "鏂板叧娉", String.valueOf(followerId), "USER");
 
         createNotification(createRequest);
     }
 
     @Transactional
     public void cleanupExpiredNotifications() {
-        log.info("娓呯悊杩囨湡閫氱煡");
+        log.info("清理过期通知");
 
         LocalDateTime now = LocalDateTime.now();
         List<Notification> expiredNotifications = java.util.Collections.emptyList();
@@ -271,7 +272,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         notificationRepository.saveAll(( Iterable<Notification>) expiredNotifications);
 
-        log.info("杩囨湡閫氱煡娓呯悊瀹屾垚: 鏁伴噺={}", expiredNotifications.size());
+        log.info("过期通知清理完成: 数量={}", expiredNotifications.size());
     }
 }
 

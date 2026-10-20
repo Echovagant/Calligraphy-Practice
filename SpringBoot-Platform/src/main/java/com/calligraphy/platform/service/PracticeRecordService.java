@@ -52,11 +52,12 @@ public interface PracticeRecordService {
     
     void deletePracticeRecord(String recordId, String userId);
     
-    // 鎼滅储鍜岀瓫閫?    Page<PracticeRecordDto> searchPracticeRecords(String keyword, Pageable pageable);
+    // 鎼滅储鍜岀瓫閫
+    Page<PracticeRecordDto> searchPracticeRecords(String keyword, Pageable pageable);
     
     List<PracticeRecordDto> searchPracticeRecords(String keyword);
     
-    // 缁熻鐩稿叧
+    // 缁熻相关
     long getTotalPracticeRecordCount();
     
     long getPracticeRecordCountByUserId(String userId);
@@ -103,22 +104,24 @@ public interface PracticeRecordService {
     
     double getDifficultyLevelCompletionRate(String difficultyLevel);
     
-    // 鏈€杩戠粌涔?    List<PracticeRecordDto> getRecentPracticeRecords(int limit);
+    // 鏈€杩戠粌涔
+    List<PracticeRecordDto> getRecentPracticeRecords(int limit);
     
     List<PracticeRecordDto> getRecentPracticeRecordsByUserId(String userId, int limit);
     
-    // 鏈€楂樺垎鍜屾渶浣宠〃鐜?    List<PracticeRecordDto> getTopScoringPracticeRecords(int limit);
+    // 鏈€楂樺垎鍜屾渶浣宠〃鐜
+    List<PracticeRecordDto> getTopScoringPracticeRecords(int limit);
     
     List<PracticeRecordDto> getTopScoringPracticeRecordsByUserId(String userId, int limit);
     
     List<PracticeRecordDto> getTopScoringPracticeRecordsByCharacter(String character, int limit);
     
-    // 缁冧範瓒嬪娍鍒嗘瀽
+    // 练习趋势分析
     List<PracticeRecordDto> getPracticeRecordsByDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
     
     List<PracticeRecordDto> getUserPracticeRecordsByDateRange(String userId, java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
     
-    // 鎵归噺鎿嶄綔
+    // 批量操作
     void bulkDeletePracticeRecords(List<String> recordIds);
     
     void bulkUpdateCompletionStatus(List<String> recordIds, String status);
@@ -130,7 +133,7 @@ public interface PracticeRecordService {
     
     String getRecommendedDifficultyLevelForUser(String userId);
     
-    // 缁冧範杩涘害
+    // 练习进度
     double getUserOverallProgress(String userId);
     
     double getUserCharacterProgress(String userId, String character);

@@ -41,7 +41,8 @@ public class WorkDto {
     private String userNickname;
     private String userAvatar;
     
-    // 瀹℃牳鑰呬俊鎭?    private String reviewerUsername;
+    // 瀹℃牳鑰呬俊鎭
+    private String reviewerUsername;
     private String reviewerNickname;
     
     // 缁熻淇℃伅

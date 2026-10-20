@@ -9,20 +9,20 @@ import jakarta.validation.constraints.Size;
 @Data
 public class RegisterRequest {
     
-    @NotBlank(message = "鐢ㄦ埛鍚嶄笉鑳戒负绌?)
-    @Size(min = 3, max = 50, message = "鐢ㄦ埛鍚嶉暱搴﹀繀椤诲湪3-50涓瓧绗︿箣闂?)
+    @NotBlank(message = "鐢ㄦ埛鍚嶄笉鑳戒负绌")
+    @Size(min = 3, max = 50, message = "鐢ㄦ埛鍚嶉暱搴﹀繀椤诲湪3-50涓瓧绗︿箣闂")
     private String username;
     
     @NotBlank(message = "閭涓嶈兘涓虹┖")
-    @Email(message = "閭鏍煎紡涓嶆纭?)
-    @Size(max = 100, message = "閭闀垮害涓嶈兘瓒呰繃100涓瓧绗?)
+    @Email(message = "閭鏍煎紡涓嶆纭")
+    @Size(max = 100, message = "閭长度不能超过100涓瓧绗")
     private String email;
     
     @NotBlank(message = "瀵嗙爜涓嶈兘涓虹┖")
-    @Size(min = 6, max = 100, message = "瀵嗙爜闀垮害蹇呴』鍦?-100涓瓧绗︿箣闂?)
+    @Size(min = 6, max = 100, message = "瀵嗙爜闀垮害蹇呴』鍦?-100涓瓧绗︿箣闂")
     private String password;
     
-    @Size(max = 50, message = "鏄电О闀垮害涓嶈兘瓒呰繃50涓瓧绗?)
+    @Size(max = 50, message = "鏄电О长度不能超过50涓瓧绗")
     private String nickname;
 
     public String getUsername() {

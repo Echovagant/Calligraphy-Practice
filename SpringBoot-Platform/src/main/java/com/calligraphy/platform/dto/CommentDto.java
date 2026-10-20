@@ -42,7 +42,8 @@ public class CommentDto {
     private long replyCount;
     private boolean hasReplies;
     
-    // 瀹℃牳鑰呬俊鎭?    private String reviewerUsername;
+    // 瀹℃牳鑰呬俊鎭
+    private String reviewerUsername;
     private String reviewerNickname;
 }
 

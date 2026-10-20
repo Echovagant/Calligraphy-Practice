@@ -44,10 +44,11 @@ public class FileStorageServiceImpl implements FileStorageService {
     @Transactional
     public FileMetadata uploadFile(MultipartFile file, String userId, String filePurpose, String relatedEntityId) {
         try {
-            // 楠岃瘉鏂囦欢
+            // 验证文件
             validateFile(file);
             
-            // 鐢熸垚鍞竴鏂囦欢鍚?            String originalFilename = file.getOriginalFilename();
+            // 鐢熸垚鍞竴鏂囦欢鍚
+            String originalFilename = file.getOriginalFilename();
             String fileExtension = getFileExtension(originalFilename);
             String uniqueFilename = generateUniqueFilename(fileExtension);
             
@@ -55,10 +56,11 @@ public class FileStorageServiceImpl implements FileStorageService {
             Path fileStoragePath = createStoragePath(userId, filePurpose);
             Path filePath = fileStoragePath.resolve(uniqueFilename);
             
-            // 淇濆瓨鏂囦欢
+            // 保存文件
             Files.copy(file.getInputStream(), filePath);
             
-            // 鍒涘缓鏂囦欢鍏冩暟鎹?            FileMetadata metadata = FileMetadata.builder()
+            // 鍒涘缓鏂囦欢鍏冩暟鎹
+            FileMetadata metadata = FileMetadata.builder()
                     .fileId(UUID.randomUUID().toString())
                     .userId(userId)
                     .fileName(originalFilename)
@@ -76,25 +78,25 @@ public class FileStorageServiceImpl implements FileStorageService {
             return fileMetadataRepository.save(metadata);
             
         } catch (IOException e) {
-            log.error("鏂囦欢涓婁紶澶辫触: {}", e.getMessage());
-            throw new RuntimeException("鏂囦欢涓婁紶澶辫触", e);
+            log.error("文件上传失败: {}", e.getMessage());
+            throw new RuntimeException("文件上传失败", e);
         } catch (Exception e) {
-            log.error("鏂囦欢涓婁紶澶辫触: {}", e.getMessage());
-            throw new RuntimeException("鏂囦欢涓婁紶澶辫触", e);
+            log.error("文件上传失败: {}", e.getMessage());
+            throw new RuntimeException("文件上传失败", e);
         }
     }
 
     public byte[] downloadFile(String fileId) {
         try {
             FileMetadata metadata = fileMetadataRepository.findById(fileId)
-                    .orElseThrow(() -> new ResourceNotFoundException("鏂囦欢涓嶅瓨鍦?));
+                    .orElseThrow(() -> new ResourceNotFoundException("鏂囦欢涓嶅瓨鍦"));
             
             Path filePath = Paths.get(metadata.getFileUrl());
             return Files.readAllBytes(filePath);
             
         } catch (IOException e) {
-            log.error("鏂囦欢涓嬭浇澶辫触: {}", e.getMessage());
-            throw new RuntimeException("鏂囦欢涓嬭浇澶辫触", e);
+            log.error("文件下载失败: {}", e.getMessage());
+            throw new RuntimeException("文件下载失败", e);
         }
     }
     @Override
@@ -102,18 +104,19 @@ public class FileStorageServiceImpl implements FileStorageService {
     public boolean deleteFile(String fileId) {
         try {
             FileMetadata metadata = fileMetadataRepository.findById(fileId)
-                    .orElseThrow(() -> new ResourceNotFoundException("鏂囦欢涓嶅瓨鍦?));
+                    .orElseThrow(() -> new ResourceNotFoundException("鏂囦欢涓嶅瓨鍦"));
             
             // 鍒犻櫎鐗╃悊鏂囦欢
             Path filePath = Paths.get(metadata.getFileUrl());
             Files.deleteIfExists(filePath);
             
-            // 鍒犻櫎鏁版嵁搴撹褰?            fileMetadataRepository.delete(metadata);
+            // 鍒犻櫎鏁版嵁搴撹褰
+            fileMetadataRepository.delete(metadata);
             
             return true;
             
         } catch (IOException e) {
-            log.error("鏂囦欢鍒犻櫎澶辫触: {}", e.getMessage());
+            log.error("文件删除失败: {}", e.getMessage());
             return false;
         }
     }
@@ -148,27 +151,27 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
     @Override
     public String copyFile(String sourceFileName, String destinationFileName) {
-        throw new UnsupportedOperationException("姝ゆ柟娉曞皻鏈疄鐜?);
+        throw new UnsupportedOperationException("姝ゆ柟娉曞皻鏈疄鐜");
     }
     @Override
     public String copyFile(String sourceFileName, String destinationFileName, String userId) {
-        throw new UnsupportedOperationException("姝ゆ柟娉曞皻鏈疄鐜?);
+        throw new UnsupportedOperationException("姝ゆ柟娉曞皻鏈疄鐜");
     }
     @Override
     public String moveFile(String sourceFileName, String destinationFileName) {
-        throw new UnsupportedOperationException("姝ゆ柟娉曞皻鏈疄鐜?);
+        throw new UnsupportedOperationException("姝ゆ柟娉曞皻鏈疄鐜");
     }
     @Override
     public String moveFile(String sourceFileName, String destinationFileName, String userId) {
-        throw new UnsupportedOperationException("姝ゆ柟娉曞皻鏈疄鐜?);
+        throw new UnsupportedOperationException("姝ゆ柟娉曞皻鏈疄鐜");
     }
     @Override
     public String renameFile(String oldFileName, String newFileName) {
-        throw new UnsupportedOperationException("姝ゆ柟娉曞皻鏈疄鐜?);
+        throw new UnsupportedOperationException("姝ゆ柟娉曞皻鏈疄鐜");
     }
     @Override
     public String renameFile(String oldFileName, String newFileName, String userId) {
-        throw new UnsupportedOperationException("姝ゆ柟娉曞皻鏈疄鐜?);
+        throw new UnsupportedOperationException("姝ゆ柟娉曞皻鏈疄鐜");
     }
     @Override
     public byte[] compressFiles(List<String> fileIds) {
@@ -192,8 +195,8 @@ public class FileStorageServiceImpl implements FileStorageService {
             return baos.toByteArray();
             
         } catch (IOException e) {
-            log.error("鏂囦欢鍘嬬缉澶辫触: {}", e.getMessage());
-            throw new RuntimeException("鏂囦欢鍘嬬缉澶辫触", e);
+            log.error("文件压缩失败: {}", e.getMessage());
+            throw new RuntimeException("文件压缩失败", e);
         }
     }
     @Override
@@ -212,7 +215,8 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
 
     public boolean scanForViruses(MultipartFile file) {
-        // 杩欓噷搴旇闆嗘垚瀹為檯鐨勭梾姣掓壂鎻忔湇鍔?        log.info("鎵弿鏂囦欢鐥呮瘨: {}", file.getOriginalFilename());
+        // 杩欓噷搴旇闆嗘垚瀹為檯鐨勭梾姣掓壂鎻忔湇鍔
+        log.info("鎵弿鏂囦欢鐥呮瘨: {}", file.getOriginalFilename());
         return true; // 妯℃嫙鎵弿閫氳繃
     }
 
@@ -254,14 +258,14 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
 
     public boolean backupFiles(String userId, String backupPath) {
-        // 瀹炵幇鏂囦欢澶囦唤閫昏緫
-        log.info("澶囦唤鐢ㄦ埛 {} 鐨勬枃浠跺埌 {}", userId, backupPath);
+        // 实现文件备份逻辑
+        log.info("备份用户 {} 的文件到 {}", userId, backupPath);
         return true;
     }
 
     public boolean restoreFiles(String backupPath) {
-        // 瀹炵幇鏂囦欢鎭㈠閫昏緫
-        log.info("浠?{} 鎭㈠鏂囦欢", backupPath);
+        // 瀹炵幇鏂囦欢鎭㈠逻辑
+        log.info("浠?{} 鎭㈠文件", backupPath);
         return true;
     }
 
@@ -305,7 +309,7 @@ public class FileStorageServiceImpl implements FileStorageService {
                     m.put("updatedAt", meta.getUpdatedAt());
                     return m;
                 })
-                .orElseThrow(() -> new ResourceNotFoundException("鏂囦欢涓嶅瓨鍦?));
+                .orElseThrow(() -> new ResourceNotFoundException("鏂囦欢涓嶅瓨鍦"));
     }
     @Override
     public boolean validateFile(MultipartFile file) {
@@ -328,11 +332,11 @@ public class FileStorageServiceImpl implements FileStorageService {
         
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null || originalFilename.trim().isEmpty()) {
-            throw new IllegalArgumentException("鏂囦欢鍚嶄笉鑳戒负绌?);
+            throw new IllegalArgumentException("鏂囦欢鍚嶄笉鑳戒负绌");
         }
         
         if (!validateFileExtension(file)) {
-            throw new IllegalArgumentException("涓嶆敮鎸佺殑鏂囦欢鏍煎紡");
+            throw new IllegalArgumentException("不支持的文件格式");
         }
         
         if (!validateFileSize(file)) {
@@ -358,10 +362,10 @@ public class FileStorageServiceImpl implements FileStorageService {
     private Path createStoragePath(String userId, String filePurpose) {
         try {
             if (userId == null || userId.trim().isEmpty()) {
-                throw new IllegalArgumentException("鐢ㄦ埛ID涓嶈兘涓虹┖");
+                throw new IllegalArgumentException("用户ID涓嶈兘涓虹┖");
             }
             if (filePurpose == null || filePurpose.trim().isEmpty()) {
-                throw new IllegalArgumentException("鏂囦欢鐢ㄩ€斾笉鑳戒负绌?);
+                throw new IllegalArgumentException("鏂囦欢鐢ㄩ€斾笉鑳戒负绌");
             }
             Path path = Paths.get(storagePath, userId.trim(), filePurpose.trim());
             Files.createDirectories(path);

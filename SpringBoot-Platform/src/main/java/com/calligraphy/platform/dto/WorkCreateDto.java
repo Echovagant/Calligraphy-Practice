@@ -4,41 +4,41 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-@Schema(description = "浣滃搧鍒涘缓鏁版嵁浼犺緭瀵硅薄")
+@Schema(description = "作品创建数据传输对象")
 public class WorkCreateDto {
     
-    @NotBlank(message = "鐢ㄦ埛ID涓嶈兘涓虹┖")
-    @Schema(description = "鐢ㄦ埛ID", example = "user-id-123")
+    @NotBlank(message = "用户ID涓嶈兘涓虹┖")
+    @Schema(description = "用户ID", example = "user-id-123")
     private String userId;
     
     @NotBlank(message = "浣滃搧鏍囬涓嶈兘涓虹┖")
-    @Size(min = 2, max = 100, message = "浣滃搧鏍囬闀垮害蹇呴』鍦?-100涓瓧绗︿箣闂?)
+    @Size(min = 2, max = 100, message = "浣滃搧鏍囬闀垮害蹇呴』鍦?-100涓瓧绗︿箣闂")
     @Schema(description = "浣滃搧鏍囬", example = "鎴戠殑涔︽硶浣滃搧")
     private String title;
     
-    @Size(max = 500, message = "浣滃搧鎻忚堪闀垮害涓嶈兘瓒呰繃500涓瓧绗?)
-    @Schema(description = "浣滃搧鎻忚堪", example = "杩欐槸涓€骞呮シ涔︿綔鍝?)
+    @Size(max = 500, message = "作品描述长度不能超过500涓瓧绗")
+    @Schema(description = "作品描述", example = "杩欐槸涓€骞呮シ涔︿綔鍝")
     private String description;
     
     @NotBlank(message = "瀛椾綋绫诲瀷涓嶈兘涓虹┖")
-    @Size(max = 50, message = "瀛椾綋绫诲瀷闀垮害涓嶈兘瓒呰繃50涓瓧绗?)
-    @Schema(description = "瀛椾綋绫诲瀷", example = "妤蜂功")
+    @Size(max = 50, message = "字体类型长度不能超过50涓瓧绗")
+    @Schema(description = "字体类型", example = "楷书")
     private String fontType;
     
     @NotBlank(message = "浣滃搧鍐呭涓嶈兘涓虹┖")
-    @Size(max = 2000, message = "浣滃搧鍐呭闀垮害涓嶈兘瓒呰繃2000涓瓧绗?)
+    @Size(max = 2000, message = "浣滃搧鍐呭长度不能超过2000涓瓧绗")
     @Schema(description = "浣滃搧鍐呭", example = "澶╅亾閰嫟")
     private String content;
     
-    @Size(max = 500, message = "鍥剧墖URL闀垮害涓嶈兘瓒呰繃500涓瓧绗?)
-    @Schema(description = "浣滃搧鍥剧墖URL", example = "https://example.com/work.jpg")
+    @Size(max = 500, message = "图片URL长度不能超过500涓瓧绗")
+    @Schema(description = "作品图片URL", example = "https://example.com/work.jpg")
     private String imageUrl;
     
     @Schema(description = "鏄惁鍏紑", example = "true")
     private Boolean isPublic;
     
-    @Size(max = 100, message = "鏍囩闀垮害涓嶈兘瓒呰繃100涓瓧绗?)
-    @Schema(description = "浣滃搧鏍囩锛岄€楀彿鍒嗛殧", example = "妤蜂功,浼犵粺,缁忓吀")
+    @Size(max = 100, message = "鏍囩长度不能超过100涓瓧绗")
+    @Schema(description = "浣滃搧鏍囩锛岄€楀彿鍒嗛殧", example = "楷书,传统,经典")
     private String tags;
     
     // 鏃犲弬鏋勯€犲櫒
@@ -58,7 +58,7 @@ public class WorkCreateDto {
         this.tags = tags;
     }
     
-    // Getter 鍜?Setter 鏂规硶
+    // Getter 鍜?Setter 方法
     public String getUserId() {
         return userId;
     }

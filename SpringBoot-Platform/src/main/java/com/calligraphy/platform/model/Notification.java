@@ -96,7 +96,7 @@ public class Notification {
         this.expiresAt = expiresAt;
     }
     
-    // Getter 鍜?Setter 鏂规硶
+    // Getter 鍜?Setter 方法
     public Long getId() {
         return id;
     }
@@ -253,7 +253,8 @@ public class Notification {
         updatedAt = LocalDateTime.now();
     }
     
-    // Builder 绫?    public static class Builder {
+    // Builder 绫
+    public static class Builder {
         private Long id;
         private String recipientId;
         private String recipientType;

@@ -80,7 +80,8 @@ public interface UserActivityLogRepository extends JpaRepository<UserActivityLog
     @Query("SELECT COUNT(l) FROM UserActivityLog l WHERE l.createdAt BETWEEN :startDate AND :endDate")
     long countByDateRange(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
-    // 娲昏穬搴︾粺璁?    @Query("SELECT COUNT(DISTINCT l.userId) FROM UserActivityLog l WHERE l.createdAt BETWEEN :startDate AND :endDate")
+    // 娲昏穬搴︾粺璁
+    @Query("SELECT COUNT(DISTINCT l.userId) FROM UserActivityLog l WHERE l.createdAt BETWEEN :startDate AND :endDate")
     long countActiveUsers(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
     @Query("SELECT COUNT(DISTINCT l.userId) FROM UserActivityLog l WHERE l.userType = :userType AND l.createdAt BETWEEN :startDate AND :endDate")
@@ -97,7 +98,8 @@ public interface UserActivityLogRepository extends JpaRepository<UserActivityLog
     @Query("SELECT l.userType, COUNT(l) FROM UserActivityLog l WHERE l.createdAt BETWEEN :startDate AND :endDate GROUP BY l.userType")
     List<Object[]> getUserTypeStats(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
-    // 鍝嶅簲鐘舵€佺粺璁?    @Query("SELECT l FROM UserActivityLog l WHERE l.responseStatusEnum = :status")
+    // 鍝嶅簲鐘舵€佺粺璁
+    @Query("SELECT l FROM UserActivityLog l WHERE l.responseStatusEnum = :status")
     List<UserActivityLog> findByResponseStatus(@Param("status") UserActivityLog.ResponseStatus status);
     
     @Query("SELECT l FROM UserActivityLog l WHERE l.responseStatusEnum = :status AND l.createdAt BETWEEN :startDate AND :endDate")
@@ -110,13 +112,14 @@ public interface UserActivityLogRepository extends JpaRepository<UserActivityLog
     @Query("SELECT l.ipAddress, COUNT(l) FROM UserActivityLog l WHERE l.createdAt BETWEEN :startDate AND :endDate GROUP BY l.ipAddress ORDER BY COUNT(l) DESC")
     List<Object[]> getIpAddressStats(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
-    // 鏈€鏂版椿鍔ㄦ煡璇?    @Query("SELECT l FROM UserActivityLog l ORDER BY l.createdAt DESC")
+    // 鏈€鏂版椿鍔ㄦ煡璇
+    @Query("SELECT l FROM UserActivityLog l ORDER BY l.createdAt DESC")
     List<UserActivityLog> findLatestActivities();
     
     @Query("SELECT l FROM UserActivityLog l WHERE l.userId = :userId ORDER BY l.createdAt DESC")
     List<UserActivityLog> findLatestActivitiesByUser(@Param("userId") String userId);
     
-    // 鎵归噺娓呯悊
+    // 批量清理
     @Query("DELETE FROM UserActivityLog l WHERE l.createdAt < :date")
     void deleteActivitiesOlderThan(@Param("date") LocalDateTime date);
 }

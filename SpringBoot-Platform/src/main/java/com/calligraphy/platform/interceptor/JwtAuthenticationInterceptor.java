@@ -33,7 +33,8 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
         if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
             String username = tokenProvider.getUsernameFromToken(jwt);
 
-            // 浠庡鍚堢敤鎴峰悕涓彁鍙栫敤鎴风被鍨?            String userType = tokenProvider.getUserTypeFromUsername(username);
+            // 浠庡鍚堢敤鎴峰悕涓彁鍙栫敤鎴风被鍨
+            String userType = tokenProvider.getUserTypeFromUsername(username);
 
             // 浠庡鍚堢敤鎴峰悕涓彁鍙栫敤鎴稩D
             String userId = tokenProvider.getUserIdFromUsername(username);
@@ -47,7 +48,7 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                log.debug("JWT璁よ瘉鎴愬姛 - 鐢ㄦ埛: {}, 绫诲瀷: {}", username, userType);
+                log.debug("JWT认证成功 - 用户: {}, 类型: {}", username, userType);
             }
         }
 

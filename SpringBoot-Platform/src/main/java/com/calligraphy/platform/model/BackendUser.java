@@ -54,11 +54,11 @@ public class BackendUser {
     @Column(name = "role", length = 20, nullable = false)
     private BackendUserRole role;
     
-    @Size(max = 100, message = "濮撳悕闀垮害涓嶈兘瓒呰繃100涓瓧绗?)
+    @Size(max = 100, message = "姓名长度不能超过100涓瓧绗")
     @Column(name = "full_name", length = 100)
     private String fullName;
     
-    @Size(max = 100, message = "閮ㄩ棬闀垮害涓嶈兘瓒呰繃100涓瓧绗?)
+    @Size(max = 100, message = "部门长度不能超过100涓瓧绗")
     @Column(name = "department", length = 100)
     private String department;
     
@@ -96,7 +96,7 @@ public class BackendUser {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
-    // 鍏宠仈鍏崇郴
+    // 关联关系
     @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Work> reviewedWorks;
@@ -109,7 +109,7 @@ public class BackendUser {
     @JsonIgnore
     private List<FileReview> reviewedFiles;
 
-    // Getter鍜孲etter鏂规硶
+    // Getter鍜孲etter方法
     public String getId() {
         return id;
     }
@@ -270,12 +270,12 @@ public class BackendUser {
         this.reviewedFiles = reviewedFiles;
     }
     
-    // 瑙掕壊鏋氫妇
+    // 角色枚举
     public enum BackendUserRole {
         ADMIN, SUPER_ADMIN
     }
     
-    // 棰勬寔涔呭寲鍥炶皟
+    // 预持久化回调
     @PrePersist
     protected void onCreate() {
         if (id == null) {
@@ -293,7 +293,7 @@ public class BackendUser {
         updatedAt = LocalDateTime.now();
     }
     
-    // 瀹夊叏鐩稿叧鏂规硶
+    // 安全相关方法
     public boolean isAccountNonLocked() {
         return !accountLocked || (lockUntil != null && LocalDateTime.now().isAfter(lockUntil));
     }
@@ -334,13 +334,13 @@ public class BackendUser {
         resetFailedLoginAttempts();
     }
     
-    // 涓氬姟鏂规硶
+    // 业务方法
     public void recordLogin() {
         this.lastLogin = LocalDateTime.now();
         resetFailedLoginAttempts();
     }
 
-    // 瀹夊叏鏂规硶
+    // 安全方法
     @JsonProperty
     public String getMaskedEmail() {
         if (email == null || email.length() < 3) {

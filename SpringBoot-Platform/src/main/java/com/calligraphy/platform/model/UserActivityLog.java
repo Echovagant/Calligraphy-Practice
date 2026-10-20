@@ -39,37 +39,38 @@ public class UserActivityLog {
     private UserType userType;
     
     @NotBlank(message = "娲诲姩绫诲瀷涓嶈兘涓虹┖")
-    @Size(max = 50, message = "娲诲姩绫诲瀷闀垮害涓嶈兘瓒呰繃50涓瓧绗?)
+    @Size(max = 50, message = "活动类型长度不能超过50涓瓧绗")
     @Column(name = "activity_type", length = 50, nullable = false)
     private String activityType;
     
     @Column(name = "activity_description", columnDefinition = "TEXT")
     private String activityDescription;
     
-    @Size(max = 100, message = "IP鍦板潃闀垮害涓嶈兘瓒呰繃100涓瓧绗?)
+    @Size(max = 100, message = "IP地址长度不能超过100涓瓧绗")
     @Column(name = "ip_address", length = 100)
     private String ipAddress;
     
-    @Size(max = 500, message = "鐢ㄦ埛浠ｇ悊闀垮害涓嶈兘瓒呰繃500涓瓧绗?)
+    @Size(max = 500, message = "鐢ㄦ埛浠ｇ悊闀垮害涓嶈兘瓒呰繃500涓瓧绗")
     @Column(name = "user_agent", length = 500)
     private String userAgent;
     
-    @Size(max = 50, message = "璁惧绫诲瀷闀垮害涓嶈兘瓒呰繃50涓瓧绗?)
+    @Size(max = 50, message = "璁惧类型长度不能超过50涓瓧绗")
     @Column(name = "device_type", length = 50)
     private String deviceType;
     
-    @Size(max = 100, message = "鍦扮悊浣嶇疆闀垮害涓嶈兘瓒呰繃100涓瓧绗?)
+    @Size(max = 100, message = "地理位置长度不能超过100涓瓧绗")
     @Column(name = "location", length = 100)
     private String location;
     
     @Column(name = "request_url", length = 500)
     private String requestUrl;
     
-    @Size(max = 10, message = "HTTP鏂规硶闀垮害涓嶈兘瓒呰繃10涓瓧绗?)
+    @Size(max = 10, message = "HTTP方法长度不能超过10涓瓧绗")
     @Column(name = "http_method", length = 10)
     private String httpMethod;
     
-    // 鍝嶅簲鐘舵€佹灇涓?    public enum ResponseStatus {
+    // 鍝嶅簲鐘舵€佹灇涓
+    public enum ResponseStatus {
         SUCCESS, ERROR, PENDING, TIMEOUT
     }
     
@@ -77,7 +78,7 @@ public class UserActivityLog {
     @Column(name = "response_status_enum", length = 20)
     private ResponseStatus responseStatusEnum;
     
-    @Min(value = 0, message = "鍝嶅簲鏃堕棿涓嶈兘涓鸿礋鏁?)
+    @Min(value = 0, message = "鍝嶅簲鏃堕棿涓嶈兘涓鸿礋鏁")
     @Column(name = "response_time_ms")
     private Long responseTimeMs;
     
@@ -91,18 +92,18 @@ public class UserActivityLog {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     
-    // 鐢ㄦ埛绫诲瀷鏋氫妇
+    // 用户类型枚举
     public enum UserType {
         FRONTEND, BACKEND
     }
     
-    // 棰勬寔涔呭寲鍥炶皟
+    // 预持久化回调
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
     
-    // 涓氬姟鏂规硶
+    // 业务方法
     public boolean isSuccessful() {
         return responseStatusEnum == ResponseStatus.SUCCESS;
     }
@@ -118,13 +119,13 @@ public class UserActivityLog {
         
         switch (responseStatusEnum) {
             case SUCCESS:
-                return "鎴愬姛";
+                return "成功";
             case ERROR:
                 return "閿欒";
             case PENDING:
-                return "寰呭鐞?;
+                return "寰呭鐞";
             case TIMEOUT:
-                return "瓒呮椂";
+                return "超时";
             default:
                 return "鏈煡";
         }

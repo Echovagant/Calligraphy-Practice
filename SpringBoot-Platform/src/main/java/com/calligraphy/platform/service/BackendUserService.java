@@ -64,7 +64,8 @@ public interface BackendUserService {
     
     Page<BackendUserDto> searchUsers(String keyword, Pageable pageable);
     
-    // 绠＄悊鍛樼粺璁＄浉鍏虫柟娉?    long countByRole(BackendUserRole role);
+    // 绠＄悊鍛樼粺璁＄浉鍏虫柟娉
+    long countByRole(BackendUserRole role);
     
     long countByDepartment(String department);
     
@@ -76,7 +77,8 @@ public interface BackendUserService {
     
     List<BackendUserDto> findRecentlyRegisteredAdmins(int limit);
     
-    // 绠＄悊鍛樼姸鎬佺鐞?    void lockUser(String userId);
+    // 绠＄悊鍛樼姸鎬佺鐞
+    void lockUser(String userId);
     
     void unlockUser(String userId);
     
@@ -86,7 +88,8 @@ public interface BackendUserService {
     
     void resetFailedLoginAttempts(String userId);
     
-    // 绠＄悊鍛樻潈闄愮鐞?    BackendUserDto assignRole(String userId, BackendUserRole role);
+    // 绠＄悊鍛樻潈闄愮鐞
+    BackendUserDto assignRole(String userId, BackendUserRole role);
     
     BackendUserDto removeRole(String userId, BackendUserRole role);
     
@@ -94,20 +97,21 @@ public interface BackendUserService {
     
     BackendUserDto updatePosition(String userId, String position);
     
-    // 绯荤粺绠＄悊鍛樻搷浣?    void initializeSuperAdmin();
+    // 绯荤粺绠＄悊鍛樻搷浣
+    void initializeSuperAdmin();
     
     boolean hasSuperAdmin();
     
     List<BackendUserDto> getSystemAdministrators();
     
-    // 瀹夊叏鐩稿叧
+    // 安全相关
     void updateLastLogin(String userId, String ipAddress, String userAgent);
     
     void updatePassword(String userId, String newPassword);
     
     boolean checkPassword(String userId, String password);
     
-    // 鎵归噺鎿嶄綔
+    // 批量操作
     void bulkDeleteUsers(List<String> userIds);
     
     void bulkDeactivateUsers(List<String> userIds);

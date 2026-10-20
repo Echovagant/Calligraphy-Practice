@@ -43,10 +43,10 @@ public class FrontendUserUpdateDto {
     // 无参构造器
     public FrontendUserUpdateDto() {
     }
-
+    
     // 全参构造器
-    public FrontendUserUpdateDto(Long userId, String nickname, String email, String phone, String avatar,
-            String gender, java.time.LocalDate birthday, String bio, String status) {
+    public FrontendUserUpdateDto(Long userId, String nickname, String email, String phone, String avatar, 
+                                String gender, java.time.LocalDate birthday, String bio, String status) {
         this.userId = userId;
         this.nickname = nickname;
         this.email = email;
@@ -57,140 +57,140 @@ public class FrontendUserUpdateDto {
         this.bio = bio;
         this.status = status;
     }
-
+    
     // Getter 和 Setter 方法
     public Long getUserId() {
         return userId;
     }
-
+    
     public void setUserId(Long userId) {
         this.userId = userId;
     }
-
+    
     public String getNickname() {
         return nickname;
     }
-
+    
     public void setNickname(String nickname) {
         this.nickname = nickname;
     }
-
+    
     public String getEmail() {
         return email;
     }
-
+    
     public void setEmail(String email) {
         this.email = email;
     }
-
+    
     public String getPhone() {
         return phone;
     }
-
+    
     public void setPhone(String phone) {
         this.phone = phone;
     }
-
+    
     public String getAvatar() {
         return avatar;
     }
-
+    
     public void setAvatar(String avatar) {
         this.avatar = avatar;
     }
-
+    
     public String getGender() {
         return gender;
     }
-
+    
     public void setGender(String gender) {
         this.gender = gender;
     }
-
+    
     public java.time.LocalDate getBirthday() {
         return birthday;
     }
-
+    
     public void setBirthday(java.time.LocalDate birthday) {
         this.birthday = birthday;
     }
-
+    
     public String getBio() {
         return bio;
     }
-
+    
     public void setBio(String bio) {
         this.bio = bio;
     }
-
+    
     public String getStatus() {
         return status;
     }
-
+    
     public void setStatus(String status) {
         this.status = status;
     }
-
+    
     // Builder 类
     public static class Builder {
-        private Long userId;
-        private String nickname;
-        private String email;
-        private String phone;
-        private String avatar;
-        private String gender;
-        private java.time.LocalDate birthday;
-        private String bio;
-        private String status;
+    private Long userId;
+    private String nickname;
+    private String email;
+    private String phone;
+    private String avatar;
+    private String gender;
+    private java.time.LocalDate birthday;
+    private String bio;
+    private String status;
 
-        public Builder userId(Long userId) {
-            this.userId = userId;
-            return this;
-        }
+    public Builder userId(Long userId) {
+        this.userId = userId;
+        return this;
+    }
 
-        public Builder nickname(String nickname) {
-            this.nickname = nickname;
-            return this;
-        }
+    public Builder nickname(String nickname) {
+        this.nickname = nickname;
+        return this;
+    }
 
-        public Builder email(String email) {
-            this.email = email;
-            return this;
-        }
+    public Builder email(String email) {
+        this.email = email;
+        return this;
+    }
 
-        public Builder phone(String phone) {
-            this.phone = phone;
-            return this;
-        }
+    public Builder phone(String phone) {
+        this.phone = phone;
+        return this;
+    }
 
-        public Builder avatar(String avatar) {
-            this.avatar = avatar;
-            return this;
-        }
+    public Builder avatar(String avatar) {
+        this.avatar = avatar;
+        return this;
+    }
 
-        public Builder gender(String gender) {
-            this.gender = gender;
-            return this;
-        }
+    public Builder gender(String gender) {
+        this.gender = gender;
+        return this;
+    }
 
-        public Builder birthday(java.time.LocalDate birthday) {
-            this.birthday = birthday;
-            return this;
-        }
+    public Builder birthday(java.time.LocalDate birthday) {
+        this.birthday = birthday;
+        return this;
+    }
 
-        public Builder bio(String bio) {
-            this.bio = bio;
-            return this;
-        }
+    public Builder bio(String bio) {
+        this.bio = bio;
+        return this;
+    }
 
-        public Builder status(String status) {
-            this.status = status;
-            return this;
-        }
+    public Builder status(String status) {
+        this.status = status;
+        return this;
+    }
 
-        public FrontendUserUpdateDto build() {
-            return new FrontendUserUpdateDto(userId, nickname, email, phone, avatar, gender, birthday, bio, status);
-        }
+    public FrontendUserUpdateDto build() {
+        return new FrontendUserUpdateDto(userId, nickname, email, phone, avatar, gender, birthday, bio, status);
+    }
 
     }
 

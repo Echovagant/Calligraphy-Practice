@@ -15,7 +15,7 @@ import java.util.Optional;
 public interface FileReviewRepository extends JpaRepository<FileReview, String> {
 
     /**
-     * 鏍规嵁浣滃搧ID鏌ヨ瀹℃牳璁板綍
+     * 根据作品ID鏌ヨ瀹℃牳璁板綍
      */
     Optional<FileReview> findByWorkId(Long workId);
 
@@ -37,12 +37,12 @@ public interface FileReviewRepository extends JpaRepository<FileReview, String> 
     long countByStatus(FileReview.FileReviewStatus status);
 
     /**
-     * 鑾峰彇鏈€杩戝鏍哥殑璁板綍
+     * 鑾峰彇鏈€杩戝核的记录
      */
     List<FileReview> findTop10ByOrderByReviewTimeDesc();
 
     /**
-     * 鑾峰彇寰呭鏍哥殑璁板綍
+     * 鑾峰彇寰呭核的记录
      */
     List<FileReview> findByStatusOrderByCreatedAtAsc(FileReview.FileReviewStatus status);
 

@@ -25,7 +25,7 @@ public class DiscussionReplyCreateDto {
         this.replyToUsername = replyToUsername;
     }
     
-    // Getter 鍜?Setter 鏂规硶
+    // Getter 鍜?Setter 方法
     public String getContent() {
         return content;
     }
@@ -58,7 +58,8 @@ public class DiscussionReplyCreateDto {
         this.replyToUsername = replyToUsername;
     }
     
-    // Builder 绫?    public static class Builder {
+    // Builder 绫
+    public static class Builder {
         private String content;
         private String parentId;
         private String replyToUserId;

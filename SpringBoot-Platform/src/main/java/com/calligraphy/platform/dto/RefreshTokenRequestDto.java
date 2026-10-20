@@ -16,7 +16,7 @@ public class RefreshTokenRequestDto {
         this.refreshToken = refreshToken;
     }
     
-    // Getter 鍜?Setter 鏂规硶
+    // Getter 鍜?Setter 方法
     public String getRefreshToken() {
         return refreshToken;
     }
@@ -25,7 +25,8 @@ public class RefreshTokenRequestDto {
         this.refreshToken = refreshToken;
     }
     
-    // Builder 绫?    public static class Builder {
+    // Builder 绫
+    public static class Builder {
         private String refreshToken;
         
         public Builder refreshToken(String refreshToken) {

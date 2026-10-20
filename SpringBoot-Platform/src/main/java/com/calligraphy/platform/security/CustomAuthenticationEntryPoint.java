@@ -26,14 +26,14 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     public void commence(HttpServletRequest request, HttpServletResponse response,
                         AuthenticationException authException) throws IOException, ServletException {
         
-        log.warn("璁よ瘉澶辫触 - 璺緞: {}, 鍘熷洜: {}", request.getRequestURI(), authException.getMessage());
+        log.warn("认证失败 - 璺緞: {}, 原因: {}", request.getRequestURI(), authException.getMessage());
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("success", false);
-        errorResponse.put("message", "璁よ瘉澶辫触锛岃鍏堢櫥褰?);
+        errorResponse.put("message", "璁よ瘉澶辫触锛岃鍏堢櫥褰");
         errorResponse.put("error", "UNAUTHORIZED");
         errorResponse.put("path", request.getRequestURI());
         errorResponse.put("timestamp", System.currentTimeMillis());

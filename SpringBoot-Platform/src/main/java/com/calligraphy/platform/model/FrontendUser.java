@@ -32,20 +32,20 @@ public class FrontendUser {
     @Column(name = "id", length = 36, nullable = false)
     private String id;
     
-    @NotBlank(message = "鐢ㄦ埛鍚嶄笉鑳戒负绌?)
-    @Size(min = 3, max = 50, message = "鐢ㄦ埛鍚嶉暱搴﹀繀椤诲湪3-50涓瓧绗︿箣闂?)
+    @NotBlank(message = "鐢ㄦ埛鍚嶄笉鑳戒负绌")
+    @Size(min = 3, max = 50, message = "鐢ㄦ埛鍚嶉暱搴﹀繀椤诲湪3-50涓瓧绗︿箣闂")
     @Column(name = "username", length = 50, nullable = false, unique = true)
     private String username;
     
     @NotBlank(message = "瀵嗙爜涓嶈兘涓虹┖")
-    @Size(min = 6, max = 255, message = "瀵嗙爜闀垮害蹇呴』鍦?-255涓瓧绗︿箣闂?)
+    @Size(min = 6, max = 255, message = "瀵嗙爜闀垮害蹇呴』鍦?-255涓瓧绗︿箣闂")
     @Column(name = "password", length = 255, nullable = false)
     @JsonIgnore
     private String password;
     
     @NotBlank(message = "閭涓嶈兘涓虹┖")
-    @Email(message = "閭鏍煎紡涓嶆纭?)
-    @Size(max = 100, message = "閭闀垮害涓嶈兘瓒呰繃100涓瓧绗?)
+    @Email(message = "閭鏍煎紡涓嶆纭")
+    @Size(max = 100, message = "閭长度不能超过100涓瓧绗")
     @Column(name = "email", length = 100, nullable = false, unique = true)
     private String email;
     
@@ -54,15 +54,15 @@ public class FrontendUser {
     @Builder.Default
     private FrontendUserRole role = FrontendUserRole.USER;
     
-    @Size(max = 100, message = "濮撳悕闀垮害涓嶈兘瓒呰繃100涓瓧绗?)
+    @Size(max = 100, message = "姓名长度不能超过100涓瓧绗")
     @Column(name = "full_name", length = 100)
     private String fullName;
     
-    @Size(max = 500, message = "澶村儚URL闀垮害涓嶈兘瓒呰繃500涓瓧绗?)
+    @Size(max = 500, message = "头像URL长度不能超过500涓瓧绗")
     @Column(name = "avatar_url", length = 500)
     private String avatarUrl;
     
-    @Size(max = 20, message = "鎵嬫満鍙烽暱搴︿笉鑳借秴杩?0涓瓧绗?)
+    @Size(max = 20, message = "鎵嬫満鍙烽暱搴︿笉鑳借秴杩?0涓瓧绗")
     @Column(name = "phone", length = 20)
     private String phone;
     
@@ -86,7 +86,7 @@ public class FrontendUser {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
-    // 鍏宠仈鍏崇郴
+    // 关联关系
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Work> works;
@@ -103,16 +103,17 @@ public class FrontendUser {
     @JsonIgnore
     private List<FileReview> fileReviews;
     
-    // 瑙掕壊鏋氫妇
+    // 角色枚举
     public enum FrontendUserRole {
         USER, PREMIUM_USER
     }
     
-    // 鐘舵€佹灇涓?    public enum FrontendUserStatus {
+    // 鐘舵€佹灇涓
+    public enum FrontendUserStatus {
         ACTIVE, INACTIVE, SUSPENDED
     }
     
-    // 棰勬寔涔呭寲鍥炶皟
+    // 预持久化回调
     @PrePersist
     protected void onCreate() {
         if (id == null) {
@@ -127,7 +128,7 @@ public class FrontendUser {
         updatedAt = LocalDateTime.now();
     }
     
-    // 涓氬姟鏂规硶
+    // 业务方法
     public void incrementLoginCount() {
         this.loginCount = (this.loginCount == null ? 0 : this.loginCount) + 1;
         this.lastLogin = LocalDateTime.now();
@@ -141,7 +142,7 @@ public class FrontendUser {
         return FrontendUserRole.PREMIUM_USER.equals(this.role);
     }
     
-    // Getter鍜孲etter鏂规硶
+    // Getter鍜孲etter方法
     public String getId() {
         return id;
     }
@@ -214,7 +215,7 @@ public class FrontendUser {
         this.updatedAt = updatedAt;
     }
     
-    // 瀹夊叏鏂规硶
+    // 安全方法
     @JsonProperty
     public String getMaskedEmail() {
         if (email == null || email.length() < 3) {

@@ -58,7 +58,7 @@ public class DiscussionDto {
         this.replies = replies;
     }
     
-    // Getter 鍜?Setter 鏂规硶
+    // Getter 鍜?Setter 方法
     public String getDiscussionId() {
         return discussionId;
     }
@@ -195,7 +195,8 @@ public class DiscussionDto {
         this.replies = replies;
     }
     
-    // Builder 绫?    public static class Builder {
+    // Builder 绫
+    public static class Builder {
         private String discussionId;
         private String title;
         private String content;

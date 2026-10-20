@@ -33,7 +33,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             User user = userOptional.get();
 
             if (!user.isEnabled()) {
-                throw new UsernameNotFoundException("鐢ㄦ埛璐︽埛宸茶绂佺敤: " + username);
+                throw new UsernameNotFoundException("鐢ㄦ埛璐︽埛宸茶禁用: " + username);
             }
 
             List<SimpleGrantedAuthority> authorities = new ArrayList<>();
@@ -50,12 +50,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                     .build();
         }
 
-        // 鍐嶅皾璇曚粠鍚庣鐢ㄦ埛琛ㄦ煡鎵?        java.util.Optional<BackendUser> backendUserOptional = backendUserRepository.findByUsername(username);
+        // 鍐嶅皾璇曚粠鍚庣鐢ㄦ埛琛ㄦ煡鎵
+        java.util.Optional<BackendUser> backendUserOptional = backendUserRepository.findByUsername(username);
         if (backendUserOptional.isPresent()) {
             BackendUser backendUser = backendUserOptional.get();
 
             if (!backendUser.isAccountNonLocked()) {
-                throw new UsernameNotFoundException("鐢ㄦ埛璐︽埛宸茶閿佸畾: " + username);
+                throw new UsernameNotFoundException("鐢ㄦ埛璐︽埛宸茶锁定: " + username);
             }
 
             List<SimpleGrantedAuthority> authorities = new ArrayList<>();
@@ -76,7 +77,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     /**
-     * 鏍规嵁鐢ㄦ埛ID鍜岀敤鎴风被鍨嬪姞杞界敤鎴疯鎯?     */
+     * 根据用户ID鍜岀敤鎴风被鍨嬪姞杞界敤鎴疯鎯?     */
     public UserDetails loadUserByIdAndType(String userId, String userType) {
         log.info("UserDetailsServiceImpl.loadUserByIdAndType called with userId: {}, userType: {}", userId, userType);
 
@@ -85,7 +86,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                     .orElseThrow(() -> new UsernameNotFoundException("鐢ㄦ埛涓嶅瓨鍦? " + userId));
 
             if (!user.isEnabled()) {
-                throw new UsernameNotFoundException("鐢ㄦ埛璐︽埛宸茶绂佺敤: " + userId);
+                throw new UsernameNotFoundException("鐢ㄦ埛璐︽埛宸茶禁用: " + userId);
             }
 
             List<SimpleGrantedAuthority> authorities = new ArrayList<>();
@@ -123,7 +124,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                     .build();
         }
 
-        throw new UsernameNotFoundException("涓嶆敮鎸佺殑鐢ㄦ埛绫诲瀷: " + userType);
+        throw new UsernameNotFoundException("不支持的用户类型: " + userType);
     }
 }
 

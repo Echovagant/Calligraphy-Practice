@@ -67,7 +67,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query("SELECT c FROM Comment c WHERE c.status = 'APPROVED' ORDER BY c.likeCount DESC")
     List<Comment> findPopularComments();
     
-    // 鏈€鏂拌瘎璁烘煡璇?    @Query("SELECT c FROM Comment c WHERE c.status = 'APPROVED' ORDER BY c.createdAt DESC")
+    // 鏈€鏂拌瘎璁烘煡璇
+    @Query("SELECT c FROM Comment c WHERE c.status = 'APPROVED' ORDER BY c.createdAt DESC")
     List<Comment> findLatestComments();
     
     // 鎺掑簭鐩稿叧鏌ヨ
@@ -81,14 +82,14 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query("SELECT c FROM Comment c WHERE c.work = :work AND c.parentId IS NULL AND c.status = 'APPROVED' ORDER BY c.createdAt DESC")
     List<Comment> findRootCommentsByWork(@Param("work") Work work);
     
-    // 鎵归噺鎿嶄綔
+    // 批量操作
     @Query("UPDATE Comment c SET c.status = :status WHERE c.work = :work")
     void updateStatusByWork(@Param("work") Work work, @Param("status") String status);
     
     @Query("UPDATE Comment c SET c.status = :status WHERE c.user = :user")
     void updateStatusByUser(@Param("user") User user, @Param("status") String status);
     
-    // 鏂板鏌ヨ鏂规硶
+    // 鏂板鏌ヨ方法
     List<Comment> findByWorkIdAndStatusNotOrderByCreatedAtDesc(Long workId, String status);
     
     Page<Comment> findByWorkIdAndStatusNotOrderByCreatedAtDesc(Long workId, String status, Pageable pageable);

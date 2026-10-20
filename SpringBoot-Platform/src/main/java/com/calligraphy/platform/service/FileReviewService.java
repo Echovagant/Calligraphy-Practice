@@ -55,7 +55,7 @@ public interface FileReviewService {
                                                         String reviewComments, String adminId);
 
     /**
-     * 鑾峰彇寰呭鏍哥殑浣滃搧鏁伴噺
+     * 鑾峰彇寰呭核的作品数量
      */
     long getPendingReviewCount();
 

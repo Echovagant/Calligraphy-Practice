@@ -36,7 +36,8 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         errorResponse.put("message", "鏈巿鏉冭闂紝璇峰厛鐧诲綍");
         errorResponse.put("path", request.getRequestURI());
 
-        // 娣诲姞寮€鍙戞ā寮忎笅鐨勮缁嗕俊鎭?        String activeProfile = request.getServletContext().getInitParameter("spring.profiles.active");
+        // 娣诲姞寮€鍙戞ā寮忎笅鐨勮缁嗕俊鎭
+        String activeProfile = request.getServletContext().getInitParameter("spring.profiles.active");
         if ("dev".equals(activeProfile) || "development".equals(activeProfile)) {
             errorResponse.put("debug", authException.getMessage());
         }

@@ -31,16 +31,16 @@ public class Role {
     private Long id;
     
     @NotBlank(message = "瑙掕壊浠ｇ爜涓嶈兘涓虹┖")
-    @Size(max = 50, message = "瑙掕壊浠ｇ爜闀垮害涓嶈兘瓒呰繃50涓瓧绗?)
+    @Size(max = 50, message = "瑙掕壊浠ｇ爜闀垮害涓嶈兘瓒呰繃50涓瓧绗")
     @Column(name = "code", length = 50, nullable = false, unique = true)
     private String code;
     
     @NotBlank(message = "瑙掕壊鍚嶇О涓嶈兘涓虹┖")
-    @Size(max = 100, message = "瑙掕壊鍚嶇О闀垮害涓嶈兘瓒呰繃100涓瓧绗?)
+    @Size(max = 100, message = "瑙掕壊鍚嶇О长度不能超过100涓瓧绗")
     @Column(name = "name", length = 100, nullable = false, unique = true)
     private String name;
     
-    @Size(max = 500, message = "瑙掕壊鎻忚堪闀垮害涓嶈兘瓒呰繃500涓瓧绗?)
+    @Size(max = 500, message = "角色描述长度不能超过500涓瓧绗")
     @Column(name = "description", length = 500)
     private String description;
     
@@ -63,7 +63,8 @@ public class Role {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
-    // 澶氬澶氬叧绯伙細瑙掕壊涓庢潈闄?    @ManyToMany(fetch = FetchType.LAZY)
+    // 澶氬澶氬叧绯伙細瑙掕壊涓庢潈闄
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "role_permissions",
         joinColumns = @JoinColumn(name = "role_id"),
@@ -77,12 +78,12 @@ public class Role {
     @Builder.Default
     private Set<Permission> permissions = new HashSet<>();
     
-    // 瑙掕壊绫诲瀷鏋氫妇
+    // 角色类型枚举
     public enum RoleType {
         FRONTEND_USER, BACKEND_ADMIN, SYSTEM
     }
     
-    // 棰勬寔涔呭寲鍥炶皟
+    // 预持久化回调
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -103,7 +104,7 @@ public class Role {
         updatedAt = LocalDateTime.now();
     }
     
-    // 涓氬姟鏂规硶
+    // 业务方法
     public boolean hasPermission(String permissionCode) {
         if (permissions == null) {
             return false;
@@ -190,19 +191,21 @@ public class Role {
         return permissions != null ? permissions.size() : 0;
     }
     
-    // 棰勫畾涔夎鑹蹭唬鐮佸父閲?    public static class RoleCodes {
-        // 鍓嶇鐢ㄦ埛瑙掕壊
+    // 棰勫畾涔夎鑹蹭唬鐮佸父閲
+    public static class RoleCodes {
+        // 鍓嶇用户角色
         public static final String FRONTEND_USER = "FRONTEND_USER";
         public static final String FRONTEND_VIP = "FRONTEND_VIP";
         public static final String FRONTEND_PREMIUM = "FRONTEND_PREMIUM";
         
-        // 鍚庣绠＄悊鍛樿鑹?        public static final String BACKEND_ADMIN = "BACKEND_ADMIN";
+        // 鍚庣绠＄悊鍛樿鑹
+        public static final String BACKEND_ADMIN = "BACKEND_ADMIN";
         public static final String BACKEND_SUPER_ADMIN = "BACKEND_SUPER_ADMIN";
         public static final String BACKEND_CONTENT_MODERATOR = "BACKEND_CONTENT_MODERATOR";
         public static final String BACKEND_SYSTEM_ADMIN = "BACKEND_SYSTEM_ADMIN";
         public static final String BACKEND_AUDITOR = "BACKEND_AUDITOR";
         
-        // 绯荤粺瑙掕壊
+        // 系统角色
         public static final String SYSTEM_GUEST = "SYSTEM_GUEST";
         public static final String SYSTEM_MAINTENANCE = "SYSTEM_MAINTENANCE";
     }

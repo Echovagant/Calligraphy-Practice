@@ -40,7 +40,8 @@ public class AdminServiceImpl implements AdminService {
     public AdminRegisterResponseDto registerAdmin(AdminRegisterRequestDto registerRequest) {
         log.info("娉ㄥ唽绠＄悊鍛樿处鎴? {}", registerRequest.getUsername());
 
-        // 妫€鏌ョ敤鎴峰悕鏄惁宸插瓨鍦?        if (adminUserRepository.existsByUsername(registerRequest.getUsername())) {
+        // 妫€鏌ョ敤鎴峰悕鏄惁宸插瓨鍦
+        if (adminUserRepository.existsByUsername(registerRequest.getUsername())) {
             throw new AdminUserAlreadyExistsException("绠＄悊鍛樼敤鎴峰悕宸插瓨鍦? " + registerRequest.getUsername());
         }
 
@@ -65,7 +66,7 @@ public class AdminServiceImpl implements AdminService {
 
         AdminUser savedAdmin = adminUserRepository.save(adminUser);
 
-        // 鐢熸垚JWT浠ょ墝
+        // 生成JWT令牌
         String token = jwtService.generateAdminToken(savedAdmin);
         String refreshToken = jwtService.generateAdminRefreshToken(savedAdmin);
 
@@ -103,14 +104,16 @@ public class AdminServiceImpl implements AdminService {
             AdminUser adminUser = adminUserRepository.findByUsername(loginRequest.getUsername())
                     .orElseThrow(() -> new ResourceNotFoundException("绠＄悊鍛樼敤鎴蜂笉瀛樺湪"));
 
-            // 妫€鏌ヨ处鎴风姸鎬?            if (!adminUser.getIsActive()) {
-                throw new SecurityException("绠＄悊鍛樿处鎴峰凡琚鐢?);
+            // 妫€鏌ヨ处鎴风姸鎬
+            if (!adminUser.getIsActive()) {
+                throw new SecurityException("绠＄悊鍛樿处鎴峰凡琚鐢");
             }
 
-            // 鏇存柊鏈€鍚庣櫥褰曟椂闂?            adminUser.setLastLogin(LocalDateTime.now());
+            // 鏇存柊鏈€鍚庣櫥褰曟椂闂
+            adminUser.setLastLogin(LocalDateTime.now());
             adminUserRepository.save(adminUser);
 
-            // 鐢熸垚JWT浠ょ墝
+            // 生成JWT令牌
             String token = jwtService.generateAdminToken(adminUser);
             String refreshToken = jwtService.generateAdminRefreshToken(adminUser);
 
@@ -140,25 +143,27 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @Transactional
     public AdminLoginResponseDto refreshAdminToken(String refreshToken) {
-        log.info("鍒锋柊绠＄悊鍛樹护鐗?);
+        log.info("鍒锋柊绠＄悊鍛樹护鐗");
 
         if (!jwtService.validateAdminToken(refreshToken)) {
-            throw new SecurityException("鏃犳晥鐨勫埛鏂颁护鐗?);
+            throw new SecurityException("鏃犳晥鐨勫埛鏂颁护鐗");
         }
 
         String username = jwtService.getUsernameFromAdminToken(refreshToken);
         AdminUser adminUser = adminUserRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("绠＄悊鍛樼敤鎴蜂笉瀛樺湪"));
 
-        // 妫€鏌ヨ处鎴风姸鎬?        if (!adminUser.getIsActive()) {
-            throw new SecurityException("绠＄悊鍛樿处鎴峰凡琚鐢?);
+        // 妫€鏌ヨ处鎴风姸鎬
+        if (!adminUser.getIsActive()) {
+            throw new SecurityException("绠＄悊鍛樿处鎴峰凡琚鐢");
         }
 
-        // 鐢熸垚鏂扮殑璁块棶浠ょ墝
+        // 生成新的访问令牌
         String newToken = jwtService.generateAdminToken(adminUser);
         String newRefreshToken = jwtService.generateAdminRefreshToken(adminUser);
 
-        // 鏇存柊鏈€鍚庣櫥褰曟椂闂?        adminUser.setLastLogin(LocalDateTime.now());
+        // 鏇存柊鏈€鍚庣櫥褰曟椂闂
+        adminUser.setLastLogin(LocalDateTime.now());
         adminUserRepository.save(adminUser);
 
         log.info("绠＄悊鍛樹护鐗屽埛鏂版垚鍔? ID={}", adminUser.getId());
@@ -182,10 +187,10 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @Transactional
     public void logoutAdmin(String token) {
-        log.info("绠＄悊鍛樼櫥鍑?);
+        log.info("绠＄悊鍛樼櫥鍑");
 
         if (jwtService.validateAdminToken(token)) {
-            // 灏嗕护鐗屽姞鍏ラ粦鍚嶅崟
+            // 将令牌加入黑名单
             jwtService.revokeAdminToken(token);
             log.info("绠＄悊鍛樹护鐗屽凡鎾ら攢");
         }
@@ -218,9 +223,9 @@ public class AdminServiceImpl implements AdminService {
 
         if (email != null && !email.trim().isEmpty()) {
             String trimmedEmail = email.trim();
-            // 妫€鏌ラ偖绠辨槸鍚﹀凡琚叾浠栫鐞嗗憳浣跨敤
+            // 妫€鏌ラ偖绠辨槸鍚﹀凡琚叾浠栫理员使用
             if (!adminUser.getEmail().equals(trimmedEmail) && adminUserRepository.existsByEmail(trimmedEmail)) {
-                throw new AdminUserAlreadyExistsException("閭宸茶鍏朵粬绠＄悊鍛樹娇鐢?);
+                throw new AdminUserAlreadyExistsException("閭宸茶鍏朵粬绠＄悊鍛樹娇鐢");
             }
             adminUser.setEmail(trimmedEmail);
         }
@@ -241,20 +246,22 @@ public class AdminServiceImpl implements AdminService {
         AdminUser adminUser = adminUserRepository.findById(adminId)
                 .orElseThrow(() -> new ResourceNotFoundException("绠＄悊鍛樼敤鎴蜂笉瀛樺湪"));
 
-        // 楠岃瘉褰撳墠瀵嗙爜
+        // 验证当前密码
         if (!passwordEncoder.matches(oldPassword, adminUser.getPassword())) {
             throw new IllegalArgumentException("褰撳墠瀵嗙爜閿欒");
         }
 
-        // 楠岃瘉鏂板瘑鐮佸己搴?        if (newPassword == null || newPassword.length() < 8) {
-            throw new IllegalArgumentException("鏂板瘑鐮侀暱搴﹁嚦灏戜负8浣?);
+        // 楠岃瘉鏂板瘑鐮佸己搴
+        if (newPassword == null || newPassword.length() < 8) {
+            throw new IllegalArgumentException("鏂板瘑鐮侀暱搴﹁嚦灏戜负8浣");
         }
 
-        // 妫€鏌ユ柊瀵嗙爜鏄惁涓庡綋鍓嶅瘑鐮佺浉鍚?        if (passwordEncoder.matches(newPassword, adminUser.getPassword())) {
-            throw new IllegalArgumentException("鏂板瘑鐮佷笉鑳戒笌褰撳墠瀵嗙爜鐩稿悓");
+        // 妫€鏌ユ柊瀵嗙爜鏄惁涓庡綋鍓嶅瘑鐮佺浉鍚
+        if (passwordEncoder.matches(newPassword, adminUser.getPassword())) {
+            throw new IllegalArgumentException("新密码不能与当前密码相同");
         }
 
-        // 鏇存柊瀵嗙爜
+        // 更新密码
         adminUser.setPassword(passwordEncoder.encode(newPassword));
         adminUser.setUpdatedAt(LocalDateTime.now());
         adminUserRepository.save(adminUser);
@@ -270,7 +277,8 @@ public class AdminServiceImpl implements AdminService {
         AdminUser adminUser = adminUserRepository.findById(adminId)
                 .orElseThrow(() -> new ResourceNotFoundException("绠＄悊鍛樼敤鎴蜂笉瀛樺湪"));
 
-        // 楠岃瘉瑙掕壊鍊?        if (role == null || role.trim().isEmpty()) {
+        // 楠岃瘉瑙掕壊鍊
+        if (role == null || role.trim().isEmpty()) {
             throw new IllegalArgumentException("瑙掕壊涓嶈兘涓虹┖");
         }
 
@@ -292,7 +300,8 @@ public class AdminServiceImpl implements AdminService {
         AdminUser adminUser = adminUserRepository.findById(adminId)
                 .orElseThrow(() -> new ResourceNotFoundException("绠＄悊鍛樼敤鎴蜂笉瀛樺湪"));
 
-        // 楠岃瘉鏉冮檺鍊?        if (permissions != null) {
+        // 楠岃瘉鏉冮檺鍊
+        if (permissions != null) {
             adminUser.setPermissions(permissions);
         } else {
             adminUser.setPermissions(new HashMap<>());

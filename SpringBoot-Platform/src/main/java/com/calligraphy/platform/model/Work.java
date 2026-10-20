@@ -32,7 +32,7 @@ public class Work {
     private Long id;
     
     @NotBlank(message = "鏍囬涓嶈兘涓虹┖")
-    @Size(max = 255, message = "鏍囬闀垮害涓嶈兘瓒呰繃255涓瓧绗?)
+    @Size(max = 255, message = "鏍囬长度不能超过255涓瓧绗")
     @Column(name = "title", length = 255, nullable = false)
     private String title;
     
@@ -93,20 +93,22 @@ public class Work {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
-    // 鍏宠仈鍏崇郴
+    // 关联关系
     @OneToMany(mappedBy = "work", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Comment> comments;
     
-    // 鐘舵€佹灇涓?    public enum WorkStatus {
+    // 鐘舵€佹灇涓
+    public enum WorkStatus {
         DRAFT, PUBLISHED, HIDDEN, UNDER_REVIEW
     }
     
-    // 瀹℃牳鐘舵€佹灇涓?    public enum ReviewStatus {
+    // 瀹℃牳鐘舵€佹灇涓
+    public enum ReviewStatus {
         PENDING, APPROVED, REJECTED, NEEDS_REVISION
     }
     
-    // 棰勬寔涔呭寲鍥炶皟
+    // 预持久化回调
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -122,7 +124,7 @@ public class Work {
         updatedAt = LocalDateTime.now();
     }
     
-    // 涓氬姟鏂规硶
+    // 业务方法
     public void incrementViewCount() {
         this.viewCount = (this.viewCount == null ? 0 : this.viewCount) + 1;
     }
@@ -180,7 +182,7 @@ public class Work {
                ReviewStatus.NEEDS_REVISION.equals(this.reviewStatus);
     }
     
-    // 娣诲姞缂哄皯鐨刧etter鍜宻etter鏂规硶
+    // 娣诲姞缂哄皯鐨刧etter鍜宻etter方法
     public Long getId() {
         return id;
     }

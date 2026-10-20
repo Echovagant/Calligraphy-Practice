@@ -70,7 +70,8 @@ public class DiscussionReply {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
-    // 鐘舵€佹灇涓?    public enum ReplyStatus {
+    // 鐘舵€佹灇涓
+    public enum ReplyStatus {
         ACTIVE, INACTIVE, DELETED
     }
     
@@ -100,7 +101,7 @@ public class DiscussionReply {
         this.updatedAt = updatedAt;
     }
     
-    // Getter 鍜?Setter 鏂规硶
+    // Getter 鍜?Setter 方法
     public Long getId() {
         return id;
     }
@@ -225,7 +226,7 @@ public class DiscussionReply {
         this.updatedAt = updatedAt;
     }
     
-    // 棰勬寔涔呭寲鍥炶皟
+    // 预持久化回调
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -238,7 +239,7 @@ public class DiscussionReply {
         updatedAt = LocalDateTime.now();
     }
     
-    // 涓氬姟鏂规硶
+    // 业务方法
     public void incrementLikeCount() {
         this.likeCount = (this.likeCount == null ? 0 : this.likeCount) + 1;
     }
@@ -255,7 +256,8 @@ public class DiscussionReply {
         return ReplyStatus.DELETED.equals(this.status);
     }
     
-    // Builder 绫?    public static class Builder {
+    // Builder 绫
+    public static class Builder {
         private Long id;
         private String content;
         private Discussion discussion;

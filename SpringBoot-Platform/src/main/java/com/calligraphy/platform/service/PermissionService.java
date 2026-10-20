@@ -44,11 +44,12 @@ public interface PermissionService {
     
     boolean existsByCode(String permissionCode);
     
-    // 鎼滅储鍜岀瓫閫?    Page<PermissionDto> searchPermissions(String keyword, Pageable pageable);
+    // 鎼滅储鍜岀瓫閫
+    Page<PermissionDto> searchPermissions(String keyword, Pageable pageable);
     
     List<PermissionDto> searchPermissions(String keyword);
     
-    // 缁熻鐩稿叧
+    // 缁熻相关
     long getTotalPermissionCount();
     
     long getPermissionCountByType(Permission.PermissionType type);
@@ -87,29 +88,31 @@ public interface PermissionService {
     
     boolean userHasAllPermissions(String userId, List<String> permissionCodes);
     
-    // 鏉冮檺妫€鏌?    void checkPermission(String userId, String permissionCode);
+    // 鏉冮檺妫€鏌
+    void checkPermission(String userId, String permissionCode);
     
     void checkAnyPermission(String userId, List<String> permissionCodes);
     
     void checkAllPermissions(String userId, List<String> permissionCodes);
     
-    // 鏉冮檺鍒嗙粍
+    // 权限分组
     java.util.Map<String, List<PermissionDto>> getPermissionsGroupedByModule();
     
     java.util.Map<String, List<PermissionDto>> getPermissionsGroupedByCategory();
     
     java.util.Map<Permission.PermissionType, List<PermissionDto>> getPermissionsGroupedByType();
     
-    // 棰勫畾涔夋潈闄?    List<PermissionDto> getPredefinedPermissions();
+    // 棰勫畾涔夋潈闄
+    List<PermissionDto> getPredefinedPermissions();
     
     void initializePredefinedPermissions();
     
-    // 鏉冮檺楠岃瘉
+    // 权限验证
     boolean validatePermissionCode(String permissionCode);
     
     boolean validatePermissionName(String permissionName);
     
-    // 鏉冮檺渚濊禆
+    // 权限依赖
     List<PermissionDto> getDependentPermissions(String permissionId);
     
     List<PermissionDto> getPrerequisitePermissions(String permissionId);
@@ -118,7 +121,7 @@ public interface PermissionService {
     
     void removePermissionDependency(String permissionId, String dependentPermissionId);
     
-    // 鏉冮檺缂撳瓨
+    // 权限缓存
     void refreshPermissionCache();
     
     void refreshUserPermissionCache(String userId);
@@ -132,7 +135,7 @@ public interface PermissionService {
     
     java.util.Map<String, Object> getRolePermissionStats(String roleId);
     
-    // 鏉冮檺瀵煎嚭
+    // 权限导出
     byte[] exportPermissions(String format);
     
     byte[] exportRolePermissions(String roleId, String format);

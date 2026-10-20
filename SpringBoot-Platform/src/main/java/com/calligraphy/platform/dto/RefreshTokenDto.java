@@ -11,11 +11,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "鍒锋柊浠ょ墝璇锋眰DTO")
+@Schema(description = "刷新令牌请求DTO")
 public class RefreshTokenDto {
     
     @NotBlank(message = "鍒锋柊浠ょ墝涓嶈兘涓虹┖")
-    @Schema(description = "鍒锋柊浠ょ墝", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+    @Schema(description = "刷新令牌", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
     private String refreshToken;
     
     @Schema(description = "璁惧淇℃伅", example = "Mozilla/5.0...")

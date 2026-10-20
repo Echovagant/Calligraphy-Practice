@@ -4,15 +4,15 @@ import jakarta.validation.constraints.Size;
 
 public class DiscussionUpdateDto {
     
-    @Size(max = 200, message = "鏍囬闀垮害涓嶈兘瓒呰繃200涓瓧绗?)
+    @Size(max = 200, message = "鏍囬长度不能超过200涓瓧绗")
     private String title;
     
     private String content;
     
-    @Size(max = 50, message = "鍒嗙被闀垮害涓嶈兘瓒呰繃50涓瓧绗?)
+    @Size(max = 50, message = "分类长度不能超过50涓瓧绗")
     private String category;
     
-    @Size(max = 500, message = "鏍囩闀垮害涓嶈兘瓒呰繃500涓瓧绗?)
+    @Size(max = 500, message = "鏍囩长度不能超过500涓瓧绗")
     private String tags;
     
     // 鏃犲弬鏋勯€犲櫒
@@ -27,7 +27,7 @@ public class DiscussionUpdateDto {
         this.tags = tags;
     }
     
-    // Getter 鍜?Setter 鏂规硶
+    // Getter 鍜?Setter 方法
     public String getTitle() {
         return title;
     }
@@ -60,7 +60,8 @@ public class DiscussionUpdateDto {
         this.tags = tags;
     }
     
-    // Builder 绫?    public static class Builder {
+    // Builder 绫
+    public static class Builder {
         private String title;
         private String content;
         private String category;

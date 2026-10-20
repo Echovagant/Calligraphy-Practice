@@ -69,7 +69,8 @@ public interface WorkRepository extends JpaRepository<Work, Long> {
     @Query("SELECT w FROM Work w ORDER BY w.viewCount DESC")
     List<Work> findAllOrderByViewCountDesc();
     
-    // 寰呭鏍镐綔鍝佹煡璇?    @Query("SELECT w FROM Work w WHERE w.reviewStatus = :pending OR w.reviewStatus = :needsRevision ORDER BY w.createdAt ASC")
+    // 寰呭鏍镐綔鍝佹煡璇
+    @Query("SELECT w FROM Work w WHERE w.reviewStatus = :pending OR w.reviewStatus = :needsRevision ORDER BY w.createdAt ASC")
     List<Work> findWorksNeedingReview(@Param("pending") Work.ReviewStatus pending, @Param("needsRevision") Work.ReviewStatus needsRevision);
     
     @Query("SELECT w FROM Work w WHERE w.status = :status AND w.reviewStatus = :reviewStatus")
@@ -79,7 +80,8 @@ public interface WorkRepository extends JpaRepository<Work, Long> {
     @Query("SELECT w FROM Work w WHERE w.status = :published AND w.reviewStatus = :approved ORDER BY w.likeCount DESC")
     List<Work> findPopularWorks(@Param("published") Work.WorkStatus published, @Param("approved") Work.ReviewStatus approved);
     
-    // 鏈€鏂颁綔鍝佹煡璇?    @Query("SELECT w FROM Work w WHERE w.status = :published AND w.reviewStatus = :approved ORDER BY w.createdAt DESC")
+    // 鏈€鏂颁綔鍝佹煡璇
+    @Query("SELECT w FROM Work w WHERE w.status = :published AND w.reviewStatus = :approved ORDER BY w.createdAt DESC")
     List<Work> findLatestWorks(@Param("published") Work.WorkStatus published, @Param("approved") Work.ReviewStatus approved);
 
     List<Work> findByReviewerId(String reviewerId);

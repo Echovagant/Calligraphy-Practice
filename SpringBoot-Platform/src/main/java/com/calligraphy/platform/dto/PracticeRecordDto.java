@@ -1,4 +1,4 @@
-package com.calligraphy.platform.dto;
+﻿package com.calligraphy.platform.dto;
 
 import com.calligraphy.platform.model.PracticeRecord;
 import lombok.Data;
@@ -14,7 +14,7 @@ import java.time.Duration;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PracticeRecordDto {
-
+    
     private String recordId;
     private String userId;
     private String username;
@@ -35,10 +35,12 @@ public class PracticeRecordDto {
     private LocalDateTime practiceDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
+    
     // 统计信息
     private long totalPractices;
     private long totalDuration;
     private double averageDuration;
     private long streakDays;
 }
+
+

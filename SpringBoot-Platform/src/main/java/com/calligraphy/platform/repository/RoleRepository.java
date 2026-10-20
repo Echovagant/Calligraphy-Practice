@@ -77,7 +77,8 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
        @Query("SELECT DISTINCT r FROM Role r JOIN r.permissions p WHERE p.code IN :permissionCodes")
        List<Role> findByPermissionCodes(@Param("permissionCodes") List<String> permissionCodes);
 
-       // 鏉冮檺妫€鏌?       @Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END FROM Role r " +
+       // 鏉冮檺妫€鏌
+       @Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END FROM Role r " +
                      "JOIN r.permissions p WHERE r.code = :roleCode AND p.code = :permissionCode")
        boolean hasPermission(@Param("roleCode") String roleCode, @Param("permissionCode") String permissionCode);
 
@@ -91,10 +92,12 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
        @Query("SELECT r FROM Role r ORDER BY r.name")
        List<Role> findAllOrderByName();
 
-       // 棰勫畾涔夎鑹叉煡璇?       @Query("SELECT r FROM Role r WHERE r.code IN :codes")
+       // 棰勫畾涔夎鑹叉煡璇
+       @Query("SELECT r FROM Role r WHERE r.code IN :codes")
        List<Role> findByCodes(@Param("codes") List<String> codes);
 
-       // 鎵归噺鎿嶄綔妫€鏌?       @Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END FROM Role r WHERE r.code LIKE 'SYSTEM_%' AND r.code IN :codes")
+       // 鎵归噺鎿嶄綔妫€鏌
+       @Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END FROM Role r WHERE r.code LIKE 'SYSTEM_%' AND r.code IN :codes")
        boolean existsSystemRoles(@Param("codes") List<String> codes);
 }
 

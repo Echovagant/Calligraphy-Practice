@@ -8,18 +8,18 @@ public class JwtAuthenticationResponse {
     public JwtAuthenticationResponse() {
     }
     
-    // 甯︿袱涓猄tring鍙傛暟鐨勬瀯閫犲櫒
+    // 甯︿袱涓猄tring参数的构造器
     public JwtAuthenticationResponse(String accessToken, String tokenType) {
         this.accessToken = accessToken;
         this.tokenType = tokenType;
     }
     
-    // 鍙甫accessToken鐨勬瀯閫犲櫒
+    // 鍙甫accessToken的构造器
     public JwtAuthenticationResponse(String accessToken) {
         this.accessToken = accessToken;
     }
     
-    // Getter 鍜?Setter 鏂规硶
+    // Getter 鍜?Setter 方法
     public String getAccessToken() {
         return accessToken;
     }

@@ -32,12 +32,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             String jwt = getJwtFromRequest(request);
-            logger.debug("鏀跺埌JWT浠ょ墝: {}", jwt != null ? "***" : null);
+            logger.debug("收到JWT令牌: {}", jwt != null ? "***" : null);
 
             if (StringUtils.hasText(jwt)) {
-                logger.debug("楠岃瘉JWT浠ょ墝...");
+                logger.debug("验证JWT令牌...");
                 boolean isValid = jwtService.validateToken(jwt);
-                logger.debug("JWT浠ょ墝楠岃瘉缁撴灉: {}", isValid);
+                logger.debug("JWT令牌验证结果: {}", isValid);
                 
                 if (isValid) {
                     String username = jwtService.extractUsername(jwt);
@@ -55,18 +55,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                     
-                    logger.debug("JWT璁よ瘉鎴愬姛 - 鐢ㄦ埛: {}", username);
+                    logger.debug("JWT认证成功 - 用户: {}", username);
                 }
             }
         } catch (Exception ex) {
-            logger.error("JWT璁よ瘉澶辫触", ex);
+            logger.error("JWT认证失败", ex);
         }
 
         filterChain.doFilter(request, response);
     }
 
     /**
-     * 浠庤姹備腑鑾峰彇JWT浠ょ墝
+     * 浠庤求中获取JWT令牌
      */
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");

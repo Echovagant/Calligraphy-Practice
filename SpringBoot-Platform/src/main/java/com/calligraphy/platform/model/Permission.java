@@ -30,16 +30,16 @@ public class Permission {
     private Long id;
     
     @NotBlank(message = "鏉冮檺浠ｇ爜涓嶈兘涓虹┖")
-    @Size(max = 50, message = "鏉冮檺浠ｇ爜闀垮害涓嶈兘瓒呰繃50涓瓧绗?)
+    @Size(max = 50, message = "鏉冮檺浠ｇ爜闀垮害涓嶈兘瓒呰繃50涓瓧绗")
     @Column(name = "code", length = 50, nullable = false, unique = true)
     private String code;
     
     @NotBlank(message = "鏉冮檺鍚嶇О涓嶈兘涓虹┖")
-    @Size(max = 100, message = "鏉冮檺鍚嶇О闀垮害涓嶈兘瓒呰繃100涓瓧绗?)
+    @Size(max = 100, message = "鏉冮檺鍚嶇О长度不能超过100涓瓧绗")
     @Column(name = "name", length = 100, nullable = false)
     private String name;
     
-    @Size(max = 500, message = "鏉冮檺鎻忚堪闀垮害涓嶈兘瓒呰繃500涓瓧绗?)
+    @Size(max = 500, message = "权限描述长度不能超过500涓瓧绗")
     @Column(name = "description", length = 500)
     private String description;
     
@@ -47,7 +47,7 @@ public class Permission {
     @Column(name = "permission_type", length = 20, nullable = false)
     private PermissionType permissionType;
     
-    @Size(max = 50, message = "妯″潡鍚嶇О闀垮害涓嶈兘瓒呰繃50涓瓧绗?)
+    @Size(max = 50, message = "妯″潡鍚嶇О长度不能超过50涓瓧绗")
     @Column(name = "module", length = 50)
     private String module;
     
@@ -64,15 +64,16 @@ public class Permission {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
-    // 澶氬澶氬叧绯伙細鏉冮檺涓庤鑹?    @ManyToMany(mappedBy = "permissions", fetch = FetchType.LAZY)
+    // 澶氬澶氬叧绯伙細鏉冮檺涓庤鑹
+    @ManyToMany(mappedBy = "permissions", fetch = FetchType.LAZY)
     private Set<Role> roles;
     
-    // 鏉冮檺绫诲瀷鏋氫妇
+    // 权限类型枚举
     public enum PermissionType {
         CREATE, READ, UPDATE, DELETE, EXECUTE, ADMIN
     }
     
-    // 棰勬寔涔呭寲鍥炶皟
+    // 预持久化回调
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -90,7 +91,7 @@ public class Permission {
         updatedAt = LocalDateTime.now();
     }
     
-    // 鍩虹getter鏂规硶
+    // 鍩虹getter方法
     public String getCode() {
         return code;
     }
@@ -99,7 +100,7 @@ public class Permission {
         this.code = code;
     }
     
-    // 涓氬姟鏂规硶
+    // 业务方法
     public boolean isCreatePermission() {
         return PermissionType.CREATE.equals(this.permissionType);
     }
@@ -134,13 +135,13 @@ public class Permission {
     public String getTypeDisplay() {
         switch (permissionType) {
             case CREATE:
-                return "鍒涘缓";
+                return "创建";
             case READ:
-                return "璇诲彇";
+                return "读取";
             case UPDATE:
-                return "鏇存柊";
+                return "更新";
             case DELETE:
-                return "鍒犻櫎";
+                return "删除";
             case EXECUTE:
                 return "鎵ц";
             case ADMIN:
@@ -150,14 +151,16 @@ public class Permission {
         }
     }
     
-    // 棰勫畾涔夋潈闄愪唬鐮佸父閲?    public static class PermissionCodes {
+    // 棰勫畾涔夋潈闄愪唬鐮佸父閲
+    public static class PermissionCodes {
         // 鐢ㄦ埛绠＄悊鏉冮檺
         public static final String USER_CREATE = "USER_CREATE";
         public static final String USER_READ = "USER_READ";
         public static final String USER_UPDATE = "USER_UPDATE";
         public static final String USER_DELETE = "USER_DELETE";
         
-        // 绠＄悊鍛樼鐞嗘潈闄?        public static final String ADMIN_CREATE = "ADMIN_CREATE";
+        // 绠＄悊鍛樼鐞嗘潈闄
+        public static final String ADMIN_CREATE = "ADMIN_CREATE";
         public static final String ADMIN_READ = "ADMIN_READ";
         public static final String ADMIN_UPDATE = "ADMIN_UPDATE";
         public static final String ADMIN_DELETE = "ADMIN_DELETE";
@@ -188,13 +191,13 @@ public class Permission {
         public static final String SYSTEM_LOG = "SYSTEM_LOG";
         public static final String SYSTEM_BACKUP = "SYSTEM_BACKUP";
         
-        // 缁冧範璁板綍鏉冮檺
+        // 练习记录权限
         public static final String PRACTICE_CREATE = "PRACTICE_CREATE";
         public static final String PRACTICE_READ = "PRACTICE_READ";
         public static final String PRACTICE_UPDATE = "PRACTICE_UPDATE";
         public static final String PRACTICE_DELETE = "PRACTICE_DELETE";
         
-        // 娲诲姩鏃ュ織鏉冮檺
+        // 活动日志权限
         public static final String LOG_READ = "LOG_READ";
         public static final String LOG_EXPORT = "LOG_EXPORT";
         public static final String LOG_DELETE = "LOG_DELETE";

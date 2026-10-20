@@ -63,7 +63,8 @@ public interface WorkService {
     
     void removeLike(Long workId, String userId);
     
-    // 鎼滅储鍜岀瓫閫?    List<String> getWorkTags(Long workId);
+    // 鎼滅储鍜岀瓫閫
+    List<String> getWorkTags(Long workId);
     
     WorkDto addTagToWork(Long workId, String tag);
     
@@ -107,7 +108,7 @@ public interface WorkService {
     
     Page<WorkDto> getApprovedWorks(Pageable pageable);
     
-    // 缁熻鐩稿叧
+    // 缁熻相关
     long getTotalWorkCount();
     
     long getWorkCountByUserId(String userId);

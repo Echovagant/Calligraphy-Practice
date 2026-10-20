@@ -38,31 +38,31 @@ public class User implements UserDetails {
     @Column(name = "id", length = 36, nullable = false)
     private String id;
 
-    @NotBlank(message = "鐢ㄦ埛鍚嶄笉鑳戒负绌?)
-    @Size(max = 50, message = "鐢ㄦ埛鍚嶉暱搴︿笉鑳借秴杩?0涓瓧绗?)
+    @NotBlank(message = "鐢ㄦ埛鍚嶄笉鑳戒负绌")
+    @Size(max = 50, message = "鐢ㄦ埛鍚嶉暱搴︿笉鑳借秴杩?0涓瓧绗")
     @Column(name = "username", length = 50, nullable = false, unique = true)
     private String username;
 
-    @Email(message = "閭鏍煎紡涓嶆纭?)
+    @Email(message = "閭鏍煎紡涓嶆纭")
     @NotBlank(message = "閭涓嶈兘涓虹┖")
-    @Size(max = 100, message = "閭闀垮害涓嶈兘瓒呰繃100涓瓧绗?)
+    @Size(max = 100, message = "閭长度不能超过100涓瓧绗")
     @Column(name = "email", length = 100, nullable = false, unique = true)
     private String email;
 
     @NotBlank(message = "瀵嗙爜涓嶈兘涓虹┖")
-    @Size(min = 6, max = 255, message = "瀵嗙爜闀垮害蹇呴』鍦?-255涓瓧绗︿箣闂?)
+    @Size(min = 6, max = 255, message = "瀵嗙爜闀垮害蹇呴』鍦?-255涓瓧绗︿箣闂")
     @Column(name = "password", length = 255, nullable = false)
     private String password;
 
-    @Size(max = 50, message = "鏄电О闀垮害涓嶈兘瓒呰繃50涓瓧绗?)
+    @Size(max = 50, message = "鏄电О长度不能超过50涓瓧绗")
     @Column(name = "nickname", length = 50)
     private String nickname;
 
-    @Size(max = 20, message = "鐪熷疄濮撳悕闀垮害涓嶈兘瓒呰繃20涓瓧绗?)
+    @Size(max = 20, message = "真实姓名长度不能超过20涓瓧绗")
     @Column(name = "real_name", length = 20)
     private String realName;
 
-    @Size(max = 20, message = "鎵嬫満鍙烽暱搴︿笉鑳借秴杩?0涓瓧绗?)
+    @Size(max = 20, message = "鎵嬫満鍙烽暱搴︿笉鑳借秴杩?0涓瓧绗")
     @Column(name = "phone", length = 20)
     private String phone;
 
@@ -77,11 +77,11 @@ public class User implements UserDetails {
     @Column(name = "avatar_url", length = 500)
     private String avatarUrl;
 
-    @Size(max = 1000, message = "涓汉绠€浠嬮暱搴︿笉鑳借秴杩?000涓瓧绗?)
+    @Size(max = 1000, message = "涓汉绠€浠嬮暱搴︿笉鑳借秴杩?000涓瓧绗")
     @Column(name = "bio", length = 1000)
     private String bio;
 
-    @Min(value = 0, message = "鐧诲綍澶辫触娆℃暟涓嶈兘涓鸿礋鏁?)
+    @Min(value = 0, message = "鐧诲綍澶辫触娆℃暟涓嶈兘涓鸿礋鏁")
     @Column(name = "failed_login_attempts", nullable = false)
     private Integer failedLoginAttempts = 0;
 
@@ -134,16 +134,17 @@ public class User implements UserDetails {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    // 瑙掕壊鏋氫妇
+    // 角色枚举
     public enum Role {
         USER, ADMIN, SUPER_ADMIN
     }
 
-    // 鐢ㄦ埛鐘舵€佹灇涓?    public enum UserStatus {
+    // 鐢ㄦ埛鐘舵€佹灇涓
+    public enum UserStatus {
         ACTIVE, INACTIVE, SUSPENDED, PENDING_VERIFICATION
     }
 
-    // 棰勬寔涔呭寲鍥炶皟
+    // 预持久化回调
     @PrePersist
     protected void onCreate() {
         if (id == null) {
@@ -182,7 +183,7 @@ public class User implements UserDetails {
         updatedAt = LocalDateTime.now();
     }
 
-    // UserDetails鎺ュ彛鏂规硶瀹炵幇
+    // UserDetails接口方法实现
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> authorities = new HashSet<>();
@@ -199,7 +200,8 @@ public class User implements UserDetails {
             if (accountLockedUntil != null && accountLockedUntil.isAfter(LocalDateTime.now())) {
                 return false;
             } else {
-                // 閿佸畾鏃堕棿宸茶繃锛岃嚜鍔ㄨВ閿?                accountLocked = false;
+                // 閿佸畾鏃堕棿宸茶繃锛岃嚜鍔ㄨВ閿
+                accountLocked = false;
                 accountLockedUntil = null;
                 return true;
             }
@@ -215,12 +217,12 @@ public class User implements UserDetails {
         return UserStatus.ACTIVE.equals(status) && isAccountNonLocked();
     }
 
-    // 涓氬姟鏂规硶
+    // 业务方法
     public void incrementFailedLoginAttempts() {
         this.failedLoginAttempts++;
         this.lastFailedLogin = LocalDateTime.now();
 
-        // 濡傛灉澶辫触娆℃暟杈惧埌5娆★紝閿佸畾璐︽埛15鍒嗛挓
+        // 濡傛灉澶辫触娆℃暟杈惧埌5娆★紝閿佸畾璐︽埛15分钟
         if (this.failedLoginAttempts >= 5) {
             this.accountLocked = true;
             this.accountLockedUntil = LocalDateTime.now().plusMinutes(15);
@@ -290,7 +292,7 @@ public class User implements UserDetails {
         return UserStatus.ACTIVE.equals(status) && emailVerified != null && emailVerified;
     }
 
-    // 娣诲姞蹇呰鐨刧etter鏂规硶
+    // 娣诲姞蹇呰鐨刧etter方法
     public String getId() {
         return id;
     }
@@ -355,7 +357,7 @@ public class User implements UserDetails {
         this.updatedAt = updatedAt;
     }
 
-    // 娣诲姞缂哄皯鐨刧etter鍜宻etter鏂规硶
+    // 娣诲姞缂哄皯鐨刧etter鍜宻etter方法
     public String getNickname() {
         return nickname;
     }

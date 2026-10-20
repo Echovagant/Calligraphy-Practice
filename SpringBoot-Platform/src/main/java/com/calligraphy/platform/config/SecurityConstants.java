@@ -38,17 +38,17 @@ public class SecurityConstants {
         "/api/users/manage/**"
     };
     
-    // JWT鐩稿叧甯搁噺
+    // JWT相关常量
     public static final String JWT_HEADER = "Authorization";
     public static final String JWT_PREFIX = "Bearer ";
     public static final String JWT_SECRET = "mySecretKey";
-    public static final long JWT_EXPIRATION = 86400000; // 24灏忔椂
+    public static final long JWT_EXPIRATION = 86400000; // 24小时
     public static final long JWT_REFRESH_EXPIRATION = 604800000; // 7澶?    
-    // 瑙掕壊甯搁噺
+    // 角色常量
     public static final String ROLE_USER = "USER";
     public static final String ROLE_ADMIN = "ADMIN";
     
-    // 鐢ㄦ埛绫诲瀷甯搁噺
+    // 用户类型常量
     public static final String USER_TYPE_FRONTEND = "USER";
     public static final String USER_TYPE_BACKEND = "ADMIN";
 }

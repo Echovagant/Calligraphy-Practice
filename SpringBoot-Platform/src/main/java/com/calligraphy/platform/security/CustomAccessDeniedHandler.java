@@ -26,7 +26,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException, ServletException {
         
-        log.warn("璁块棶琚嫆缁?- 鐢ㄦ埛: {}, 璺緞: {}, 鍘熷洜: {}", 
+        log.warn("璁块棶琚嫆缁?- 用户: {}, 璺緞: {}, 原因: {}", 
                 request.getRemoteUser(), request.getRequestURI(), accessDeniedException.getMessage());
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

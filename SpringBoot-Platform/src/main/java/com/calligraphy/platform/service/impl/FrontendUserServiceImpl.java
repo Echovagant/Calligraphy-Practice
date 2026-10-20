@@ -23,32 +23,39 @@ public class FrontendUserServiceImpl implements FrontendUserService {
     private static final Logger log = LoggerFactory.getLogger(FrontendUserServiceImpl.class);
     @Override
     public FrontendUser registerUser(FrontendUserRegistrationDto registrationDto) {
-        // 鏆傛椂杩斿洖null锛屽悗缁疄鐜?        return null;
+        // 暂时返回null锛屽悗缁疄鐜
+        return null;
     }
     @Override
     public FrontendUserDto getUserById(String userId) {
-        // 鏆傛椂杩斿洖null锛屽悗缁疄鐜?        return null;
+        // 暂时返回null锛屽悗缁疄鐜
+        return null;
     }
     @Override
     public Optional<FrontendUser> getUserEntityById(String userId) {
-        // 鏆傛椂杩斿洖绌篛ptional锛屽悗缁疄鐜?        return Optional.empty();
+        // 鏆傛椂杩斿洖绌篛ptional锛屽悗缁疄鐜
+        return Optional.empty();
     }
     @Override
     public Optional<FrontendUser> getUserByUsername(String username) {
-        // 鏆傛椂杩斿洖绌篛ptional锛屽悗缁疄鐜?        return Optional.empty();
+        // 鏆傛椂杩斿洖绌篛ptional锛屽悗缁疄鐜
+        return Optional.empty();
     }
     @Override
     public Optional<FrontendUser> getUserByEmail(String email) {
-        // 鏆傛椂杩斿洖绌篛ptional锛屽悗缁疄鐜?        return Optional.empty();
+        // 鏆傛椂杩斿洖绌篛ptional锛屽悗缁疄鐜
+        return Optional.empty();
     }
     @Override
     public Optional<FrontendUser> getUserByUsernameOrEmail(String identifier) {
-        // 鏆傛椂杩斿洖绌篛ptional锛屽悗缁疄鐜?        return Optional.empty();
+        // 鏆傛椂杩斿洖绌篛ptional锛屽悗缁疄鐜
+        return Optional.empty();
     }
     @Override
     @SuppressWarnings("null")
     public Page<FrontendUserDto> getAllUsers(Pageable pageable) {
-        // 鏆傛椂杩斿洖绌篜age锛屽悗缁疄鐜?        return Page.empty(pageable);
+        // 鏆傛椂杩斿洖绌篜age锛屽悗缁疄鐜
+        return Page.empty(pageable);
     }
     @Override
     public List<FrontendUserDto> getAllUsers() {
@@ -57,51 +64,60 @@ public class FrontendUserServiceImpl implements FrontendUserService {
     }
     @Override
     public FrontendUserDto updateUser(String userId, FrontendUserUpdateDto updateDto) {
-        // 鏆傛椂杩斿洖null锛屽悗缁疄鐜?        return null;
+        // 暂时返回null锛屽悗缁疄鐜
+        return null;
     }
     @Override
     public FrontendUserDto updateUserAvatar(String userId, MultipartFile avatarFile) {
-        // 鏆傛椂杩斿洖null锛屽悗缁疄鐜?        return null;
+        // 暂时返回null锛屽悗缁疄鐜
+        return null;
     }
     @Override
     public FrontendUserDto updateUserProfile(String userId, FrontendUserUpdateDto updateDto) {
-        // 鏆傛椂杩斿洖null锛屽悗缁疄鐜?        return null;
+        // 暂时返回null锛屽悗缁疄鐜
+        return null;
     }
     @Override
     public void deleteUser(String userId) {
-        // 鏆傛椂涓嶅疄鐜帮紝鍚庣画瀹炵幇
+        // 暂时不实现，后续实现
     }
     @Override
     public void deactivateUser(String userId) {
-        // 鏆傛椂涓嶅疄鐜帮紝鍚庣画瀹炵幇
+        // 暂时不实现，后续实现
     }
     @Override
     public void activateUser(String userId) {
-        // 鏆傛椂涓嶅疄鐜帮紝鍚庣画瀹炵幇
+        // 暂时不实现，后续实现
     }
     @Override
     public boolean isUsernameAvailable(String username) {
-        // 鏆傛椂杩斿洖true锛屽悗缁疄鐜?        return true;
+        // 暂时返回true锛屽悗缁疄鐜
+        return true;
     }
     @Override
     public boolean isEmailAvailable(String email) {
-        // 鏆傛椂杩斿洖true锛屽悗缁疄鐜?        return true;
+        // 暂时返回true锛屽悗缁疄鐜
+        return true;
     }
     @Override
     public boolean existsById(String userId) {
-        // 鏆傛椂杩斿洖true锛屽悗缁疄鐜?        return true;
+        // 暂时返回true锛屽悗缁疄鐜
+        return true;
     }
     @Override
     public long getTotalUserCount() {
-        // 鏆傛椂杩斿洖0锛屽悗缁疄鐜?        return 0;
+        // 暂时返回0锛屽悗缁疄鐜
+        return 0;
     }
     @Override
     public long getActiveUserCount() {
-        // 鏆傛椂杩斿洖0锛屽悗缁疄鐜?        return 0;
+        // 暂时返回0锛屽悗缁疄鐜
+        return 0;
     }
     @Override
     public long getNewUserCountSinceDays(int days) {
-        // 鏆傛椂杩斿洖0锛屽悗缁疄鐜?        return 0;
+        // 暂时返回0锛屽悗缁疄鐜
+        return 0;
     }
     @Override
     public List<FrontendUserDto> searchUsers(String keyword) {
@@ -111,15 +127,18 @@ public class FrontendUserServiceImpl implements FrontendUserService {
     @Override
     @SuppressWarnings("null")
     public Page<FrontendUserDto> searchUsers(String keyword, Pageable pageable) {
-        // 鏆傛椂杩斿洖绌篜age锛屽悗缁疄鐜?        return Page.empty(pageable);
+        // 鏆傛椂杩斿洖绌篜age锛屽悗缁疄鐜
+        return Page.empty(pageable);
     }
     @Override
     public long countByRegistrationDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate) {
-        // 鏆傛椂杩斿洖0锛屽悗缁疄鐜?        return 0;
+        // 暂时返回0锛屽悗缁疄鐜
+        return 0;
     }
     @Override
     public long countByLastLoginDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate) {
-        // 鏆傛椂杩斿洖0锛屽悗缁疄鐜?        return 0;
+        // 暂时返回0锛屽悗缁疄鐜
+        return 0;
     }
     @Override
     public List<FrontendUserDto> findTopActiveUsers(int limit) {
@@ -133,55 +152,61 @@ public class FrontendUserServiceImpl implements FrontendUserService {
     }
     @Override
     public void lockUser(String userId) {
-        // 鏆傛椂涓嶅疄鐜帮紝鍚庣画瀹炵幇
+        // 暂时不实现，后续实现
     }
     @Override
     public void unlockUser(String userId) {
-        // 鏆傛椂涓嶅疄鐜帮紝鍚庣画瀹炵幇
+        // 暂时不实现，后续实现
     }
     @Override
     public boolean isUserLocked(String userId) {
-        // 鏆傛椂杩斿洖false锛屽悗缁疄鐜?        return false;
+        // 暂时返回false锛屽悗缁疄鐜
+        return false;
     }
     @Override
     public void incrementFailedLoginAttempts(String userId) {
-        // 鏆傛椂涓嶅疄鐜帮紝鍚庣画瀹炵幇
+        // 暂时不实现，后续实现
     }
     @Override
     public void resetFailedLoginAttempts(String userId) {
-        // 鏆傛椂涓嶅疄鐜帮紝鍚庣画瀹炵幇
+        // 暂时不实现，后续实现
     }
     @Override
     public FrontendUserDto updateUserPreferences(String userId, String preferences) {
-        // 鏆傛椂杩斿洖null锛屽悗缁疄鐜?        return null;
+        // 暂时返回null锛屽悗缁疄鐜
+        return null;
     }
     @Override
     public String getUserPreferences(String userId) {
-        // 鏆傛椂杩斿洖绌哄瓧绗︿覆锛屽悗缁疄鐜?        return "";
+        // 鏆傛椂杩斿洖绌哄瓧绗︿覆锛屽悗缁疄鐜
+        return "";
     }
     @Override
     public long getUserPracticeCount(String userId) {
-        // 鏆傛椂杩斿洖0锛屽悗缁疄鐜?        return 0;
+        // 暂时返回0锛屽悗缁疄鐜
+        return 0;
     }
     @Override
     public long getUserWorkCount(String userId) {
-        // 鏆傛椂杩斿洖0锛屽悗缁疄鐜?        return 0;
+        // 暂时返回0锛屽悗缁疄鐜
+        return 0;
     }
     @Override
     public long getUserCommentCount(String userId) {
-        // 鏆傛椂杩斿洖0锛屽悗缁疄鐜?        return 0;
+        // 暂时返回0锛屽悗缁疄鐜
+        return 0;
     }
     @Override
     public void bulkDeleteUsers(List<String> userIds) {
-        // 鏆傛椂涓嶅疄鐜帮紝鍚庣画瀹炵幇
+        // 暂时不实现，后续实现
     }
     @Override
     public void bulkDeactivateUsers(List<String> userIds) {
-        // 鏆傛椂涓嶅疄鐜帮紝鍚庣画瀹炵幇
+        // 暂时不实现，后续实现
     }
     @Override
     public void bulkActivateUsers(List<String> userIds) {
-        // 鏆傛椂涓嶅疄鐜帮紝鍚庣画瀹炵幇
+        // 暂时不实现，后续实现
     }
 }
 

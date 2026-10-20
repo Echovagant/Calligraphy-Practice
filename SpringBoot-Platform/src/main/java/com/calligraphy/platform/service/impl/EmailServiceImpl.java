@@ -77,7 +77,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("娆㈣繋鍔犲叆 " + appName);
+            helper.setSubject("欢迎加入 " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
@@ -103,7 +103,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("娉ㄥ唽鎴愬姛 - " + appName);
+            helper.setSubject("注册成功 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
@@ -130,7 +130,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("閲嶇疆鎮ㄧ殑瀵嗙爜 - " + appName);
+            helper.setSubject("重置您的密码 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
@@ -182,7 +182,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("瀵嗙爜閲嶇疆鎴愬姛 - " + appName);
+            helper.setSubject("密码重置成功 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
@@ -523,7 +523,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("鏂囦欢涓婁紶鎴愬姛 - " + appName);
+            helper.setSubject("文件上传成功 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
@@ -633,7 +633,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("浣滃搧鍒涘缓鎴愬姛 - " + appName);
+            helper.setSubject("作品创建成功 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
@@ -660,7 +660,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("浣滃搧鏇存柊閫氱煡 - " + appName);
+            helper.setSubject("作品更新通知 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
@@ -687,7 +687,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("浣滃搧鍙戝竷鎴愬姛 - " + appName);
+            helper.setSubject("作品发布成功 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
@@ -714,7 +714,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("缁冧範鍒涘缓鎴愬姛 - " + appName);
+            helper.setSubject("练习创建成功 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
@@ -741,7 +741,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("缁冧範鏇存柊閫氱煡 - " + appName);
+            helper.setSubject("练习更新通知 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
@@ -770,7 +770,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("缁冧範鎻愰啋 - " + appName);
+            helper.setSubject("练习提醒 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
@@ -799,7 +799,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("绯荤粺缁存姢閫氱煡 - " + appName);
+            helper.setSubject("系统维护通知 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
@@ -869,7 +869,7 @@ public class EmailServiceImpl implements EmailService {
                 mailSender.send(message);
             }
 
-            log.info("鎵归噺閭欢鍙戦€佹垚鍔燂紝鍏卞彂閫?{} 灏侀偖浠?, toList.size());
+            log.info("鎵归噺閭欢鍙戦€佹垚鍔燂紝鍏卞彂閫?{} 灏侀偖浠", toList.size());
             return CompletableFuture.completedFuture(true);
 
         } catch (MessagingException e) {
@@ -953,7 +953,8 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public boolean isEmailServiceAvailable() {
         try {
-            // 绠€鍗曠殑閭欢鏈嶅姟鍙敤鎬ф鏌?            SimpleMailMessage testMessage = new SimpleMailMessage();
+            // 绠€鍗曠殑閭欢鏈嶅姟鍙敤鎬ф鏌
+            SimpleMailMessage testMessage = new SimpleMailMessage();
             testMessage.setTo(fromEmail);
             testMessage.setSubject("閭欢鏈嶅姟娴嬭瘯");
             testMessage.setText("閭欢鏈嶅姟娴嬭瘯");
@@ -968,15 +969,18 @@ public class EmailServiceImpl implements EmailService {
     }
     @Override
     public long getEmailQueueSize() {
-        // 杩欓噷搴旇瀹炵幇瀹為檯鐨勯槦鍒楀ぇ灏忔鏌?        return 0;
+        // 杩欓噷搴旇瀹炵幇瀹為檯鐨勯槦鍒楀ぇ灏忔鏌
+        return 0;
     }
     @Override
     public long getSentEmailCount() {
-        // 杩欓噷搴旇瀹炵幇瀹為檯鐨勫彂閫佹暟閲忕粺璁?        return 0;
+        // 杩欓噷搴旇瀹炵幇瀹為檯鐨勫彂閫佹暟閲忕粺璁
+        return 0;
     }
     @Override
     public long getFailedEmailCount() {
-        // 杩欓噷搴旇瀹炵幇瀹為檯鐨勫け璐ユ暟閲忕粺璁?        return 0;
+        // 杩欓噷搴旇瀹炵幇瀹為檯鐨勫け璐ユ暟閲忕粺璁
+        return 0;
     }
     @Override
     public double getEmailSuccessRate() {
@@ -1094,7 +1098,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("缁冧範璇勫閫氱煡 - " + appName);
+            helper.setSubject("缁冧範璇勫通知 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
@@ -1395,7 +1399,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setTo(to);
-            helper.setSubject("缁冧範鎴愬氨 - " + appName);
+            helper.setSubject("练习成就 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
             mailSender.send(message);
@@ -1439,7 +1443,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setTo(to);
-            helper.setSubject("缁冧範杩涘害鎶ュ憡 - " + appName);
+            helper.setSubject("练习进度报告 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
             mailSender.send(message);
@@ -1522,7 +1526,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("绛夌骇鎻愬崌 - " + appName);
+            helper.setSubject("等级提升 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
@@ -1578,7 +1582,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("寰界珷鑾峰緱 - " + appName);
+            helper.setSubject("徽章获得 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
@@ -1662,7 +1666,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("姣旇禌缁撴潫 - " + appName);
+            helper.setSubject("比赛结束 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
@@ -1690,7 +1694,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("姣旇禌鑾峰閫氱煡 - " + appName);
+            helper.setSubject("姣旇禌鑾峰通知 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
@@ -1720,7 +1724,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("姣旇禌缁撴灉 - " + appName);
+            helper.setSubject("比赛结果 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
@@ -1750,7 +1754,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("姣旇禌鎻愰啋 - " + appName);
+            helper.setSubject("比赛提醒 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
@@ -1807,7 +1811,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("姣旇禌鍙栨秷閫氱煡 - " + appName);
+            helper.setSubject("比赛取消通知 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
@@ -1835,7 +1839,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("姣旇禌鏇存柊閫氱煡 - " + appName);
+            helper.setSubject("比赛更新通知 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 

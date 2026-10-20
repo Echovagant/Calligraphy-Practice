@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface FileStorageService {
     
-    // 鏂囦欢涓婁紶
+    // 文件上传
     String storeFile(MultipartFile file, String userId, String fileType);
     
     String storeFile(MultipartFile file, String userId, String fileType, String subDirectory);
@@ -17,7 +17,7 @@ public interface FileStorageService {
     
     List<String> storeMultipleFiles(MultipartFile[] files, String userId, String fileType, String subDirectory);
     
-    // 鏂囦欢涓嬭浇
+    // 文件下载
     Resource loadFileAsResource(String fileName);
     
     Resource loadFileAsResource(String fileName, String userId);
@@ -26,7 +26,7 @@ public interface FileStorageService {
     
     byte[] loadFileAsBytes(String fileName, String userId);
     
-    // 鏂囦欢鍒犻櫎
+    // 文件删除
     boolean deleteFile(String fileName);
     
     boolean deleteFile(String fileName, String userId);
@@ -58,7 +58,7 @@ public interface FileStorageService {
     
     java.time.LocalDateTime getFileLastModifiedTime(String fileName, String userId);
     
-    // 鏂囦欢鍒楄〃
+    // 文件列表
     List<String> listFiles();
     
     List<String> listFiles(String userId);
@@ -71,7 +71,8 @@ public interface FileStorageService {
     
     List<String> listFilesByExtension(String extension, String userId);
     
-    // 鏂囦欢澶嶅埗鍜岀Щ鍔?    String copyFile(String sourceFileName, String destinationFileName);
+    // 鏂囦欢澶嶅埗鍜岀Щ鍔
+    String copyFile(String sourceFileName, String destinationFileName);
     
     String copyFile(String sourceFileName, String destinationFileName, String userId);
     
@@ -79,18 +80,19 @@ public interface FileStorageService {
     
     String moveFile(String sourceFileName, String destinationFileName, String userId);
     
-    // 鏂囦欢閲嶅懡鍚?    String renameFile(String oldFileName, String newFileName);
+    // 鏂囦欢閲嶅懡鍚
+    String renameFile(String oldFileName, String newFileName);
     
     String renameFile(String oldFileName, String newFileName, String userId);
     
-    // 鏂囦欢鍘嬬缉
+    // 文件压缩
     byte[] compressFiles(List<String> fileNames);
     
     byte[] compressFiles(List<String> fileNames, String userId);
     
     List<String> extractCompressedFile(byte[] compressedData, String extractToDirectory);
     
-    // 鏂囦欢楠岃瘉
+    // 文件验证
     boolean validateFile(MultipartFile file);
     
     boolean validateFileSize(MultipartFile file);
@@ -101,13 +103,14 @@ public interface FileStorageService {
     
     boolean validateFileContent(MultipartFile file);
     
-    // 瀹夊叏妫€鏌?    boolean isFileSafe(String fileName);
+    // 瀹夊叏妫€鏌
+    boolean isFileSafe(String fileName);
     
     boolean scanFileForViruses(String fileName);
     
     boolean scanFileForMalware(String fileName);
     
-    // 瀛樺偍閰嶇疆
+    // 存储配置
     Path getFileStorageLocation();
     
     Path getUserFileStorageLocation(String userId);
@@ -133,7 +136,7 @@ public interface FileStorageService {
     
     long getFileTypeStorageUsed(String fileType, String userId);
     
-    // 瀛樺偍娓呯悊
+    // 存储清理
     void cleanupOldFiles(int daysToKeep);
     
     void cleanupUserOldFiles(String userId, int daysToKeep);
@@ -142,7 +145,8 @@ public interface FileStorageService {
     
     void cleanupOrphanedFiles();
     
-    // 澶囦唤鍜屾仮澶?    byte[] backupFiles();
+    // 澶囦唤鍜屾仮澶
+    byte[] backupFiles();
     
     byte[] backupUserFiles(String userId);
     
@@ -150,14 +154,15 @@ public interface FileStorageService {
     
     void restoreUserFiles(String userId, byte[] backupData);
     
-    // 鏂囦欢鍔犲瘑
+    // 文件加密
     String storeEncryptedFile(MultipartFile file, String userId, String fileType, String encryptionKey);
     
     Resource loadEncryptedFileAsResource(String fileName, String encryptionKey);
     
     byte[] loadEncryptedFileAsBytes(String fileName, String encryptionKey);
     
-    // 鏂囦欢缂╃暐鍥?    String generateThumbnail(String fileName);
+    // 鏂囦欢缂╃暐鍥
+    String generateThumbnail(String fileName);
     
     String generateThumbnail(String fileName, String userId);
     
@@ -165,7 +170,7 @@ public interface FileStorageService {
     
     Resource loadThumbnailAsResource(String fileName, String userId);
     
-    // CDN闆嗘垚
+    // CDN集成
     String getCdnUrl(String fileName);
     
     String getCdnUrl(String fileName, String userId);
@@ -174,7 +179,8 @@ public interface FileStorageService {
     
     void invalidateUserCdnCache(String userId);
     
-    // 鏂囦欢鍏冩暟鎹?    java.util.Map<String, Object> getFileMetadata(String fileName);
+    // 鏂囦欢鍏冩暟鎹
+    java.util.Map<String, Object> getFileMetadata(String fileName);
     
     java.util.Map<String, Object> getFileMetadata(String fileName, String userId);
     

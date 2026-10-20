@@ -64,7 +64,7 @@ public interface BackendUserRepository extends JpaRepository<BackendUser, String
            "LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<BackendUser> searchUsers(@Param("keyword") String keyword);
     
-    // 鎵归噺鎿嶄綔
+    // 批量操作
     @Query("UPDATE BackendUser u SET u.accountLocked = false, u.failedLoginAttempts = 0 " +
            "WHERE u.accountLocked = true AND u.lockUntil < :now")
     void unlockExpiredAccounts(@Param("now") LocalDateTime now);

@@ -56,7 +56,7 @@ public interface FrontendUserRepository extends JpaRepository<FrontendUser, Stri
            "LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<FrontendUser> searchUsers(@Param("keyword") String keyword);
     
-    // 鎵归噺鎿嶄綔
+    // 批量操作
     @Query("DELETE FROM FrontendUser u WHERE u.status = :status AND u.updatedAt < :date")
     void deleteInactiveUsers(@Param("status") FrontendUser.FrontendUserStatus status, @Param("date") LocalDateTime date);
 }

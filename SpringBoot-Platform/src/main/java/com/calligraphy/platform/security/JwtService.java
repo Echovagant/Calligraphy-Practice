@@ -157,7 +157,8 @@ public class JwtService {
     }
 
     public void revokeToken(String token) {
-        // 鍦ㄥ疄闄呭簲鐢ㄤ腑锛岃繖閲屽彲浠ュ皢浠ょ墝鍔犲叆榛戝悕鍗?        log.info("Token revoked: {}", token);
+        // 鍦ㄥ疄闄呭簲鐢ㄤ腑锛岃繖閲屽彲浠ュ皢浠ょ墝鍔犲叆榛戝悕鍗
+        log.info("Token revoked: {}", token);
     }
 
     public void revokeAdminToken(String token) {

@@ -55,7 +55,7 @@ public class DiscussionServiceImpl implements DiscussionService {
     @Transactional
     @SuppressWarnings("null")
     public DiscussionDto createDiscussion(String userId, DiscussionCreateDto createDto) {
-        log.info("鍒涘缓璁ㄨ: 鐢ㄦ埛ID={}, 鏍囬={}, 鍒嗙被={}", userId, createDto.getTitle(), createDto.getCategory());
+        log.info("鍒涘缓璁ㄨ: 用户ID={}, 鏍囬={}, 分类={}", userId, createDto.getTitle(), createDto.getCategory());
 
         FrontendUser user = frontendUserRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("鐢ㄦ埛涓嶅瓨鍦? " + userId));
@@ -77,7 +77,7 @@ public class DiscussionServiceImpl implements DiscussionService {
         discussion.setTags(createDto.getTags());
 
         Discussion savedDiscussion = discussionRepository.save(discussion);
-        log.info("璁ㄨ鍒涘缓鎴愬姛: ID={}", savedDiscussion.getId());
+        log.info("璁ㄨ创建成功: ID={}", savedDiscussion.getId());
 
         return discussionMapper.toDto(savedDiscussion);
     }
@@ -170,7 +170,7 @@ public class DiscussionServiceImpl implements DiscussionService {
     }
     @Override
     public DiscussionDto updateDiscussion(String discussionId, String userId, DiscussionUpdateDto updateDto) {
-        log.info("鏇存柊璁ㄨ: ID={}, 鐢ㄦ埛ID={}", discussionId, userId);
+        log.info("鏇存柊璁ㄨ: ID={}, 用户ID={}", discussionId, userId);
 
         Discussion discussion = discussionRepository
                 .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
@@ -194,13 +194,13 @@ public class DiscussionServiceImpl implements DiscussionService {
         }
 
         Discussion updatedDiscussion = discussionRepository.save(discussion);
-        log.info("璁ㄨ鏇存柊鎴愬姛: ID={}", updatedDiscussion.getId());
+        log.info("璁ㄨ更新成功: ID={}", updatedDiscussion.getId());
 
         return discussionMapper.toDto(updatedDiscussion);
     }
     @Override
     public void deleteDiscussion(String discussionId, String userId) {
-        log.info("鍒犻櫎璁ㄨ: ID={}, 鐢ㄦ埛ID={}", discussionId, userId);
+        log.info("鍒犻櫎璁ㄨ: ID={}, 用户ID={}", discussionId, userId);
 
         Discussion discussion = discussionRepository
                 .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
@@ -213,7 +213,7 @@ public class DiscussionServiceImpl implements DiscussionService {
         discussion.setStatus(Discussion.DiscussionStatus.DELETED);
         discussionRepository.save(discussion);
 
-        log.info("璁ㄨ鍒犻櫎鎴愬姛: ID={}", discussionId);
+        log.info("璁ㄨ删除成功: ID={}", discussionId);
     }
     @Override
     public void incrementViewCount(String discussionId) {
@@ -245,7 +245,7 @@ public class DiscussionServiceImpl implements DiscussionService {
     @Override
     @Transactional(readOnly = true)
     public boolean isLikedByUser(String discussionId, String userId) {
-        // 鐢变簬褰撳墠Discussion瀹炰綋娌℃湁璁板綍鐐硅禐鐢ㄦ埛鍒楄〃锛岃繑鍥瀎alse浣滀负榛樿瀹炵幇
+        // 由于当前Discussion瀹炰綋娌℃湁璁板綍鐐硅禐鐢ㄦ埛鍒楄〃锛岃繑鍥瀎alse浣滀负榛樿实现
         return false;
     }
     @Override
@@ -260,7 +260,7 @@ public class DiscussionServiceImpl implements DiscussionService {
     @Transactional
     @SuppressWarnings("null")
     public DiscussionReplyDto createReply(String discussionId, String userId, DiscussionReplyCreateDto createDto) {
-        log.info("鍒涘缓鍥炲: 璁ㄨID={}, 鐢ㄦ埛ID={}", discussionId, userId);
+        log.info("鍒涘缓鍥炲: 璁ㄨID={}, 用户ID={}", discussionId, userId);
 
         Discussion discussion = discussionRepository
                 .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
@@ -288,13 +288,13 @@ public class DiscussionServiceImpl implements DiscussionService {
         discussion.incrementReplyCount();
         discussionRepository.save(discussion);
 
-        log.info("鍥炲鍒涘缓鎴愬姛: ID={}", savedReply.getId());
+        log.info("鍥炲创建成功: ID={}", savedReply.getId());
 
         return discussionReplyMapper.toDto(savedReply);
     }
     @Override
     public DiscussionReplyDto updateReply(String replyId, String userId, DiscussionReplyCreateDto updateDto) {
-        log.info("鏇存柊鍥炲: ID={}, 鐢ㄦ埛ID={}", replyId, userId);
+        log.info("鏇存柊鍥炲: ID={}, 用户ID={}", replyId, userId);
 
         DiscussionReply reply = discussionReplyRepository.findById(( Long) Long.valueOf(replyId))
                 .orElseThrow(() -> new ResourceNotFoundException("鍥炲涓嶅瓨鍦? " + replyId));
@@ -307,13 +307,13 @@ public class DiscussionServiceImpl implements DiscussionService {
         reply.setUpdatedAt(LocalDateTime.now());
 
         DiscussionReply updatedReply = discussionReplyRepository.save(reply);
-        log.info("鍥炲鏇存柊鎴愬姛: ID={}", updatedReply.getId());
+        log.info("鍥炲更新成功: ID={}", updatedReply.getId());
 
         return discussionReplyMapper.toDto(updatedReply);
     }
     @Override
     public void deleteReply(String replyId, String userId) {
-        log.info("鍒犻櫎鍥炲: ID={}, 鐢ㄦ埛ID={}", replyId, userId);
+        log.info("鍒犻櫎鍥炲: ID={}, 用户ID={}", replyId, userId);
 
         DiscussionReply reply = discussionReplyRepository.findById(( Long) Long.valueOf(replyId))
                 .orElseThrow(() -> new ResourceNotFoundException("鍥炲涓嶅瓨鍦? " + replyId));
@@ -330,7 +330,7 @@ public class DiscussionServiceImpl implements DiscussionService {
         discussion.decrementReplyCount();
         discussionRepository.save(discussion);
 
-        log.info("鍥炲鍒犻櫎鎴愬姛: ID={}", replyId);
+        log.info("鍥炲删除成功: ID={}", replyId);
     }
     @Override
     @Transactional(readOnly = true)
@@ -444,7 +444,7 @@ public class DiscussionServiceImpl implements DiscussionService {
         discussion.setIsFeatured(true);
         Discussion updatedDiscussion = discussionRepository.save(discussion);
 
-        log.info("璁ㄨ鍔犵簿鎴愬姛: ID={}, 绠＄悊鍛業D={}", discussionId, adminId);
+        log.info("璁ㄨ加精成功: ID={}, 绠＄悊鍛業D={}", discussionId, adminId);
         return discussionMapper.toDto(updatedDiscussion);
     }
     @Override
@@ -456,7 +456,7 @@ public class DiscussionServiceImpl implements DiscussionService {
         discussion.setIsFeatured(false);
         Discussion updatedDiscussion = discussionRepository.save(discussion);
 
-        log.info("璁ㄨ鍙栨秷鍔犵簿鎴愬姛: ID={}, 绠＄悊鍛業D={}", discussionId, adminId);
+        log.info("璁ㄨ取消加精成功: ID={}, 绠＄悊鍛業D={}", discussionId, adminId);
         return discussionMapper.toDto(updatedDiscussion);
     }
 }

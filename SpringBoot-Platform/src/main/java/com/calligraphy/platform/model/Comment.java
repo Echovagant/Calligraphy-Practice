@@ -83,11 +83,12 @@ public class Comment {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
-    // 鐘舵€佹灇涓?    public enum CommentStatus {
+    // 鐘舵€佹灇涓
+    public enum CommentStatus {
         PENDING, APPROVED, REJECTED, DELETED
     }
     
-    // 棰勬寔涔呭寲鍥炶皟
+    // 预持久化回调
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -101,7 +102,7 @@ public class Comment {
         updatedAt = LocalDateTime.now();
     }
     
-    // 涓氬姟鏂规硶
+    // 业务方法
     public void incrementLikeCount() {
         this.likeCount = (this.likeCount == null ? 0 : this.likeCount) + 1;
     }
@@ -134,7 +135,7 @@ public class Comment {
         return CommentStatus.PENDING.equals(this.status);
     }
     
-    // 娣诲姞缂哄皯鐨刧etter鍜宻etter鏂规硶
+    // 娣诲姞缂哄皯鐨刧etter鍜宻etter方法
     public Long getId() {
         return id;
     }

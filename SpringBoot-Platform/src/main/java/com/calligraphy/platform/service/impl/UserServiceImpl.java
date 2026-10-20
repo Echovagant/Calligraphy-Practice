@@ -43,8 +43,9 @@ public class UserServiceImpl implements UserService {
     public User createUser(User user) {
         log.info("鍒涘缓鏂扮敤鎴? {}", user.getUsername());
 
-        // 妫€鏌ョ敤鎴峰悕鏄惁宸插瓨鍦?        if (userRepository.existsByUsername(user.getUsername())) {
-            throw new UserAlreadyExistsException("鐢ㄦ埛鍚嶅凡瀛樺湪: " + user.getUsername());
+        // 妫€鏌ョ敤鎴峰悕鏄惁宸插瓨鍦
+        if (userRepository.existsByUsername(user.getUsername())) {
+            throw new UserAlreadyExistsException("用户名已存在: " + user.getUsername());
         }
 
         // 妫€鏌ラ偖绠辨槸鍚﹀凡瀛樺湪
@@ -52,16 +53,16 @@ public class UserServiceImpl implements UserService {
             throw new UserAlreadyExistsException("閭宸插瓨鍦? " + user.getEmail());
         }
 
-        // 璁剧疆榛樿澶村儚
+        // 璁剧疆榛樿头像
         if (user.getAvatarUrl() == null || user.getAvatarUrl().isEmpty()) {
             user.setAvatarUrl("/assets/default-avatar.png");
         }
 
-        // 瀵嗙爜鍔犲瘑
+        // 密码加密
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         User savedUser = userRepository.save(user);
-        log.info("鐢ㄦ埛鍒涘缓鎴愬姛: {} (ID: {})", savedUser.getUsername(), savedUser.getId());
+        log.info("用户创建成功: {} (ID: {})", savedUser.getUsername(), savedUser.getId());
 
         return savedUser;
     }
@@ -80,9 +81,10 @@ public class UserServiceImpl implements UserService {
         }
 
         if (updateRequest.getEmail() != null) {
-            // 妫€鏌ラ偖绠辨槸鍚﹀凡琚叾浠栫敤鎴蜂娇鐢?            if (!user.getEmail().equals(updateRequest.getEmail()) &&
+            // 妫€鏌ラ偖绠辨槸鍚﹀凡琚叾浠栫敤鎴蜂娇鐢
+            if (!user.getEmail().equals(updateRequest.getEmail()) &&
                     userRepository.existsByEmail(updateRequest.getEmail())) {
-                throw new UserAlreadyExistsException("閭宸茶浣跨敤: " + updateRequest.getEmail());
+                throw new UserAlreadyExistsException("閭宸茶使用: " + updateRequest.getEmail());
             }
             user.setEmail(updateRequest.getEmail());
         }
@@ -116,13 +118,13 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @SuppressWarnings("null")
     public void deleteUser(String userId) {
-        log.info("鍒犻櫎鐢ㄦ埛 (ID: {})", userId);
+        log.info("删除用户 (ID: {})", userId);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("鐢ㄦ埛涓嶅瓨鍦? " + userId));
 
         userRepository.delete(user);
-        log.info("鐢ㄦ埛鍒犻櫎鎴愬姛: {} (ID: {})", user.getUsername(), userId);
+        log.info("用户删除成功: {} (ID: {})", user.getUsername(), userId);
     }
     @Override
     @SuppressWarnings("null")
@@ -243,7 +245,7 @@ public class UserServiceImpl implements UserService {
         statistics.put("adminUsers",
                 userRepository.countByRole(User.Role.ADMIN) + userRepository.countByRole(User.Role.SUPER_ADMIN));
 
-        // 浠婃棩鏂板鐢ㄦ埛
+        // 浠婃棩鏂板用户
         LocalDateTime startOfDay = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
         statistics.put("todayNewUsers", userRepository.countNewUsersSince(startOfDay));
 
@@ -252,11 +254,11 @@ public class UserServiceImpl implements UserService {
     }
     @Override
     public List<User> getUsersByRole(String role) {
-        log.info("鑾峰彇瑙掕壊涓?{} 鐨勭敤鎴峰垪琛?, role);
+        log.info("鑾峰彇瑙掕壊涓?{} 鐨勭敤鎴峰垪琛", role);
         try {
             User.Role userRole = User.Role.valueOf(role.toUpperCase());
             List<User> users = userRepository.findByRole(userRole);
-            log.info("鑾峰彇鍒?{} 涓敤鎴?, users.size());
+            log.info("鑾峰彇鍒?{} 涓敤鎴", users.size());
             return users;
         } catch (IllegalArgumentException e) {
             log.error("鏃犳晥鐨勮鑹? {}", role);

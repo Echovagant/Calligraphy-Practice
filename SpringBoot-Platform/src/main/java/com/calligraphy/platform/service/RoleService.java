@@ -44,11 +44,12 @@ public interface RoleService {
     
     boolean existsByName(String roleName);
     
-    // 鎼滅储鍜岀瓫閫?    Page<RoleDto> searchRoles(String keyword, Pageable pageable);
+    // 鎼滅储鍜岀瓫閫
+    Page<RoleDto> searchRoles(String keyword, Pageable pageable);
     
     List<RoleDto> searchRoles(String keyword);
     
-    // 缁熻鐩稿叧
+    // 缁熻相关
     long getTotalRoleCount();
     
     long getRoleCountByType(Role.RoleType type);
@@ -106,7 +107,8 @@ public interface RoleService {
     
     boolean isRoleDescendant(String descendantRoleId, String ancestorRoleId);
     
-    // 棰勫畾涔夎鑹?    List<RoleDto> getPredefinedRoles();
+    // 棰勫畾涔夎鑹
+    List<RoleDto> getPredefinedRoles();
     
     void initializePredefinedRoles();
     
@@ -118,12 +120,12 @@ public interface RoleService {
     
     RoleDto getGuestRole();
     
-    // 瑙掕壊楠岃瘉
+    // 角色验证
     boolean validateRoleCode(String roleCode);
     
     boolean validateRoleName(String roleName);
     
-    // 瑙掕壊缂撳瓨
+    // 角色缓存
     void refreshRoleCache();
     
     void refreshUserRoleCache(String userId);
@@ -137,7 +139,7 @@ public interface RoleService {
     
     java.util.Map<String, Object> getPermissionRoleStats(String permissionId);
     
-    // 瑙掕壊瀵煎嚭
+    // 角色导出
     byte[] exportRoles(String format);
     
     byte[] exportUserRoles(String userId, String format);

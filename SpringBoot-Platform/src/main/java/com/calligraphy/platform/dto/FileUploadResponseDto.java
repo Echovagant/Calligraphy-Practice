@@ -20,7 +20,7 @@ public class FileUploadResponseDto {
         this.message = message;
     }
     
-    // Getter 鍜?Setter 鏂规硶
+    // Getter 鍜?Setter 方法
     public String getFileName() {
         return fileName;
     }

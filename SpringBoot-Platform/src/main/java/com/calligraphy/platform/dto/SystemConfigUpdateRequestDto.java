@@ -4,10 +4,10 @@ import jakarta.validation.constraints.NotBlank;
 
 public class SystemConfigUpdateRequestDto {
     
-    @NotBlank(message = "閰嶇疆閿笉鑳戒负绌?)
+    @NotBlank(message = "閰嶇疆閿笉鑳戒负绌")
     private String configKey;
     
-    @NotBlank(message = "閰嶇疆鍊间笉鑳戒负绌?)
+    @NotBlank(message = "閰嶇疆鍊间笉鑳戒负绌")
     private String configValue;
     
     private String description;
@@ -26,7 +26,7 @@ public class SystemConfigUpdateRequestDto {
         this.configType = configType;
     }
     
-    // Getter 鍜?Setter 鏂规硶
+    // Getter 鍜?Setter 方法
     public String getConfigKey() {
         return configKey;
     }
@@ -59,7 +59,8 @@ public class SystemConfigUpdateRequestDto {
         this.configType = configType;
     }
     
-    // Builder 绫?    public static class Builder {
+    // Builder 绫
+    public static class Builder {
         private String configKey;
         private String configValue;
         private String description;

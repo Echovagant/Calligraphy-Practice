@@ -27,7 +27,7 @@ public class SystemConfigServiceImpl implements SystemConfigService {
 
     private final SystemConfigRepository systemConfigRepository;
 
-    // 鎵嬪姩瀹炵幇DTO杞崲
+    // 手动实现DTO杞崲
     private SystemConfigDto toDto(SystemConfig config) {
         SystemConfigDto dto = new SystemConfigDto();
         dto.setConfigKey(config.getConfigKey());
@@ -46,7 +46,7 @@ public class SystemConfigServiceImpl implements SystemConfigService {
     @Transactional
     @CacheEvict(value = "systemConfig", key = "#updateRequest.configKey")
     public SystemConfigDto updateConfig(SystemConfigUpdateRequestDto updateRequest, String updatedBy) {
-        log.info("鏇存柊绯荤粺閰嶇疆: key={}, 鏇存柊鑰?{}", updateRequest.getConfigKey(), updatedBy);
+        log.info("更新系统配置: key={}, 鏇存柊鑰?{}", updateRequest.getConfigKey(), updatedBy);
 
         SystemConfig config = systemConfigRepository.findByConfigKey(updateRequest.getConfigKey())
                 .orElseGet(() -> {
@@ -62,11 +62,12 @@ public class SystemConfigServiceImpl implements SystemConfigService {
                     newConfig.setUpdatedAt(LocalDateTime.now());
                     newConfig.setUpdatedBy(updatedBy);
 
-                    log.info("鍒涘缓鏂扮殑绯荤粺閰嶇疆: key={}", updateRequest.getConfigKey());
+                    log.info("创建新的系统配置: key={}", updateRequest.getConfigKey());
                     return newConfig;
                 });
 
-        // 鏇存柊閰嶇疆鍊?        if (updateRequest.getConfigValue() != null) {
+        // 鏇存柊閰嶇疆鍊
+        if (updateRequest.getConfigValue() != null) {
             config.setConfigValue(updateRequest.getConfigValue());
         }
 
@@ -82,7 +83,7 @@ public class SystemConfigServiceImpl implements SystemConfigService {
         config.setUpdatedBy(updatedBy);
 
         SystemConfig updatedConfig = systemConfigRepository.save(config);
-        log.info("绯荤粺閰嶇疆鏇存柊鎴愬姛: key={}", updateRequest.getConfigKey());
+        log.info("系统配置更新成功: key={}", updateRequest.getConfigKey());
 
         return toDto(updatedConfig);
     }
@@ -90,17 +91,17 @@ public class SystemConfigServiceImpl implements SystemConfigService {
     @Transactional
     @CacheEvict(value = "systemConfig", key = "#configKey")
     public void deleteConfig(String configKey) {
-        log.info("鍒犻櫎绯荤粺閰嶇疆: key={}", configKey);
+        log.info("删除系统配置: key={}", configKey);
 
         SystemConfig config = systemConfigRepository.findByConfigKey(configKey)
                 .orElseThrow(() -> new ResourceNotFoundException("绯荤粺閰嶇疆涓嶅瓨鍦? " + configKey));
 
         if (!config.getIsEditable()) {
-            throw new SecurityException("璇ラ厤缃」涓嶅厑璁稿垹闄?);
+            throw new SecurityException("璇ラ厤缃」涓嶅厑璁稿垹闄");
         }
 
         systemConfigRepository.delete(config);
-        log.info("绯荤粺閰嶇疆鍒犻櫎鎴愬姛: key={}", configKey);
+        log.info("系统配置删除成功: key={}", configKey);
     }
     @Override
     @Cacheable(value = "systemConfig", key = "#configKey")
@@ -150,7 +151,7 @@ public class SystemConfigServiceImpl implements SystemConfigService {
         try {
             return Long.parseLong(value);
         } catch (NumberFormatException e) {
-            log.error("閰嶇疆鍊艰浆鎹㈤暱鏁存暟澶辫触: key={}, value={}", configKey, value);
+            log.error("配置值转换长整数失败: key={}, value={}", configKey, value);
             throw new IllegalArgumentException("閰嶇疆鍊间笉鏄湁鏁堢殑闀挎暣鏁? " + configKey);
         }
     }
@@ -158,18 +159,18 @@ public class SystemConfigServiceImpl implements SystemConfigService {
     @Transactional
     @CacheEvict(value = "systemConfig", allEntries = true)
     public void batchUpdateConfigs(List<SystemConfigUpdateRequestDto> updateRequests, String updatedBy) {
-        log.info("鎵归噺鏇存柊绯荤粺閰嶇疆: 鏁伴噺={}, 鏇存柊鑰?{}", updateRequests.size(), updatedBy);
+        log.info("批量更新系统配置: 数量={}, 鏇存柊鑰?{}", updateRequests.size(), updatedBy);
 
         for (SystemConfigUpdateRequestDto updateRequest : updateRequests) {
             try {
                 updateConfig(updateRequest, updatedBy);
             } catch (Exception e) {
-                log.error("鏇存柊閰嶇疆澶辫触: key={}, 閿欒={}", updateRequest.getConfigKey(), e.getMessage());
-                throw new RuntimeException("鏇存柊閰嶇疆澶辫触: " + updateRequest.getConfigKey());
+                log.error("更新配置失败: key={}, 閿欒={}", updateRequest.getConfigKey(), e.getMessage());
+                throw new RuntimeException("更新配置失败: " + updateRequest.getConfigKey());
             }
         }
 
-        log.info("鎵归噺鏇存柊绯荤粺閰嶇疆瀹屾垚: 鏁伴噺={}", updateRequests.size());
+        log.info("批量更新系统配置完成: 数量={}", updateRequests.size());
     }
     @Override
     public List<SystemConfigDto> getConfigsByType(String configType) {
@@ -194,7 +195,7 @@ public class SystemConfigServiceImpl implements SystemConfigService {
                 .orElseThrow(() -> new ResourceNotFoundException("绯荤粺閰嶇疆涓嶅瓨鍦? " + configKey));
 
         if (!config.getIsEditable()) {
-            throw new SecurityException("璇ラ厤缃」涓嶅厑璁搁噸缃?);
+            throw new SecurityException("璇ラ厤缃」涓嶅厑璁搁噸缃");
         }
 
         config.setConfigValue(defaultValue);
@@ -202,7 +203,7 @@ public class SystemConfigServiceImpl implements SystemConfigService {
         config.setUpdatedBy(updatedBy);
 
         systemConfigRepository.save(config);
-        log.info("绯荤粺閰嶇疆閲嶇疆鎴愬姛: key={}", configKey);
+        log.info("系统配置重置成功: key={}", configKey);
     }
 
     // ===== SystemConfigService 鎺ュ彛鏂规硶瀹炵幇锛圡ap缁撴瀯锛?=====
@@ -324,58 +325,58 @@ public class SystemConfigServiceImpl implements SystemConfigService {
     @Transactional
     @CacheEvict(value = "systemConfig", allEntries = true)
     public void initializeDefaultConfigs() {
-        log.info("鍒濆鍖栭粯璁ょ郴缁熼厤缃?);
+        log.info("鍒濆鍖栭粯璁ょ郴缁熼厤缃");
 
-        // 缃戠珯鍩烘湰閰嶇疆
+        // 网站基本配置
         createDefaultConfigIfNotExists("site.name", "涔︽硶缁冧範骞冲彴", "缃戠珯鍚嶇О", "STRING", false);
-        createDefaultConfigIfNotExists("site.description", "涓撲笟鐨勪功娉曠粌涔犲钩鍙?, "缃戠珯鎻忚堪", "STRING", false);
-        createDefaultConfigIfNotExists("site.keywords", "涔︽硶,缁冧範,姣涚瑪瀛?纭瑪瀛?, "缃戠珯鍏抽敭璇?, "STRING", true);
-        createDefaultConfigIfNotExists("site.logo", "/assets/logo.png", "缃戠珯Logo", "STRING", true);
-        createDefaultConfigIfNotExists("site.favicon", "/assets/favicon.ico", "缃戠珯鍥炬爣", "STRING", true);
+        createDefaultConfigIfNotExists("site.description", "涓撲笟鐨勪功娉曠粌涔犲钩鍙", "网站描述", "STRING", false);
+        createDefaultConfigIfNotExists("site.keywords", "涔︽硶,练习,姣涚瑪瀛?纭瑪瀛?, "缃戠珯鍏抽敭璇?, "STRING", true);
+        createDefaultConfigIfNotExists("site.logo", "/assets/logo.png", "网站Logo", "STRING", true);
+        createDefaultConfigIfNotExists("site.favicon", "/assets/favicon.ico", "网站图标", "STRING", true);
 
-        // 鐢ㄦ埛鐩稿叧閰嶇疆
-        createDefaultConfigIfNotExists("user.registration.enabled", "true", "鏄惁鍏佽鐢ㄦ埛娉ㄥ唽", "BOOLEAN", true);
-        createDefaultConfigIfNotExists("user.email.verification.required", "false", "鏄惁闇€瑕侀偖绠遍獙璇?, "BOOLEAN", true);
-        createDefaultConfigIfNotExists("user.avatar.default", "/assets/default-avatar.png", "榛樿澶村儚", "STRING", true);
-        createDefaultConfigIfNotExists("user.password.min.length", "6", "瀵嗙爜鏈€灏忛暱搴?, "INTEGER", true);
-        createDefaultConfigIfNotExists("user.login.max.attempts", "5", "鐧诲綍鏈€澶у皾璇曟鏁?, "INTEGER", true);
+        // 用户相关配置
+        createDefaultConfigIfNotExists("user.registration.enabled", "true", "鏄惁鍏佽用户注册", "BOOLEAN", true);
+        createDefaultConfigIfNotExists("user.email.verification.required", "false", "鏄惁闇€瑕侀偖绠遍獙璇", "BOOLEAN", true);
+        createDefaultConfigIfNotExists("user.avatar.default", "/assets/default-avatar.png", "榛樿头像", "STRING", true);
+        createDefaultConfigIfNotExists("user.password.min.length", "6", "瀵嗙爜鏈€灏忛暱搴", "INTEGER", true);
+        createDefaultConfigIfNotExists("user.login.max.attempts", "5", "鐧诲綍鏈€澶у皾璇曟鏁", "INTEGER", true);
 
-        // 浣滃搧鐩稿叧閰嶇疆
-        createDefaultConfigIfNotExists("work.upload.enabled", "true", "鏄惁鍏佽涓婁紶浣滃搧", "BOOLEAN", true);
-        createDefaultConfigIfNotExists("work.upload.max.size", "10485760", "浣滃搧涓婁紶鏈€澶уぇ灏?瀛楄妭)", "LONG", true); // 10MB
-        createDefaultConfigIfNotExists("work.upload.allowed.types", "jpg,jpeg,png,gif,pdf", "鍏佽涓婁紶鐨勬枃浠剁被鍨?, "STRING",
+        // 作品相关配置
+        createDefaultConfigIfNotExists("work.upload.enabled", "true", "鏄惁鍏佽上传作品", "BOOLEAN", true);
+        createDefaultConfigIfNotExists("work.upload.max.size", "10485760", "浣滃搧涓婁紶鏈€澶уぇ灏?字节)", "LONG", true); // 10MB
+        createDefaultConfigIfNotExists("work.upload.allowed.types", "jpg,jpeg,png,gif,pdf", "鍏佽涓婁紶鐨勬枃浠剁被鍨", "STRING",
                 true);
         createDefaultConfigIfNotExists("work.auto.approve", "true", "浣滃搧鏄惁鑷姩瀹℃牳閫氳繃", "BOOLEAN", true);
-        createDefaultConfigIfNotExists("work.comment.enabled", "true", "鏄惁鍏佽璇勮浣滃搧", "BOOLEAN", true);
+        createDefaultConfigIfNotExists("work.comment.enabled", "true", "鏄惁鍏佽璇勮作品", "BOOLEAN", true);
 
         // 瀹℃牳鐩稿叧閰嶇疆
         createDefaultConfigIfNotExists("audit.work.enabled", "true", "鏄惁鍚敤浣滃搧瀹℃牳", "BOOLEAN", true);
         createDefaultConfigIfNotExists("audit.comment.enabled", "true", "鏄惁鍚敤璇勮瀹℃牳", "BOOLEAN", true);
-        createDefaultConfigIfNotExists("audit.auto.approve.threshold", "10", "鑷姩瀹℃牳閫氳繃闃堝€?, "INTEGER", true);
+        createDefaultConfigIfNotExists("audit.auto.approve.threshold", "10", "鑷姩瀹℃牳閫氳繃闃堝€", "INTEGER", true);
 
-        // 瀛樺偍鐩稿叧閰嶇疆
-        createDefaultConfigIfNotExists("storage.type", "local", "瀛樺偍绫诲瀷(local,aliyun,qiniu)", "STRING", true);
+        // 存储相关配置
+        createDefaultConfigIfNotExists("storage.type", "local", "存储类型(local,aliyun,qiniu)", "STRING", true);
         createDefaultConfigIfNotExists("storage.local.path", "/uploads/", "鏈湴瀛樺偍璺緞", "STRING", true);
         createDefaultConfigIfNotExists("storage.cdn.enabled", "false", "鏄惁鍚敤CDN", "BOOLEAN", true);
-        createDefaultConfigIfNotExists("storage.cdn.domain", "", "CDN鍩熷悕", "STRING", true);
+        createDefaultConfigIfNotExists("storage.cdn.domain", "", "CDN域名", "STRING", true);
 
-        // JWT閰嶇疆
-        createDefaultConfigIfNotExists("jwt.user.expiration", "86400", "鐢ㄦ埛JWT杩囨湡鏃堕棿(绉?", "LONG", true); // 24灏忔椂
-        createDefaultConfigIfNotExists("jwt.admin.expiration", "3600", "绠＄悊鍛楯WT杩囨湡鏃堕棿(绉?", "LONG", true); // 1灏忔椂
-        createDefaultConfigIfNotExists("jwt.refresh.expiration", "604800", "鍒锋柊浠ょ墝杩囨湡鏃堕棿(绉?", "LONG", true); // 7澶?
+        // JWT配置
+        createDefaultConfigIfNotExists("jwt.user.expiration", "86400", "用户JWT过期时间(绉?", "LONG", true); // 24小时
+        createDefaultConfigIfNotExists("jwt.admin.expiration", "3600", "绠＄悊鍛楯WT过期时间(绉?", "LONG", true); // 1小时
+        createDefaultConfigIfNotExists("jwt.refresh.expiration", "604800", "刷新令牌过期时间(绉?", "LONG", true); // 7澶?
         // 閭欢閰嶇疆
         createDefaultConfigIfNotExists("email.enabled", "false", "鏄惁鍚敤閭欢鏈嶅姟", "BOOLEAN", true);
         createDefaultConfigIfNotExists("email.smtp.host", "", "SMTP鏈嶅姟鍣ㄥ湴鍧€", "STRING", true);
-        createDefaultConfigIfNotExists("email.smtp.port", "587", "SMTP鏈嶅姟鍣ㄧ鍙?, "INTEGER", true);
-        createDefaultConfigIfNotExists("email.smtp.username", "", "SMTP鐢ㄦ埛鍚?, "STRING", true);
-        createDefaultConfigIfNotExists("email.smtp.password", "", "SMTP瀵嗙爜", "STRING", true);
-        createDefaultConfigIfNotExists("email.from.address", "", "鍙戜欢浜洪偖绠?, "STRING", true);
+        createDefaultConfigIfNotExists("email.smtp.port", "587", "SMTP鏈嶅姟鍣ㄧ鍙", "INTEGER", true);
+        createDefaultConfigIfNotExists("email.smtp.username", "", "SMTP鐢ㄦ埛鍚", "STRING", true);
+        createDefaultConfigIfNotExists("email.smtp.password", "", "SMTP密码", "STRING", true);
+        createDefaultConfigIfNotExists("email.from.address", "", "鍙戜欢浜洪偖绠", "STRING", true);
 
-        // 鍒嗛〉閰嶇疆
+        // 分页配置
         createDefaultConfigIfNotExists("pagination.default.size", "20", "榛樿鍒嗛〉澶у皬", "INTEGER", true);
-        createDefaultConfigIfNotExists("pagination.max.size", "100", "鏈€澶у垎椤靛ぇ灏?, "INTEGER", true);
+        createDefaultConfigIfNotExists("pagination.max.size", "100", "鏈€澶у垎椤靛ぇ灏", "INTEGER", true);
 
-        log.info("榛樿绯荤粺閰嶇疆鍒濆鍖栧畬鎴?);
+        log.info("榛樿绯荤粺閰嶇疆鍒濆鍖栧畬鎴");
     }
 
     private void createDefaultConfigIfNotExists(String configKey, String defaultValue, String description,
@@ -392,7 +393,7 @@ public class SystemConfigServiceImpl implements SystemConfigService {
             config.setUpdatedBy("system");
 
             systemConfigRepository.save(config);
-            log.info("鍒涘缓榛樿閰嶇疆: key={}, value={}", configKey, defaultValue);
+            log.info("鍒涘缓榛樿配置: key={}, value={}", configKey, defaultValue);
         }
     }
 }

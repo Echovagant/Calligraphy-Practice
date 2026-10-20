@@ -88,7 +88,7 @@ public interface UserRepository extends JpaRepository<User, String> {
        @Query("SELECT u FROM User u WHERE u.twoFactorSecret = :secret")
        Optional<User> findByTwoFactorSecret(@Param("secret") String secret);
 
-       // 鎵归噺鎿嶄綔
+       // 批量操作
        @Query("UPDATE User u SET u.accountLocked = false, u.failedLoginAttempts = 0 " +
                      "WHERE u.accountLocked = true AND u.accountLockedUntil < :now")
        void unlockExpiredAccounts(@Param("now") LocalDateTime now);

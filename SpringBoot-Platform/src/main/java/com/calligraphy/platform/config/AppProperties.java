@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
- * 搴旂敤绋嬪簭鍩烘湰淇℃伅閰嶇疆绫? * 鐢ㄤ簬澶勭悊app.*鍓嶇紑鐨勯厤缃睘鎬э紝閬垮厤鏈煡灞炴€ц鍛? */
+ * 搴旂敤绋嬪簭鍩烘湰淇℃伅閰嶇疆绫? * 用于处理app.*鍓嶇紑鐨勯厤缃睘鎬э紝閬垮厤鏈煡灞炴€ц鍛? */
 @Component
 @ConfigurationProperties(prefix = "app")
 public class AppProperties {
@@ -15,12 +15,12 @@ public class AppProperties {
     private String name;
     
     /**
-     * 搴旂敤鐗堟湰
+     * 应用版本
      */
     private String version;
     
     /**
-     * 搴旂敤鎻忚堪
+     * 应用描述
      */
     private String description;
     
@@ -41,32 +41,32 @@ public class AppProperties {
     }
     
     /**
-     * 鑾峰彇搴旂敤鐗堟湰
-     * @return 搴旂敤鐗堟湰
+     * 获取应用版本
+     * @return 应用版本
      */
     public String getVersion() {
         return version;
     }
     
     /**
-     * 璁剧疆搴旂敤鐗堟湰
-     * @param version 搴旂敤鐗堟湰
+     * 设置应用版本
+     * @param version 应用版本
      */
     public void setVersion(String version) {
         this.version = version;
     }
     
     /**
-     * 鑾峰彇搴旂敤鎻忚堪
-     * @return 搴旂敤鎻忚堪
+     * 获取应用描述
+     * @return 应用描述
      */
     public String getDescription() {
         return description;
     }
     
     /**
-     * 璁剧疆搴旂敤鎻忚堪
-     * @param description 搴旂敤鎻忚堪
+     * 设置应用描述
+     * @param description 应用描述
      */
     public void setDescription(String description) {
         this.description = description;

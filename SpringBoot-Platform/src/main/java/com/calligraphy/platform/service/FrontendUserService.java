@@ -57,7 +57,7 @@ public interface FrontendUserService {
     
     Page<FrontendUserDto> searchUsers(String keyword, Pageable pageable);
     
-    // 鐢ㄦ埛缁熻鐩稿叧鏂规硶
+    // 鐢ㄦ埛缁熻相关方法
     long countByRegistrationDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
     
     long countByLastLoginDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
@@ -66,7 +66,8 @@ public interface FrontendUserService {
     
     List<FrontendUserDto> findRecentlyRegisteredUsers(int limit);
     
-    // 鐢ㄦ埛鐘舵€佺鐞?    void lockUser(String userId);
+    // 鐢ㄦ埛鐘舵€佺鐞
+    void lockUser(String userId);
     
     void unlockUser(String userId);
     
@@ -76,7 +77,7 @@ public interface FrontendUserService {
     
     void resetFailedLoginAttempts(String userId);
     
-    // 鐢ㄦ埛鍋忓ソ璁剧疆
+    // 用户偏好设置
     FrontendUserDto updateUserPreferences(String userId, String preferences);
     
     String getUserPreferences(String userId);
@@ -88,7 +89,7 @@ public interface FrontendUserService {
     
     long getUserCommentCount(String userId);
     
-    // 鎵归噺鎿嶄綔
+    // 批量操作
     void bulkDeleteUsers(List<String> userIds);
     
     void bulkDeactivateUsers(List<String> userIds);

@@ -34,7 +34,7 @@ public class Discussion {
     private Long id;
     
     @NotBlank(message = "璁ㄨ鏍囬涓嶈兘涓虹┖")
-    @Size(max = 200, message = "鏍囬闀垮害涓嶈兘瓒呰繃200涓瓧绗?)
+    @Size(max = 200, message = "鏍囬长度不能超过200涓瓧绗")
     @Column(name = "title", length = 200, nullable = false)
     private String title;
     
@@ -43,7 +43,7 @@ public class Discussion {
     private String content;
     
     @NotBlank(message = "璁ㄨ鍒嗙被涓嶈兘涓虹┖")
-    @Size(max = 50, message = "鍒嗙被闀垮害涓嶈兘瓒呰繃50涓瓧绗?)
+    @Size(max = 50, message = "分类长度不能超过50涓瓧绗")
     @Column(name = "category", length = 50, nullable = false)
     private String category;
     
@@ -93,11 +93,12 @@ public class Discussion {
     @OrderBy("createdAt ASC")
     private List<DiscussionReply> replies = new ArrayList<>();
     
-    // 鐘舵€佹灇涓?    public enum DiscussionStatus {
+    // 鐘舵€佹灇涓
+    public enum DiscussionStatus {
         ACTIVE, INACTIVE, DELETED
     }
     
-    // 棰勬寔涔呭寲鍥炶皟
+    // 预持久化回调
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -114,7 +115,7 @@ public class Discussion {
         updatedAt = LocalDateTime.now();
     }
     
-    // 涓氬姟鏂规硶
+    // 业务方法
     public void incrementViewCount() {
         this.viewCount = (this.viewCount == null ? 0 : this.viewCount) + 1;
     }
@@ -143,7 +144,7 @@ public class Discussion {
         return DiscussionStatus.DELETED.equals(this.status);
     }
     
-    // 娣诲姞缂哄皯鐨刧etter鍜宻etter鏂规硶
+    // 娣诲姞缂哄皯鐨刧etter鍜宻etter方法
     public Long getId() {
         return id;
     }

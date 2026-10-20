@@ -85,7 +85,8 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
        @Query("SELECT p.permissionType, COUNT(p) FROM Permission p WHERE p.isActive = true GROUP BY p.permissionType")
        List<Object[]> getActiveTypeStats();
 
-       // 棰勫畾涔夋潈闄愭煡璇?       @Query("SELECT p FROM Permission p WHERE p.code IN :codes")
+       // 棰勫畾涔夋潈闄愭煡璇
+       @Query("SELECT p FROM Permission p WHERE p.code IN :codes")
        List<Permission> findByCodes(@Param("codes") List<String> codes);
 
        // 瑙掕壊鏉冮檺鐩稿叧鏌ヨ
@@ -101,7 +102,8 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
        @Query("SELECT DISTINCT p FROM Permission p JOIN p.roles r WHERE r.code IN :roleCodes")
        List<Permission> findByRoleCodes(@Param("roleCodes") List<String> roleCodes);
 
-       // 鏉冮檺妫€鏌?       @Query("SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END FROM Permission p " +
+       // 鏉冮檺妫€鏌
+       @Query("SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END FROM Permission p " +
                      "JOIN p.roles r WHERE p.code = :permissionCode AND r.code = :roleCode")
        boolean hasPermission(@Param("roleCode") String roleCode, @Param("permissionCode") String permissionCode);
 

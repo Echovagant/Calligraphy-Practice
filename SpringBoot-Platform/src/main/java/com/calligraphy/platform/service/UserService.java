@@ -28,14 +28,15 @@ public interface UserService {
 
     boolean existsByEmail(String email);
 
-    // DTO鐩稿叧鏂规硶
+    // DTO相关方法
     List<FrontendUserDto> getAllUsers();
 
     Page<FrontendUserDto> getUsers(Pageable pageable);
 
     Page<FrontendUserDto> searchUsers(String keyword, Pageable pageable);
 
-    // 鐢ㄦ埛鐘舵€佺鐞?    void updateLastLoginInfo(String username, String ipAddress);
+    // 鐢ㄦ埛鐘舵€佺鐞
+    void updateLastLoginInfo(String username, String ipAddress);
 
     void updateEmailVerificationStatus(String email, boolean verified);
 

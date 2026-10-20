@@ -44,7 +44,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public Map<String, String> login(String username, String password) {
-        log.info("鐢ㄦ埛鐧诲綍灏濊瘯: {}", username);
+        log.info("用户登录尝试: {}", username);
         
         try {
             // 楠岃瘉鐢ㄦ埛鍑嵁
@@ -63,11 +63,12 @@ public class AuthServiceImpl implements AuthService {
                 throw new UserNotFoundException("鐢ㄦ埛鏈壘鍒? " + username);
             }
             
-            // 妫€鏌ョ敤鎴风姸鎬?            if (!user.isEnabled()) {
-                throw new AuthenticationException("鐢ㄦ埛璐︽埛宸茶绂佺敤");
+            // 妫€鏌ョ敤鎴风姸鎬
+            if (!user.isEnabled()) {
+                throw new AuthenticationException("鐢ㄦ埛璐︽埛宸茶禁用");
             }
             
-            // 鐢熸垚token
+            // 生成token
             String accessToken = jwtService.generateToken(user);
             String refreshToken = jwtService.generateRefreshToken(user);
             
@@ -75,10 +76,11 @@ public class AuthServiceImpl implements AuthService {
             user.onSuccessfulLogin();
             userService.updateLastLoginInfo(user.getUsername(), "unknown");
             
-            // 璁板綍鐧诲綍娲诲姩鏃ュ織
-            log.info("鐢ㄦ埛鐧诲綍鎴愬姛: {} (ID: {})\n", user.getUsername(), user.getId());
+            // 记录登录活动日志
+            log.info("用户登录成功: {} (ID: {})\n", user.getUsername(), user.getId());
             
-            // 杩斿洖Map褰㈠紡鐨勫搷搴?            Map<String, String> result = new HashMap<>();
+            // 返回Map褰㈠紡鐨勫搷搴
+            Map<String, String> result = new HashMap<>();
             result.put("accessToken", accessToken);
             result.put("refreshToken", refreshToken);
             result.put("tokenType", "Bearer");
@@ -89,14 +91,14 @@ public class AuthServiceImpl implements AuthService {
             return result;
             
         } catch (Exception e) {
-            log.error("鐢ㄦ埛鐧诲綍澶辫触: {}", e.getMessage());
+            log.error("用户登录失败: {}", e.getMessage());
             throw new AuthenticationException("鐢ㄦ埛鍚嶆垨瀵嗙爜閿欒");
         }
     }
     @Override
     @Transactional
     public LoginResponseDto login(LoginRequestDto loginRequest) {
-        log.info("鐢ㄦ埛鐧诲綍灏濊瘯: {}", loginRequest.getUsername());
+        log.info("用户登录尝试: {}", loginRequest.getUsername());
         
         try {
             // 楠岃瘉鐢ㄦ埛鍑嵁
@@ -115,17 +117,19 @@ public class AuthServiceImpl implements AuthService {
                 throw new UserNotFoundException("鐢ㄦ埛鏈壘鍒? " + loginRequest.getUsername());
             }
             
-            // 妫€鏌ョ敤鎴风姸鎬?            if (!user.isEnabled()) {
-                throw new AuthenticationException("鐢ㄦ埛璐︽埛宸茶绂佺敤");
+            // 妫€鏌ョ敤鎴风姸鎬
+            if (!user.isEnabled()) {
+                throw new AuthenticationException("鐢ㄦ埛璐︽埛宸茶禁用");
             }
             
-            // 鐢熸垚token
+            // 生成token
             Map<String, Object> extraClaims = new HashMap<>();
             extraClaims.put("userId", user.getId());
             extraClaims.put("deviceInfo", loginRequest.getDeviceInfo());
             extraClaims.put("ipAddress", loginRequest.getIpAddress());
             
-            // 鑾峰彇鐢ㄦ埛瑙掕壊鍜屾潈闄?            List<String> roles = List.of("ROLE_" + user.getRole().name());
+            // 鑾峰彇鐢ㄦ埛瑙掕壊鍜屾潈闄
+            List<String> roles = List.of("ROLE_" + user.getRole().name());
             List<String> permissions = List.of();
             
             extraClaims.put("roles", roles);
@@ -137,13 +141,13 @@ public class AuthServiceImpl implements AuthService {
             // 鏇存柊鐢ㄦ埛鐧诲綍淇℃伅
             user.setLastLoginIp(loginRequest.getIpAddress());
             user.onSuccessfulLogin();
-            // 浣跨敤updateLastLoginInfo鏂规硶鏇存柊鐧诲綍淇℃伅锛岃€屼笉鏄痷pdateUser
+            // 使用updateLastLoginInfo鏂规硶鏇存柊鐧诲綍淇℃伅锛岃€屼笉鏄痷pdateUser
             userService.updateLastLoginInfo(user.getUsername(), loginRequest.getIpAddress());
             
-            // 璁板綍鐧诲綍娲诲姩鏃ュ織
-            log.info("鐢ㄦ埛鐧诲綍鎴愬姛: {} (ID: {})", user.getUsername(), user.getId());
+            // 记录登录活动日志
+            log.info("用户登录成功: {} (ID: {})", user.getUsername(), user.getId());
             
-            // 鏋勫缓鍝嶅簲
+            // 构建响应
             return LoginResponseDto.builder()
                 .userId(user.getId())
                 .username(user.getUsername())
@@ -172,18 +176,18 @@ public class AuthServiceImpl implements AuthService {
                 .build();
                 
         } catch (Exception e) {
-            log.error("鐢ㄦ埛鐧诲綍澶辫触: {}", e.getMessage());
+            log.error("用户登录失败: {}", e.getMessage());
             throw new AuthenticationException("鐢ㄦ埛鍚嶆垨瀵嗙爜閿欒");
         }
     }
     @Override
     @Transactional
     public Map<String, String> refreshTokenMap(String refreshToken) {
-        log.info("鍒锋柊璁块棶浠ょ墝锛圡ap褰㈠紡锛?);
+        log.info("鍒锋柊璁块棶浠ょ墝锛圡ap褰㈠紡锛");
         
         try {
             if (!jwtService.validateToken(refreshToken)) {
-                throw new AuthenticationException("鍒锋柊浠ょ墝鏃犳晥鎴栧凡杩囨湡");
+                throw new AuthenticationException("刷新令牌无效或已过期");
             }
             
             String username = jwtService.extractUsername(refreshToken);
@@ -193,19 +197,20 @@ public class AuthServiceImpl implements AuthService {
             }
             
             if (!user.isEnabled()) {
-                throw new AuthenticationException("鐢ㄦ埛璐︽埛宸茶绂佺敤");
+                throw new AuthenticationException("鐢ㄦ埛璐︽埛宸茶禁用");
             }
             
-            // 鐢熸垚鏂扮殑璁块棶浠ょ墝
+            // 生成新的访问令牌
             String newAccessToken = jwtService.generateToken(user);
             
             // 鏇存柊鐢ㄦ埛鐧诲綍淇℃伅
             user.setLastLoginAt(LocalDateTime.now());
             userService.updateLastLoginInfo(user.getUsername(), "");
             
-            log.info("璁块棶浠ょ墝鍒锋柊鎴愬姛: {}", username);
+            log.info("访问令牌刷新成功: {}", username);
             
-            // 杩斿洖Map褰㈠紡鐨勫搷搴?            Map<String, String> result = new HashMap<>();
+            // 返回Map褰㈠紡鐨勫搷搴
+            Map<String, String> result = new HashMap<>();
             result.put("accessToken", newAccessToken);
             result.put("refreshToken", refreshToken);
             result.put("tokenType", "Bearer");
@@ -216,18 +221,18 @@ public class AuthServiceImpl implements AuthService {
             return result;
             
         } catch (Exception e) {
-            log.error("鍒锋柊璁块棶浠ょ墝澶辫触: {}", e.getMessage());
-            throw new AuthenticationException("鍒锋柊浠ょ墝澶辫触");
+            log.error("刷新访问令牌失败: {}", e.getMessage());
+            throw new AuthenticationException("刷新令牌失败");
         }
     }
     @Override
     @Transactional
     public LoginResponseDto refreshToken(String refreshToken) {
-        log.info("鍒锋柊璁块棶浠ょ墝");
+        log.info("刷新访问令牌");
         
         try {
             if (!jwtService.validateToken(refreshToken)) {
-                throw new AuthenticationException("鍒锋柊浠ょ墝鏃犳晥鎴栧凡杩囨湡");
+                throw new AuthenticationException("刷新令牌无效或已过期");
             }
             
             String username = jwtService.extractUsername(refreshToken);
@@ -237,13 +242,14 @@ public class AuthServiceImpl implements AuthService {
             }
             
             if (!user.isEnabled()) {
-                throw new AuthenticationException("鐢ㄦ埛璐︽埛宸茶绂佺敤");
+                throw new AuthenticationException("鐢ㄦ埛璐︽埛宸茶禁用");
             }
             
-            // 鑾峰彇鐢ㄦ埛瑙掕壊鍜屾潈闄?            List<String> roles = List.of("ROLE_" + user.getRole().name());
+            // 鑾峰彇鐢ㄦ埛瑙掕壊鍜屾潈闄
+            List<String> roles = List.of("ROLE_" + user.getRole().name());
             List<String> permissions = List.of();
             
-            // 鐢熸垚鏂扮殑璁块棶浠ょ墝
+            // 生成新的访问令牌
             Map<String, Object> extraClaims = new HashMap<>();
             extraClaims.put("userId", user.getId());
             extraClaims.put("roles", roles);
@@ -255,7 +261,7 @@ public class AuthServiceImpl implements AuthService {
             user.setLastLoginAt(LocalDateTime.now());
             userService.updateLastLoginInfo(user.getUsername(), "");
             
-            log.info("璁块棶浠ょ墝鍒锋柊鎴愬姛: {}", username);
+            log.info("访问令牌刷新成功: {}", username);
             
             return LoginResponseDto.builder()
                 .userId(user.getId())
@@ -285,17 +291,18 @@ public class AuthServiceImpl implements AuthService {
                 .build();
                 
         } catch (Exception e) {
-            log.error("鍒锋柊璁块棶浠ょ墝澶辫触: {}", e.getMessage());
-            throw new AuthenticationException("鍒锋柊浠ょ墝澶辫触");
+            log.error("刷新访问令牌失败: {}", e.getMessage());
+            throw new AuthenticationException("刷新令牌失败");
         }
     }
     @Override
     @Transactional
     public User register(User user) {
-        log.info("鐢ㄦ埛娉ㄥ唽灏濊瘯: {}", user.getUsername());
+        log.info("用户注册尝试: {}", user.getUsername());
         
-        // 妫€鏌ョ敤鎴峰悕鏄惁宸插瓨鍦?        if (userService.existsByUsername(user.getUsername())) {
-            throw new UserAlreadyExistsException("鐢ㄦ埛鍚嶅凡瀛樺湪: " + user.getUsername());
+        // 妫€鏌ョ敤鎴峰悕鏄惁宸插瓨鍦
+        if (userService.existsByUsername(user.getUsername())) {
+            throw new UserAlreadyExistsException("用户名已存在: " + user.getUsername());
         }
         
         // 妫€鏌ラ偖绠辨槸鍚﹀凡瀛樺湪
@@ -303,22 +310,23 @@ public class AuthServiceImpl implements AuthService {
             throw new UserAlreadyExistsException("閭宸插瓨鍦? " + user.getEmail());
         }
         
-        // 瀵嗙爜鍔犲瘑
+        // 密码加密
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         
-        // 淇濆瓨鐢ㄦ埛
+        // 保存用户
         User savedUser = userService.createUser(user);
-        log.info("鐢ㄦ埛娉ㄥ唽鎴愬姛: {} (ID: {})", savedUser.getUsername(), savedUser.getId());
+        log.info("用户注册成功: {} (ID: {})", savedUser.getUsername(), savedUser.getId());
         
         return savedUser;
     }
     @Override
     @Transactional
     public RegisterResponseDto register(RegisterRequestDto registerRequest) {
-        log.info("鐢ㄦ埛娉ㄥ唽灏濊瘯: {}", registerRequest.getUsername());
+        log.info("用户注册尝试: {}", registerRequest.getUsername());
         
-        // 妫€鏌ョ敤鎴峰悕鏄惁宸插瓨鍦?        if (userService.existsByUsername(registerRequest.getUsername())) {
-            throw new UserAlreadyExistsException("鐢ㄦ埛鍚嶅凡瀛樺湪: " + registerRequest.getUsername());
+        // 妫€鏌ョ敤鎴峰悕鏄惁宸插瓨鍦
+        if (userService.existsByUsername(registerRequest.getUsername())) {
+            throw new UserAlreadyExistsException("用户名已存在: " + registerRequest.getUsername());
         }
         
         // 妫€鏌ラ偖绠辨槸鍚﹀凡瀛樺湪
@@ -327,7 +335,8 @@ public class AuthServiceImpl implements AuthService {
         }
         
         try {
-            // 鍒涘缓鏂扮敤鎴?            User newUser = User.builder()
+            // 鍒涘缓鏂扮敤鎴
+            User newUser = User.builder()
                 .username(registerRequest.getUsername())
                 .email(registerRequest.getEmail())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
@@ -340,15 +349,15 @@ public class AuthServiceImpl implements AuthService {
                 .lastLoginIp(registerRequest.getIpAddress())
                 .build();
             
-            // 淇濆瓨鐢ㄦ埛
+            // 保存用户
             User savedUser = userService.createUser(newUser);
             
-            // 鐢熸垚璁块棶token
+            // 生成访问token
             String accessToken = jwtService.generateToken(savedUser);
             String refreshToken = jwtService.generateRefreshToken(savedUser);
             
-            // 璁板綍娉ㄥ唽娲诲姩鏃ュ織
-            log.info("鐢ㄦ埛娉ㄥ唽鎴愬姛: {} (ID: {})", savedUser.getUsername(), savedUser.getId());
+            // 记录注册活动日志
+            log.info("用户注册成功: {} (ID: {})", savedUser.getUsername(), savedUser.getId());
             
             return RegisterResponseDto.builder()
                 .userId(savedUser.getId())
@@ -361,28 +370,28 @@ public class AuthServiceImpl implements AuthService {
                 .expiresIn(jwtService.getJwtExpiration())
                 .verificationRequired(true)
                 .emailSent(true)
-                .message("娉ㄥ唽鎴愬姛锛岃妫€鏌ユ偍鐨勯偖绠辫繘琛岄獙璇?)
+                .message("娉ㄥ唽鎴愬姛锛岃妫€鏌ユ偍鐨勯偖绠辫繘琛岄獙璇")
                 .createdAt(savedUser.getCreatedAt())
                 .build();
                 
         } catch (Exception e) {
-            log.error("鐢ㄦ埛娉ㄥ唽澶辫触: {}", e.getMessage());
-            throw new AuthenticationException("娉ㄥ唽澶辫触锛岃绋嶅悗閲嶈瘯");
+            log.error("用户注册失败: {}", e.getMessage());
+            throw new AuthenticationException("娉ㄥ唽澶辫触锛岃稍后重试");
         }
     }
     @Override
     @Transactional
     public void logout(String token) {
-        log.info("鐢ㄦ埛鐧诲嚭");
+        log.info("用户登出");
         
         try {
             if (jwtService.validateToken(token)) {
                 String username = jwtService.extractUsername(token);
                 jwtService.revokeToken(token);
-                log.info("鐢ㄦ埛鐧诲嚭鎴愬姛: {}", username);
+                log.info("用户登出成功: {}", username);
             }
         } catch (Exception e) {
-            log.error("鐢ㄦ埛鐧诲嚭澶辫触: {}", e.getMessage());
+            log.error("用户登出失败: {}", e.getMessage());
         }
     }
     @Override
@@ -391,7 +400,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("鐢ㄦ埛鐧诲嚭锛屽悓鏃跺鐞嗚闂护鐗屽拰鍒锋柊浠ょ墝");
         
         try {
-            // 澶勭悊璁块棶浠ょ墝
+            // 处理访问令牌
             if (token != null && !token.isEmpty()) {
                 if (jwtService.validateToken(token)) {
                     String username = jwtService.extractUsername(token);
@@ -400,7 +409,7 @@ public class AuthServiceImpl implements AuthService {
                 }
             }
             
-            // 澶勭悊鍒锋柊浠ょ墝
+            // 处理刷新令牌
             if (refreshToken != null && !refreshToken.isEmpty()) {
                 if (jwtService.validateToken(refreshToken)) {
                     String username = jwtService.extractUsername(refreshToken);
@@ -409,7 +418,7 @@ public class AuthServiceImpl implements AuthService {
                 }
             }
         } catch (Exception e) {
-            log.error("鐢ㄦ埛鐧诲嚭澶辫触: {}", e.getMessage());
+            log.error("用户登出失败: {}", e.getMessage());
         }
     }
 

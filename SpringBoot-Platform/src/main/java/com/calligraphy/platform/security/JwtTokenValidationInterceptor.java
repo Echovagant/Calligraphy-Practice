@@ -30,7 +30,7 @@ public class JwtTokenValidationInterceptor implements HandlerInterceptor {
                     return true;
                 }
             } catch (Exception e) {
-                log.error("JWT楠岃瘉澶辫触: {}", e.getMessage());
+                log.error("JWT验证失败: {}", e.getMessage());
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("{\"error\": \"Invalid or expired token\"}");
                 return false;

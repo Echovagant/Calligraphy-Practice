@@ -52,11 +52,12 @@ public interface UserActivityLogService {
     
     List<UserActivityLogDto> getActivityLogsByDateRangeAndUserId(String userId, java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
     
-    // 鎼滅储鍜岀瓫閫?    Page<UserActivityLogDto> searchActivityLogs(String keyword, Pageable pageable);
+    // 鎼滅储鍜岀瓫閫
+    Page<UserActivityLogDto> searchActivityLogs(String keyword, Pageable pageable);
     
     List<UserActivityLogDto> searchActivityLogs(String keyword);
     
-    // 缁熻鐩稿叧
+    // 缁熻相关
     long getTotalActivityLogCount();
     
     long getActivityLogCountByUserId(String userId);
@@ -99,11 +100,13 @@ public interface UserActivityLogService {
     
     java.util.Map<UserActivityLog.UserType, Long> getUserTypeCountsByDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
     
-    // 鍝嶅簲鐘舵€佺粺璁?    java.util.Map<String, Long> getResponseStatusCounts();
+    // 鍝嶅簲鐘舵€佺粺璁
+    java.util.Map<String, Long> getResponseStatusCounts();
     
     java.util.Map<String, Long> getResponseStatusCountsByDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
     
-    // 鏈€杩戞椿鍔?    List<UserActivityLogDto> getRecentActivityLogs(int limit);
+    // 鏈€杩戞椿鍔
+    List<UserActivityLogDto> getRecentActivityLogs(int limit);
     
     List<UserActivityLogDto> getRecentActivityLogsByUserId(String userId, int limit);
     
@@ -111,7 +114,7 @@ public interface UserActivityLogService {
     
     List<UserActivityLogDto> getRecentActivityLogsByActivityType(String activityType, int limit);
     
-    // 瀹夊叏鐩稿叧
+    // 安全相关
     List<UserActivityLogDto> getSuspiciousActivityLogs();
     
     List<UserActivityLogDto> getSuspiciousActivityLogsByUserId(String userId);
@@ -126,24 +129,24 @@ public interface UserActivityLogService {
     
     boolean isSuspiciousUserActivity(String userId);
     
-    // 鎵归噺鎿嶄綔
+    // 批量操作
     void bulkDeleteActivityLogs(List<String> logIds);
     
     void bulkUpdateStatus(List<String> logIds, String status);
     
-    // 鏃ュ織娓呯悊
+    // 日志清理
     void cleanupOldActivityLogs(int daysToKeep);
     
     void cleanupActivityLogsByDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
     
-    // 娲诲姩鍒嗘瀽
+    // 活动分析
     java.util.Map<String, Object> getUserActivityAnalysis(String userId);
     
     java.util.Map<String, Object> getSystemActivityAnalysis();
     
     java.util.Map<String, Object> getActivityTrendAnalysis(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
     
-    // 瀵煎嚭鍔熻兘
+    // 导出功能
     byte[] exportActivityLogs(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate, String format);
     
     byte[] exportUserActivityLogs(String userId, java.time.LocalDateTime startDate, java.time.LocalDateTime endDate, String format);

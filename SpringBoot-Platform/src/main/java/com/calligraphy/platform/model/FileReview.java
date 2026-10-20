@@ -22,26 +22,26 @@ public class FileReview {
     @Column(name = "id", length = 36, nullable = false)
     private String id;
     
-    @NotBlank(message = "鏂囦欢鍚嶄笉鑳戒负绌?)
-    @Size(max = 255, message = "鏂囦欢鍚嶉暱搴︿笉鑳借秴杩?55涓瓧绗?)
+    @NotBlank(message = "鏂囦欢鍚嶄笉鑳戒负绌")
+    @Size(max = 255, message = "鏂囦欢鍚嶉暱搴︿笉鑳借秴杩?55涓瓧绗")
     @Column(name = "file_name", length = 255, nullable = false)
     private String fileName;
     
     @NotBlank(message = "鏂囦欢璺緞涓嶈兘涓虹┖")
-    @Size(max = 500, message = "鏂囦欢璺緞闀垮害涓嶈兘瓒呰繃500涓瓧绗?)
+    @Size(max = 500, message = "鏂囦欢璺緞闀垮害涓嶈兘瓒呰繃500涓瓧绗")
     @Column(name = "file_path", length = 500, nullable = false)
     private String filePath;
     
     @NotBlank(message = "鏂囦欢绫诲瀷涓嶈兘涓虹┖")
-    @Size(max = 50, message = "鏂囦欢绫诲瀷闀垮害涓嶈兘瓒呰繃50涓瓧绗?)
+    @Size(max = 50, message = "文件类型长度不能超过50涓瓧绗")
     @Column(name = "file_type", length = 50, nullable = false)
     private String fileType;
     
-    @Min(value = 0, message = "鏂囦欢澶у皬涓嶈兘涓鸿礋鏁?)
+    @Min(value = 0, message = "鏂囦欢澶у皬涓嶈兘涓鸿礋鏁")
     @Column(name = "file_size", nullable = false)
     private Long fileSize; // 鏂囦欢澶у皬锛堝瓧鑺傦級
     
-    @Size(max = 100, message = "MIME绫诲瀷闀垮害涓嶈兘瓒呰繃100涓瓧绗?)
+    @Size(max = 100, message = "MIME类型长度不能超过100涓瓧绗")
     @Column(name = "mime_type", length = 100)
     private String mimeType;
     
@@ -88,7 +88,8 @@ public class FileReview {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
-    // 鐘舵€佹灇涓?    public enum FileReviewStatus {
+    // 鐘舵€佹灇涓
+    public enum FileReviewStatus {
         PENDING, APPROVED, REJECTED, NEEDS_REVISION
     }
     
@@ -121,7 +122,7 @@ public class FileReview {
         this.updatedAt = updatedAt;
     }
     
-    // 棰勬寔涔呭寲鍥炶皟
+    // 预持久化回调
     @PrePersist
     protected void onCreate() {
         if (id == null) {
@@ -139,7 +140,7 @@ public class FileReview {
         updatedAt = LocalDateTime.now();
     }
     
-    // 涓氬姟鏂规硶
+    // 业务方法
     public void approve(BackendUser reviewer, String notes) {
         this.reviewer = reviewer;
         this.reviewerId = reviewer.getId();
@@ -201,19 +202,19 @@ public class FileReview {
     public String getStatusDisplay() {
         switch (status) {
             case PENDING:
-                return "寰呭鏍?;
+                return "寰呭鏍";
             case APPROVED:
                 return "宸查€氳繃";
             case REJECTED:
-                return "宸叉嫆缁?;
+                return "宸叉嫆缁";
             case NEEDS_REVISION:
-                return "闇€瑕佷慨鏀?;
+                return "闇€瑕佷慨鏀";
             default:
                 return "鏈煡";
         }
     }
     
-    // Getter 鍜?Setter 鏂规硶
+    // Getter 鍜?Setter 方法
     public String getId() {
         return id;
     }
@@ -358,7 +359,8 @@ public class FileReview {
         this.updatedAt = updatedAt;
     }
     
-    // Builder 绫?    public static class Builder {
+    // Builder 绫
+    public static class Builder {
         private String id;
         private String fileName;
         private String filePath;

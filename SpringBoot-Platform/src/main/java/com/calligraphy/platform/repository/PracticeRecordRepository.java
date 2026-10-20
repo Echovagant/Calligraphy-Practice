@@ -77,13 +77,15 @@ public interface PracticeRecordRepository extends JpaRepository<PracticeRecord, 
     @Query("SELECT AVG(p.practiceTime) FROM PracticeRecord p WHERE p.copybookId = :copybookId")
     Double avgPracticeTimeByCopybookId(@Param("copybookId") String copybookId);
     
-    // 婊℃剰搴︾粺璁?    @Query("SELECT AVG(p.satisfactionScore) FROM PracticeRecord p WHERE p.user = :user")
+    // 婊℃剰搴︾粺璁
+    @Query("SELECT AVG(p.satisfactionScore) FROM PracticeRecord p WHERE p.user = :user")
     Double avgSatisfactionScoreByUser(@Param("user") FrontendUser user);
     
     @Query("SELECT AVG(p.satisfactionScore) FROM PracticeRecord p WHERE p.copybookId = :copybookId")
     Double avgSatisfactionScoreByCopybookId(@Param("copybookId") String copybookId);
     
-    // 瀹屾垚鐜囩粺璁?    @Query("SELECT CAST(COUNT(CASE WHEN p.isCompleted = true THEN 1 END) AS DOUBLE) / COUNT(p) * 100 " +
+    // 瀹屾垚鐜囩粺璁
+    @Query("SELECT CAST(COUNT(CASE WHEN p.isCompleted = true THEN 1 END) AS DOUBLE) / COUNT(p) * 100 " +
            "FROM PracticeRecord p WHERE p.user = :user")
     Double getCompletionRateByUser(@Param("user") FrontendUser user);
     
@@ -91,13 +93,14 @@ public interface PracticeRecordRepository extends JpaRepository<PracticeRecord, 
            "FROM PracticeRecord p WHERE p.copybookId = :copybookId")
     Double getCompletionRateByCopybookId(@Param("copybookId") String copybookId);
     
-    // 鏈€杩戠粌涔犺褰?    @Query("SELECT p FROM PracticeRecord p WHERE p.user = :user ORDER BY p.practiceDate DESC")
+    // 鏈€杩戠粌涔犺褰
+    @Query("SELECT p FROM PracticeRecord p WHERE p.user = :user ORDER BY p.practiceDate DESC")
     List<PracticeRecord> findByUserOrderByPracticeDateDesc(@Param("user") FrontendUser user);
     
     @Query("SELECT p FROM PracticeRecord p WHERE p.user = :user AND p.isCompleted = true ORDER BY p.practiceDate DESC")
     List<PracticeRecord> findCompletedByUserOrderByPracticeDateDesc(@Param("user") FrontendUser user);
     
-    // 鎵归噺鎿嶄綔
+    // 批量操作
     @Query("UPDATE PracticeRecord p SET p.isCompleted = true " +
            "WHERE p.user = :user AND p.copybookId = :copybookId")
     void markAsCompleted(@Param("user") FrontendUser user, @Param("copybookId") String copybookId);

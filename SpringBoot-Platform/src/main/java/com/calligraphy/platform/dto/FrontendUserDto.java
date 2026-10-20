@@ -78,7 +78,7 @@ public class FrontendUserDto {
         this.lastActivityType = lastActivityType;
     }
     
-    // Getter 鍜?Setter 鏂规硶
+    // Getter 鍜?Setter 方法
     public String getUserId() {
         return userId;
     }
@@ -279,7 +279,8 @@ public class FrontendUserDto {
         this.lastActivityType = lastActivityType;
     }
     
-    // Builder 绫?    public static class Builder {
+    // Builder 绫
+    public static class Builder {
         private String userId;
         private String username;
         private String email;
