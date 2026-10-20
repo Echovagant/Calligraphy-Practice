@@ -1,4 +1,4 @@
-﻿package com.calligraphy.platform.dto;
+package com.calligraphy.platform.dto;
 
 import com.calligraphy.platform.model.PracticeRecord;
 import lombok.Data;
