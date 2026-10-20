@@ -46,12 +46,13 @@ config/JwtConfig.java:14
 
 损坏是**有损**的（实测有字节被改写，如 `0xb8`→`0xbd`），所以**无法完全自动逆变换**。但其中三类损伤是可机械还原的，第四类需要语义判断——本计划 Task 1/2 精确覆盖这一点。
 
-实测损伤规模（`scripts/mojibake.py detect` 的口径）：
+实测损伤规模（一次一致的扫描口径）：
 
 | 损伤类型 | 规模 | 修复方式 |
 |---|---|---|
-| A 无损 CJK 片段（可逆） | 87 文件 / 1228 处 | 字节往返还原（自动） |
-| B 字符串字面量丢失收尾引号 | 213 行 | `?` 还原为 `"`（自动） |
+| 受损范围 | **仅 `src/main/java`**（90 个文件）。`src/main/resources` 与 `src/test` **完全干净** | — |
+| A 无损 CJK 片段（可逆） | 751 处 | 字节往返还原（自动） |
+| B 字符串字面量丢失收尾引号 | 217 行 | `?` 还原为 `"`（自动） |
 | C `//` 注释吞掉下一行代码 | 105 行 | `?` 还原为换行（自动） |
 | D `?` 吞掉一个 ASCII 字符（数字等） | 约 400 行残留 | 需语义判断（Task 2） |
 
@@ -555,28 +556,33 @@ git commit -m "fix: 修复 2025 年编码事故造成的后端源码损坏
 - Consumes: 无
 - Produces: 应用启动时**不再**重建 `users` / `works` / `comments` / `practice_records` 四张表
 
-- [ ] **Step 1: 写一个会失败的验收测试**
-
-先在数据库里放一个哨兵行，再启动应用，看它还在不在。
+- [ ] **Step 1: 在数据库里放一个哨兵行**
 
 Run（插入哨兵）:
 ```bash
 & 'E:\MySQL\MySQL Server 8.0\bin\mysql.exe' -h 127.0.0.1 -P 3306 -u root -e "USE calligraphy_practice; INSERT INTO system_config (config_key, config_value) VALUES ('__p0_sentinel__', 'alive') ON DUPLICATE KEY UPDATE config_value='alive';"
 ```
 
-> 若 `system_config` 表没有 `config_key` / `config_value` 两列，先执行 `DESCRIBE system_config;` 看实际列名，用实际列名插入。
+> `system_config` 已有 `config_key varchar(100) NOT NULL UNIQUE` 与 `config_value text` 两列，可直接插入。
 
-- [ ] **Step 2: 启动应用，验证哨兵被清掉（这是预期的失败）**
+- [ ] **Step 2: 静态证明「当前配置会清库」（这是预期的失败）**
 
-Run: `cd SpringBoot-Platform && mvn -o spring-boot:run` （另开一个终端）
-等待启动完成（`Started CalligraphyPlatformApplication`），然后 Ctrl+C 停掉。
+本任务阶段**应用还启动不了**——`PasswordEncoder` bean 要到 Task 6 才补上，所以动态的「启动前后对比」留到 Task 6 做（见 Task 6 Step 10）。这里先用静态检查把危险点固定下来：
 
-Run（检查哨兵）:
+Run:
 ```bash
-& 'E:\MySQL\MySQL Server 8.0\bin\mysql.exe' -h 127.0.0.1 -P 3306 -u root -e "USE calligraphy_practice; SELECT * FROM system_config WHERE config_key='__p0_sentinel__';"
+Select-String -Path "SpringBoot-Platform/src/main/resources/application.properties" -Pattern "spring.sql.init.mode=always"
+Get-Content "SpringBoot-Platform/src/main/resources/recreate_schema.sql" -TotalCount 8
 ```
 
-Expected: **查不到该行**（因为 `spring.sql.init.mode=always` + `recreate_schema.sql` 的 `DROP TABLE` 把它删了）
+Expected: 第一条**有命中**（`mode=always`）；第二段输出里能看到
+```
+DROP TABLE IF EXISTS practice_records;
+DROP TABLE IF EXISTS comments;
+DROP TABLE IF EXISTS works;
+DROP TABLE IF EXISTS users;
+```
+即：`spring.sql.init.mode=always` 指向的脚本，执行的正是这四条 DROP。
 
 - [ ] **Step 3: 关掉 `spring.sql.init`**
 
@@ -598,16 +604,16 @@ spring.sql.init.schema-locations=classpath:recreate_schema.sql
 spring.sql.init.mode=never
 ```
 
-- [ ] **Step 4: 重跑哨兵验证**
+- [ ] **Step 4: 静态检查转绿**
 
-重复 Step 1 的插入 → Step 2 的启动 → Step 2 的检查。
-Expected: **哨兵行还在**（`__p0_sentinel__ | alive`）
+Run:
+```bash
+Select-String -Path "SpringBoot-Platform/src/main/resources/application.properties" -Pattern "spring.sql.init.mode=always"
+```
 
-- [ ] **Step 5: 清理哨兵**
+Expected: **无命中**（`mode=never` 已生效，`recreate_schema.sql` 不再被引用）
 
-Run: `& 'E:\MySQL\MySQL Server 8.0\bin\mysql.exe' -h 127.0.0.1 -P 3306 -u root -e "USE calligraphy_practice; DELETE FROM system_config WHERE config_key='__p0_sentinel__';"`
-
-- [ ] **Step 6: 提交**
+- [ ] **Step 5: 提交**
 
 ```bash
 git add SpringBoot-Platform/src/main/resources/application.properties
@@ -842,7 +848,6 @@ git commit -m "feat: 补上 Copybook 实体并对齐 practice_records.copybook_i
 - Produces: 唯一 JWT 实现 = `service/impl/JwtServiceImpl`；密钥唯一来源 = `application.properties` 的 `jwt.secret`
 
 **背景说明（已核实）：** 仓库里有三套 JWT 实现，彼此不兼容：
-
 | 实现 | 算法 | 状态 |
 |---|---|---|
 | `security/JwtService` | HS512 | 被 `AuthServiceImpl` + `JwtAuthenticationFilter` 使用 → **删除** |
@@ -1267,7 +1272,23 @@ Expected: 日志出现 `Started CalligraphyPlatformApplication in X seconds` 与
 
 用 `Ctrl+C` 停掉。
 
-- [ ] **Step 10: 提交**
+- [ ] **Step 10: 验证数据不再被清空（补做 Task 3 推迟的动态验证）**
+
+Task 3 阶段应用还启动不了（`PasswordEncoder` bean 要到本任务才有），所以哨兵验证推迟到这里。Task 3 已经在 `system_config` 里放好了 `__p0_sentinel__` 行。
+
+Run:
+```bash
+& 'E:\MySQL\MySQL Server 8.0\bin\mysql.exe' -h 127.0.0.1 -P 3306 -u root -e "USE calligraphy_practice; SELECT config_key, config_value FROM system_config WHERE config_key='__p0_sentinel__';"
+```
+
+Expected: 查到 `__p0_sentinel__ | alive` —— **应用已经启动过一次，哨兵还在**，证明 `spring.sql.init.mode=never` 生效了。
+
+清理哨兵：
+```bash
+& 'E:\MySQL\MySQL Server 8.0\bin\mysql.exe' -h 127.0.0.1 -P 3306 -u root -e "USE calligraphy_practice; DELETE FROM system_config WHERE config_key='__p0_sentinel__';"
+```
+
+- [ ] **Step 11: 提交**
 
 ```bash
 git add -A SpringBoot-Platform/src/main/java
@@ -1483,7 +1504,7 @@ git commit -m "chore: 清理构建产物入库、一次性修复脚本与死代�
 | 4 | 无编码污染 | `cd SpringBoot-Platform && python scripts/mojibake.py detect --root .` | 0 命中，退出码 0 |
 | 5 | 消息数字一致 | `cd SpringBoot-Platform && python scripts/check_messages.py` | `problems: 0` |
 | 6 | 前端能构建 | `cd Practice-Platform && npm run build` | 退出码 0 |
-| 7 | 数据不被清空 | 见 Task 3 Step 4 | 哨兵行仍在 |
+| 7 | 数据不被清空 | 见 Task 6 Step 10 | 哨兵行仍在 |
 | 8 | 索引干净 | `git ls-files \| Select-String 'target/\|\.class$'` | 0 命中 |
 
 ## 下一阶段
