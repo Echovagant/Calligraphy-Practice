@@ -43,6 +43,7 @@
 | B4 | 后端启动即失败 | `AuthServiceImpl:42`、`AdminServiceImpl:34`、`UserServiceImpl:40` 注入 `PasswordEncoder`，全仓库无 `@Bean PasswordEncoder`；Spring Boot 3.2.5 不提供该自动配置 |
 | B5 | 后端无安全过滤链 | 全仓库无 `SecurityFilterChain` / `@EnableWebSecurity` / `addInterceptors`；走 Boot 默认 `anyRequest().authenticated()` |
 | B6 | 前端第二个 API 模块 import 崩溃 | `Practice-Platform/src/api/community.js:1` import `../utils/request`，该文件不存在（`src/utils/` 实际只有 `storage.js`/`index.js`/`constants.js`/`api.js`） |
+| B7 | **后端完全无法编译** | `mvn -o compile` 实测失败，错误包括「未结束的字符串文字」「非法字符: '\ue178'」「需要 class、interface、enum 或 record」。根因是 §2.4 的编码污染吃掉了字符串的收尾引号、注释的换行与整条代码声明 |
 
 ### 2.2 契约自身矛盾（9 处）
 
@@ -386,7 +387,9 @@ View → Store → utils/api.js（唯一客户端，相对路径 /api）
 
 | 阶段 | 内容 | 验收命令 / 标准 |
 |---|---|---|
-| **0 地基** | §4.4 编码修复；§4.1 启动阻断全部修复；§5 中构建阻断修复（B1/B2） | 乱码检测脚本剩余 0 处；`mvn spring-boot:run` 正常启动，日志无 `NoSuchBeanDefinitionException`；`npm run build` 退出码 0 |
+| **0 地基** | §4.4 编码修复；§4.1 启动阻断全部修复；**§4.2 中的 JWT 统一 / CORS 去重 / DB 策略 / MailConfig**；§5 中构建阻断修复（B1/B2） | 后端 `mvn compile` 通过并能正常启动（无 `NoSuchBeanDefinitionException`）；乱码检测脚本剩余 0 处；`npm run build` 退出码 0 |
+
+> **阶段 0 范围为何包含 §4.2 的部分条目**（2026-10-20 补充）：编写实施计划时实测发现 B7——后端当前**根本无法编译**。编译能通过是「能启动」的前提，而它进一步强制要求：① `security.JwtService` 与 `service.JwtService` 两个 `@Service` 同名 bean 必须合并（否则 `JwtAuthenticationFilter` 注入时抛 `NoUniqueBeanDefinitionException`）；② `spring.sql.init.mode=always` 的 DROP 行为必须停用（否则每次启动清库，测试无法复现）。CORS 去重与 MailConfig 不属于启动阻断，但与 §4.1 的 `SecurityConfig` 同属一个提交单元，一并处理更省事。
 | **1 契约定稿** | `contract.yaml` + `api-contract.md`；`scripts/check-contract.mjs` 双向比对脚本 | 一致性脚本通过（此阶段允许报差异清单，差异就是待实现清单） |
 | **2 auth 域** | 端点 1–10 | 登录 → 带 `Authorization: Bearer` → refresh → logout 全链路通；契约测试 10 项绿 |
 | **3 user + works 域** | 端点 11–21、53 | 上传作品 → 画廊可见 → 图片能取回；契约测试绿 |
@@ -446,3 +449,7 @@ P0 完成后即已具备「后端能启动 + 前端能构建」的可用基线�
 ## 10. 变更记录
 
 - 2026-10-20 初稿，经用户确认：方案 = 契约单一真相源 + 契约测试锁定；响应格式 = 成功裸资源 + 错误 `{code,message}`；视图接线 = 全接；数据库 = 保留现有库 + 停用 DROP。
+- 2026-10-20 编写实施计划时实测发现 **B7：后端完全无法编译**（`mvn -o compile` 失败）。据此：
+  - §2.1 新增 B7；§2.4 补充「乱码吃掉收尾引号 / 换行 / 整条代码声明」这一事实；
+  - §8 阶段 0 的范围相应扩展，纳入 §4.2 的 JWT 统一、CORS 去重、DB 策略、MailConfig（理由见表下说明）。
+  - 对应的实施计划：`docs/superpowers/plans/2026-10-20-p0-foundation-repair.md`。
