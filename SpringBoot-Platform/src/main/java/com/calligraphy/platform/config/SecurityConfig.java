@@ -78,6 +78,11 @@ public class SecurityConfig {
                         // 公开画廊与首页概览不需要令牌（契约里这两个是 security: []）
                         .requestMatchers(HttpMethod.GET, "/api/works").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/stats/overview").permitAll()
+                        // 字帖浏览也是公开的（契约里 security: []）：列表、热门、详情。
+                        // 注意 /{copybookId} 只匹配一段，所以 /statistics/user 与 /practice/history
+                        // 这两个「当前用户」端点仍然需要令牌。
+                        .requestMatchers(HttpMethod.GET, "/api/copybooks",
+                                "/api/copybooks/popular", "/api/copybooks/{copybookId}").permitAll()
                         .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex

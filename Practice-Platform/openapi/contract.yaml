@@ -704,7 +704,7 @@ paths:
     post:
       operationId: copybookRecordPractice
       summary: 记录一次练习
-      description: api.js 里的方法是 `copybookAPI.recordPractice`；前端 store 调用的 `copybookAPI.addPracticeRecord` 是幽灵方法，P5 必须改成调用 recordPractice。
+      description: api.js 里的方法是 `copybookAPI.recordPractice`；前端 store 调用的 `copybookAPI.addPracticeRecord` 是幽灵方法，P6 必须改成调用 recordPractice。
       tags:
         - copybooks
       x-frontend-call: copybookAPI.recordPractice

@@ -286,7 +286,7 @@ Spring Security 6.2 的 `DaoAuthenticationProvider.retrieveUser` 有三个 catch
 `UserDetailsServiceImpl` 里被当成「账户不存在」。现已拆开 ——
 禁用看 `status` 列，锁定看 `account_locked` 列（数据库里本来就是两列）。
 
-## 4. 前端现存缺陷（P5 待修）
+## 4. 前端现存缺陷（P6 待修）
 
 这些是本轮提取时挖出来的真实缺陷。检查器会把它们列为 **warning**，
 不阻断构建，但必须排期修掉。
@@ -295,14 +295,18 @@ Spring Security 6.2 的 `DaoAuthenticationProvider.retrieveUser` 有三个 catch
 |---|---|---|
 | ~~绕过统一客户端~~ | `src/utils/api.js:94` | **P2 已改**。401 刷新原本走裸 `fetch` 打 `/api/auth/refresh` —— 而**这个端点根本不在契约里**（契约只有 `/frontend/auth/refresh` 与 `/backend/auth/refresh`），自动续期路径必然 404。现按用户类型分流到带类型的 refresh 端点。裸 fetch 本身**保留**：它走 `post()` 会经 `request()`，而 `request()` 在 401 时又会调本函数，直接用会无限递归。 |
 | 幽灵方法 | `src/stores/practiceStore.js:84` | `copybookAPI.addPracticeRecord(...)` —— api.js 里没有这个方法，运行时直接 TypeError。真实的方法叫 `copybookAPI.recordPractice`。 |
-| 幽灵方法 | `src/stores/practiceStore.js:250` | `copybookAPI.getPracticeHistory(...)` —— api.js 里没有这个方法。契约已为 `GET /api/copybooks/practice/history` 预留端点，P5 需在 api.js 里补出这个方法。 |
+| 幽灵方法 | `src/stores/practiceStore.js:250` | `copybookAPI.getPracticeHistory(...)` —— api.js 里没有这个方法。契约已为 `GET /api/copybooks/practice/history` 预留端点，P6 需在 api.js 里补出这个方法。 |
 | 幽灵方法 | `src/stores/practiceStore.js:287` | `copybookAPI.getPracticeStats(...)` —— api.js 里没有这个方法。对应端点是 `GET /api/copybooks/statistics/user`（api.js 里的 `getUserStatistics`）。 |
+| **响应形状当数组用** | `src/stores/practiceStore.js:196` | `const response = await copybookAPI.getCopybooks(params)` 之后直接 `response.map(...)` —— 但契约里 `GET /api/copybooks` 返回的是分页信封 `{content,page,size,total,totalPages}`，**没有 `.map` 方法**，运行时 TypeError。P6 要改成 `response.content.map(...)`。 |
+| 字段名对不上 | `src/stores/practiceStore.js:257-258` | 读 `record.practiceTime` / `record.charactersPracticed`，而契约的练习记录字段是 **`duration`（秒）** 和 **`characterCount`**。 |
+| 字段名对不上 | `src/stores/practiceStore.js:256` | 读 `record.copybook?.title`（嵌套对象），契约的练习记录**没有 `copybook` 这个嵌套字段** —— 字帖标题不在响应里。 |
+| 字段名对不上 | `src/stores/practiceStore.js:298-301` | 读 `response.totalPracticeTime` / `totalWorks` / `totalCharactersPracticed` / `lastPracticeDate`，而契约的 `PracticeStatistics` 字段是 `totalPractices` / `totalDuration` / `averageDuration` / `streakDays` / `characterCount` / `copybookCount`。 |
 | store 动作名不符 | `src/stores/userStore.js` | 视图调 `userStore.updateProfile`，store 里定义的却是 `updateUserInfo` → 链路不可达。 |
 | 参数形状不对 | `src/stores/userStore.js:344` | `PUT /api/users/password` 实际发出去的是**裸 JSON 字符串**，而契约要求对象 `{email,verificationCode,newPassword,confirmPassword}`。 |
 | URL 拼错 | `src/stores/userStore.js` | `GET /api/works/user/{userId}` 实际请求的是 `/works/user/undefined`。 |
 
 另有 **7 处 mock 降级分支**（api.js 里 5 处 `catch` 返回假数据 + store 里 2 处），
-P5 接线时必须全部删掉 —— 否则接口没通的时候页面会显示假数据，**看起来是好的**。
+P6 接线时必须全部删掉 —— 否则接口没通的时候页面会显示假数据，**看起来是好的**。
 
 ## 5. 当前差异清单（= 待实现清单）
 
@@ -311,23 +315,24 @@ P5 接线时必须全部删掉 —— 否则接口没通的时候页面会显示
 ```
 contract  : 53 operation(s)
 frontend  : 51 call site(s)
-backend   : 22 controller route(s)
+backend   : 28 controller route(s)
 violations: 0
-gaps      : 33
+gaps      : 27
 warnings  : 9
 ```
 
 - **违规 0** —— 契约与现有代码没有矛盾，校验通过。
-- **缺口 33** = 31 条「后端还没实现」+ 2 条「前端还没接线」
-  （`GET /api/copybooks/practice/history`、`GET /api/stats/overview` 的前端调用入口；
-  端点本身已实现）。
+- **缺口 27** = 24 条「后端还没实现」+ 2 条「前端还没接线」
+  （`GET /api/copybooks/practice/history` 的 `copybookAPI.getPracticeHistory`、
+  `GET /api/stats/overview` 的 `statsAPI.getOverview`；两个端点本身都已实现）。
+  24 条后端缺口 = comments(4) + file-reviews(7) + discussions(13) —— **P5 的全部工作**。
 - **警告 9** = 3 条前端幽灵方法（`copybookAPI.addPracticeRecord` /
   `getPracticeHistory` / `getPracticeStats`）+ 6 条 `CommentServiceImpl` 的桩实现
   （P5 接线前必须补齐，尤其 `containsSensitiveContent` 恒 false）。
 
-**已完成的域**：P2 auth（端点 1–10）、P3 user + works + stats（端点 11–21、53）——
-后端路由数从 0 变成 22。
-**剩下的缺口就是 P4–P6 的工作项。** 每完成一个域，缺口数下降，
+**已完成的域**：P2 auth（端点 1–10）、P3 user + works + stats（端点 11–21、53）、
+P4 copybooks + practice（端点 22–27）—— 后端路由数从 0 变成 28。
+**剩下的缺口就是 P5–P6 的工作项。** 每完成一个域，缺口数下降，
 `npm run contract:check` 的输出就是进度。到 P7 必须 `--strict` 也过。
 
 ## 6. 阶段划分与验收
@@ -337,7 +342,7 @@ warnings  : 9
 | **P1 契约定稿** | `contract.yaml` + 本文件 + `check-contract.mjs` | 校验脚本通过，差异清单即待实现清单 | ✅ 完成 |
 | **P2 auth 域** | 端点 1–10 | 登录 → 带 Bearer → refresh → logout 全链路通；契约测试 10 项绿 | ✅ 完成 |
 | **P3 user + works + stats 域** | 端点 11–21、53 | 上传作品 → 可见 → 图片能取回；契约测试 12 项绿 | ✅ 完成 |
-| **P4 copybooks 域** | 端点 22–27 | 字帖列表/详情/记录练习/统计/历史；`copybooks` 既有 3 行数据可读 | 待做 |
+| **P4 copybooks 域** | 端点 22–27 | 字帖列表/详情/记录练习/统计/历史；`copybooks` 既有 3 行数据可读 | ✅ 完成（17 项契约测试 + 36 项活体） |
 | **P5 comments + discussions + file-reviews 域** | 端点 28–52 | 发帖/回复/点赞/评论/审核；契约测试绿 | 待做 |
 | **P6 前端接线 + 删 mock** | §3.5、§4 | 六个视图无硬编码 mock；api.js 无 mock 降级分支 | 待做 |
 | **P7 全量验证** | — | 53 项契约测试全绿；`--strict` 零差异；前后端联调冒烟通过 | 待做 |
@@ -347,3 +352,10 @@ warnings  : 9
 - 2026-10-21 初稿（P1）。53 个端点全部按前端实际调用点 + 后端 DTO/实体字段推导，
   不是手写臆测。前端 51 个调用点与 spec §7 清单**逐条吻合**（method、path、路径参数名全对），
   差的正好是 spec 标注为「新增」的两个端点。
+- 2026-10-21 P4（copybooks 域）。后端路由 22 → 28，缺口 33 → 27。
+  同时把 `PracticeRecordService` 从 58 个方法裁剪到 5 个（每个都有调用方），
+  删掉零引用的 `PracticeRecordUpdateDto`。
+  **练习记录的字段名对齐到契约**：`duration`（秒）、`characterCount`、`fileUrl`、
+  主键 `id`（不是 `recordId`）—— 旧实体那套
+  `practiceTime`（分钟）/ `charactersPracticed` 整体作废，
+  数据库用 `SpringBoot-Platform/db/03-practice-records-contract.sql` 跟上。

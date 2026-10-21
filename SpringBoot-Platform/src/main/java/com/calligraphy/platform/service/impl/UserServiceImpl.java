@@ -9,9 +9,9 @@ import com.calligraphy.platform.exception.BusinessException;
 import com.calligraphy.platform.exception.ResourceNotFoundException;
 import com.calligraphy.platform.exception.UserAlreadyExistsException;
 import com.calligraphy.platform.repository.CommentRepository;
-import com.calligraphy.platform.repository.PracticeRecordRepository;
 import com.calligraphy.platform.repository.UserRepository;
 import com.calligraphy.platform.repository.WorkRepository;
+import com.calligraphy.platform.service.PracticeRecordService;
 import com.calligraphy.platform.service.UserService;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.GrantedAuthority;
@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final WorkRepository workRepository;
     private final CommentRepository commentRepository;
-    private final PracticeRecordRepository practiceRecordRepository;
+    private final PracticeRecordService practiceRecordService;
     @Override
     @Transactional
     public User createUser(User user) {
@@ -310,7 +310,7 @@ public class UserServiceImpl implements UserService {
         Map<String, Long> counts = new HashMap<>();
         counts.put("workCount", (long) works.size());
         counts.put("commentCount", (long) commentRepository.findByUserId(userId).size());
-        counts.put("practiceCount", (long) practiceRecordRepository.findByUserId(userId).size());
+        counts.put("practiceCount", practiceRecordService.countByUserId(userId));
         counts.put("totalLikesReceived", works.stream().mapToLong(Work::getLikeCount).sum());
         counts.put("totalViewsReceived", works.stream().mapToLong(Work::getViewCount).sum());
         return counts;

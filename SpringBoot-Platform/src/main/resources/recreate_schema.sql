@@ -1,3 +1,9 @@
+-- 警告：本脚本是历史遗留的「部分重建」脚本，只覆盖 users / works / comments /
+-- practice_records 四张表，且 users 与 works 的列已经落后于当前实体定义
+-- （例如 users 缺 status / email_verified / two_factor_enabled 等列）。
+-- 拿它重建线上库会把数据改成实体映射不认的样子。
+-- 日常变更请用 db/ 目录下按编号的幂等迁移脚本。
+--
 -- 禁用外键检查以避免依赖关系问题
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -50,11 +56,26 @@ CREATE TABLE comments (
 );
 
 -- 重建practice_records表，确保外键引用正确的ID类型
+-- 字段集对齐 openapi/contract.yaml 的 PracticeRecord schema（见 db/03-practice-records-contract.sql）
 CREATE TABLE practice_records (
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     user_id VARCHAR(36) NOT NULL,
-    practice_time INT,
-    strokes_count INT,
+    copybook_id VARCHAR(36),
+    copybook_title VARCHAR(100),
+    title VARCHAR(200),
+    content VARCHAR(500),
+    category VARCHAR(50),
+    style VARCHAR(50),
+    practice_type VARCHAR(50),
+    reference_work_id VARCHAR(36),
+    reference_work_title VARCHAR(200),
+    file_urls TEXT,
+    duration BIGINT,
+    character_count INT,
+    difficulty VARCHAR(20),
+    notes VARCHAR(1000),
+    is_completed BOOLEAN NOT NULL DEFAULT FALSE,
+    practice_date DATETIME(6),
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE

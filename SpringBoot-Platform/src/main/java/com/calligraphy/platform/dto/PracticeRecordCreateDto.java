@@ -1,50 +1,63 @@
 package com.calligraphy.platform.dto;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+/**
+ * 记录一次练习的请求体，字段集与 openapi/contract.yaml 的
+ * {@code PracticeRecordCreate} schema 一致。
+ *
+ * <p>字帖 ID 不在请求体里 —— 它在路径 {@code /api/copybooks/{copybookId}/practice} 上。
+ * 用户身份也从令牌取，不接受客户端指定。
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "练习记录创建请求DTO")
 public class PracticeRecordCreateDto {
-    
-    @NotNull(message = "用户ID不能为空")
-    @Schema(description = "用户ID", example = "1")
-    private Long userId;
-    
-    @NotBlank(message = "字体不能为空")
-    @Size(max = 50, message = "字体长度不能超过50个字符")
-    @Schema(description = "字体", example = "欧体")
-    private String font;
-    
-    @NotBlank(message = "汉字不能为空")
-    @Size(max = 10, message = "汉字长度不能超过10个字符")
-    @Schema(description = "汉字", example = "人")
-    private String character;
-    
-    @NotNull(message = "练习次数不能为空")
-    @Schema(description = "练习次数", example = "5")
-    private Integer practiceCount;
-    
-    @NotBlank(message = "完成状态不能为空")
-    @Schema(description = "完成状态", example = "COMPLETED")
-    private String completionStatus;
-    
-    @Schema(description = "得分", example = "85.5")
-    private Double score;
-    
-    @Size(max = 500, message = "备注长度不能超过500个字符")
-    @Schema(description = "备注", example = "练习心得")
+
+    @Size(max = 200, message = "标题长度不能超过200个字符")
+    private String title;
+
+    @Size(max = 500, message = "内容长度不能超过500个字符")
+    private String content;
+
+    @Size(max = 50, message = "分类长度不能超过50个字符")
+    private String category;
+
+    @Size(max = 50, message = "字体风格长度不能超过50个字符")
+    private String style;
+
+    @Size(max = 50, message = "练习类型长度不能超过50个字符")
+    private String practiceType;
+
+    /** 参考作品 ID（works.id，字符串）。 */
+    @Size(max = 36, message = "参考作品 ID 长度不能超过36个字符")
+    private String referenceWorkId;
+
+    /** 练习图片 URL 列表。 */
+    private List<String> fileUrls;
+
+    /** 练习时长（秒）。 */
+    @Min(value = 0, message = "练习时长不能为负数")
+    private Long duration;
+
+    @Min(value = 0, message = "练习字数不能为负数")
+    private Integer characterCount;
+
+    @Size(max = 20, message = "难度长度不能超过20个字符")
+    private String difficulty;
+
+    @Size(max = 1000, message = "备注长度不能超过1000个字符")
     private String notes;
-    
-    @Schema(description = "练习图片URL", example = "https://example.com/practice.jpg")
-    private String practiceImage;
+
+    /** 练习日期，不传则取当前时间。 */
+    private LocalDateTime practiceDate;
 }
