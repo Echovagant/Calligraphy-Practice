@@ -36,10 +36,10 @@ class SecurityConfigTest {
 
     @Test
     void publicPathIsNotRejectedBySecurity() throws Exception {
-        // /api/frontend/auth/login is in the permit list. No Controller exists for it
-        // yet, so the request should pass the security filter and be handled by
-        // DispatcherServlet -> 404, not rejected with 401.
+        // /api/frontend/auth/login is in the permit list. The controller only maps
+        // POST on it, so a GET must pass the security filter and be rejected by
+        // the dispatcher with 405 Method Not Allowed -- not 401.
         mockMvc.perform(get("/api/frontend/auth/login"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isMethodNotAllowed());
     }
 }

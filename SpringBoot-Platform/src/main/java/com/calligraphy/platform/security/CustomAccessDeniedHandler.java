@@ -1,5 +1,6 @@
 package com.calligraphy.platform.security;
 
+import com.calligraphy.platform.dto.ApiError;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +14,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @Component
@@ -32,14 +31,8 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("success", false);
-        errorResponse.put("message", "访问被拒绝，权限不足");
-        errorResponse.put("error", "FORBIDDEN");
-        errorResponse.put("path", request.getRequestURI());
-        errorResponse.put("timestamp", System.currentTimeMillis());
-
-        objectMapper.writeValue(response.getOutputStream(), errorResponse);
+        ApiError error = new ApiError("FORBIDDEN", "访问被拒绝，权限不足");
+        objectMapper.writeValue(response.getOutputStream(), error);
     }
 }
 

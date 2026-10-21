@@ -91,7 +91,16 @@ const refreshToken = async () => {
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+    // 401 自动续期：这里刻意用裸 fetch 而不是 post()——post() 走 request()，
+    // 而 request() 在 401 时又会调本函数，直接用会无限递归。
+    // 路径按用户类型分流，与 authAPI.refreshToken 保持一致
+    // （契约里有 /frontend/auth/refresh 与 /backend/auth/refresh，
+    //   没有通用的 /auth/refresh）。
+    const userType = localStorage.getItem(STORAGE_KEYS.USER_TYPE) || USER_TYPES.FRONTEND;
+    const refreshPath = userType === USER_TYPES.BACKEND
+      ? '/backend/auth/refresh'
+      : '/frontend/auth/refresh';
+    const response = await fetch(`${API_BASE_URL}${refreshPath}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -122,15 +122,17 @@ paths:
               $ref: '#/components/schemas/AdminLoginRequest'
       responses:
         '200':
-          description: 登录成功
+          description: 登录成功。形状与前端用户登录一致（`user` 是嵌套对象，不是 data 信封）。
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AdminLoginResponse'
+                $ref: '#/components/schemas/LoginResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
   /api/frontend/auth/profile:
     get:
       operationId: frontendAuthProfile
@@ -140,11 +142,11 @@ paths:
       x-frontend-call: authAPI.getProfile
       responses:
         '200':
-          description: 当前用户资料
+          description: 当前用户资料（**裸资源**，不是 `{user:...}` 包装）
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FrontendUser'
+                $ref: '#/components/schemas/AuthUser'
         '401':
           $ref: '#/components/responses/Unauthorized'
   /api/backend/auth/profile:
@@ -156,13 +158,15 @@ paths:
       x-frontend-call: authAPI.getProfile
       responses:
         '200':
-          description: 当前管理员资料
+          description: 当前管理员资料（**裸资源**）
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BackendUser'
+                $ref: '#/components/schemas/AuthUser'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
   /api/frontend/auth/refresh:
     post:
       operationId: frontendAuthRefresh
@@ -207,8 +211,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TokenPair'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
   /api/frontend/auth/logout:
     post:
       operationId: frontendAuthLogout
@@ -1568,15 +1576,12 @@ components:
           type: string
     RegisterResponse:
       type: object
+      description: 注册结果。与登录同样是「令牌 + user 对象」。
+      required:
+        - accessToken
+        - refreshToken
+        - user
       properties:
-        userId:
-          type: string
-        username:
-          type: string
-        nickname:
-          type: string
-        email:
-          type: string
         accessToken:
           type: string
         refreshToken:
@@ -1586,18 +1591,13 @@ components:
         expiresIn:
           type: integer
           format: int64
-        tokenExpiry:
-          type: string
-          format: date-time
+          description: 令牌有效期，单位**毫秒**（取自 `jwt.expiration`）
+        user:
+          $ref: '#/components/schemas/AuthUser'
         verificationRequired:
-          type: boolean
-        emailSent:
           type: boolean
         message:
           type: string
-        createdAt:
-          type: string
-          format: date-time
     LoginRequest:
       type: object
       required:
@@ -1618,17 +1618,12 @@ components:
           type: string
     LoginResponse:
       type: object
+      description: 登录结果。`user` 是嵌套的用户对象（不是 data 信封），前端直接读 `response.user.username`。
+      required:
+        - accessToken
+        - refreshToken
+        - user
       properties:
-        userId:
-          type: string
-        username:
-          type: string
-        nickname:
-          type: string
-        email:
-          type: string
-        avatar:
-          type: string
         accessToken:
           type: string
         refreshToken:
@@ -1638,27 +1633,20 @@ components:
         expiresIn:
           type: integer
           format: int64
-        tokenExpiry:
-          type: string
-          format: date-time
-        twoFactorEnabled:
-          type: boolean
-        twoFactorRequired:
-          type: boolean
-        roles:
-          type: array
-          items:
-            type: string
-        permissions:
-          type: array
-          items:
-            type: string
-        userInfo:
-          $ref: '#/components/schemas/UserInfo'
-    UserInfo:
+          description: 令牌有效期，单位**毫秒**（取自 `jwt.expiration`）
+        user:
+          $ref: '#/components/schemas/AuthUser'
+    AuthUser:
       type: object
+      description: >
+        用户资料，只暴露前端真正用到的字段。前端用户与管理员都用这个 schema，
+        靠 `role` 区分（USER / ADMIN / SUPER_ADMIN）—— 后端两者同在 `users` 表。
+      required:
+        - id
+        - username
+        - role
       properties:
-        userId:
+        id:
           type: string
         username:
           type: string
@@ -1668,17 +1656,9 @@ components:
           type: string
         avatar:
           type: string
-        phone:
+        role:
           type: string
-        bio:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-        isVerified:
-          type: boolean
-        isTwoFactorEnabled:
-          type: boolean
+          description: USER / ADMIN / SUPER_ADMIN
     AdminLoginRequest:
       type: object
       required:
@@ -1689,38 +1669,6 @@ components:
           type: string
         password:
           type: string
-    AdminLoginResponse:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        username:
-          type: string
-        email:
-          type: string
-        nickname:
-          type: string
-        roles:
-          type: string
-        permissions:
-          type: string
-        isActive:
-          type: boolean
-        isEmailVerified:
-          type: boolean
-        lastLoginAt:
-          type: string
-          format: date-time
-        accessToken:
-          type: string
-        refreshToken:
-          type: string
-        tokenType:
-          type: string
-        expiresIn:
-          type: integer
-          format: int64
     RefreshTokenRequest:
       type: object
       required:
@@ -1741,6 +1689,7 @@ components:
         expiresIn:
           type: integer
           format: int64
+          description: 令牌有效期，单位**毫秒**（取自 `jwt.expiration`）
     LogoutRequest:
       type: object
       properties:
@@ -1759,9 +1708,8 @@ components:
           type: string
     VerificationCodeSent:
       type: object
+      description: 验证码已发送。**不要**在响应里回传验证码本身。
       properties:
-        success:
-          type: boolean
         message:
           type: string
     FrontendUserUpdate:

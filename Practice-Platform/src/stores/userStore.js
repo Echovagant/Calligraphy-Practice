@@ -206,7 +206,8 @@ export const useUserStore = defineStore('user', {
         console.log('注册成功，获取响应:', response);
         
         // 存储用户数据和token（注册后自动登录）
-        this.userInfo = response;
+        // 契约：注册响应的用户对象在 response.user，不是整个响应
+        this.userInfo = response.user;
         this.isLoggedIn = true;
 
         // 设置用户类型为前端用户
@@ -359,7 +360,8 @@ export const useUserStore = defineStore('user', {
           throw new Error('没有刷新令牌');
         }
         
-        const { data } = await authAPI.refreshToken({ refreshToken });
+        // 契约规定 refresh 返回裸资源（无 data 信封）
+        const data = await authAPI.refreshToken({ refreshToken });
         
         // 更新token和刷新token
         const { accessToken, refreshToken: newRefreshToken } = data;
@@ -411,7 +413,8 @@ export const useUserStore = defineStore('user', {
         }
         
         const response = await authAPI.getProfile();
-        this.userInfo = response.user;
+        // 契约规定 profile 返回裸用户对象（不是 {user:...} 包装）
+        this.userInfo = response;
         this.isLoggedIn = true;
         this.userInfoLoaded = true;
         this.updateActivityTime();

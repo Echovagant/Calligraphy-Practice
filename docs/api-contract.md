@@ -69,6 +69,25 @@
 - 前端 `API_BASE_URL` 是 `http://localhost:8083/api`，`api.js` 里的路径**不带** `/api` 前缀。
 - `community.js` 里的路径同样不带前缀（base 里已经有了）。
 
+### 1.6 用户只有一张表
+
+**前端用户和管理员都在 `users` 表**（实体 `model/User`），靠 `role` 区分：
+
+| | role | 令牌 userType |
+|---|---|---|
+| 前端用户 | `USER` | `USER` |
+| 管理员 | `ADMIN` / `SUPER_ADMIN` | `ADMIN` |
+
+依据：`model/User.Role` 枚举本来就是 `{USER, ADMIN, SUPER_ADMIN}`；
+`UserDetailsServiceImpl` 先查 `users` 表并按 `ROLE_<role>` 授权；
+`AuthServiceImpl` 的注册/登录/刷新全部走 `users` 表。
+
+**不要用** `frontend_users`（`model/FrontendUser`）、`backend_users`（`model/BackendUser`）、
+`admin_users`（`entity/AdminUser`）这三条**平行的历史路径** ——
+它们各自一套 service（`FrontendUserService` / `BackendUserService` / `AdminService`），
+`BackendUserService` 更是**连实现类都没有**。本期一律不碰；
+将来若要合并，是一次独立的重构。
+
 ## 2. 端点清单（53 个）
 
 | Method | Path | operationId | 说明 | 鉴权 | 前端调用 |
@@ -168,28 +187,32 @@ Spring 字面量路径优先于模板路径，行为正确，但**契约测试�
 `GET /api/discussions/search` / `hot` / `featured` / `pinned` 与
 `GET /api/discussions/{id}` 也有同样的关系。
 
-### 3.4 `dto/ApiResponse.java` 要删
+### 3.4 `dto/ApiResponse.java` 已删
 
 它全项目零引用，成功消息还是乱码 `鎿嶄綔鎴愬姛`，且与「成功返回裸资源」冲突。
-按规则三删除，错误路径改用新的 `dto/ApiError.java`。
+**P2 已删除**（`git rm`），错误路径改用新的 `dto/ApiError.java`，
+由 `exception/GlobalExceptionHandler.java` 统一产出 `{code,message}`。
 
 ### 3.5 前端目前读的是 `res.data.xxx`，与「裸资源」冲突
 
 这是评审点名的 F-10，细节比想象的严重。契约规定裸资源，但前端这些地方还在读信封：
 
-| 端点 | 前端现在的读法 | 契约要求 |
-|---|---|---|
-| `GET /api/discussions` | `response.success` + `response.data.content[]` + `response.data.totalElements` | `{content,page,size,total,totalPages}` |
-| `GET /api/copybooks` | `response.data.copybooks`（另一处又读 `response.map`） | `{content,...}` |
-| `GET /api/copybooks/popular` | `response.data.copybooks` | `{content,...}` |
-| `GET /api/copybooks/{copybookId}` | `response.data.copybook` | 裸资源 |
-| `GET /api/copybooks/statistics/user` | `response.data` | 裸资源 |
-| `POST /api/copybooks/{copybookId}/practice` | `response.data`（另一处读裸 `id`/`createdAt`） | 裸资源 |
-| `POST /api/{frontend,backend}/auth/refresh` | `data.accessToken` | `{accessToken,refreshToken,...}` |
-| `GET /api/{frontend,backend}/auth/profile` | `response.user` | 裸资源 |
-| `PUT /api/users/profile` | `response.user` | 裸资源 |
+| 端点 | 前端现在的读法 | 契约要求 | 状态 |
+|---|---|---|---|
+| `GET /api/discussions` | `response.success` + `response.data.content[]` + `response.data.totalElements` | `{content,page,size,total,totalPages}` | P5 待改 |
+| `GET /api/copybooks` | `response.data.copybooks`（另一处又读 `response.map`） | `{content,...}` | P5 待改 |
+| `GET /api/copybooks/popular` | `response.data.copybooks` | `{content,...}` | P5 待改 |
+| `GET /api/copybooks/{copybookId}` | `response.data.copybook` | 裸资源 | P5 待改 |
+| `GET /api/copybooks/statistics/user` | `response.data` | 裸资源 | P5 待改 |
+| `POST /api/copybooks/{copybookId}/practice` | `response.data`（另一处读裸 `id`/`createdAt`） | 裸资源 | P5 待改 |
+| `POST /api/{frontend,backend}/auth/refresh` | `const { data } = await ...` → `data.accessToken` | `{accessToken,refreshToken,...}` | **P2 已改** |
+| `GET /api/{frontend,backend}/auth/profile` | `response.user` | 裸资源 | **P2 已改** |
+| `PUT /api/users/profile` | `response.user` | 裸资源 | P5 待改 |
+| `POST /api/frontend/auth/register` | `this.userInfo = response`（整个信封） | `response.user` | **P2 已改** |
 
-**P5 接线时必须逐个改掉**。改不掉就说明契约错了 —— 那时改契约，别偷偷在后端加信封。
+**P2 改法**：`authAPI.refreshToken` 的返回值去掉了 `data` 包装，`getProfile` 与 `register`
+改成直接用裸用户对象。**P5 接线时必须逐条改掉剩下的**。
+改不掉就说明契约错了 —— 那时改契约，别偷偷在后端加信封。
 
 ## 4. 前端现存缺陷（P5 待修）
 
@@ -198,7 +221,7 @@ Spring 字面量路径优先于模板路径，行为正确，但**契约测试�
 
 | 类型 | 位置 | 问题 |
 |---|---|---|
-| 绕过统一客户端 | `src/utils/api.js:94` | 401 刷新走的是裸 `fetch(${API_BASE_URL}/auth/refresh)`，绕过了统一客户端的错误处理与自动重试。**这个端点不在契约的 53 个里** —— P5 必须并入 `/frontend/auth/refresh` 或 `/backend/auth/refresh`（`getUserType()` 在同一模块可用）。 |
+| ~~绕过统一客户端~~ | `src/utils/api.js:94` | **P2 已改**。401 刷新原本走裸 `fetch` 打 `/api/auth/refresh` —— 而**这个端点根本不在契约里**（契约只有 `/frontend/auth/refresh` 与 `/backend/auth/refresh`），自动续期路径必然 404。现按用户类型分流到带类型的 refresh 端点。裸 fetch 本身**保留**：它走 `post()` 会经 `request()`，而 `request()` 在 401 时又会调本函数，直接用会无限递归。 |
 | 幽灵方法 | `src/stores/practiceStore.js:84` | `copybookAPI.addPracticeRecord(...)` —— api.js 里没有这个方法，运行时直接 TypeError。真实的方法叫 `copybookAPI.recordPractice`。 |
 | 幽灵方法 | `src/stores/practiceStore.js:250` | `copybookAPI.getPracticeHistory(...)` —— api.js 里没有这个方法。契约已为 `GET /api/copybooks/practice/history` 预留端点，P5 需在 api.js 里补出这个方法。 |
 | 幽灵方法 | `src/stores/practiceStore.js:287` | `copybookAPI.getPracticeStats(...)` —— api.js 里没有这个方法。对应端点是 `GET /api/copybooks/statistics/user`（api.js 里的 `getUserStatistics`）。 |
@@ -209,38 +232,39 @@ Spring 字面量路径优先于模板路径，行为正确，但**契约测试�
 另有 **7 处 mock 降级分支**（api.js 里 5 处 `catch` 返回假数据 + store 里 2 处），
 P5 接线时必须全部删掉 —— 否则接口没通的时候页面会显示假数据，**看起来是好的**。
 
-## 5. 阶段 1 的差异清单（= 待实现清单）
+## 5. 当前差异清单（= 待实现清单）
 
 `npm run contract:check` 当前输出：
 
 ```
 contract  : 53 operation(s)
 frontend  : 51 call site(s)
-backend   : 0 controller route(s)
+backend   : 10 controller route(s)
 violations: 0
-gaps      : 55
-warnings  : 4
+gaps      : 45
+warnings  : 3
 ```
 
 - **违规 0** —— 契约与现有代码没有矛盾，校验通过。
-- **缺口 55** = 53 条「后端还没实现」（后端目前**零 Controller**）+ 2 条「前端还没接线」
+- **缺口 45** = 43 条「后端还没实现」+ 2 条「前端还没接线」
   （`GET /api/copybooks/practice/history`、`GET /api/stats/overview`）。
-- **警告 4** = §4 表里的前 4 条（1 处裸 fetch + 3 处幽灵方法）。
+- **警告 3** = §4 表里的 3 条幽灵方法（裸 fetch 那条已在 P2 修掉）。
 
-**这份缺口清单就是 P2–P6 的工作项。** 每完成一个域，缺口数下降，
-`npm run contract:check` 的输出就是进度。到 P6 必须 `--strict` 也过。
+**P2（auth 域，10 个端点）已关闭**，后端路由数从 0 变成 10。
+**这份缺口清单就是 P3–P6 的工作项。** 每完成一个域，缺口数下降，
+`npm run contract:check` 的输出就是进度。到 P7 必须 `--strict` 也过。
 
 ## 6. 阶段划分与验收
 
-| 阶段 | 覆盖 | 验收 |
-|---|---|---|
-| **P1 契约定稿**（本阶段） | `contract.yaml` + 本文件 + `check-contract.mjs` | 校验脚本通过，差异清单即待实现清单 |
-| **P2 auth 域** | 端点 1–10 | 登录 → 带 Bearer → refresh → logout 全链路通；契约测试 10 项绿 |
-| **P3 user + works 域** | 端点 11–21、53 | 上传作品 → 画廊可见 → 图片能取回；契约测试绿 |
-| **P4 copybooks 域** | 端点 22–27 | 字帖列表/详情/记录练习/统计/历史；`copybooks` 既有 3 行数据可读 |
-| **P5 comments + discussions + file-reviews 域** | 端点 28–52 | 发帖/回复/点赞/评论/审核；契约测试绿 |
-| **P6 前端接线 + 删 mock** | §3.5、§4 | 六个视图无硬编码 mock；api.js 无 mock 降级分支 |
-| **P7 全量验证** | — | 53 项契约测试全绿；`--strict` 零差异；前后端联调冒烟通过 |
+| 阶段 | 覆盖 | 验收 | 状态 |
+|---|---|---|---|
+| **P1 契约定稿** | `contract.yaml` + 本文件 + `check-contract.mjs` | 校验脚本通过，差异清单即待实现清单 | ✅ 完成 |
+| **P2 auth 域** | 端点 1–10 | 登录 → 带 Bearer → refresh → logout 全链路通；契约测试绿 | ✅ 完成 |
+| **P3 user + works 域** | 端点 11–21、53 | 上传作品 → 画廊可见 → 图片能取回；契约测试绿 | 待做 |
+| **P4 copybooks 域** | 端点 22–27 | 字帖列表/详情/记录练习/统计/历史；`copybooks` 既有 3 行数据可读 | 待做 |
+| **P5 comments + discussions + file-reviews 域** | 端点 28–52 | 发帖/回复/点赞/评论/审核；契约测试绿 | 待做 |
+| **P6 前端接线 + 删 mock** | §3.5、§4 | 六个视图无硬编码 mock；api.js 无 mock 降级分支 | 待做 |
+| **P7 全量验证** | — | 53 项契约测试全绿；`--strict` 零差异；前后端联调冒烟通过 | 待做 |
 
 ## 7. 变更记录
 

@@ -40,6 +40,11 @@ public class SecurityConfig {
             "/api/frontend/auth/login",
             "/api/backend/auth/login",
             "/api/auth/verification-code",
+            // 刷新与登出在 access token 失效/过期时也要能调用，这两个端点自行校验 refreshToken
+            "/api/frontend/auth/refresh",
+            "/api/backend/auth/refresh",
+            "/api/frontend/auth/logout",
+            "/api/backend/auth/logout",
             "/uploads/**",
             "/error",
             "/swagger-ui/**",
