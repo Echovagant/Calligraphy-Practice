@@ -11,6 +11,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -32,6 +33,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (userOptional.isPresent()) {
             User user = userOptional.get();
 
+            // 锁定与禁用是两回事：锁定要原样抛 LockedException，
+            // DaoAuthenticationProvider 只会把 UsernameNotFoundException 换成
+            // BadCredentialsException，抛 LockedException 才能让 423 走到响应里。
+            if (!user.isAccountNonLocked()) {
+                throw new LockedException("用户账户已被锁定: " + username);
+            }
             if (!user.isEnabled()) {
                 throw new UsernameNotFoundException("用户账户已被禁用: " + username);
             }
@@ -56,7 +63,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             BackendUser backendUser = backendUserOptional.get();
 
             if (!backendUser.isAccountNonLocked()) {
-                throw new UsernameNotFoundException("用户账户已被锁定: " + username);
+                throw new LockedException("用户账户已被锁定: " + username);
             }
 
             List<SimpleGrantedAuthority> authorities = new ArrayList<>();
@@ -85,6 +92,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new UsernameNotFoundException("用户不存在: " + userId));
 
+            if (!user.isAccountNonLocked()) {
+                throw new LockedException("用户账户已被锁定: " + userId);
+            }
             if (!user.isEnabled()) {
                 throw new UsernameNotFoundException("用户账户已被禁用: " + userId);
             }
@@ -106,7 +116,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                     .orElseThrow(() -> new UsernameNotFoundException("管理员不存在: " + userId));
 
             if (!backendUser.isAccountNonLocked()) {
-                throw new UsernameNotFoundException("管理员账户已被锁定: " + userId);
+                throw new LockedException("管理员账户已被锁定: " + userId);
             }
 
             List<SimpleGrantedAuthority> authorities = new ArrayList<>();

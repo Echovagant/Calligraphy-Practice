@@ -310,6 +310,23 @@ class AuthContractTest {
     }
 
     @Test
+    void lockedAccountReturns423AccountLocked() throws Exception {
+        // 契约里声明了 423 ACCOUNT_LOCKED —— 这条路径以前走不到
+        // （被兜底 catch 伪装成了「用户名或密码错误」）
+        User user = userRepository.findByUsername(username).orElseThrow();
+        user.setAccountLocked(true);
+        user.setAccountLockedUntil(LocalDateTime.now().plusHours(1));
+        userRepository.save(user);
+
+        mockMvc.perform(post("/api/frontend/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("username", username, "password", password))))
+                .andExpect(status().isLocked())
+                .andExpect(jsonPath("$.code").value("ACCOUNT_LOCKED"))
+                .andExpect(jsonPath("$.message").isNotEmpty());
+    }
+
+    @Test
     void missingTokenIsUnauthorizedWithCodeAndMessage() throws Exception {
         mockMvc.perform(get("/api/frontend/auth/profile"))
                 .andExpect(status().isUnauthorized())

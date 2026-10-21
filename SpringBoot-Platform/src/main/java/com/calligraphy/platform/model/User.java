@@ -214,7 +214,11 @@ public class User implements UserDetails {
     }
     @Override
     public boolean isEnabled() {
-        return UserStatus.ACTIVE.equals(status) && isAccountNonLocked();
+        // 只表示「账户未被禁用」。锁定是独立状态，由 isAccountNonLocked() 负责，
+        // 两者在数据库里也是两列（status / account_locked）。
+        // 早期实现把锁定折进 isEnabled()，导致锁定账户在 UserDetailsServiceImpl
+        // 里被当成「账户不存在」处理，契约声明的 423 ACCOUNT_LOCKED 永远走不到。
+        return UserStatus.ACTIVE.equals(status);
     }
 
     // 业务方法

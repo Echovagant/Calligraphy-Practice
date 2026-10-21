@@ -261,6 +261,31 @@ P3 把 `PUT /api/users/password` 的请求体定成
 **根本没有重置密码的端点**；拿它当「修改密码」的请求体是不对的。
 前端 `ProfileView` 的表单字段本来就正好是这三个。
 
+### 3.8 账号锁定（423）在 Spring Security 里会被「洗掉类型」
+
+**在 `UserDetailsServiceImpl` 里抛 `LockedException` 是走不到 423 的。**
+
+Spring Security 6.2 的 `DaoAuthenticationProvider.retrieveUser` 有三个 catch：
+
+| 捕获类型 | 处理 |
+|---|---|
+| `UsernameNotFoundException` | 原样抛出（顺带做计时攻击缓解） |
+| `InternalAuthenticationServiceException` | 原样抛出 |
+| `Exception`（兜底） | **包成 `InternalAuthenticationServiceException(msg, cause)`** |
+
+`LockedException` 不属于前两类，会落进兜底分支 —— **消息保住了，类型没了**。
+业务层拿到的已经是 `InternalAuthenticationServiceException`，只能按「用户名或密码错误」处理，
+契约声明的 `423 ACCOUNT_LOCKED` 永远走不到。
+
+所以锁定判定必须在 `authenticationManager.authenticate()` **之前**做
+（`AuthServiceImpl` 里先查用户、再判锁定），并在兜底 catch 里从 `e.getCause()`
+把 `LockedException` 还原出来作为双保险。
+
+顺带修掉一个语义 bug：`User.isEnabled()` 早期把锁定也折了进去
+（`ACTIVE.equals(status) && isAccountNonLocked()`），导致锁定账户在
+`UserDetailsServiceImpl` 里被当成「账户不存在」。现已拆开 ——
+禁用看 `status` 列，锁定看 `account_locked` 列（数据库里本来就是两列）。
+
 ## 4. 前端现存缺陷（P5 待修）
 
 这些是本轮提取时挖出来的真实缺陷。检查器会把它们列为 **warning**，

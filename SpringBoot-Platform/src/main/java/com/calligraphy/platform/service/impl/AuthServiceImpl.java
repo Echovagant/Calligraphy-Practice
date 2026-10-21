@@ -27,6 +27,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -79,7 +80,16 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public Map<String, String> login(String username, String password) {
         log.info("用户登录尝试: {}", username);
-        
+
+        // 锁定状态必须在 authenticate 之前判定：Spring 的
+        // DaoAuthenticationProvider.retrieveUser 会把除 UsernameNotFoundException 以外的
+        // 异常统一包成 InternalAuthenticationServiceException（消息保留、类型丢失），
+        // LockedException 到不了业务层，契约声明的 423 就永远走不到。
+        User user = findUserQuietly(username);
+        if (user != null && !user.isAccountNonLocked()) {
+            throw new LockedException("用户账户已被锁定，请稍后再试");
+        }
+
         try {
             // 验证用户凭据
             Authentication authentication = authenticationManager.authenticate(
@@ -88,20 +98,18 @@ public class AuthServiceImpl implements AuthService {
                     password
                 )
             );
-            
+
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            
-            // 获取用户信息
-            User user = userService.findByUsername(username);
+
             if (user == null) {
                 throw new UserNotFoundException("用户未找到: " + username);
             }
-            
+
             // 检查用户状态
             if (!user.isEnabled()) {
                 throw new AuthenticationException("用户账户已被禁用");
             }
-            
+
             // 生成token
             String accessToken = jwtService.generateToken(user.getId(), "USER", user.getUsername());
             String refreshToken = jwtService.generateRefreshToken(user.getId(), "USER", user.getUsername());
@@ -123,8 +131,19 @@ public class AuthServiceImpl implements AuthService {
             result.put("userId", user.getId());
             
             return result;
-            
+
+        } catch (LockedException e) {
+            // 锁定是明确状态 → 423 ACCOUNT_LOCKED，不要被兜底伪装成「用户名或密码错误」
+            log.warn("用户账户被锁定: {}", username);
+            throw e;
         } catch (Exception e) {
+            // 兜底里把被 Spring 包装掉的锁定异常还原：
+            // DaoAuthenticationProvider.retrieveUser 会把非 UsernameNotFoundException
+            // 的异常包成 InternalAuthenticationServiceException，LockedException 只剩 cause。
+            if (e.getCause() instanceof LockedException locked) {
+                log.warn("用户账户被锁定: {}", username);
+                throw locked;
+            }
             log.error("用户登录失败: {}", e.getMessage());
             throw new AuthenticationException("用户名或密码错误");
         }
@@ -133,7 +152,15 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public LoginResponseDto login(LoginRequestDto loginRequest) {
         log.info("用户登录尝试: {}", loginRequest.getUsername());
-        
+
+        // 锁定状态必须在 authenticate 之前判定（原因见 login(String, String)）：
+        // 让 Spring 先发现锁定，LockedException 会被包成 InternalAuthenticationServiceException，
+        // 类型丢失后只能走 401，契约声明的 423 走不到。
+        User user = findUserQuietly(loginRequest.getUsername());
+        if (user != null && !user.isAccountNonLocked()) {
+            throw new LockedException("用户账户已被锁定，请稍后再试");
+        }
+
         try {
             // 验证用户凭据
             Authentication authentication = authenticationManager.authenticate(
@@ -142,15 +169,13 @@ public class AuthServiceImpl implements AuthService {
                     loginRequest.getPassword()
                 )
             );
-            
+
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            
-            // 获取用户信息
-            User user = userService.findByUsername(loginRequest.getUsername());
+
             if (user == null) {
                 throw new UserNotFoundException("用户未找到: " + loginRequest.getUsername());
             }
-            
+
             // 检查用户状态
             if (!user.isEnabled()) {
                 throw new AuthenticationException("用户账户已被禁用");
@@ -208,8 +233,23 @@ public class AuthServiceImpl implements AuthService {
                     .isTwoFactorEnabled(user.isTwoFactorEnabled())
                     .build())
                 .build();
-                
+
+        } catch (LockedException e) {
+            // 账号被锁定是明确状态 → 423 ACCOUNT_LOCKED，原样透出
+            log.warn("用户账户被锁定: {}", loginRequest.getUsername());
+            throw e;
+        } catch (AuthenticationException e) {
+            // 账户被禁用等明确状态，保留自己的消息
+            log.warn("用户登录被拒绝: {}", e.getMessage());
+            throw e;
         } catch (Exception e) {
+            // 兜底里把被 Spring 包装掉的锁定异常还原（原因见 login(String, String)）
+            if (e.getCause() instanceof LockedException locked) {
+                log.warn("用户账户被锁定: {}", loginRequest.getUsername());
+                throw locked;
+            }
+            // 其余情况（用户不存在、密码错误等）统一成同一句，
+            // 不泄露账号是否存在
             log.error("用户登录失败: {}", e.getMessage());
             throw new AuthenticationException("用户名或密码错误");
         }
@@ -218,31 +258,35 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public Map<String, String> refreshTokenMap(String refreshToken) {
         log.info("刷新访问令牌（Map形式）");
-        
+
+        String username = null;
         try {
             if (!jwtService.validateToken(refreshToken)) {
                 throw new AuthenticationException("刷新令牌无效或已过期");
             }
-            
-            String username = jwtService.extractUsername(refreshToken);
+
+            username = jwtService.extractUsername(refreshToken);
             User user = userService.findByUsername(username);
             if (user == null) {
                 throw new UserNotFoundException("用户未找到: " + username);
             }
             
+            if (!user.isAccountNonLocked()) {
+                throw new LockedException("用户账户已被锁定，请稍后再试");
+            }
             if (!user.isEnabled()) {
                 throw new AuthenticationException("用户账户已被禁用");
             }
-            
+
             // 生成新的访问令牌
             String newAccessToken = jwtService.generateToken(user.getId(), "USER", user.getUsername());
-            
+
             // 更新用户登录信息
             user.setLastLoginAt(LocalDateTime.now());
             userService.updateLastLoginInfo(user.getUsername(), "");
-            
+
             log.info("访问令牌刷新成功: {}", username);
-            
+
             // 返回Map形式的响应
             Map<String, String> result = new HashMap<>();
             result.put("accessToken", newAccessToken);
@@ -253,7 +297,11 @@ public class AuthServiceImpl implements AuthService {
             result.put("userId", user.getId());
             
             return result;
-            
+
+        } catch (LockedException e) {
+            // 账户被锁定 → 423 ACCOUNT_LOCKED
+            log.warn("用户账户被锁定，拒绝刷新令牌: {}", username);
+            throw e;
         } catch (Exception e) {
             log.error("刷新访问令牌失败: {}", e.getMessage());
             throw new AuthenticationException("刷新令牌失败");
@@ -263,22 +311,26 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public LoginResponseDto refreshToken(String refreshToken) {
         log.info("刷新访问令牌");
-        
+
+        String username = null;
         try {
             if (!jwtService.validateToken(refreshToken)) {
                 throw new AuthenticationException("刷新令牌无效或已过期");
             }
-            
-            String username = jwtService.extractUsername(refreshToken);
+
+            username = jwtService.extractUsername(refreshToken);
             User user = userService.findByUsername(username);
             if (user == null) {
                 throw new UserNotFoundException("用户未找到: " + username);
             }
             
+            if (!user.isAccountNonLocked()) {
+                throw new LockedException("用户账户已被锁定，请稍后再试");
+            }
             if (!user.isEnabled()) {
                 throw new AuthenticationException("用户账户已被禁用");
             }
-            
+
             // 获取用户角色和权限
             List<String> roles = List.of("ROLE_" + user.getRole().name());
             List<String> permissions = List.of();
@@ -323,7 +375,11 @@ public class AuthServiceImpl implements AuthService {
                     .isTwoFactorEnabled(user.isTwoFactorEnabled())
                     .build())
                 .build();
-                
+
+        } catch (LockedException e) {
+            // 账户被锁定 → 423 ACCOUNT_LOCKED
+            log.warn("用户账户被锁定，拒绝刷新令牌: {}", username);
+            throw e;
         } catch (Exception e) {
             log.error("刷新访问令牌失败: {}", e.getMessage());
             throw new AuthenticationException("刷新令牌失败");
@@ -483,6 +539,12 @@ public class AuthServiceImpl implements AuthService {
     public LoginResponseDto loginAsAdmin(AdminLoginRequestDto loginRequest) {
         log.info("管理员登录尝试: {}", loginRequest.getUsername());
 
+        // 锁定状态必须在 authenticate 之前判定（原因见 login(String, String)）
+        User existing = findUserQuietly(loginRequest.getUsername());
+        if (existing != null && !existing.isAccountNonLocked()) {
+            throw new LockedException("用户账户已被锁定，请稍后再试");
+        }
+
         User user;
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -493,7 +555,16 @@ public class AuthServiceImpl implements AuthService {
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
             user = findUserOrThrow(loginRequest.getUsername());
+        } catch (LockedException e) {
+            // 锁定是明确状态 → 423 ACCOUNT_LOCKED（与前端登录一致）
+            log.warn("管理员账户被锁定: {}", loginRequest.getUsername());
+            throw e;
         } catch (Exception e) {
+            // 兜底里把被 Spring 包装掉的锁定异常还原（原因见 login(String, String)）
+            if (e.getCause() instanceof LockedException locked) {
+                log.warn("管理员账户被锁定: {}", loginRequest.getUsername());
+                throw locked;
+            }
             // 与前端登录保持一致：不区分「用户不存在」和「密码错误」，统一按认证失败处理。
             log.error("管理员登录失败: {}", e.getMessage());
             throw new AuthenticationException("用户名或密码错误");
@@ -541,6 +612,9 @@ public class AuthServiceImpl implements AuthService {
 
         String username = jwtService.extractUsername(refreshToken);
         User user = findUserOrThrow(username);
+        if (!user.isAccountNonLocked()) {
+            throw new LockedException("用户账户已被锁定，请稍后再试");
+        }
         if (!user.isEnabled()) {
             throw new AuthenticationException("用户账户已被禁用");
         }
@@ -606,6 +680,21 @@ public class AuthServiceImpl implements AuthService {
             return user;
         } catch (org.springframework.security.core.userdetails.UsernameNotFoundException e) {
             throw new UserNotFoundException("用户未找到: " + username);
+        }
+    }
+
+    /**
+     * 查用户，找不到返回 null 而不抛异常。
+     *
+     * <p>登录的「锁定前置检查」要用它：未知账号必须继续走认证失败（401
+     * 「用户名或密码错误」），不能因为查不到用户就变成 404 —— 那会泄露
+     * 账号是否存在。
+     */
+    private User findUserQuietly(String username) {
+        try {
+            return userService.findByUsername(username);
+        } catch (org.springframework.security.core.userdetails.UsernameNotFoundException e) {
+            return null;
         }
     }
 
