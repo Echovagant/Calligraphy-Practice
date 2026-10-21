@@ -136,9 +136,39 @@ def guarded_roundtrip(run):
     return fixed
 
 
-def restore_runs(text):
-    """Rule A: restore every lossless CJK run."""
-    return CJK_RUN.sub(lambda m: guarded_roundtrip(m.group(0)) or m.group(0), text)
+# A reversal whose result contains ASCII letters is AMBIGUOUS.  The same byte
+# string is a valid encoding of genuine Chinese as well: the GBK view and the
+# UTF-8 view of those bytes are both well formed, so the tool cannot tell a
+# real mojibake from a false positive.  Example: the genuine Chinese
+# "U+9225 U+4E04" decodes to "U+2001 A" and the other way round.  Such a
+# reversal is therefore REPORTED but never APPLIED unless the caller asks
+# for it explicitly.  Detection is unaffected: `guarded_roundtrip` still
+# returns the candidate, so `detect` still sees these runs.
+ASCII_LETTER = re.compile(r"[A-Za-z]")
+
+
+def introduces_ascii(fixed):
+    """True when a reversal would put ASCII letters into the text."""
+    return bool(ASCII_LETTER.search(fixed))
+
+
+def restore_runs(text, allow_ascii=False):
+    """Rule A: restore every lossless CJK run.
+
+    Reversals that would introduce ASCII letters are skipped unless
+    `allow_ascii` is set -- see the note on ASCII_LETTER above.
+    """
+
+    def _restore(m):
+        run = m.group(0)
+        fixed = guarded_roundtrip(run)
+        if fixed is None:
+            return run
+        if not allow_ascii and introduces_ascii(fixed):
+            return run
+        return fixed
+
+    return CJK_RUN.sub(_restore, text)
 
 
 def is_truncated_mojibake(run):
@@ -342,18 +372,18 @@ def _repair_segment(text, in_block):
     return "".join(out), unresolved
 
 
-def repair_line(line, lexer):
+def repair_line(line, lexer, allow_ascii=False):
     """Apply rules B and C to one line.
 
     Returns (repaired_text, damaged) where `damaged` is True when the line
     still carries damage that a human has to look at.
     """
-    restored = restore_runs(line)
+    restored = restore_runs(line, allow_ascii=allow_ascii)
     sites = damage_sites(restored)
     if not sites:
         # No damage marker, but the line can still hold a CJK run whose last
         # character lost a byte.  That one has to reach the report as well.
-        return restored, _segment_damaged(restored)
+        return restored, _segment_damaged(restored) or _ambiguous_run(restored)
     states, newline_sites, in_block = scan_line(restored, lexer.in_block_comment)
 
     # split the line at the recovered newlines; the '?' becomes the newline
@@ -382,7 +412,20 @@ def repair_line(line, lexer):
         # a '?' that swallowed a newline leaves the CJK run in front of it
         # one byte short, so the text stays broken
         damaged = True
-    return "\n".join(out), damaged
+    repaired = "\n".join(out)
+    return repaired, damaged or _ambiguous_run(repaired)
+
+
+def _ambiguous_run(text):
+    """True when `text` holds a run whose reversal would introduce ASCII.
+
+    Such a run is not repaired by default -- it is reported instead.
+    """
+    for m in CJK_RUN.finditer(text):
+        fixed = guarded_roundtrip(m.group(0))
+        if fixed is not None and introduces_ascii(fixed):
+            return True
+    return False
 
 
 def _segment_damaged(text):
@@ -405,7 +448,7 @@ def java_files(root):
                     yield os.path.join(dirpath, fn)
 
 
-def process_text(text):
+def process_text(text, allow_ascii=False):
     """Returns (new_text, needs_human).
 
     `needs_human` holds one entry per output line that still carries
@@ -415,7 +458,7 @@ def process_text(text):
     out_lines = []
     needs_human = []
     for line_no, line in enumerate(text.splitlines(), 1):
-        repaired, damaged = repair_line(line, lexer)
+        repaired, damaged = repair_line(line, lexer, allow_ascii=allow_ascii)
         pieces = repaired.split("\n")
         for idx, piece in enumerate(pieces):
             out_lines.append(piece)
@@ -426,12 +469,17 @@ def process_text(text):
 
 
 def _piece_reason(piece):
-    """Why a piece still needs a human: 'marker', 'truncated-cjk' or None."""
+    """Why a piece still needs a human.
+
+    One of 'marker', 'truncated-cjk', 'ambiguous-ascii' or None.
+    """
     if damage_sites(piece):
         return "marker"
     for m in CJK_RUN.finditer(piece):
         if is_truncated_mojibake(m.group(0)):
             return "truncated-cjk"
+    if _ambiguous_run(piece):
+        return "ambiguous-ascii"
     return None
 
 
@@ -480,10 +528,14 @@ def cmd_repair(args):
     report.write("Every listed line still needs a human to look at it:\n\n")
     report.write("- `[marker]` the line still holds a `?` damage marker;\n")
     report.write("- `[truncated-cjk]` the CJK run in the line lost its last byte,\n")
-    report.write("  so the character before the damage stays broken.\n\n")
+    report.write("  so the character before the damage stays broken;\n")
+    report.write("- `[ambiguous-ascii]` the CJK run decodes back to text that ends in\n")
+    report.write("  an ASCII letter.  The same bytes are also a valid encoding of\n")
+    report.write("  genuine Chinese, so the tool will not rewrite it on its own.\n")
+    report.write("  Pass `--allow-ascii-reversal` to apply it anyway.\n\n")
     changed_files = 0
     unresolved_total = 0
-    reasons = {"marker": 0, "truncated-cjk": 0}
+    reasons = {"marker": 0, "truncated-cjk": 0, "ambiguous-ascii": 0}
     skipped = []
     pending = []
     for path in java_files(root):
@@ -495,7 +547,8 @@ def cmd_repair(args):
             rel = os.path.relpath(path, root).replace(os.sep, "/")
             skipped.append((rel, str(exc)))
             continue
-        new_text, needs_human = process_text(text)
+        new_text, needs_human = process_text(
+            text, allow_ascii=getattr(args, "allow_ascii_reversal", False))
         rel = os.path.relpath(path, root).replace(os.sep, "/")
         if new_text != text:
             changed_files += 1
@@ -517,6 +570,7 @@ def cmd_repair(args):
     report.write(f"unresolved lines : {unresolved_total}\n")
     report.write(f"  marker         : {reasons['marker']}\n")
     report.write(f"  truncated-cjk  : {reasons['truncated-cjk']}\n")
+    report.write(f"  ambiguous-ascii: {reasons['ambiguous-ascii']}\n")
     if skipped:
         report.write(f"skipped files    : {len(skipped)}\n")
     if args.report:
@@ -526,6 +580,7 @@ def cmd_repair(args):
     print(f"unresolved lines : {unresolved_total}")
     print(f"  marker         : {reasons['marker']}")
     print(f"  truncated-cjk  : {reasons['truncated-cjk']}")
+    print(f"  ambiguous-ascii: {reasons['ambiguous-ascii']}")
     if skipped:
         print(f"skipped files    : {len(skipped)}")
     print("APPLIED" if args.apply else "DRY RUN (add --apply to write)")
@@ -678,6 +733,30 @@ def cmd_selftest(args):
         check(guarded_roundtrip(run) == expected,
               f"the widened guard missed {run!r}: {guarded_roundtrip(run)!r}")
 
+    # 18. a reversal whose result ends in an ASCII letter is AMBIGUOUS: the
+    #     same bytes are also a valid encoding of genuine Chinese, so the
+    #     repair path must leave it alone and report it instead.  Detection
+    #     must still see it.
+    ambiguous_run = "\u5a23\u8bf2\u59de\u7f02\u54c4\u76af\u9428\u5227"
+    ambiguous_fixed = "\u6dfb\u52a0\u7f3a\u5c11\u7684g"
+    check(guarded_roundtrip(ambiguous_run) == ambiguous_fixed,
+          "detection lost the ambiguous run")
+    check(restore_runs(ambiguous_run) == ambiguous_run,
+          "the repair path applied an ambiguous reversal on its own")
+    check(restore_runs(ambiguous_run, allow_ascii=True) == ambiguous_fixed,
+          "--allow-ascii-reversal did not apply the ambiguous reversal")
+    check(introduces_ascii(ambiguous_fixed),
+          "introduces_ascii did not recognise the ambiguous reversal")
+    check(not introduces_ascii("\u7ba1\u7406"),
+          "introduces_ascii flagged a plain CJK reversal")
+    # the genuine Chinese that the ambiguity comes from must stay untouched
+    genuine = "\u9225\u4e04"
+    check(guarded_roundtrip(genuine) is not None
+          and introduces_ascii(guarded_roundtrip(genuine)),
+          "the ambiguous genuine Chinese sample no longer reproduces")
+    check(restore_runs(genuine) == genuine,
+          "the repair path rewrote genuine Chinese")
+
     if failures:
         for f in failures:
             print("FAIL:", f)
@@ -692,6 +771,11 @@ def main():
     ap.add_argument("--root", default=".")
     ap.add_argument("--apply", action="store_true")
     ap.add_argument("--report")
+    ap.add_argument(
+        "--allow-ascii-reversal",
+        action="store_true",
+        help="also apply reversals whose result contains ASCII letters; "
+             "those are ambiguous and are only reported by default")
     args = ap.parse_args()
     if args.command == "detect":
         return cmd_detect(args)
