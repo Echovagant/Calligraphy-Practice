@@ -1,0 +1,2785 @@
+openapi: 3.1.0
+info:
+  title: 在线书法练习平台 API 契约
+  version: 1.0.0
+  description: |
+    契约单一真相源。
+
+    规则：新增端点先改本文件，再写后端实现，最后接前端。
+    `scripts/check-contract.mjs` 会把本文件与前端调用点、后端 Controller 三方比对。
+
+    响应格式（见 design doc §3.1 规则三）：
+    - 成功·单资源：裸资源 JSON
+    - 成功·列表：`{content,page,size,total,totalPages}`
+    - 成功·无内容：204
+    - 失败：`{code,message}` + 语义化 HTTP 状态码
+  contact:
+    name: contract-owner
+servers:
+  - url: http://localhost:8083
+    description: 本地开发后端
+tags:
+  - name: auth
+    description: 认证与令牌
+  - name: users
+    description: 用户资料
+  - name: works
+    description: 书法作品
+  - name: copybooks
+    description: 字帖与练习记录
+  - name: comments
+    description: 作品评论
+  - name: discussions
+    description: 社区讨论与回复
+  - name: file-reviews
+    description: 管理端作品审核
+  - name: stats
+    description: 统计概览
+x-contract-rules:
+  boolean-naming: >
+    DTO 里声明成 `private boolean isXxx;` 的字段，Lombok 生成的是 `isXxx()`，
+    Jackson 会把属性名剥成 `xxx`（`isFeatured` -> `featured`），而实体上手写的
+    `getIsFeatured()` 得到的是 `isFeatured`。契约统一按 **DTO 字段名** 书写
+    （`isFeatured`、`isLikedByCurrentUser`、`isVerified`、`isTwoFactorEnabled`），
+    实现时必须用 `@JsonProperty` 或调整命名把 JSON 对齐，否则线上 JSON 与契约对不上。
+  nullable: >
+    契约不标 nullable。字段是否可空，看对应 DTO 上的校验注解与 Java 类型
+    （基本类型必有值，引用类型可为 null）。
+  list-envelope: >
+    列表端点一律返回 `{content,page,size,total,totalPages}`。
+    `content` 是元素数组，`page` 从 0 开始。不得再包 `success` / `data` 外壳。
+security:
+  - bearerAuth: []
+paths:
+  /api/frontend/auth/register:
+    post:
+      operationId: frontendAuthRegister
+      summary: 前端用户注册
+      description: 注册后直接返回令牌；`verificationRequired` 为真表示还需要邮箱验证码。
+      tags:
+        - auth
+      security: []
+      x-frontend-call: authAPI.register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /api/frontend/auth/login:
+    post:
+      operationId: frontendAuthLogin
+      summary: 前端用户登录
+      tags:
+        - auth
+      security: []
+      x-frontend-call: authAPI.login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '423':
+          $ref: '#/components/responses/Locked'
+  /api/backend/auth/login:
+    post:
+      operationId: backendAuthLogin
+      summary: 管理员登录
+      tags:
+        - auth
+      security: []
+      x-frontend-call: authAPI.adminLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminLoginRequest'
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminLoginResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/frontend/auth/profile:
+    get:
+      operationId: frontendAuthProfile
+      summary: 前端用户当前资料
+      tags:
+        - auth
+      x-frontend-call: authAPI.getProfile
+      responses:
+        '200':
+          description: 当前用户资料
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FrontendUser'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/backend/auth/profile:
+    get:
+      operationId: backendAuthProfile
+      summary: 管理员当前资料
+      tags:
+        - auth
+      x-frontend-call: authAPI.getProfile
+      responses:
+        '200':
+          description: 当前管理员资料
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackendUser'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/frontend/auth/refresh:
+    post:
+      operationId: frontendAuthRefresh
+      summary: 前端用户刷新令牌
+      tags:
+        - auth
+      security: []
+      x-frontend-call: authAPI.refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: 刷新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/backend/auth/refresh:
+    post:
+      operationId: backendAuthRefresh
+      summary: 管理员刷新令牌
+      tags:
+        - auth
+      security: []
+      x-frontend-call: authAPI.refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: 刷新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/frontend/auth/logout:
+    post:
+      operationId: frontendAuthLogout
+      summary: 前端用户登出
+      description: 把 refresh token 加入 Redis 黑名单，使其立即失效。
+      tags:
+        - auth
+      x-frontend-call: authAPI.logout
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+      responses:
+        '204':
+          description: 已登出
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/backend/auth/logout:
+    post:
+      operationId: backendAuthLogout
+      summary: 管理员登出
+      tags:
+        - auth
+      x-frontend-call: authAPI.logout
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+      responses:
+        '204':
+          description: 已登出
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/auth/verification-code:
+    post:
+      operationId: authSendVerificationCode
+      summary: 发送邮箱验证码
+      tags:
+        - auth
+      security: []
+      x-frontend-call: authAPI.sendVerificationCode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerificationCodeRequest'
+      responses:
+        '200':
+          description: 已发送
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationCodeSent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /api/users/profile:
+    put:
+      operationId: userUpdateProfile
+      summary: 更新当前用户资料
+      tags:
+        - users
+      x-frontend-call: userAPI.updateProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FrontendUserUpdate'
+      responses:
+        '200':
+          description: 更新后的资料
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FrontendUser'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/users/avatar:
+    post:
+      operationId: userUploadAvatar
+      summary: 上传用户头像
+      tags:
+        - users
+      x-frontend-call: userAPI.uploadAvatar
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AvatarUpload'
+      responses:
+        '200':
+          description: 上传成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileUploadResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/users/password:
+    put:
+      operationId: userChangePassword
+      summary: 修改密码
+      tags:
+        - users
+      x-frontend-call: userAPI.changePassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequest'
+      responses:
+        '204':
+          description: 已修改
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /api/users/{userId}:
+    get:
+      operationId: userGetById
+      summary: 获取指定用户资料
+      tags:
+        - users
+      x-frontend-call: userAPI.getUserInfo
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: 用户 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 用户资料
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FrontendUser'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/works:
+    post:
+      operationId: workCreate
+      summary: 发布作品
+      tags:
+        - works
+      x-frontend-call: worksAPI.createWork
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WorkCreateForm'
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Work'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    get:
+      operationId: workList
+      summary: 作品列表
+      tags:
+        - works
+      security: []
+      x-frontend-call: worksAPI.getWorks
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 分页后的作品列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkPage'
+  /api/works/user/{userId}:
+    get:
+      operationId: workListByUser
+      summary: 某个用户的作品列表
+      tags:
+        - works
+      x-frontend-call: worksAPI.getUserWorks
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: 用户 ID
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 分页后的作品列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkPage'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/works/{workId}:
+    get:
+      operationId: workGetById
+      summary: 作品详情
+      tags:
+        - works
+      x-frontend-call: worksAPI.getWorkDetail
+      parameters:
+        - name: workId
+          in: path
+          required: true
+          description: 作品 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 作品详情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Work'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: workUpdate
+      summary: 更新作品
+      tags:
+        - works
+      x-frontend-call: worksAPI.updateWork
+      parameters:
+        - name: workId
+          in: path
+          required: true
+          description: 作品 ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkUpdate'
+      responses:
+        '200':
+          description: 更新后的作品
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Work'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: workDelete
+      summary: 删除作品
+      tags:
+        - works
+      x-frontend-call: worksAPI.deleteWork
+      parameters:
+        - name: workId
+          in: path
+          required: true
+          description: 作品 ID
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 已删除
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/works/{workId}/image:
+    post:
+      operationId: workUpdateImage
+      summary: 更新作品图片
+      tags:
+        - works
+      x-frontend-call: worksAPI.updateWorkImage
+      parameters:
+        - name: workId
+          in: path
+          required: true
+          description: 作品 ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WorkImageForm'
+      responses:
+        '200':
+          description: 上传成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileUploadResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/copybooks:
+    get:
+      operationId: copybookList
+      summary: 字帖列表
+      tags:
+        - copybooks
+      security: []
+      x-frontend-call: copybookAPI.getCopybooks
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: difficulty
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 分页后的字帖列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CopybookPage'
+  /api/copybooks/popular:
+    get:
+      operationId: copybookPopular
+      summary: 热门字帖
+      description: 与 `GET /api/copybooks/{copybookId}` 同级；Spring 字面量路径优先于模板路径，契约测试须断言二者互不吞掉。
+      tags:
+        - copybooks
+      security: []
+      x-frontend-call: copybookAPI.getPopularCopybooks
+      responses:
+        '200':
+          description: 热门字帖列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CopybookPage'
+  /api/copybooks/statistics/user:
+    get:
+      operationId: copybookUserStatistics
+      summary: 当前用户的练习统计
+      tags:
+        - copybooks
+      x-frontend-call: copybookAPI.getUserStatistics
+      responses:
+        '200':
+          description: 练习统计
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PracticeStatistics'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/copybooks/practice/history:
+    get:
+      operationId: copybookPracticeHistory
+      summary: 当前用户的练习历史
+      description: 新增端点，替换前端 store 里调用的幽灵方法 `copybookAPI.getPracticeHistory`。
+      tags:
+        - copybooks
+      x-frontend-call: copybookAPI.getPracticeHistory
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 分页后的练习记录
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PracticeRecordPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/copybooks/{copybookId}:
+    get:
+      operationId: copybookGetById
+      summary: 字帖详情
+      tags:
+        - copybooks
+      security: []
+      x-frontend-call: copybookAPI.getCopybookDetail
+      parameters:
+        - name: copybookId
+          in: path
+          required: true
+          description: 字帖 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 字帖详情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Copybook'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/copybooks/{copybookId}/practice:
+    post:
+      operationId: copybookRecordPractice
+      summary: 记录一次练习
+      description: api.js 里的方法是 `copybookAPI.recordPractice`；前端 store 调用的 `copybookAPI.addPracticeRecord` 是幽灵方法，P5 必须改成调用 recordPractice。
+      tags:
+        - copybooks
+      x-frontend-call: copybookAPI.recordPractice
+      parameters:
+        - name: copybookId
+          in: path
+          required: true
+          description: 字帖 ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PracticeRecordCreate'
+      responses:
+        '201':
+          description: 记录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PracticeRecord'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/community/comments:
+    post:
+      operationId: commentCreate
+      summary: 发表评论
+      tags:
+        - comments
+      x-frontend-call: communityAPI.createComment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentCreateRequest'
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/community/comments/work/{workId}:
+    get:
+      operationId: commentListByWork
+      summary: 某个作品的评论列表
+      tags:
+        - comments
+      security: []
+      x-frontend-call: communityAPI.getWorkComments
+      parameters:
+        - name: workId
+          in: path
+          required: true
+          description: 作品 ID
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 分页后的评论列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentPage'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/community/comments/user/{userId}:
+    get:
+      operationId: commentListByUser
+      summary: 某个用户的评论历史
+      tags:
+        - comments
+      x-frontend-call: communityAPI.getUserComments
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: 用户 ID
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 分页后的评论列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentPage'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/community/comments/{commentId}:
+    delete:
+      operationId: commentDelete
+      summary: 删除评论
+      tags:
+        - comments
+      x-frontend-call: communityAPI.deleteComment
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          description: 评论 ID
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 已删除
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/admin/file-reviews:
+    post:
+      operationId: fileReviewCreate
+      summary: 提交作品审核
+      description: 需要 ADMIN 或 SUPER_ADMIN 角色。
+      tags:
+        - file-reviews
+      x-frontend-call: fileReviewsAPI.createReview
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FileReviewCreate'
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileReview'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/admin/file-reviews/batch:
+    post:
+      operationId: fileReviewBatch
+      summary: 批量审核作品
+      description: 需要 ADMIN 或 SUPER_ADMIN 角色。审核结果回写 `works.review_status`。
+      tags:
+        - file-reviews
+      x-frontend-call: fileReviewsAPI.batchReviewWorks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FileReviewBatch'
+      responses:
+        '200':
+          description: 批量审核结果
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileReviewBatchResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/admin/file-reviews/my-reviews:
+    get:
+      operationId: fileReviewMyReviews
+      summary: 我提交的审核记录
+      tags:
+        - file-reviews
+      x-frontend-call: fileReviewsAPI.getMyReviews
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 分页后的审核记录
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileReviewPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/admin/file-reviews/work/{workId}:
+    get:
+      operationId: fileReviewGetByWorkId
+      summary: 某个作品的审核记录
+      tags:
+        - file-reviews
+      x-frontend-call: fileReviewsAPI.getReviewByWorkId
+      parameters:
+        - name: workId
+          in: path
+          required: true
+          description: 作品 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 审核记录
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileReview'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/admin/file-reviews/{reviewId}:
+    get:
+      operationId: fileReviewGetById
+      summary: 审核记录详情
+      tags:
+        - file-reviews
+      x-frontend-call: fileReviewsAPI.getReviewById
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          description: 审核记录 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 审核记录详情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileReview'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: fileReviewUpdate
+      summary: 更新审核结论
+      tags:
+        - file-reviews
+      x-frontend-call: fileReviewsAPI.updateReview
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          description: 审核记录 ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FileReviewUpdate'
+      responses:
+        '200':
+          description: 更新后的审核记录
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileReview'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: fileReviewDelete
+      summary: 删除审核记录
+      tags:
+        - file-reviews
+      x-frontend-call: fileReviewsAPI.deleteReview
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          description: 审核记录 ID
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 已删除
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/discussions:
+    get:
+      operationId: discussionList
+      summary: 讨论列表
+      tags:
+        - discussions
+      security: []
+      x-frontend-call: getDiscussions
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: keyword
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 分页后的讨论列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscussionPage'
+    post:
+      operationId: discussionCreate
+      summary: 发帖
+      tags:
+        - discussions
+      x-frontend-call: createDiscussion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiscussionCreate'
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Discussion'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/discussions/hot:
+    get:
+      operationId: discussionHot
+      summary: 热门讨论
+      tags:
+        - discussions
+      security: []
+      x-frontend-call: getHotDiscussions
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 热门讨论列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscussionPage'
+  /api/discussions/featured:
+    get:
+      operationId: discussionFeatured
+      summary: 精华讨论
+      tags:
+        - discussions
+      security: []
+      x-frontend-call: getFeaturedDiscussions
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 精华讨论列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscussionPage'
+  /api/discussions/pinned:
+    get:
+      operationId: discussionPinned
+      summary: 置顶讨论
+      tags:
+        - discussions
+      security: []
+      x-frontend-call: getPinnedDiscussions
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 置顶讨论列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscussionPage'
+  /api/discussions/search:
+    get:
+      operationId: discussionSearch
+      summary: 搜索讨论
+      tags:
+        - discussions
+      security: []
+      x-frontend-call: searchDiscussions
+      parameters:
+        - name: keyword
+          in: query
+          required: true
+          description: 搜索关键词
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 搜索结果
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscussionPage'
+  /api/discussions/{id}:
+    get:
+      operationId: discussionGetById
+      summary: 讨论详情
+      tags:
+        - discussions
+      security: []
+      x-frontend-call: getDiscussion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 讨论 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 讨论详情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Discussion'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: discussionUpdate
+      summary: 编辑帖子
+      tags:
+        - discussions
+      x-frontend-call: updateDiscussion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 讨论 ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiscussionUpdate'
+      responses:
+        '200':
+          description: 更新后的讨论
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Discussion'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: discussionDelete
+      summary: 删除帖子
+      tags:
+        - discussions
+      x-frontend-call: deleteDiscussion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 讨论 ID
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 已删除
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/discussions/{id}/like:
+    post:
+      operationId: discussionLike
+      summary: 点赞 / 取消点赞
+      tags:
+        - discussions
+      x-frontend-call: likeDiscussion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: 讨论 ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 点赞后的计数
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LikeResult'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/discussions/{discussionId}/replies:
+    get:
+      operationId: discussionReplyList
+      summary: 某个讨论的回复列表
+      tags:
+        - discussions
+      security: []
+      x-frontend-call: getDiscussionReplies
+      parameters:
+        - name: discussionId
+          in: path
+          required: true
+          description: 讨论 ID
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 分页后的回复列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscussionReplyPage'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      operationId: discussionReplyCreate
+      summary: 回复讨论
+      tags:
+        - discussions
+      x-frontend-call: replyToDiscussion
+      parameters:
+        - name: discussionId
+          in: path
+          required: true
+          description: 讨论 ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiscussionReplyCreate'
+      responses:
+        '201':
+          description: 回复成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscussionReply'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/discussions/replies/{replyId}:
+    put:
+      operationId: discussionReplyUpdate
+      summary: 编辑回复
+      tags:
+        - discussions
+      x-frontend-call: updateDiscussionReply
+      parameters:
+        - name: replyId
+          in: path
+          required: true
+          description: 回复 ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiscussionReplyUpdate'
+      responses:
+        '200':
+          description: 更新后的回复
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscussionReply'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: discussionReplyDelete
+      summary: 删除回复
+      tags:
+        - discussions
+      x-frontend-call: deleteDiscussionReply
+      parameters:
+        - name: replyId
+          in: path
+          required: true
+          description: 回复 ID
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 已删除
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/stats/overview:
+    get:
+      operationId: statsOverview
+      summary: 首页概览统计
+      description: 新增端点，前端目前没有调用点（appStore 里是纯模拟数据）。
+      tags:
+        - stats
+      security: []
+      x-frontend-call: statsAPI.getOverview
+      responses:
+        '200':
+          description: 概览统计
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsOverview'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    BadRequest:
+      description: 参数非法
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    Unauthorized:
+      description: 未认证或令牌失效
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    Forbidden:
+      description: 越权
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    NotFound:
+      description: 资源不存在
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    Conflict:
+      description: 冲突（用户名重复等）
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    UnprocessableEntity:
+      description: 业务校验失败
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    Locked:
+      description: 账号被锁定
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    TooManyRequests:
+      description: 请求过于频繁
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+  schemas:
+    ApiError:
+      type: object
+      description: 失败响应体（design doc §3.1 规则三）。
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: 错误码，如 AUTH_FAILED、USER_EXISTS、VALIDATION_ERROR
+        message:
+          type: string
+          description: 可读错误消息
+    RegisterRequest:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        nickname:
+          type: string
+        phone:
+          type: string
+        deviceInfo:
+          type: string
+        ipAddress:
+          type: string
+        verificationCode:
+          type: string
+    RegisterResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+        username:
+          type: string
+        nickname:
+          type: string
+        email:
+          type: string
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        tokenType:
+          type: string
+        expiresIn:
+          type: integer
+          format: int64
+        tokenExpiry:
+          type: string
+          format: date-time
+        verificationRequired:
+          type: boolean
+        emailSent:
+          type: boolean
+        message:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        twoFactorCode:
+          type: string
+        rememberMe:
+          type: boolean
+        deviceInfo:
+          type: string
+        ipAddress:
+          type: string
+    LoginResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+        username:
+          type: string
+        nickname:
+          type: string
+        email:
+          type: string
+        avatar:
+          type: string
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        tokenType:
+          type: string
+        expiresIn:
+          type: integer
+          format: int64
+        tokenExpiry:
+          type: string
+          format: date-time
+        twoFactorEnabled:
+          type: boolean
+        twoFactorRequired:
+          type: boolean
+        roles:
+          type: array
+          items:
+            type: string
+        permissions:
+          type: array
+          items:
+            type: string
+        userInfo:
+          $ref: '#/components/schemas/UserInfo'
+    UserInfo:
+      type: object
+      properties:
+        userId:
+          type: string
+        username:
+          type: string
+        nickname:
+          type: string
+        email:
+          type: string
+        avatar:
+          type: string
+        phone:
+          type: string
+        bio:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        isVerified:
+          type: boolean
+        isTwoFactorEnabled:
+          type: boolean
+    AdminLoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    AdminLoginResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        username:
+          type: string
+        email:
+          type: string
+        nickname:
+          type: string
+        roles:
+          type: string
+        permissions:
+          type: string
+        isActive:
+          type: boolean
+        isEmailVerified:
+          type: boolean
+        lastLoginAt:
+          type: string
+          format: date-time
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        tokenType:
+          type: string
+        expiresIn:
+          type: integer
+          format: int64
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+    TokenPair:
+      type: object
+      description: 刷新令牌返回的新令牌对。
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        tokenType:
+          type: string
+        expiresIn:
+          type: integer
+          format: int64
+    LogoutRequest:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+        deviceInfo:
+          type: string
+        ipAddress:
+          type: string
+    VerificationCodeRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+    VerificationCodeSent:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+    FrontendUserUpdate:
+      type: object
+      description: 对应后端 `FrontendUserUpdateDto`。
+      required:
+        - nickname
+        - email
+      properties:
+        userId:
+          type: integer
+          format: int64
+        nickname:
+          type: string
+          maxLength: 50
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        avatar:
+          type: string
+        gender:
+          type: string
+        birthday:
+          type: string
+          format: date
+        bio:
+          type: string
+        status:
+          type: string
+    FrontendUser:
+      type: object
+      description: 对应后端 `FrontendUserDto`。
+      properties:
+        userId:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        nickname:
+          type: string
+        avatar:
+          type: string
+        phone:
+          type: string
+        bio:
+          type: string
+        preferences:
+          type: string
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+            - SUSPENDED
+            - PENDING_VERIFICATION
+        isVerified:
+          type: boolean
+        isTwoFactorEnabled:
+          type: boolean
+        lastLoginAt:
+          type: string
+          format: date-time
+        lastLoginIp:
+          type: string
+        failedLoginAttempts:
+          type: integer
+        lockedUntil:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        practiceCount:
+          type: integer
+          format: int64
+        workCount:
+          type: integer
+          format: int64
+        commentCount:
+          type: integer
+          format: int64
+        totalLikesReceived:
+          type: integer
+          format: int64
+        totalViewsReceived:
+          type: integer
+          format: int64
+        roles:
+          type: array
+          items:
+            type: string
+        lastActivityAt:
+          type: string
+          format: date-time
+        lastActivityType:
+          type: string
+    BackendUser:
+      type: object
+      description: 对应后端 `BackendUserDto`。
+      properties:
+        userId:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        nickname:
+          type: string
+        avatar:
+          type: string
+        phone:
+          type: string
+        department:
+          type: string
+        position:
+          type: string
+        bio:
+          type: string
+        role:
+          type: string
+        isVerified:
+          type: boolean
+        isTwoFactorEnabled:
+          type: boolean
+        lastLoginAt:
+          type: string
+          format: date-time
+        lastLoginIp:
+          type: string
+        failedLoginAttempts:
+          type: integer
+        lockedUntil:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        reviewCount:
+          type: integer
+          format: int64
+        approvedCount:
+          type: integer
+          format: int64
+        rejectedCount:
+          type: integer
+          format: int64
+        revisionRequestedCount:
+          type: integer
+          format: int64
+        permissions:
+          type: array
+          items:
+            type: string
+        roles:
+          type: array
+          items:
+            type: string
+        lastActivityAt:
+          type: string
+          format: date-time
+        lastActivityType:
+          type: string
+    PasswordResetRequest:
+      type: object
+      description: 对应后端 `PasswordResetDto`。
+      required:
+        - email
+        - verificationCode
+        - newPassword
+        - confirmPassword
+      properties:
+        email:
+          type: string
+          format: email
+        verificationCode:
+          type: string
+          minLength: 6
+          maxLength: 6
+        newPassword:
+          type: string
+          minLength: 6
+          maxLength: 20
+        confirmPassword:
+          type: string
+          minLength: 6
+          maxLength: 20
+    AvatarUpload:
+      type: object
+      description: 头像上传表单。
+      required:
+        - avatar
+      properties:
+        avatar:
+          type: string
+          format: binary
+    FileUploadResult:
+      type: object
+      description: 对应后端 `FileUploadResponseDto`。
+      properties:
+        fileName:
+          type: string
+        fileUrl:
+          type: string
+        fileType:
+          type: string
+        fileSize:
+          type: integer
+          format: int64
+        message:
+          type: string
+    Work:
+      type: object
+      description: 对应后端 `WorkDto`。
+      properties:
+        workId:
+          type: string
+        userId:
+          type: string
+        username:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        content:
+          type: string
+        category:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        fileUrls:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum:
+            - DRAFT
+            - PUBLISHED
+            - HIDDEN
+            - UNDER_REVIEW
+        reviewStatus:
+          type: string
+          enum:
+            - PENDING
+            - APPROVED
+            - REJECTED
+            - NEEDS_REVISION
+        reviewerId:
+          type: string
+        reviewerComment:
+          type: string
+        viewCount:
+          type: integer
+          format: int64
+        likeCount:
+          type: integer
+          format: int64
+        isLikedByCurrentUser:
+          type: boolean
+        isFeatured:
+          type: boolean
+        publishedAt:
+          type: string
+          format: date-time
+        reviewedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        userNickname:
+          type: string
+        userAvatar:
+          type: string
+        reviewerUsername:
+          type: string
+        reviewerNickname:
+          type: string
+        commentCount:
+          type: integer
+          format: int64
+        popularityScore:
+          type: number
+          format: double
+    WorkCreateForm:
+      type: object
+      description: 作品上传表单（multipart）。
+      required:
+        - title
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        content:
+          type: string
+        category:
+          type: string
+        tags:
+          type: string
+        image:
+          type: string
+          format: binary
+    WorkImageForm:
+      type: object
+      description: 作品图片替换表单（multipart）。
+      required:
+        - image
+      properties:
+        image:
+          type: string
+          format: binary
+    WorkUpdate:
+      type: object
+      description: 对应后端 `WorkUpdateRequestDto`。
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        content:
+          type: string
+        category:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+          description: 每个标签最长 50 字符
+        fileUrls:
+          type: array
+          items:
+            type: string
+        style:
+          type: string
+        notes:
+          type: string
+    WorkPage:
+      type: object
+      description: 统一分页信封。
+      required:
+        - content
+        - page
+        - size
+        - total
+        - totalPages
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Work'
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+    Copybook:
+      type: object
+      description: 对应后端 `model/Copybook`。
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        imageUrl:
+          type: string
+        difficulty:
+          type: string
+        category:
+          type: string
+        characterCount:
+          type: integer
+        usageCount:
+          type: integer
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    CopybookPage:
+      type: object
+      required:
+        - content
+        - page
+        - size
+        - total
+        - totalPages
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Copybook'
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+    PracticeRecordCreate:
+      type: object
+      description: 对应后端 `PracticeRecordCreateRequestDto`。
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        category:
+          type: string
+        style:
+          type: string
+        practiceType:
+          type: string
+        referenceWorkId:
+          type: string
+        fileUrls:
+          type: array
+          items:
+            type: string
+        duration:
+          type: integer
+          format: int64
+          description: 练习时长（秒）
+        characterCount:
+          type: integer
+        difficulty:
+          type: string
+        notes:
+          type: string
+        practiceDate:
+          type: string
+          format: date-time
+    PracticeRecord:
+      type: object
+      description: 对应后端 `PracticeRecordDto`。
+      properties:
+        recordId:
+          type: string
+        userId:
+          type: string
+        username:
+          type: string
+        userNickname:
+          type: string
+        userAvatar:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        category:
+          type: string
+        style:
+          type: string
+        practiceType:
+          type: string
+        referenceWorkId:
+          type: string
+        referenceWorkTitle:
+          type: string
+        fileUrl:
+          type: string
+        duration:
+          type: integer
+          format: int64
+          description: 练习时长（秒）
+        characterCount:
+          type: integer
+        difficulty:
+          type: string
+        notes:
+          type: string
+        practiceDate:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        totalPractices:
+          type: integer
+          format: int64
+        totalDuration:
+          type: integer
+          format: int64
+        averageDuration:
+          type: number
+          format: double
+        streakDays:
+          type: integer
+          format: int64
+    PracticeRecordPage:
+      type: object
+      required:
+        - content
+        - page
+        - size
+        - total
+        - totalPages
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/PracticeRecord'
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+    PracticeStatistics:
+      type: object
+      description: 当前用户的练习统计；后端暂无对应 DTO，P4 实现时按此形状新建。
+      properties:
+        totalPractices:
+          type: integer
+          format: int64
+        totalDuration:
+          type: integer
+          format: int64
+        averageDuration:
+          type: number
+          format: double
+        streakDays:
+          type: integer
+          format: int64
+        characterCount:
+          type: integer
+          format: int64
+        copybookCount:
+          type: integer
+          format: int64
+    CommentCreateRequest:
+      type: object
+      description: 对应后端 `CommentCreateRequestDto`。
+      required:
+        - workId
+        - content
+      properties:
+        workId:
+          type: string
+        parentCommentId:
+          type: string
+        content:
+          type: string
+        mentionedUserId:
+          type: string
+    Comment:
+      type: object
+      description: 对应后端 `CommentDto`。
+      properties:
+        commentId:
+          type: string
+        workId:
+          type: string
+        workTitle:
+          type: string
+        userId:
+          type: string
+        username:
+          type: string
+        userNickname:
+          type: string
+        userAvatar:
+          type: string
+        parentCommentId:
+          type: string
+        content:
+          type: string
+        status:
+          type: string
+          enum:
+            - PENDING
+            - APPROVED
+            - REJECTED
+            - DELETED
+        reviewerId:
+          type: string
+        reviewerComment:
+          type: string
+        likeCount:
+          type: integer
+          format: int64
+        isLikedByCurrentUser:
+          type: boolean
+        reviewedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        replies:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+        replyCount:
+          type: integer
+          format: int64
+        hasReplies:
+          type: boolean
+        reviewerUsername:
+          type: string
+        reviewerNickname:
+          type: string
+    CommentPage:
+      type: object
+      required:
+        - content
+        - page
+        - size
+        - total
+        - totalPages
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+    FileReviewCreate:
+      type: object
+      description: 对应后端 `FileReviewRequestDto`。
+      required:
+        - workId
+        - reviewStatus
+      properties:
+        workId:
+          type: integer
+          format: int64
+        reviewStatus:
+          type: string
+          enum:
+            - PENDING
+            - APPROVED
+            - REJECTED
+            - NEEDS_REVISION
+        reviewComments:
+          type: string
+    FileReviewUpdate:
+      type: object
+      description: 对应后端 `FileReviewUpdateDto`。
+      required:
+        - reviewStatus
+      properties:
+        reviewStatus:
+          type: string
+          enum:
+            - PENDING
+            - APPROVED
+            - REJECTED
+            - NEEDS_REVISION
+        reviewComments:
+          type: string
+    FileReviewBatch:
+      type: object
+      required:
+        - workIds
+        - reviewStatus
+      properties:
+        workIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+        reviewStatus:
+          type: string
+          enum:
+            - PENDING
+            - APPROVED
+            - REJECTED
+            - NEEDS_REVISION
+        reviewComments:
+          type: string
+    FileReviewBatchResult:
+      type: object
+      properties:
+        total:
+          type: integer
+          format: int64
+        succeeded:
+          type: integer
+          format: int64
+        failed:
+          type: integer
+          format: int64
+        reviews:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileReview'
+    FileReview:
+      type: object
+      description: 对应后端 `FileReviewDto`。
+      properties:
+        reviewId:
+          type: string
+        fileId:
+          type: string
+        fileName:
+          type: string
+        fileUrl:
+          type: string
+        fileType:
+          type: string
+        fileSize:
+          type: integer
+          format: int64
+        userId:
+          type: string
+        username:
+          type: string
+        userNickname:
+          type: string
+        reviewerId:
+          type: string
+        reviewerUsername:
+          type: string
+        reviewerNickname:
+          type: string
+        status:
+          type: string
+          enum:
+            - PENDING
+            - APPROVED
+            - REJECTED
+            - NEEDS_REVISION
+        reviewComment:
+          type: string
+        feedback:
+          type: string
+        relatedWorkId:
+          type: string
+        relatedWorkTitle:
+          type: string
+        submittedAt:
+          type: string
+          format: date-time
+        reviewedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        totalReviews:
+          type: integer
+          format: int64
+        approvedCount:
+          type: integer
+          format: int64
+        rejectedCount:
+          type: integer
+          format: int64
+        revisionRequestedCount:
+          type: integer
+          format: int64
+        approvalRate:
+          type: number
+          format: double
+        averageReviewTime:
+          type: number
+          format: double
+          description: 平均审核时间（小时）
+    FileReviewPage:
+      type: object
+      required:
+        - content
+        - page
+        - size
+        - total
+        - totalPages
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileReview'
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+    DiscussionCreate:
+      type: object
+      description: 对应后端 `DiscussionCreateDto`。
+      required:
+        - title
+        - content
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        category:
+          type: string
+        tags:
+          type: string
+          description: 逗号分隔的标签
+    DiscussionUpdate:
+      type: object
+      description: 对应后端 `DiscussionUpdateDto`。
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        category:
+          type: string
+        tags:
+          type: string
+    DiscussionReplyCreate:
+      type: object
+      description: 对应后端 `DiscussionReplyCreateDto`。
+      required:
+        - content
+      properties:
+        content:
+          type: string
+        parentId:
+          type: string
+        replyToUserId:
+          type: string
+        replyToUsername:
+          type: string
+    DiscussionReplyUpdate:
+      type: object
+      properties:
+        content:
+          type: string
+    Discussion:
+      type: object
+      description: 对应后端 `DiscussionDto`。
+      properties:
+        discussionId:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        category:
+          type: string
+        userId:
+          type: string
+        username:
+          type: string
+        userAvatar:
+          type: string
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+            - DELETED
+        viewCount:
+          type: integer
+        likeCount:
+          type: integer
+        replyCount:
+          type: integer
+        isPinned:
+          type: boolean
+        isFeatured:
+          type: boolean
+        tags:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        replies:
+          type: array
+          items:
+            $ref: '#/components/schemas/DiscussionReply'
+    DiscussionReply:
+      type: object
+      description: 对应后端 `DiscussionReplyDto`。
+      properties:
+        replyId:
+          type: string
+        content:
+          type: string
+        discussionId:
+          type: string
+        userId:
+          type: string
+        username:
+          type: string
+        userAvatar:
+          type: string
+        parentId:
+          type: string
+        replyToUserId:
+          type: string
+        replyToUsername:
+          type: string
+        status:
+          type: string
+        likeCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    DiscussionPage:
+      type: object
+      required:
+        - content
+        - page
+        - size
+        - total
+        - totalPages
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Discussion'
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+    DiscussionReplyPage:
+      type: object
+      required:
+        - content
+        - page
+        - size
+        - total
+        - totalPages
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/DiscussionReply'
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+    LikeResult:
+      type: object
+      properties:
+        liked:
+          type: boolean
+        likeCount:
+          type: integer
+          format: int64
+    StatsOverview:
+      type: object
+      description: 首页概览；后端暂无对应 DTO，P3 实现时按此形状新建。
+      properties:
+        totalWorks:
+          type: integer
+          format: int64
+        totalUsers:
+          type: integer
+          format: int64
+        totalPracticeRecords:
+          type: integer
+          format: int64
+        popularCopybooks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Copybook'

@@ -8,7 +8,10 @@
   },
   "scripts": {
     "dev": "vite",
+    "prebuild": "node scripts/check-contract.mjs",
     "build": "vite build",
+    "contract:check": "node scripts/check-contract.mjs",
+    "contract:check:strict": "node scripts/check-contract.mjs --strict",
     "preview": "vite preview",
     "lint": "eslint . --fix --cache",
     "format": "prettier --write src/",
