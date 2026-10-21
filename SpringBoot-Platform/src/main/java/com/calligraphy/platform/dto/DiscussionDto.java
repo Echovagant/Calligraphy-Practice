@@ -1,315 +1,65 @@
 package com.calligraphy.platform.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * 讨论。对应契约 openapi/contract.yaml 的 {@code Discussion} schema。
+ *
+ * <p>字段集严格对齐契约：{@code id,title,content,category,userId,username,userAvatar,
+ * status,viewCount,likeCount,replyCount,isPinned,isFeatured,tags,createdAt,updatedAt,replies}。
+ * 多一个字段少一个字段都会让契约测试炸出来，所以这里只放契约里有的东西。
+ *
+ * <p>两个易踩的坑：
+ * <ul>
+ *   <li>主键叫 {@code id}（不是 discussionId）—— 前端读的是 {@code discussion.id}。</li>
+ *   <li>{@code isPinned}/{@code isFeatured} 必须用包装类型 {@code Boolean}：
+ *       Lombok 生成 {@code getIsPinned()}，Jackson 的属性名仍是 {@code isPinned}；
+ *       换成基本类型 boolean 会生成 {@code isPinned()}，属性名变成 {@code pinned}，与契约不符。</li>
+ * </ul>
+ */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DiscussionDto {
-    
-    private String discussionId;
+
+    /** 讨论主键。契约里主键字段一律叫 id。 */
+    private String id;
+
     private String title;
     private String content;
     private String category;
+
+    /** 作者 id（引用别人的 id，保留原名）。 */
     private String userId;
     private String username;
     private String userAvatar;
+
+    /** ACTIVE / INACTIVE / DELETED。 */
     private String status;
+
     private Integer viewCount;
     private Integer likeCount;
     private Integer replyCount;
+
+    /** 置顶。用包装类型 Boolean，Jackson 属性名才是 isPinned。 */
     private Boolean isPinned;
+
+    /** 精华。用包装类型 Boolean，Jackson 属性名才是 isFeatured。 */
     private Boolean isFeatured;
+
+    /** 逗号分隔的标签字符串（契约里就是字符串，不是数组）。 */
     private String tags;
-    
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+
     private LocalDateTime createdAt;
-    
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
-    
+
+    /** 嵌套的回复数组。列表类端点给空数组，详情端点给真实回复。 */
     private List<DiscussionReplyDto> replies;
-    
-    // 无参构造器
-    public DiscussionDto() {
-    }
-    
-    // 全参构造器
-    public DiscussionDto(String discussionId, String title, String content, String category, String userId, 
-                        String username, String userAvatar, String status, Integer viewCount, Integer likeCount, 
-                        Integer replyCount, Boolean isPinned, Boolean isFeatured, String tags, 
-                        LocalDateTime createdAt, LocalDateTime updatedAt, List<DiscussionReplyDto> replies) {
-        this.discussionId = discussionId;
-        this.title = title;
-        this.content = content;
-        this.category = category;
-        this.userId = userId;
-        this.username = username;
-        this.userAvatar = userAvatar;
-        this.status = status;
-        this.viewCount = viewCount;
-        this.likeCount = likeCount;
-        this.replyCount = replyCount;
-        this.isPinned = isPinned;
-        this.isFeatured = isFeatured;
-        this.tags = tags;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.replies = replies;
-    }
-    
-    // Getter 和 Setter 方法
-    public String getDiscussionId() {
-        return discussionId;
-    }
-    
-    public void setDiscussionId(String discussionId) {
-        this.discussionId = discussionId;
-    }
-    
-    public String getTitle() {
-        return title;
-    }
-    
-    public void setTitle(String title) {
-        this.title = title;
-    }
-    
-    public String getContent() {
-        return content;
-    }
-    
-    public void setContent(String content) {
-        this.content = content;
-    }
-    
-    public String getCategory() {
-        return category;
-    }
-    
-    public void setCategory(String category) {
-        this.category = category;
-    }
-    
-    public String getUserId() {
-        return userId;
-    }
-    
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-    
-    public String getUsername() {
-        return username;
-    }
-    
-    public void setUsername(String username) {
-        this.username = username;
-    }
-    
-    public String getUserAvatar() {
-        return userAvatar;
-    }
-    
-    public void setUserAvatar(String userAvatar) {
-        this.userAvatar = userAvatar;
-    }
-    
-    public String getStatus() {
-        return status;
-    }
-    
-    public void setStatus(String status) {
-        this.status = status;
-    }
-    
-    public Integer getViewCount() {
-        return viewCount;
-    }
-    
-    public void setViewCount(Integer viewCount) {
-        this.viewCount = viewCount;
-    }
-    
-    public Integer getLikeCount() {
-        return likeCount;
-    }
-    
-    public void setLikeCount(Integer likeCount) {
-        this.likeCount = likeCount;
-    }
-    
-    public Integer getReplyCount() {
-        return replyCount;
-    }
-    
-    public void setReplyCount(Integer replyCount) {
-        this.replyCount = replyCount;
-    }
-    
-    public Boolean getIsPinned() {
-        return isPinned;
-    }
-    
-    public void setIsPinned(Boolean isPinned) {
-        this.isPinned = isPinned;
-    }
-    
-    public Boolean getIsFeatured() {
-        return isFeatured;
-    }
-    
-    public void setIsFeatured(Boolean isFeatured) {
-        this.isFeatured = isFeatured;
-    }
-    
-    public String getTags() {
-        return tags;
-    }
-    
-    public void setTags(String tags) {
-        this.tags = tags;
-    }
-    
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-    
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-    
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-    
-    public List<DiscussionReplyDto> getReplies() {
-        return replies;
-    }
-    
-    public void setReplies(List<DiscussionReplyDto> replies) {
-        this.replies = replies;
-    }
-    
-    // Builder 类
-    public static class Builder {
-        private String discussionId;
-        private String title;
-        private String content;
-        private String category;
-        private String userId;
-        private String username;
-        private String userAvatar;
-        private String status;
-        private Integer viewCount;
-        private Integer likeCount;
-        private Integer replyCount;
-        private Boolean isPinned;
-        private Boolean isFeatured;
-        private String tags;
-        private LocalDateTime createdAt;
-        private LocalDateTime updatedAt;
-        private List<DiscussionReplyDto> replies;
-        
-        public Builder discussionId(String discussionId) {
-            this.discussionId = discussionId;
-            return this;
-        }
-        
-        public Builder title(String title) {
-            this.title = title;
-            return this;
-        }
-        
-        public Builder content(String content) {
-            this.content = content;
-            return this;
-        }
-        
-        public Builder category(String category) {
-            this.category = category;
-            return this;
-        }
-        
-        public Builder userId(String userId) {
-            this.userId = userId;
-            return this;
-        }
-        
-        public Builder username(String username) {
-            this.username = username;
-            return this;
-        }
-        
-        public Builder userAvatar(String userAvatar) {
-            this.userAvatar = userAvatar;
-            return this;
-        }
-        
-        public Builder status(String status) {
-            this.status = status;
-            return this;
-        }
-        
-        public Builder viewCount(Integer viewCount) {
-            this.viewCount = viewCount;
-            return this;
-        }
-        
-        public Builder likeCount(Integer likeCount) {
-            this.likeCount = likeCount;
-            return this;
-        }
-        
-        public Builder replyCount(Integer replyCount) {
-            this.replyCount = replyCount;
-            return this;
-        }
-        
-        public Builder isPinned(Boolean isPinned) {
-            this.isPinned = isPinned;
-            return this;
-        }
-        
-        public Builder isFeatured(Boolean isFeatured) {
-            this.isFeatured = isFeatured;
-            return this;
-        }
-        
-        public Builder tags(String tags) {
-            this.tags = tags;
-            return this;
-        }
-        
-        public Builder createdAt(LocalDateTime createdAt) {
-            this.createdAt = createdAt;
-            return this;
-        }
-        
-        public Builder updatedAt(LocalDateTime updatedAt) {
-            this.updatedAt = updatedAt;
-            return this;
-        }
-        
-        public Builder replies(List<DiscussionReplyDto> replies) {
-            this.replies = replies;
-            return this;
-        }
-        
-        public DiscussionDto build() {
-            return new DiscussionDto(discussionId, title, content, category, userId, username, userAvatar, status, 
-                                    viewCount, likeCount, replyCount, isPinned, isFeatured, tags, createdAt, 
-                                    updatedAt, replies);
-        }
-    }
-    
-    public static Builder builder() {
-        return new Builder();
-    }
 }
-
-

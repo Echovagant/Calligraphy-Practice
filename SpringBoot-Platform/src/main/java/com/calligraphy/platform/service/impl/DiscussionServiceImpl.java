@@ -1,69 +1,130 @@
 package com.calligraphy.platform.service.impl;
 
-import com.calligraphy.platform.dto.DiscussionDto;
 import com.calligraphy.platform.dto.DiscussionCreateDto;
-import com.calligraphy.platform.dto.DiscussionUpdateDto;
-import com.calligraphy.platform.dto.DiscussionReplyDto;
+import com.calligraphy.platform.dto.DiscussionDto;
+import com.calligraphy.platform.dto.DiscussionLikeResultDto;
 import com.calligraphy.platform.dto.DiscussionReplyCreateDto;
+import com.calligraphy.platform.dto.DiscussionReplyDto;
+import com.calligraphy.platform.dto.DiscussionReplyUpdateDto;
+import com.calligraphy.platform.dto.DiscussionUpdateDto;
 import com.calligraphy.platform.exception.ResourceNotFoundException;
-import com.calligraphy.platform.exception.UnauthorizedException;
 import com.calligraphy.platform.mapper.DiscussionMapper;
 import com.calligraphy.platform.mapper.DiscussionReplyMapper;
 import com.calligraphy.platform.model.Discussion;
+import com.calligraphy.platform.model.DiscussionLike;
 import com.calligraphy.platform.model.DiscussionReply;
 import com.calligraphy.platform.model.User;
-import com.calligraphy.platform.repository.DiscussionRepository;
+import com.calligraphy.platform.repository.DiscussionLikeRepository;
 import com.calligraphy.platform.repository.DiscussionReplyRepository;
-import com.calligraphy.platform.repository.UserRepository;
+import com.calligraphy.platform.repository.DiscussionRepository;
 import com.calligraphy.platform.service.DiscussionService;
+import com.calligraphy.platform.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-
+import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Locale;
+import java.util.Optional;
 
-// @Service
-@Transactional
+/**
+ * 讨论域的服务实现，对应契约的 14 个 operation。
+ *
+ * <p>类级 {@code @Transactional(readOnly = true)}：映射 DTO 时会读关联字段，
+ * 事务外访问 LAZY 关联会抛 LazyInitializationException（P3 踩过的坑）。
+ * 写方法自己加 {@code @Transactional}（可写），覆盖类级的只读设置 ——
+ * 只读事务里 Hibernate 的 FlushMode 是 MANUAL，改动不会被刷进数据库。
+ */
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class DiscussionServiceImpl implements DiscussionService {
 
     private static final Logger log = LoggerFactory.getLogger(DiscussionServiceImpl.class);
 
+    /** 契约里 category 可选，但 discussions.category 列是 NOT NULL，缺省时用它兜底。 */
+    private static final String DEFAULT_CATEGORY = "学习交流";
+
+    /** 详情里内联的回复条数上限；更多回复走 discussionReplyList 端点分页取。 */
+    private static final int DETAIL_REPLY_LIMIT = 100;
+
     private final DiscussionRepository discussionRepository;
     private final DiscussionReplyRepository discussionReplyRepository;
-    private final UserRepository userRepository;
+    private final DiscussionLikeRepository discussionLikeRepository;
     private final DiscussionMapper discussionMapper;
     private final DiscussionReplyMapper discussionReplyMapper;
+    private final UserService userService;
 
-    public DiscussionServiceImpl(DiscussionRepository discussionRepository,
-            DiscussionReplyRepository discussionReplyRepository,
-            UserRepository userRepository,
-            DiscussionMapper discussionMapper,
-            DiscussionReplyMapper discussionReplyMapper) {
-        this.discussionRepository = discussionRepository;
-        this.discussionReplyRepository = discussionReplyRepository;
-        this.userRepository = userRepository;
-        this.discussionMapper = discussionMapper;
-        this.discussionReplyMapper = discussionReplyMapper;
+    // ------------------------------------------------------------------ 列表类
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<DiscussionDto> getDiscussions(Pageable pageable, String category, String keyword, String sort) {
+        Pageable effective = applySort(pageable, sort);
+        String cat = trimToNull(category);
+        String kw = trimToNull(keyword);
+
+        Page<Discussion> page;
+        if (cat != null && kw != null) {
+            page = discussionRepository.searchByCategoryAndKeyword(
+                    cat, kw, Discussion.DiscussionStatus.DELETED, effective);
+        } else if (cat != null) {
+            page = discussionRepository.findByCategory(cat, Discussion.DiscussionStatus.DELETED, effective);
+        } else if (kw != null) {
+            page = discussionRepository.searchByKeyword(kw, Discussion.DiscussionStatus.DELETED, effective);
+        } else {
+            page = discussionRepository.findByStatus(Discussion.DiscussionStatus.DELETED, effective);
+        }
+        return toDtoPage(page);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<DiscussionDto> getHotDiscussions(Pageable pageable) {
+        return toDtoPage(discussionRepository.findHot(Discussion.DiscussionStatus.DELETED, pageable));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<DiscussionDto> getFeaturedDiscussions(Pageable pageable) {
+        return toDtoPage(discussionRepository.findFeatured(Discussion.DiscussionStatus.DELETED, pageable));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<DiscussionDto> getPinnedDiscussions(Pageable pageable) {
+        return toDtoPage(discussionRepository.findPinned(Discussion.DiscussionStatus.DELETED, pageable));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<DiscussionDto> searchDiscussions(String keyword, Pageable pageable) {
+        String kw = trimToNull(keyword);
+        if (kw == null) {
+            return toDtoPage(discussionRepository.findByStatus(Discussion.DiscussionStatus.DELETED, pageable));
+        }
+        return toDtoPage(discussionRepository.searchByKeyword(kw, Discussion.DiscussionStatus.DELETED, pageable));
+    }
+
+    // ------------------------------------------------------------------ 写
+
     @Override
     @Transactional
-    @SuppressWarnings("null")
-    public DiscussionDto createDiscussion(String userId, DiscussionCreateDto createDto) {
-        log.info("创建讨论: 用户ID={}, 标题={}, 分类={}", userId, createDto.getTitle(), createDto.getCategory());
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + userId));
+    public DiscussionDto createDiscussion(String username, DiscussionCreateDto createDto) {
+        User user = requireUser(username);
 
         Discussion discussion = new Discussion();
         discussion.setTitle(createDto.getTitle());
         discussion.setContent(createDto.getContent());
-        discussion.setCategory(createDto.getCategory());
+        discussion.setCategory(normalizeCategory(createDto.getCategory()));
+        discussion.setTags(createDto.getTags());
         discussion.setUser(user);
         discussion.setUserId(user.getId());
         discussion.setUsername(user.getUsername());
@@ -74,111 +135,20 @@ public class DiscussionServiceImpl implements DiscussionService {
         discussion.setReplyCount(0);
         discussion.setIsPinned(false);
         discussion.setIsFeatured(false);
-        discussion.setTags(createDto.getTags());
 
-        Discussion savedDiscussion = discussionRepository.save(discussion);
-        log.info("讨论创建成功: ID={}", savedDiscussion.getId());
+        Discussion saved = discussionRepository.save(discussion);
+        log.info("讨论创建成功: ID={}, 作者={}", saved.getId(), username);
 
-        return discussionMapper.toDto(savedDiscussion);
+        DiscussionDto dto = discussionMapper.toDto(saved);
+        dto.setReplies(List.of());
+        return dto;
     }
-    @Override
-    @Transactional(readOnly = true)
-    public DiscussionDto getDiscussionById(String discussionId) {
-        Discussion discussion = discussionRepository
-                .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
 
-        discussion.incrementViewCount();
-        discussionRepository.save(discussion);
-
-        return discussionMapper.toDto(discussion);
-    }
     @Override
-    @Transactional(readOnly = true)
-    public DiscussionDto getDiscussionByIdWithReplies(String discussionId, Pageable replyPageable) {
-        Discussion discussion = discussionRepository
-                .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
-
-        discussion.incrementViewCount();
-        discussionRepository.save(discussion);
-
-        DiscussionDto discussionDto = discussionMapper.toDto(discussion);
-
-        Page<DiscussionReply> replies = discussionReplyRepository.findByDiscussionIdAndStatusNotOrderByCreatedAtAsc(
-                discussion.getId(), DiscussionReply.ReplyStatus.DELETED, replyPageable);
-
-        discussionDto.setReplies(discussionReplyMapper.toDtoList(replies.getContent()));
-
-        return discussionDto;
-    }
-    @Override
-    @Transactional(readOnly = true)
-    public Page<DiscussionDto> getAllDiscussions(Pageable pageable) {
-        Page<Discussion> discussions = discussionRepository.findByStatusNotOrderByCreatedAtDesc(
-                Discussion.DiscussionStatus.DELETED, pageable);
-        return discussions.map(discussionMapper::toDto);
-    }
-    @Override
-    @Transactional(readOnly = true)
-    public List<DiscussionDto> getAllDiscussions() {
-        List<Discussion> discussions = discussionRepository.findByStatusNotOrderByCreatedAtDesc(
-                Discussion.DiscussionStatus.DELETED);
-        return discussionMapper.toDtoList(discussions);
-    }
-    @Override
-    @Transactional(readOnly = true)
-    public Page<DiscussionDto> getDiscussionsByCategory(String category, Pageable pageable) {
-        Page<Discussion> discussions = discussionRepository.findByCategoryAndStatusNotOrderByCreatedAtDesc(
-                category, Discussion.DiscussionStatus.DELETED, pageable);
-        return discussions.map(discussionMapper::toDto);
-    }
-    @Override
-    @Transactional(readOnly = true)
-    public List<DiscussionDto> getDiscussionsByCategory(String category) {
-        List<Discussion> discussions = discussionRepository.findByCategoryAndStatusNotOrderByCreatedAtDesc(
-                category, Discussion.DiscussionStatus.DELETED);
-        return discussionMapper.toDtoList(discussions);
-    }
-    @Override
-    @Transactional(readOnly = true)
-    public Page<DiscussionDto> getDiscussionsByUserId(String userId, Pageable pageable) {
-        Page<Discussion> discussions = discussionRepository.findByUserIdAndStatusNotOrderByCreatedAtDesc(
-                userId, Discussion.DiscussionStatus.DELETED, pageable);
-        return discussions.map(discussionMapper::toDto);
-    }
-    @Override
-    @Transactional(readOnly = true)
-    public List<DiscussionDto> getDiscussionsByUserId(String userId) {
-        List<Discussion> discussions = discussionRepository.findByUserIdAndStatusNotOrderByCreatedAtDesc(
-                userId, Discussion.DiscussionStatus.DELETED);
-        return discussionMapper.toDtoList(discussions);
-    }
-    @Override
-    @Transactional(readOnly = true)
-    public Page<DiscussionDto> searchDiscussions(String keyword, Pageable pageable) {
-        Page<Discussion> discussions = discussionRepository.searchDiscussions(
-                keyword, Discussion.DiscussionStatus.DELETED, pageable);
-        return discussions.map(discussionMapper::toDto);
-    }
-    @Override
-    @Transactional(readOnly = true)
-    public List<DiscussionDto> searchDiscussions(String keyword) {
-        List<Discussion> discussions = discussionRepository.searchDiscussions(
-                keyword, Discussion.DiscussionStatus.DELETED);
-        return discussionMapper.toDtoList(discussions);
-    }
-    @Override
-    public DiscussionDto updateDiscussion(String discussionId, String userId, DiscussionUpdateDto updateDto) {
-        log.info("更新讨论: ID={}, 用户ID={}", discussionId, userId);
-
-        Discussion discussion = discussionRepository
-                .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
-
-        if (!discussion.getUserId().equals(userId)) {
-            throw new UnauthorizedException("您没有权限更新此讨论");
-        }
+    @Transactional
+    public DiscussionDto updateDiscussion(String discussionId, String username, DiscussionUpdateDto updateDto) {
+        Discussion discussion = requireDiscussion(discussionId);
+        requireOwnerOrAdmin(discussion.getUserId(), username);
 
         if (updateDto.getTitle() != null) {
             discussion.setTitle(updateDto.getTitle());
@@ -186,82 +156,70 @@ public class DiscussionServiceImpl implements DiscussionService {
         if (updateDto.getContent() != null) {
             discussion.setContent(updateDto.getContent());
         }
-        if (updateDto.getCategory() != null) {
-            discussion.setCategory(updateDto.getCategory());
+        String category = trimToNull(updateDto.getCategory());
+        if (category != null) {
+            discussion.setCategory(category);
         }
         if (updateDto.getTags() != null) {
             discussion.setTags(updateDto.getTags());
         }
 
-        Discussion updatedDiscussion = discussionRepository.save(discussion);
-        log.info("讨论更新成功: ID={}", updatedDiscussion.getId());
+        Discussion saved = discussionRepository.save(discussion);
+        log.info("讨论更新成功: ID={}", saved.getId());
 
-        return discussionMapper.toDto(updatedDiscussion);
+        DiscussionDto dto = discussionMapper.toDto(saved);
+        dto.setReplies(List.of());
+        return dto;
     }
+
     @Override
-    public void deleteDiscussion(String discussionId, String userId) {
-        log.info("删除讨论: ID={}, 用户ID={}", discussionId, userId);
-
-        Discussion discussion = discussionRepository
-                .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
-
-        if (!discussion.getUserId().equals(userId)) {
-            throw new UnauthorizedException("您没有权限删除此讨论");
-        }
+    @Transactional
+    public void deleteDiscussion(String discussionId, String username) {
+        Discussion discussion = requireDiscussion(discussionId);
+        requireOwnerOrAdmin(discussion.getUserId(), username);
 
         discussion.setStatus(Discussion.DiscussionStatus.DELETED);
         discussionRepository.save(discussion);
+        log.info("讨论删除成功: ID={}", discussion.getId());
+    }
 
-        log.info("讨论删除成功: ID={}", discussionId);
-    }
-    @Override
-    public void incrementViewCount(String discussionId) {
-        Discussion discussion = discussionRepository
-                .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
-
-        discussion.incrementViewCount();
-        discussionRepository.save(discussion);
-    }
-    @Override
-    public void incrementLikeCount(String discussionId) {
-        Discussion discussion = discussionRepository
-                .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
-
-        discussion.incrementLikeCount();
-        discussionRepository.save(discussion);
-    }
-    @Override
-    public void decrementLikeCount(String discussionId) {
-        Discussion discussion = discussionRepository
-                .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
-
-        discussion.decrementLikeCount();
-        discussionRepository.save(discussion);
-    }
-    @Override
-    public void addLike(String discussionId, String userId) {
-        incrementLikeCount(discussionId);
-    }
-    @Override
-    public void removeLike(String discussionId, String userId) {
-        decrementLikeCount(discussionId);
-    }
     @Override
     @Transactional
-    @SuppressWarnings("null")
-    public DiscussionReplyDto createReply(String discussionId, String userId, DiscussionReplyCreateDto createDto) {
-        log.info("创建回复: 讨论ID={}, 用户ID={}", discussionId, userId);
+    public DiscussionLikeResultDto toggleLike(String discussionId, String username) {
+        Discussion discussion = requireDiscussion(discussionId);
+        User user = requireUser(username);
 
-        Discussion discussion = discussionRepository
-                .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
+        // 去重依据 = (讨论, 当前用户)：已经赞过就取消，没赞过就点赞。
+        // 同一用户重复点赞不会把 likeCount 一次次往上加 —— 计数不会超过点赞人数。
+        Optional<DiscussionLike> existing =
+                discussionLikeRepository.findByDiscussionIdAndUserId(discussion.getId(), user.getId());
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + userId));
+        boolean liked;
+        if (existing.isPresent()) {
+            discussionLikeRepository.delete(existing.get());
+            discussion.decrementLikeCount();
+            liked = false;
+        } else {
+            discussionLikeRepository.save(DiscussionLike.builder()
+                    .discussionId(discussion.getId())
+                    .userId(user.getId())
+                    .build());
+            discussion.incrementLikeCount();
+            liked = true;
+        }
+        discussionRepository.save(discussion);
+
+        return DiscussionLikeResultDto.builder()
+                .liked(liked)
+                .likeCount(discussion.getLikeCount())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public DiscussionReplyDto createReply(String discussionId, String username, DiscussionReplyCreateDto createDto) {
+        Discussion discussion = requireDiscussion(discussionId);
+        User user = requireUser(username);
 
         DiscussionReply reply = new DiscussionReply();
         reply.setContent(createDto.getContent());
@@ -271,188 +229,178 @@ public class DiscussionServiceImpl implements DiscussionService {
         reply.setUserId(user.getId());
         reply.setUsername(user.getUsername());
         reply.setUserAvatar(user.getAvatarUrl());
-        reply.setParentId(createDto.getParentId() != null ? Long.valueOf(createDto.getParentId()) : null);
+        reply.setParentId(parseOptionalId(createDto.getParentId()));
         reply.setReplyToUserId(createDto.getReplyToUserId());
         reply.setReplyToUsername(createDto.getReplyToUsername());
         reply.setStatus(DiscussionReply.ReplyStatus.ACTIVE);
         reply.setLikeCount(0);
 
-        DiscussionReply savedReply = discussionReplyRepository.save(reply);
+        DiscussionReply saved = discussionReplyRepository.save(reply);
 
         discussion.incrementReplyCount();
         discussionRepository.save(discussion);
 
-        log.info("回复创建成功: ID={}", savedReply.getId());
-
-        return discussionReplyMapper.toDto(savedReply);
+        log.info("回复创建成功: ID={}, 讨论={}", saved.getId(), discussion.getId());
+        return discussionReplyMapper.toDto(saved);
     }
+
     @Override
-    public DiscussionReplyDto updateReply(String replyId, String userId, DiscussionReplyCreateDto updateDto) {
-        log.info("更新回复: ID={}, 用户ID={}", replyId, userId);
+    @Transactional
+    public DiscussionReplyDto updateReply(String replyId, String username, DiscussionReplyUpdateDto updateDto) {
+        DiscussionReply reply = requireReply(replyId);
+        requireOwnerOrAdmin(reply.getUserId(), username);
 
-        DiscussionReply reply = discussionReplyRepository.findById(( Long) Long.valueOf(replyId))
-                .orElseThrow(() -> new ResourceNotFoundException("回复不存在: " + replyId));
-
-        if (!reply.getUserId().equals(userId)) {
-            throw new UnauthorizedException("您没有权限更新此回复");
+        String content = trimToNull(updateDto.getContent());
+        if (content != null) {
+            reply.setContent(content);
         }
 
-        reply.setContent(updateDto.getContent());
-        reply.setUpdatedAt(LocalDateTime.now());
-
-        DiscussionReply updatedReply = discussionReplyRepository.save(reply);
-        log.info("回复更新成功: ID={}", updatedReply.getId());
-
-        return discussionReplyMapper.toDto(updatedReply);
+        DiscussionReply saved = discussionReplyRepository.save(reply);
+        log.info("回复更新成功: ID={}", saved.getId());
+        return discussionReplyMapper.toDto(saved);
     }
+
     @Override
-    public void deleteReply(String replyId, String userId) {
-        log.info("删除回复: ID={}, 用户ID={}", replyId, userId);
-
-        DiscussionReply reply = discussionReplyRepository.findById(( Long) Long.valueOf(replyId))
-                .orElseThrow(() -> new ResourceNotFoundException("回复不存在: " + replyId));
-
-        if (!reply.getUserId().equals(userId)) {
-            throw new UnauthorizedException("您没有权限删除此回复");
-        }
+    @Transactional
+    public void deleteReply(String replyId, String username) {
+        DiscussionReply reply = requireReply(replyId);
+        requireOwnerOrAdmin(reply.getUserId(), username);
 
         reply.setStatus(DiscussionReply.ReplyStatus.DELETED);
         discussionReplyRepository.save(reply);
 
-        Discussion discussion = discussionRepository.findById(( Long) reply.getDiscussionId())
+        Discussion discussion = discussionRepository.findById(reply.getDiscussionId())
                 .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + reply.getDiscussionId()));
         discussion.decrementReplyCount();
         discussionRepository.save(discussion);
 
-        log.info("回复删除成功: ID={}", replyId);
+        log.info("回复删除成功: ID={}", reply.getId());
     }
+
+    // ------------------------------------------------------------------ 详情
+
     @Override
-    @Transactional(readOnly = true)
-    public List<DiscussionReplyDto> getRepliesByDiscussionId(String discussionId) {
-        List<DiscussionReply> replies = discussionReplyRepository.findByDiscussionIdAndStatusNotOrderByCreatedAtAsc(
-                ( Long) Long.valueOf(discussionId), DiscussionReply.ReplyStatus.DELETED);
-        return discussionReplyMapper.toDtoList(replies);
-    }
-    @Override
-    @Transactional(readOnly = true)
-    public Page<DiscussionReplyDto> getRepliesByDiscussionId(String discussionId,  Pageable pageable) {
-        Page<DiscussionReply> replies = discussionReplyRepository.findByDiscussionIdAndStatusNotOrderByCreatedAtAsc(
-                ( Long) Long.valueOf(discussionId), DiscussionReply.ReplyStatus.DELETED, pageable);
-        return replies.map(discussionReplyMapper::toDto);
-    }
-    @Override
-    @Transactional(readOnly = true)
-    public List<DiscussionReplyDto> getRepliesByDiscussionIdAndParentId(String discussionId, String parentId) {
+    @Transactional
+    public DiscussionDto getDiscussionById(String discussionId) {
+        Discussion discussion = requireDiscussion(discussionId);
+
+        // 浏览量是写操作，这里必须是可写事务（只读事务不会把改动刷进数据库）。
+        discussion.incrementViewCount();
+        discussionRepository.save(discussion);
+
+        DiscussionDto dto = discussionMapper.toDto(discussion);
+
         List<DiscussionReply> replies = discussionReplyRepository
-                .findByDiscussionIdAndParentIdAndStatusNotOrderByCreatedAtAsc(
-                        ( Long) Long.valueOf(discussionId), ( Long) Long.valueOf(parentId),
-                        DiscussionReply.ReplyStatus.DELETED);
-        return discussionReplyMapper.toDtoList(replies);
+                .findByDiscussionIdAndStatusNotOrderByCreatedAtAsc(
+                        discussion.getId(),
+                        DiscussionReply.ReplyStatus.DELETED,
+                        PageRequest.of(0, DETAIL_REPLY_LIMIT))
+                .getContent();
+        dto.setReplies(discussionReplyMapper.toDtoList(replies));
+        return dto;
     }
+
     @Override
     @Transactional(readOnly = true)
-    public long getTotalDiscussionCount() {
-        return discussionRepository.countByStatusNot(Discussion.DiscussionStatus.DELETED);
+    public Page<DiscussionReplyDto> getRepliesByDiscussionId(String discussionId, Pageable pageable) {
+        Discussion discussion = requireDiscussion(discussionId);
+        return discussionReplyRepository
+                .findByDiscussionIdAndStatusNotOrderByCreatedAtAsc(
+                        discussion.getId(), DiscussionReply.ReplyStatus.DELETED, pageable)
+                .map(discussionReplyMapper::toDto);
     }
-    @Override
-    @Transactional(readOnly = true)
-    public long getDiscussionCountByCategory(String category) {
-        return discussionRepository.countByCategoryAndStatusNot(category, Discussion.DiscussionStatus.DELETED);
+
+    // ------------------------------------------------------------------ 内部工具
+
+    /** 列表里的讨论不内联回复（否则每条都要再查一次回复）。 */
+    private Page<DiscussionDto> toDtoPage(Page<Discussion> page) {
+        return page.map(discussion -> {
+            DiscussionDto dto = discussionMapper.toDto(discussion);
+            dto.setReplies(List.of());
+            return dto;
+        });
     }
-    @Override
-    @Transactional(readOnly = true)
-    public long getDiscussionCountByUserId(String userId) {
-        return discussionRepository.countByUserIdAndStatusNot(userId, Discussion.DiscussionStatus.DELETED);
+
+    /** 排序：sort 参数是自由字符串，认不出来的按 latest（最新）处理。 */
+    private Pageable applySort(Pageable pageable, String sort) {
+        Sort resolved = resolveSort(sort);
+        if (resolved.isUnsorted()) {
+            return pageable;
+        }
+        return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), resolved);
     }
-    @Override
-    @Transactional(readOnly = true)
-    public long getDiscussionCountByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        return discussionRepository.findByDateRange(startDate, endDate, Discussion.DiscussionStatus.DELETED)
-                .size();
+
+    private Sort resolveSort(String sort) {
+        String key = sort == null ? "" : sort.trim().toLowerCase(Locale.ROOT);
+        switch (key) {
+            case "hot":
+                return Sort.by(Sort.Direction.DESC, "likeCount", "replyCount", "viewCount");
+            case "mostliked":
+                return Sort.by(Sort.Direction.DESC, "likeCount", "createdAt");
+            case "mostreplied":
+                return Sort.by(Sort.Direction.DESC, "replyCount", "createdAt");
+            case "mostviewed":
+                return Sort.by(Sort.Direction.DESC, "viewCount", "createdAt");
+            default:
+                return Sort.by(Sort.Direction.DESC, "createdAt");
+        }
     }
-    @Override
-    @Transactional(readOnly = true)
-    public List<DiscussionDto> getTopLikedDiscussions(int limit) {
-        List<Discussion> discussions = discussionRepository.findTopLikedDiscussions(
-                Discussion.DiscussionStatus.DELETED, org.springframework.data.domain.PageRequest.of(0, limit));
-        return discussionMapper.toDtoList(discussions);
-    }
-    @Override
-    @Transactional(readOnly = true)
-    public List<DiscussionDto> getTopViewedDiscussions(int limit) {
-        List<Discussion> discussions = discussionRepository.findTopViewedDiscussions(
-                Discussion.DiscussionStatus.DELETED, org.springframework.data.domain.PageRequest.of(0, limit));
-        return discussionMapper.toDtoList(discussions);
-    }
-    @Override
-    @Transactional(readOnly = true)
-    public List<DiscussionDto> getTopRepliedDiscussions(int limit) {
-        List<Discussion> discussions = discussionRepository.findTopRepliedDiscussions(
-                Discussion.DiscussionStatus.DELETED, org.springframework.data.domain.PageRequest.of(0, limit));
-        return discussionMapper.toDtoList(discussions);
-    }
-    @Override
-    @Transactional(readOnly = true)
-    public List<DiscussionDto> getPinnedDiscussions() {
-        List<Discussion> discussions = discussionRepository.findByIsPinnedTrueAndStatusNotOrderByCreatedAtDesc(
-                Discussion.DiscussionStatus.DELETED);
-        return discussionMapper.toDtoList(discussions);
-    }
-    @Override
-    @Transactional(readOnly = true)
-    public List<DiscussionDto> getFeaturedDiscussions() {
-        List<Discussion> discussions = discussionRepository.findByIsFeaturedTrueAndStatusNotOrderByCreatedAtDesc(
-                Discussion.DiscussionStatus.DELETED);
-        return discussionMapper.toDtoList(discussions);
-    }
-    @Override
-    public DiscussionDto pinDiscussion(String discussionId, String adminId) {
-        Discussion discussion = discussionRepository
-                .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
+
+    private Discussion requireDiscussion(String discussionId) {
+        return discussionRepository
+                .findByIdAndStatusNot(parseId(discussionId), Discussion.DiscussionStatus.DELETED)
                 .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
-
-        discussion.setIsPinned(true);
-        Discussion updatedDiscussion = discussionRepository.save(discussion);
-
-        log.info("讨论置顶成功: ID={}, 管理员ID={}", discussionId, adminId);
-        return discussionMapper.toDto(updatedDiscussion);
     }
-    @Override
-    public DiscussionDto unpinDiscussion(String discussionId, String adminId) {
-        Discussion discussion = discussionRepository
-                .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
 
-        discussion.setIsPinned(false);
-        Discussion updatedDiscussion = discussionRepository.save(discussion);
-
-        log.info("讨论取消置顶成功: ID={}, 管理员ID={}", discussionId, adminId);
-        return discussionMapper.toDto(updatedDiscussion);
+    private DiscussionReply requireReply(String replyId) {
+        return discussionReplyRepository
+                .findByIdAndStatusNot(parseId(replyId), DiscussionReply.ReplyStatus.DELETED)
+                .orElseThrow(() -> new ResourceNotFoundException("回复不存在: " + replyId));
     }
-    @Override
-    public DiscussionDto featureDiscussion(String discussionId, String adminId) {
-        Discussion discussion = discussionRepository
-                .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
 
-        discussion.setIsFeatured(true);
-        Discussion updatedDiscussion = discussionRepository.save(discussion);
-
-        log.info("讨论加精成功: ID={}, 管理员ID={}", discussionId, adminId);
-        return discussionMapper.toDto(updatedDiscussion);
+    private User requireUser(String username) {
+        return userService.findByUsername(username);
     }
-    @Override
-    public DiscussionDto unfeatureDiscussion(String discussionId, String adminId) {
-        Discussion discussion = discussionRepository
-                .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
 
-        discussion.setIsFeatured(false);
-        Discussion updatedDiscussion = discussionRepository.save(discussion);
+    /** 只有作者本人或管理员能改 / 删，否则 403。 */
+    private void requireOwnerOrAdmin(String ownerUserId, String username) {
+        User user = requireUser(username);
+        if (user.isAdmin()) {
+            return;
+        }
+        if (ownerUserId != null && ownerUserId.equals(user.getId())) {
+            return;
+        }
+        throw new AccessDeniedException("没有权限操作这条讨论");
+    }
 
-        log.info("讨论取消加精成功: ID={}, 管理员ID={}", discussionId, adminId);
-        return discussionMapper.toDto(updatedDiscussion);
+    /**
+     * 路径参数是字符串，实体主键是 Long。解析不了就是「没有这个 id」，
+     * 按契约返回 404（讨论 / 回复两个端点的错误响应里只有 404，没有 422）。
+     */
+    private Long parseId(String id) {
+        try {
+            return Long.valueOf(id);
+        } catch (NumberFormatException e) {
+            throw new ResourceNotFoundException("资源不存在: " + id);
+        }
+    }
+
+    private Long parseOptionalId(String id) {
+        String trimmed = trimToNull(id);
+        return trimmed == null ? null : parseId(trimmed);
+    }
+
+    private String normalizeCategory(String category) {
+        String trimmed = trimToNull(category);
+        return trimmed == null ? DEFAULT_CATEGORY : trimmed;
+    }
+
+    private String trimToNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }
-
-

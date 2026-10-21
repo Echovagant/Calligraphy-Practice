@@ -83,6 +83,17 @@ public class SecurityConfig {
                         // 这两个「当前用户」端点仍然需要令牌。
                         .requestMatchers(HttpMethod.GET, "/api/copybooks",
                                 "/api/copybooks/popular", "/api/copybooks/{copybookId}").permitAll()
+                        // 讨论浏览同样是公开的（契约里 security: []）：列表、热门、精华、置顶、
+                        // 搜索、详情、某个讨论的回复列表。
+                        // 注意 /{id} 只匹配一段，所以 /{discussionId}/replies 是另一条；
+                        // 发帖 / 编辑 / 删除 / 点赞这些写操作仍然需要令牌。
+                        .requestMatchers(HttpMethod.GET, "/api/discussions",
+                                "/api/discussions/hot", "/api/discussions/featured",
+                                "/api/discussions/pinned", "/api/discussions/search",
+                                "/api/discussions/{id}", "/api/discussions/{discussionId}/replies").permitAll()
+                        // 作品评论列表也是公开的（契约里 security: []）。
+                        // 注意只放开「按作品查」这一条：按用户查评论历史是「当前用户」的数据，仍然需要令牌。
+                        .requestMatchers(HttpMethod.GET, "/api/community/comments/work/{workId}").permitAll()
                         .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex

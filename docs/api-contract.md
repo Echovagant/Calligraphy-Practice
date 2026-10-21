@@ -178,13 +178,13 @@ Jackson 会把属性名变成 **`featured`**；而实体上手写的 `getIsFeatu
 
 | DTO | workId 类型 | 契约用哪个 |
 |---|---|---|
-| `CommentCreateDto` | `Long` | ✗ 不用 |
+| ~~`CommentCreateDto`~~ | `Long` | ✗ 不用 —— **P5 已删**（裁剪后零引用） |
 | `CommentCreateRequestDto` | `String` | ✓ `CommentCreateRequest` |
-| `CommentUpdateDto` | — | ✗ 不用 |
-| `CommentUpdateRequestDto` | — | ✓ |
+| ~~`CommentUpdateDto`~~ | — | ✗ 不用 —— **P5 已删** |
+| ~~`CommentUpdateRequestDto`~~ | — | ✗ **契约里没有评论更新端点**，P5 裁剪后已删 |
 
 契约里所有 ID 一律是 **string**（与前端、与 `Work.workId` / `Comment.commentId` 一致）。
-`CommentCreateDto` 那套 `Long` 版本不进契约。
+`CommentCreateDto` 那套 `Long` 版本不进契约，且已在 P5 随接口裁剪一起删除。
 
 ### 3.3 路径冲突
 
@@ -305,7 +305,8 @@ Spring Security 6.2 的 `DaoAuthenticationProvider.retrieveUser` 有三个 catch
 | 参数形状不对 | `src/stores/userStore.js:344` | `PUT /api/users/password` 实际发出去的是**裸 JSON 字符串**，而契约要求对象 `{email,verificationCode,newPassword,confirmPassword}`。 |
 | URL 拼错 | `src/stores/userStore.js` | `GET /api/works/user/{userId}` 实际请求的是 `/works/user/undefined`。 |
 
-另有 **7 处 mock 降级分支**（api.js 里 5 处 `catch` 返回假数据 + store 里 2 处），
+另有 **9 处 mock 降级分支**（api.js 里 5 处 `catch` 返回假数据 + store 里 4 处：
+`appStore.js` 的统计/公告/热门标签 3 处 + `practiceStore.js` 的推荐内容备选 1 处），
 P6 接线时必须全部删掉 —— 否则接口没通的时候页面会显示假数据，**看起来是好的**。
 
 ## 5. 当前差异清单（= 待实现清单）
@@ -315,25 +316,25 @@ P6 接线时必须全部删掉 —— 否则接口没通的时候页面会显示
 ```
 contract  : 53 operation(s)
 frontend  : 51 call site(s)
-backend   : 28 controller route(s)
+backend   : 53 controller route(s)
 violations: 0
-gaps      : 27
-warnings  : 9
+gaps      : 2
+warnings  : 3
 ```
 
 - **违规 0** —— 契约与现有代码没有矛盾，校验通过。
-- **缺口 27** = 24 条「后端还没实现」+ 2 条「前端还没接线」
-  （`GET /api/copybooks/practice/history` 的 `copybookAPI.getPracticeHistory`、
-  `GET /api/stats/overview` 的 `statsAPI.getOverview`；两个端点本身都已实现）。
-  24 条后端缺口 = comments(4) + file-reviews(7) + discussions(13) —— **P5 的全部工作**。
-- **警告 9** = 3 条前端幽灵方法（`copybookAPI.addPracticeRecord` /
-  `getPracticeHistory` / `getPracticeStats`）+ 6 条 `CommentServiceImpl` 的桩实现
-  （P5 接线前必须补齐，尤其 `containsSensitiveContent` 恒 false）。
+- **缺口 2** = 两条「前端还没接线」：
+  `copybookAPI.getPracticeHistory`（`GET /api/copybooks/practice/history`）与
+  `statsAPI.getOverview`（`GET /api/stats/overview`）。两个端点**后端都已实现**，
+  缺的是前端调用入口 —— **P6 的工作**。
+- **警告 3** = 3 条前端幽灵方法（`copybookAPI.addPracticeRecord` /
+  `getPracticeHistory` / `getPracticeStats`）。**后端已无桩实现**。
 
 **已完成的域**：P2 auth（端点 1–10）、P3 user + works + stats（端点 11–21、53）、
-P4 copybooks + practice（端点 22–27）—— 后端路由数从 0 变成 28。
-**剩下的缺口就是 P5–P6 的工作项。** 每完成一个域，缺口数下降，
-`npm run contract:check` 的输出就是进度。到 P7 必须 `--strict` 也过。
+P4 copybooks + practice（端点 22–27）、
+P5 comments + discussions + file-reviews（端点 28–52）——
+后端路由数从 0 变成 **53**，**53 个端点全部实现完毕**。
+剩下的就是 P6 的前端接线与 P7 的全量验证。
 
 ## 6. 阶段划分与验收
 
@@ -343,7 +344,7 @@ P4 copybooks + practice（端点 22–27）—— 后端路由数从 0 变成 28
 | **P2 auth 域** | 端点 1–10 | 登录 → 带 Bearer → refresh → logout 全链路通；契约测试 10 项绿 | ✅ 完成 |
 | **P3 user + works + stats 域** | 端点 11–21、53 | 上传作品 → 可见 → 图片能取回；契约测试 12 项绿 | ✅ 完成 |
 | **P4 copybooks 域** | 端点 22–27 | 字帖列表/详情/记录练习/统计/历史；`copybooks` 既有 3 行数据可读 | ✅ 完成（17 项契约测试 + 36 项活体） |
-| **P5 comments + discussions + file-reviews 域** | 端点 28–52 | 发帖/回复/点赞/评论/审核；契约测试绿 | 待做 |
+| **P5 comments + discussions + file-reviews 域** | 端点 28–52 | 发帖/回复/点赞/评论/审核；契约测试绿 | ✅ 完成（17 + 35 + 20 = 72 项契约测试 + 70 项活体） |
 | **P6 前端接线 + 删 mock** | §3.5、§4 | 六个视图无硬编码 mock；api.js 无 mock 降级分支 | 待做 |
 | **P7 全量验证** | — | 53 项契约测试全绿；`--strict` 零差异；前后端联调冒烟通过 | 待做 |
 
@@ -359,3 +360,20 @@ P4 copybooks + practice（端点 22–27）—— 后端路由数从 0 变成 28
   主键 `id`（不是 `recordId`）—— 旧实体那套
   `practiceTime`（分钟）/ `charactersPracticed` 整体作废，
   数据库用 `SpringBoot-Platform/db/03-practice-records-contract.sql` 跟上。
+- 2026-10-21 P5（社区域）。**53 个端点至此全部实现**，后端路由 28 → 53，
+  缺口 27 → 2（剩下 2 条都是前端接线），桩警告 9 → 3（后端已无桩）。
+  三个子域并行施工，文件归属互不重叠：
+  - **comments（4 端点）**：`CommentService` 45 → 5 个方法；
+    `containsSensitiveContent` **真实现**（敏感词清单来自配置
+    `comment.moderation.sensitive-words`，唯一真相源在 `application.properties`），
+    命中敏感词的评论落到 `PENDING` 不自动放行。
+  - **discussions（14 端点）**：`DiscussionService` 37 → 14 个方法；
+    挖出 **`DiscussionServiceImpl` 的 `@Service` 原本被注释掉了**（服务 Bean 根本不存在）；
+    点赞去重新建 `discussion_likes` 表（`db/04-discussion-likes.sql`）。
+  - **file-reviews（7 端点）**：`FileReviewService` 13 → 7 个方法；
+    审核结果回写 `works.review_status`（并联动 `works.status`）。
+    已知妥协：`file_reviews.reviewer_id` 的外键仍指向历史遗留的 `backend_users` 表，
+    服务层为管理员补一条「影子审核员记录」来满足外键。
+
+  顺带更正：§4 里写的「store 里 2 处 mock 降级」实际是 **4 处**
+  （`appStore.js` 3 处 + `practiceStore.js` 1 处）。

@@ -833,7 +833,7 @@ function compare(contract, frontend, backend, rawFetches, ghosts, stubs) {
       if (op.frontendCall) {
         const bad = checkFrontendSymbol(op.frontendCall)
         if (bad) {
-          detail += `；x-frontend-call 指向的 "${op.frontendCall}" 尚不存在（${bad}），P5 必须先建出来`
+          detail += `；x-frontend-call 指向的 "${op.frontendCall}" 尚不存在（${bad}），P6 必须先建出来`
         }
       }
       gaps.push({ kind: 'frontend-missing', key: k, detail })
