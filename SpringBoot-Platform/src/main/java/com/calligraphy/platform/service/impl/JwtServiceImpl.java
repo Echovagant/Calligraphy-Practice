@@ -44,33 +44,27 @@ public class JwtServiceImpl implements JwtService {
     private Long expiration;
     private Long refreshExpiration;
 
-    @Value("${spring.profiles.active:dev}")
-    private String activeProfile;
-
     @jakarta.annotation.PostConstruct
     public void init() {
         this.secret = jwtProperties.getSecret();
         this.expiration = jwtProperties.getExpiration();
         this.refreshExpiration = jwtProperties.getRefreshExpiration();
 
-        // 生产环境检查
-        if ("prod".equals(activeProfile) || activeProfile.contains("prod")) {
-            if (secret == null || secret.isEmpty() || "mySecretKey".equals(secret)) {
-                throw new IllegalArgumentException("生产环境必须设置有效的JWT密钥，不能使用默认值");
-            }
-            logger.info("生产环境JWT配置检查通过");
-        } else {
-            // 开发环境提供默认密钥
-            if (secret == null || secret.isEmpty()) {
-                secret = "calligraphy-platform-jwt-secret-key-2024-secure-string-with-enough-length";
-                logger.warn("使用默认JWT密钥，仅适用于开发环境");
-            }
+        // 密钥必须由外部提供：环境变量 JWT_SECRET，或 config/local-secrets.properties
+        // （由 run-local.ps1 注入环境变量）。
+        //
+        // 这里**故意不给默认密钥**。默认密钥一旦进了版本库就等于没有鉴权 ——
+        // 任何拿到仓库的人都能伪造 userType=ADMIN 的令牌绕过全部权限检查。
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalStateException(
+                    "JWT 密钥未配置。请设置环境变量 JWT_SECRET，"
+                    + "或用 run-local.ps1 启动（它会读 config/local-secrets.properties 并注入环境变量）。");
         }
-
-        // 确保密钥足够长
         if (secret.length() < 32) {
-            logger.warn("JWT密钥长度不足32位，建议使用更长的密钥以提高安全性");
+            throw new IllegalStateException(
+                    "JWT 密钥长度不足 32 位（当前 " + secret.length() + " 位），HS256 签名不稳定。");
         }
+        logger.info("JWT 配置检查通过：访问令牌 {} ms，刷新令牌 {} ms", expiration, refreshExpiration);
     }
 
     private SecretKey getSigningKey() {

@@ -243,14 +243,19 @@ INSERT INTO roles (id, name, description, permissions) VALUES
 -- =====================================================
 -- 插入默认超级管理员账户（密码需要在应用启动后修改）
 -- =====================================================
--- 注意：默认密码为 "Admin@123456"，首次登录后必须修改
+-- ⚠ 这里**不提供默认口令**。曾经这里写着某个默认超级管理员密码及其 BCrypt 哈希，
+-- 等于把一个「公开可知的超级管理员凭据」印在版本库里 —— 任何拿到仓库的人
+-- 都能用这组凭据登录。
+-- 现在改成占位符：部署时用你自己的口令生成 BCrypt 哈希填进去，例如
+--   htpasswd -bnBC 10 "" '你的口令' | tr -d ':\n'
+-- 或者先注册再在数据库里改。
 INSERT INTO backend_users (
     id, username, password, email, role, full_name, 
     department, permissions, security_level, password_changed_at
 ) VALUES (
     'admin-001',
     'superadmin',
-    '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBaUKk7h.T0mUO', -- Admin@123456
+    'REPLACE_WITH_BCRYPT_HASH_OF_YOUR_OWN_PASSWORD', -- 无默认口令
     'admin@calligraphy.com',
     'SUPER_ADMIN',
     '系统超级管理员',

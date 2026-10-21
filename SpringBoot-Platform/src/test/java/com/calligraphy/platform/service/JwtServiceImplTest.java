@@ -2,6 +2,7 @@ package com.calligraphy.platform.service;
 
 import com.calligraphy.platform.entity.AdminUser;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -9,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ActiveProfiles("test")
 @SpringBootTest
 class JwtServiceImplTest {
 

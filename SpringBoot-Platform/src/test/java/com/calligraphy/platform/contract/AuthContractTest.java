@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -35,6 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * 这里刻意**只依赖契约**（路径、状态码、字段名），不引用实现层的 DTO 类 ——
  * 这样实现换了形状而契约没变时，测试会立刻失败。
  */
+@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
 class AuthContractTest {

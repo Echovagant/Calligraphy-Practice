@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -42,6 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * <p>主键字段一律叫 {@code id}（前端读的就是 {@code work.id} / {@code user.id}）。
  */
+@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
 class UserWorksContractTest {
