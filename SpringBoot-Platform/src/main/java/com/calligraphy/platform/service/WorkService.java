@@ -77,9 +77,7 @@ public interface WorkService {
     void incrementLikeCount(Long workId);
     
     void decrementLikeCount(Long workId);
-    
-    boolean isLikedByUser(Long workId, String userId);
-    
+
     void addLike(Long workId, String userId);
     
     void removeLike(Long workId, String userId);
@@ -137,9 +135,7 @@ public interface WorkService {
     long getWorkCountByStatus(Work.WorkStatus status);
     
     long getWorkCountByReviewStatus(Work.ReviewStatus reviewStatus);
-    
-    long getWorkCountByDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
-    
+
     long getApprovedWorkCount();
     
     long getPublicWorkCount();

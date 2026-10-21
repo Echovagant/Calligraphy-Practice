@@ -1,5 +1,6 @@
 package com.calligraphy.platform.service.impl;
 
+import com.calligraphy.platform.config.JwtProperties;
 import com.calligraphy.platform.service.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -30,13 +31,17 @@ public class JwtServiceImpl implements JwtService {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtServiceImpl.class);
 
-    @Value("${jwt.secret:}")
+    /**
+     * JWT 配置。统一走 {@link JwtProperties}（@ConfigurationProperties(prefix="jwt")），
+     * 不要再用 {@code @Value} 单独读 —— 后者不认 relaxed binding，
+     * {@code jwt.refreshExpiration} 与 {@code jwt.refresh-expiration} 会被当成两个键，
+     * 配置项写了等于没写。
+     */
+    private final JwtProperties jwtProperties;
+
+    /** 实际使用的密钥（init() 里可能用开发默认值兜底）。 */
     private String secret;
-
-    @Value("${jwt.expiration:86400000}") // 24 hours
     private Long expiration;
-
-    @Value("${jwt.refresh-expiration:604800000}") // 7 days
     private Long refreshExpiration;
 
     @Value("${spring.profiles.active:dev}")
@@ -44,6 +49,10 @@ public class JwtServiceImpl implements JwtService {
 
     @jakarta.annotation.PostConstruct
     public void init() {
+        this.secret = jwtProperties.getSecret();
+        this.expiration = jwtProperties.getExpiration();
+        this.refreshExpiration = jwtProperties.getRefreshExpiration();
+
         // 生产环境检查
         if ("prod".equals(activeProfile) || activeProfile.contains("prod")) {
             if (secret == null || secret.isEmpty() || "mySecretKey".equals(secret)) {
@@ -238,10 +247,6 @@ public class JwtServiceImpl implements JwtService {
         // 实现设备解绑逻辑
     }
     @Override
-    public String getTokenDeviceId(String token) {
-        return null;
-    }
-    @Override
     public List<String> getUserDeviceTokens(String userId, String deviceId) {
         return java.util.Collections.emptyList();
     }
@@ -252,14 +257,6 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public void disassociateTokenFromIp(String token) {
         // 实现IP解绑逻辑
-    }
-    @Override
-    public String getTokenIpAddress(String token) {
-        return null;
-    }
-    @Override
-    public boolean isTokenIpConsistent(String token, String currentIp) {
-        return true;
     }
     @Override
     @SuppressWarnings("null")
@@ -300,9 +297,6 @@ public class JwtServiceImpl implements JwtService {
         String key = BLACKLIST_PREFIX + token;
         Boolean exists = redisTemplate.hasKey(key);
         return Boolean.TRUE.equals(exists);
-    }
-    @Override
-    public void cleanupBlacklist() {
     }
     @Override
     public java.util.Map<String, Object> getTokenInfo(String token) {
@@ -346,11 +340,6 @@ public class JwtServiceImpl implements JwtService {
         return token;
     }
     @Override
-    public Object getCustomClaim(String token, String claimName) {
-        // 实现获取自定义声明逻辑
-        return null;
-    }
-    @Override
     public Map<String, Object> getAllCustomClaims(String token) {
         // 实现获取所有自定义声明逻辑
         return java.util.Collections.emptyMap();
@@ -362,14 +351,6 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public void cleanupExpiredTokens() {
         logger.info("清理过期token");
-    }
-    @Override
-    public long getActiveTokenCount() {
-        return 0;
-    }
-    @Override
-    public long getInvalidatedTokenCount() {
-        return 0;
     }
     @Override
     public long getJwtExpiration() {
@@ -394,9 +375,6 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public void setJwtSecret(String secret) {
         this.secret = secret;
-    }
-    @Override
-    public void reloadConfiguration() {
     }
     @Override
     public java.util.Map<String, Object> getConfiguration() {
@@ -425,6 +403,8 @@ public class JwtServiceImpl implements JwtService {
         String token = Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
+                .setIssuer(jwtProperties.getIssuer())
+                .setAudience(jwtProperties.getAudience())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -443,6 +423,8 @@ public class JwtServiceImpl implements JwtService {
         try {
             return Jwts.parserBuilder()
                     .setSigningKey(getSigningKey())
+                    .requireIssuer(jwtProperties.getIssuer())
+                    .requireAudience(jwtProperties.getAudience())
                     .build()
                     .parseClaimsJws(token)
                     .getBody();

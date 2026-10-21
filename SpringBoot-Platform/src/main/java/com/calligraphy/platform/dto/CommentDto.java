@@ -28,11 +28,6 @@ public class CommentDto {
     private String reviewerId;
     private String reviewerComment;
     private long likeCount;
-    private boolean isLikedByCurrentUser;
-
-    public boolean isLikedByCurrentUser() {
-        return isLikedByCurrentUser;
-    }
     private LocalDateTime reviewedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

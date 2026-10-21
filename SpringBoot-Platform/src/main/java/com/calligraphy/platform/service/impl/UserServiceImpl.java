@@ -12,7 +12,6 @@ import com.calligraphy.platform.repository.CommentRepository;
 import com.calligraphy.platform.repository.PracticeRecordRepository;
 import com.calligraphy.platform.repository.UserRepository;
 import com.calligraphy.platform.repository.WorkRepository;
-import com.calligraphy.platform.service.FrontendUserService;
 import com.calligraphy.platform.service.UserService;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.GrantedAuthority;

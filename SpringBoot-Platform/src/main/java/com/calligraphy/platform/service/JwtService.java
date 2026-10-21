@@ -86,8 +86,6 @@ public interface JwtService {
     // 自定义声明
     String addCustomClaim(String token, String claimName, Object claimValue);
     
-    Object getCustomClaim(String token, String claimName);
-    
     Map<String, Object> getAllCustomClaims(String token);
     
     // 安全相关
@@ -102,18 +100,12 @@ public interface JwtService {
     
     void disassociateTokenFromDevice(String token);
     
-    String getTokenDeviceId(String token);
-    
     List<String> getUserDeviceTokens(String userId, String deviceId);
     
     // IP地址管理
     void associateTokenWithIp(String token, String ipAddress);
     
     void disassociateTokenFromIp(String token);
-    
-    String getTokenIpAddress(String token);
-    
-    boolean isTokenIpConsistent(String token, String currentIp);
     
     // 会话管理
     void createTokenSession(String token, String sessionId);
@@ -130,9 +122,7 @@ public interface JwtService {
     void removeFromBlacklist(String token);
     
     boolean isBlacklisted(String token);
-    
-    void cleanupBlacklist();
-    
+
     // 令牌审计
     java.util.Map<String, Object> getTokenInfo(String token);
     
@@ -145,13 +135,7 @@ public interface JwtService {
     
     void cleanupInvalidatedTokens();
     
-    long getActiveTokenCount();
-    
-    long getInvalidatedTokenCount();
-    
     // 配置管理
-    void reloadConfiguration();
-    
     java.util.Map<String, Object> getConfiguration();
     
     void updateConfiguration(java.util.Map<String, Object> config);

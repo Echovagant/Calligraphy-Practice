@@ -1917,7 +1917,10 @@ components:
           type: string
     Work:
       type: object
-      description: 对应后端 `WorkDto`。主键叫 `id`（前端读的就是 `work.id`）。
+      description: >
+        对应后端 `WorkDto`。主键叫 `id`（前端读的就是 `work.id`）。
+        **没有** `isLikedByCurrentUser` 字段 —— 系统没有点赞记录表，
+        声明一个恒为 false 的字段等于骗客户端；要做点赞功能时连表一起加。
       properties:
         id:
           type: string
@@ -1968,8 +1971,6 @@ components:
         likeCount:
           type: integer
           format: int64
-        isLikedByCurrentUser:
-          type: boolean
         isFeatured:
           type: boolean
         publishedAt:
@@ -2313,8 +2314,6 @@ components:
         likeCount:
           type: integer
           format: int64
-        isLikedByCurrentUser:
-          type: boolean
         reviewedAt:
           type: string
           format: date-time

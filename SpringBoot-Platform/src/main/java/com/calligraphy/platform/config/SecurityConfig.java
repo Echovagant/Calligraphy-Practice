@@ -33,6 +33,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
+    private final JwtProperties jwtProperties;
 
     /** 无需认证即可访问的路径。 */
     private static final String[] PUBLIC_ENDPOINTS = {
@@ -64,7 +65,7 @@ public class SecurityConfig {
         // （那样它会以 LOWEST_PRECEDENCE 排在安全过滤链之后，填充的 SecurityContext 来得太晚）。
         // 这里显式挂到安全过滤链上，保证它在鉴权过滤器之前执行。
         JwtAuthenticationFilter jwtAuthenticationFilter =
-                new JwtAuthenticationFilter(jwtService, userDetailsService);
+                new JwtAuthenticationFilter(jwtService, userDetailsService, jwtProperties);
 
         http
                 .csrf(csrf -> csrf.disable())

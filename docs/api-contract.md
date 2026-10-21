@@ -25,9 +25,17 @@
 
 结论分三类：
 
-- **违规 (violation)** —— 契约与代码「对不上」且无人计划过（前端调了契约里没有的端点、路径参数名不一致、后端实现了契约外的端点……）。**一律让构建失败。**
+- **违规 (violation)** —— 契约与代码「对不上」且无人计划过（前端调了契约里没有的端点、路径参数名不一致、后端实现了契约外的端点、同一个端点被实现了两次……）。**一律让构建失败。**
 - **缺口 (gap)** —— 契约声明了但代码里还没有。**这就是待实现清单**，本身不算错误。
-- **警告 (warning)** —— 已知缺陷，需要排期修，但不构成契约漂移。
+- **警告 (warning)** —— 已知缺陷，或「看起来实现了、其实没有」：前端调了 api.js 里
+  不存在的方法（幽灵方法）、后端方法体只有一个常量 return / 抛
+  `UnsupportedOperationException` / 是空方法体（桩实现）。
+
+检查器的能力边界（**这些它查不出来**，别指望它）：
+
+- 不校验响应状态码是否与实现一致 —— 那是**契约测试**的职责
+- 不校验请求体 / 响应体的字段语义 —— 同上
+- 不判断「某个 service 实现是不是该域的正解」—— 那是代码评审的职责
 
 新增端点的流程：**先改 `contract.yaml` → 再写后端实现 → 最后接前端**。
 
@@ -281,14 +289,16 @@ frontend  : 51 call site(s)
 backend   : 22 controller route(s)
 violations: 0
 gaps      : 33
-warnings  : 3
+warnings  : 9
 ```
 
 - **违规 0** —— 契约与现有代码没有矛盾，校验通过。
 - **缺口 33** = 31 条「后端还没实现」+ 2 条「前端还没接线」
   （`GET /api/copybooks/practice/history`、`GET /api/stats/overview` 的前端调用入口；
   端点本身已实现）。
-- **警告 3** = §4 表里的 3 条幽灵方法。
+- **警告 9** = 3 条前端幽灵方法（`copybookAPI.addPracticeRecord` /
+  `getPracticeHistory` / `getPracticeStats`）+ 6 条 `CommentServiceImpl` 的桩实现
+  （P5 接线前必须补齐，尤其 `containsSensitiveContent` 恒 false）。
 
 **已完成的域**：P2 auth（端点 1–10）、P3 user + works + stats（端点 11–21、53）——
 后端路由数从 0 变成 22。

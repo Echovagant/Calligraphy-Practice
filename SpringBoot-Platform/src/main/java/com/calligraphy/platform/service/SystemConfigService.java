@@ -133,11 +133,6 @@ public interface SystemConfigService {
     Map<String, Object> getEmailConfig();
     
     /**
-     * 刷新配置缓存
-     */
-    void refreshConfigCache();
-    
-    /**
      * 更新配置
      * @param updateRequest 更新请求
      * @param updatedBy 更新者

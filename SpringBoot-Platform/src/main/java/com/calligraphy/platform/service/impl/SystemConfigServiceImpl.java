@@ -318,10 +318,6 @@ public class SystemConfigServiceImpl implements SystemConfigService {
                 "smtpPort", 587);
     }
     @Override
-    @CacheEvict(value = "systemConfig", allEntries = true)
-    public void refreshConfigCache() {
-    }
-    @Override
     @Transactional
     @CacheEvict(value = "systemConfig", allEntries = true)
     public void initializeDefaultConfigs() {

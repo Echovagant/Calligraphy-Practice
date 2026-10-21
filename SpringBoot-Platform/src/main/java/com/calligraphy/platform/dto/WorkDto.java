@@ -43,13 +43,6 @@ public class WorkDto {
     private long viewCount;
     private long likeCount;
 
-    /**
-     * Lombok 生成 {@code isLikedByCurrentUser()}，Jackson 默认会把属性名剥成
-     * {@code likedByCurrentUser}。契约按 DTO 字段名书写，用 @JsonProperty 显式对齐。
-     */
-    @JsonProperty("isLikedByCurrentUser")
-    private boolean isLikedByCurrentUser;
-
     /** 同上，Jackson 默认会输出 {@code featured}，契约要求 {@code isFeatured}。 */
     @JsonProperty("isFeatured")
     private boolean isFeatured;

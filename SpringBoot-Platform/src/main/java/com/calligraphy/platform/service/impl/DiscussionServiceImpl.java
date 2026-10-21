@@ -243,12 +243,6 @@ public class DiscussionServiceImpl implements DiscussionService {
         discussionRepository.save(discussion);
     }
     @Override
-    @Transactional(readOnly = true)
-    public boolean isLikedByUser(String discussionId, String userId) {
-        // 由于当前Discussion实体没有记录点赞用户列表，返回false作为默认实现
-        return false;
-    }
-    @Override
     public void addLike(String discussionId, String userId) {
         incrementLikeCount(discussionId);
     }

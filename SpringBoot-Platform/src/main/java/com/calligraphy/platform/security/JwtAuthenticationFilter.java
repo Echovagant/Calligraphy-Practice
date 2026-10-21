@@ -1,5 +1,6 @@
 package com.calligraphy.platform.security;
 
+import com.calligraphy.platform.config.JwtProperties;
 import com.calligraphy.platform.service.JwtService;
 import com.calligraphy.platform.service.UserDetailsServiceImpl;
 
@@ -28,6 +29,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsServiceImpl userDetailsService;
+    /** 授权头名称与令牌前缀来自 jwt.* 配置（JwtProperties），不要在这里硬编码。 */
+    private final JwtProperties jwtProperties;
     @Override
     protected void doFilterInternal( HttpServletRequest request,  HttpServletResponse response,  FilterChain filterChain)
             throws ServletException, IOException {
@@ -71,9 +74,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * 从请求中获取JWT令牌
      */
     private String getJwtFromRequest(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+        String headerName = jwtProperties.getAuthHeaderName();
+        String prefix = jwtProperties.getTokenPrefix();
+        String bearerToken = request.getHeader(headerName);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(prefix)) {
+            return bearerToken.substring(prefix.length());
         }
         return null;
     }

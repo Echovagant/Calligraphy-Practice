@@ -484,6 +484,62 @@ function walkJava(dir, acc = []) {
   return acc
 }
 
+/**
+ * 取某个映射注解所在方法的 @PathVariable 形参名。
+ *
+ * 路径模板里的 {workId} 必须有同名形参，否则 Spring 启动期就报
+ * "Name for argument of type ... not specified" / 绑定到 null。
+ */
+function pathVarNames(text, fromIndex) {
+  // fromIndex 指向映射注解（如 @GetMapping）。要先跳过**注解自己**的括号，
+  // 之后才是方法签名的参数列表 —— 否则会把注解的参数当成方法的参数。
+  const sig = text.slice(fromIndex, fromIndex + 600)
+  let i = 0
+  // 跳过注解名
+  while (i < sig.length && /[\w]/.test(sig[i])) i++
+  // 跳过注解的参数（如果带括号）
+  while (i < sig.length && sig[i] !== '(' && sig[i] !== '\n') i++
+  if (sig[i] === '(') {
+    let depth = 0
+    for (; i < sig.length; i++) {
+      if (sig[i] === '(') depth++
+      else if (sig[i] === ')') {
+        depth--
+        if (depth === 0) { i++; break }
+      }
+    }
+  }
+  // 找方法的参数列表
+  while (i < sig.length && sig[i] !== '(') {
+    if (sig[i] === '\n' && i > 0) {
+      // 注解和方法签名之间允许换行
+    }
+    i++
+  }
+  if (i >= sig.length) return []
+  let depth = 0
+  let end = -1
+  for (let j = i; j < sig.length; j++) {
+    if (sig[j] === '(') depth++
+    else if (sig[j] === ')') {
+      depth--
+      if (depth === 0) { end = j; break }
+    }
+  }
+  if (end < 0) return []
+  const params = sig.slice(i + 1, end)
+  const names = []
+  // 形参可能是 `@PathVariable String userId`（名字在最后）或
+  // `@PathVariable("userId") String userId`（名字在注解里）。
+  // 懒量词 + 要求名字后面紧跟 , 或 ) —— 这样抓到的才是**名字**而不是类型。
+  const re = /@PathVariable\s*(?:\(\s*(?:value\s*=\s*)?["']?(\w+)["']?\s*\))?\s*[\w<>\[\],\s.?]*?(\w+)(?=\s*[,)]|$)/g
+  let pm
+  while ((pm = re.exec(params)) !== null) {
+    names.push(pm[1] || pm[2])
+  }
+  return names
+}
+
 function extractBackend() {
   const srcRoot = path.join(BACKEND_ROOT, 'src', 'main', 'java')
   const files = walkJava(srcRoot).filter((f) => path.basename(f).endsWith('Controller.java'))
@@ -504,7 +560,14 @@ function extractBackend() {
     let m
     while ((m = methodRe.exec(text)) !== null) {
       const verb = m[1].replace('Mapping', '').toUpperCase()
-      routes.push({ file: rel, line: text.slice(0, m.index).split(/\r?\n/).length, verb, path: prefix + (m[2] || '') })
+      const fullPath = prefix + (m[2] || '')
+      routes.push({
+        file: rel,
+        line: text.slice(0, m.index).split(/\r?\n/).length,
+        verb,
+        path: fullPath,
+        pathVars: pathVarNames(text, m.index),
+      })
     }
     while ((m = reqMapRe.exec(text)) !== null) {
       const verb = m[2].toUpperCase()
@@ -540,6 +603,78 @@ function loadContract() {
   }
   const schemas = Object.keys((doc.components && doc.components.schemas) || {})
   return { missing: false, ops, schemas, doc }
+}
+
+// ------------------------------------------------------ 桩实现扫描
+
+/**
+ * 找出「看起来实现了、其实恒返回一个常量」的方法。
+ *
+ * 这一条是补 P1 的检查器盲区：原来只比对路径，不看服务层是不是桩，
+ * 于是一批 `return false;` / `return null;` 的空实现全被放过了。
+ */
+const STUB_PATTERNS = [
+  {
+    kind: 'constant-return',
+    re: /(?:public|protected)\s+[\w<>,\[\]\s.?]+?\s+(\w+)\s*\([^)]*\)\s*\{\s*(?:\/\/[^\n]*\n\s*|\/\*[\s\S]*?\*\/\s*)*return\s+(false|true|null|0|0L|List\.of\(\)|Collections\.emptyList\(\)|new byte\[0\]|""|\"\")\s*;\s*\}/g,
+    label: '方法体只有一个常量 return（恒定返回，等于没实现）',
+  },
+  {
+    kind: 'unsupported-operation',
+    re: /throw\s+new\s+UnsupportedOperationException\s*\(/g,
+    label: '抛 UnsupportedOperationException（方法未实现）',
+  },
+  {
+    kind: 'empty-body',
+    re: /(?:public|protected)\s+[\w<>,\[\]\s.?]+?\s+(\w+)\s*\([^)]*\)\s*\{\s*\}/g,
+    label: '方法体是空的（声明了但什么都没做）',
+  },
+]
+
+// Spring Security 的 UserDetails 契约方法：返回 true 本来就是正确答案，不是桩
+const NOT_A_STUB = new Set([
+  'isAccountNonExpired',
+  'isCredentialsNonExpired',
+  'isAccountNonLocked',
+  'isEnabled',
+])
+
+function scanStubs() {
+  const findings = []
+  const srcRoot = path.join(BACKEND_ROOT, 'src', 'main', 'java')
+  const walk = (dir) => {
+    let entries = []
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true })
+    } catch {
+      return
+    }
+    for (const e of entries) {
+      const full = path.join(dir, e.name)
+      if (e.isDirectory()) walk(full)
+      else if (e.isFile() && e.name.endsWith('.java')) {
+        const text = fs.readFileSync(full, 'utf8')
+        const rel = path.relative(REPO_ROOT, full).split(path.sep).join('/')
+        for (const p of STUB_PATTERNS) {
+          p.re.lastIndex = 0
+          let m
+          while ((m = p.re.exec(text)) !== null) {
+            if (p.kind === 'constant-return' && NOT_A_STUB.has(m[1])) continue
+            const line = text.slice(0, m.index).split(/\r?\n/).length
+            findings.push({
+              kind: p.kind,
+              label: p.label,
+              file: rel,
+              line,
+              snippet: (m[1] || m[0]).slice(0, 80),
+            })
+          }
+        }
+      }
+    }
+  }
+  walk(srcRoot)
+  return findings
 }
 
 // ------------------------------------------------------------------ 比对
@@ -581,7 +716,7 @@ function checkFrontendSymbol(symbol) {
   return null
 }
 
-function compare(contract, frontend, backend, rawFetches, ghosts) {
+function compare(contract, frontend, backend, rawFetches, ghosts, stubs) {
   const violations = []
   const gaps = []
   const warnings = []
@@ -655,15 +790,36 @@ function compare(contract, frontend, backend, rawFetches, ghosts) {
   }
 
   const backendKeys = new Set()
+  const backendSeen = new Map()
   for (const route of backend) {
     const k = key(route.verb, route.path)
     backendKeys.add(k)
+    if (backendSeen.has(k)) {
+      violations.push({
+        kind: 'duplicate-backend-route',
+        key: k,
+        detail: `同一个 method+path 被实现了两次：${backendSeen.get(k)} 与 ${route.file}:${route.line}`,
+      })
+    } else {
+      backendSeen.set(k, `${route.file}:${route.line}`)
+    }
     if (!contractByKey.has(k)) {
       violations.push({
         kind: 'backend-not-in-contract',
         key: k,
         detail: `${route.file}:${route.line} 实现了契约里没有的端点`,
       })
+    }
+    // 路径模板里的 {x} 必须有同名的 @PathVariable 形参
+    const templateVars = (route.path.match(/\{([^}]+)\}/g) || []).map((s) => s.slice(1, -1))
+    for (const v of templateVars) {
+      if (!route.pathVars.includes(v)) {
+        violations.push({
+          kind: 'path-variable-name-mismatch',
+          key: k,
+          detail: `${route.file}:${route.line} 路径模板里的 {${v}} 没有对应的 @PathVariable 形参（实际有：${route.pathVars.join(', ') || '无'}）`,
+        })
+      }
     }
   }
 
@@ -701,6 +857,15 @@ function compare(contract, frontend, backend, rawFetches, ghosts) {
       kind: 'ghost-api-method',
       key: g.symbol,
       detail: `${g.file}:${g.line} 调用了 api.js 里不存在的方法 ${g.symbol}`,
+    })
+  }
+
+  // 桩实现：不是契约漂移，但必须让人看见 —— 「看起来实现了、其实恒返回一个常量」
+  for (const s of stubs) {
+    warnings.push({
+      kind: 'stub-implementation',
+      key: `${s.file}:${s.line}`,
+      detail: `${s.label}${s.snippet ? '：' + s.snippet : ''}`,
     })
   }
 
@@ -800,7 +965,8 @@ function main() {
   const backend = extractBackend()
   const rawFetches = extractRawFetches()
   const ghosts = extractGhostMethods()
-  const result = compare(contract, frontend, backend, rawFetches, ghosts)
+  const stubs = scanStubs()
+  const result = compare(contract, frontend, backend, rawFetches, ghosts, stubs)
 
   if (process.argv.includes('--dump')) {
     for (const op of contract.ops) {

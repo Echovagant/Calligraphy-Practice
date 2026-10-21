@@ -24,7 +24,6 @@ public interface WorkMapper {
     @Mapping(target = "userNickname", expression = "java(work.getUser() != null ? work.getUser().getDisplayName() : null)")
     @Mapping(target = "userAvatar", expression = "java(work.getUser() != null ? work.getUser().getAvatarUrl() : null)")
     @Mapping(target = "category", constant = "default")
-    @Mapping(target = "isLikedByCurrentUser", constant = "false")
     @Mapping(target = "popularityScore", expression = "java(calculatePopularityScore(work))")
     WorkDto toDto(Work work);
     

@@ -44,9 +44,7 @@ public interface DiscussionService {
     void incrementLikeCount(String discussionId);
     
     void decrementLikeCount(String discussionId);
-    
-    boolean isLikedByUser(String discussionId, String userId);
-    
+
     void addLike(String discussionId, String userId);
     
     void removeLike(String discussionId, String userId);

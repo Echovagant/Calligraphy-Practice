@@ -262,12 +262,6 @@ public class CommentServiceImpl implements CommentService {
         }
     }
     @Override
-    public boolean isLikedByUser(String commentId, String userId) {
-        // 这里需要实现用户点赞状态的逻辑
-        // 由于当前Comment实体没有记录点赞用户列表，返回false作为默认实现
-        return false;
-    }
-    @Override
     @Transactional
     public void addLike(String commentId, String userId) {
         incrementLikeCount(commentId);

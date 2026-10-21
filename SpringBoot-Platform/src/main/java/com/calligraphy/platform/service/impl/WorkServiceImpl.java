@@ -149,10 +149,6 @@ public class WorkServiceImpl implements WorkService {
         return workMapper.toDto(updated);
     }
     @Override
-    public long getWorkCountByDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate) {
-        return 0L;
-    }
-    @Override
     @Transactional
     public void deleteWork(Long workId, String username) {
         log.info("删除作品 (ID: {}) by {}", workId, username);
@@ -382,12 +378,6 @@ public class WorkServiceImpl implements WorkService {
 
         work.incrementLikeCount();
         workRepository.save(work);
-    }
-    @Override
-    public boolean isLikedByUser(Long workId, String userId) {
-        // 由于当前系统没有点赞记录表，暂时返回false
-        // 后续可以添加点赞记录功能
-        return false;
     }
     @Override
     @Transactional

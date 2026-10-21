@@ -53,9 +53,7 @@ public interface CommentService {
     void incrementLikeCount(String commentId);
     
     void decrementLikeCount(String commentId);
-    
-    boolean isLikedByUser(String commentId, String userId);
-    
+
     void addLike(String commentId, String userId);
     
     void removeLike(String commentId, String userId);
