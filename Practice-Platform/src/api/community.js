@@ -1,4 +1,14 @@
-import request from '../utils/request'
+import { get, post, put, del } from '../utils/api'
+
+/**
+ * 社区讨论相关接口。
+ *
+ * 之前这里用的是 `../utils/request`（一个 axios 风格的独立客户端），
+ * 但那个文件从来不存在，导致 `npm run build` 直接失败：
+ *   Could not resolve "../utils/request" from "src/api/community.js"
+ * 现在统一复用 utils/api.js 的客户端（fetch + 统一鉴权 + 401 自动刷新），
+ * 路径也去掉重复的 /api 前缀（base 里已经带 /api）。
+ */
 
 /**
  * 获取讨论列表
@@ -11,11 +21,7 @@ import request from '../utils/request'
  * @returns {Promise}
  */
 export const getDiscussions = (params) => {
-  return request({
-    url: '/api/discussions',
-    method: 'get',
-    params
-  })
+  return get('/discussions', params)
 }
 
 /**
@@ -24,10 +30,7 @@ export const getDiscussions = (params) => {
  * @returns {Promise}
  */
 export const getDiscussion = (id) => {
-  return request({
-    url: `/api/discussions/${id}`,
-    method: 'get'
-  })
+  return get(`/discussions/${id}`)
 }
 
 /**
@@ -40,11 +43,7 @@ export const getDiscussion = (id) => {
  * @returns {Promise}
  */
 export const createDiscussion = (data) => {
-  return request({
-    url: '/api/discussions',
-    method: 'post',
-    data
-  })
+  return post('/discussions', data)
 }
 
 /**
@@ -54,11 +53,7 @@ export const createDiscussion = (data) => {
  * @returns {Promise}
  */
 export const updateDiscussion = (id, data) => {
-  return request({
-    url: `/api/discussions/${id}`,
-    method: 'put',
-    data
-  })
+  return put(`/discussions/${id}`, data)
 }
 
 /**
@@ -67,10 +62,7 @@ export const updateDiscussion = (id, data) => {
  * @returns {Promise}
  */
 export const deleteDiscussion = (id) => {
-  return request({
-    url: `/api/discussions/${id}`,
-    method: 'delete'
-  })
+  return del(`/discussions/${id}`)
 }
 
 /**
@@ -79,10 +71,7 @@ export const deleteDiscussion = (id) => {
  * @returns {Promise}
  */
 export const likeDiscussion = (id) => {
-  return request({
-    url: `/api/discussions/${id}/like`,
-    method: 'post'
-  })
+  return post(`/discussions/${id}/like`)
 }
 
 /**
@@ -92,11 +81,7 @@ export const likeDiscussion = (id) => {
  * @returns {Promise}
  */
 export const getDiscussionReplies = (discussionId, params) => {
-  return request({
-    url: `/api/discussions/${discussionId}/replies`,
-    method: 'get',
-    params
-  })
+  return get(`/discussions/${discussionId}/replies`, params)
 }
 
 /**
@@ -110,11 +95,7 @@ export const getDiscussionReplies = (discussionId, params) => {
  * @returns {Promise}
  */
 export const replyToDiscussion = (discussionId, data) => {
-  return request({
-    url: `/api/discussions/${discussionId}/replies`,
-    method: 'post',
-    data
-  })
+  return post(`/discussions/${discussionId}/replies`, data)
 }
 
 /**
@@ -124,11 +105,7 @@ export const replyToDiscussion = (discussionId, data) => {
  * @returns {Promise}
  */
 export const updateDiscussionReply = (replyId, data) => {
-  return request({
-    url: `/api/discussions/replies/${replyId}`,
-    method: 'put',
-    data
-  })
+  return put(`/discussions/replies/${replyId}`, data)
 }
 
 /**
@@ -137,10 +114,7 @@ export const updateDiscussionReply = (replyId, data) => {
  * @returns {Promise}
  */
 export const deleteDiscussionReply = (replyId) => {
-  return request({
-    url: `/api/discussions/replies/${replyId}`,
-    method: 'delete'
-  })
+  return del(`/discussions/replies/${replyId}`)
 }
 
 /**
@@ -149,11 +123,7 @@ export const deleteDiscussionReply = (replyId) => {
  * @returns {Promise}
  */
 export const getHotDiscussions = (params) => {
-  return request({
-    url: '/api/discussions/hot',
-    method: 'get',
-    params
-  })
+  return get('/discussions/hot', params)
 }
 
 /**
@@ -162,11 +132,7 @@ export const getHotDiscussions = (params) => {
  * @returns {Promise}
  */
 export const getFeaturedDiscussions = (params) => {
-  return request({
-    url: '/api/discussions/featured',
-    method: 'get',
-    params
-  })
+  return get('/discussions/featured', params)
 }
 
 /**
@@ -175,11 +141,7 @@ export const getFeaturedDiscussions = (params) => {
  * @returns {Promise}
  */
 export const getPinnedDiscussions = (params) => {
-  return request({
-    url: '/api/discussions/pinned',
-    method: 'get',
-    params
-  })
+  return get('/discussions/pinned', params)
 }
 
 /**
@@ -189,12 +151,5 @@ export const getPinnedDiscussions = (params) => {
  * @returns {Promise}
  */
 export const searchDiscussions = (keyword, params = {}) => {
-  return request({
-    url: '/api/discussions/search',
-    method: 'get',
-    params: {
-      keyword,
-      ...params
-    }
-  })
+  return get('/discussions/search', { keyword, ...params })
 }

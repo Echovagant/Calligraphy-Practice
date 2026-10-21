@@ -340,22 +340,6 @@ const handleCreateDiscussion = () => {
   showCreatePostDialog.value = true
 }
 
-// 处理点赞
-const handleLike = (discussion) => {
-  if (!isLoggedIn.value) {
-    ElMessage.warning('请先登录')
-    router.push('/login')
-    return
-  }
-
-  if (discussion.isLiked) {
-    discussion.likes--
-  } else {
-    discussion.likes++
-  }
-  discussion.isLiked = !discussion.isLiked
-}
-
 // 处理回复
 const handleReply = (discussion) => {
   if (!isLoggedIn.value) {
