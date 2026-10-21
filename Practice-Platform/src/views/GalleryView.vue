@@ -128,12 +128,11 @@
       />
     </div>
 
-    <!-- 上传按钮 -->
+    <!-- 上传按钮：右下角拇指区，做成全圆角胶囊 -->
     <div class="upload-button-container">
       <el-button
         type="primary"
         icon="el-icon-plus"
-        circle
         class="floating-upload-btn"
         @click="openUploadDialog"
       >
@@ -461,6 +460,11 @@ const submitComment = async () => {
     ElMessage.success('评论已发表');
     await openComments(selectedWork.value);
     await loadWorks();
+    // 列表刷新了，详情弹窗里的评论数还是打开时那份快照 —— 用新列表里的条目替换掉
+    const fresh = works.value.find((w) => w.id === selectedWork.value?.id);
+    if (fresh) {
+      selectedWork.value = fresh;
+    }
   } catch (error) {
     ElMessage.error(error?.message || '评论发表失败，请稍后重试');
   } finally {
@@ -624,7 +628,8 @@ onMounted(() => {
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.3s;
+  /* 悬停只动位移与阴影 —— transition: all 会连宽高一起动，掉帧 */
+  transition: transform 0.3s, box-shadow 0.3s;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
@@ -771,14 +776,13 @@ onMounted(() => {
 .floating-upload-btn {
   background-color: #8B4513;
   border-color: #8B4513;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  /* 全圆角胶囊：4 个汉字塞不进 50px 的正圆按钮，文字会溢出圆外 */
+  height: 48px;
+  padding: 0 1.25rem;
+  border-radius: 24px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s;
+  /* 只过渡位移与颜色 —— transition: all 会连宽高一起动，掉帧 */
+  transition: transform 0.3s, background-color 0.3s, border-color 0.3s;
 }
 
 .floating-upload-btn:hover {
