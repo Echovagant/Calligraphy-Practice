@@ -5,6 +5,166 @@
       <p class="section-subtitle">生成个性化书法字帖，提升你的书写水平</p>
     </div>
 
+    <!-- 字帖库：数据来自 GET /api/copybooks -->
+    <div class="library-section">
+      <div class="section-header">
+        <h3 class="config-title">字帖库</h3>
+        <el-button size="small" :loading="copybookLoading" @click="loadCopybooks">刷新</el-button>
+      </div>
+
+      <div class="filter-bar">
+        <el-select
+          v-model="filters.category"
+          placeholder="全部分类"
+          clearable
+          filterable
+          allow-create
+          default-first-option
+          class="filter-select"
+          @change="handleFilterChange"
+        >
+          <el-option v-for="item in categoryOptions" :key="item" :label="item" :value="item" />
+        </el-select>
+        <el-select
+          v-model="filters.difficulty"
+          placeholder="全部难度"
+          clearable
+          filterable
+          allow-create
+          default-first-option
+          class="filter-select"
+          @change="handleFilterChange"
+        >
+          <el-option v-for="item in difficultyOptions" :key="item" :label="item" :value="item" />
+        </el-select>
+        <span class="filter-hint">共 {{ copybookTotal }} 个字帖</span>
+      </div>
+
+      <el-alert
+        v-if="copybookError"
+        type="error"
+        :title="copybookError"
+        show-icon
+        :closable="false"
+        class="state-alert"
+      >
+        <el-button size="small" type="primary" @click="loadCopybooks">重试</el-button>
+      </el-alert>
+
+      <div v-loading="copybookLoading" class="copybook-grid">
+        <el-card v-for="book in copybooks" :key="book.id" class="copybook-card" shadow="hover">
+          <el-image v-if="book.imageUrl" :src="book.imageUrl" fit="cover" class="copybook-cover">
+            <template #error>
+              <div class="cover-fallback">暂无封面</div>
+            </template>
+          </el-image>
+          <h4 class="copybook-title">{{ book.title }}</h4>
+          <p class="copybook-desc">{{ book.description || '暂无简介' }}</p>
+          <div class="copybook-meta">
+            <el-tag size="small" type="info">{{ book.category || '未分类' }}</el-tag>
+            <el-tag size="small">{{ book.difficulty || '未标难度' }}</el-tag>
+          </div>
+          <div class="copybook-stat">
+            字帖字数 {{ book.characterCount ?? 0 }} · 已被使用 {{ book.usageCount ?? 0 }} 次
+          </div>
+          <el-button size="small" type="primary" @click="openDetail(book.id)">查看详情</el-button>
+        </el-card>
+
+        <el-empty
+          v-if="!copybookLoading && !copybookError && copybooks.length === 0"
+          description="暂无符合条件的字帖"
+        />
+      </div>
+
+      <div v-if="copybookTotal > copybookPageSize" class="pagination-container">
+        <el-pagination
+          v-model:current-page="copybookPage"
+          v-model:page-size="copybookPageSize"
+          :page-sizes="[10, 20, 50]"
+          layout="total, sizes, prev, pager, next"
+          :total="copybookTotal"
+          @size-change="handleCopybookSizeChange"
+          @current-change="handleCopybookPageChange"
+        />
+      </div>
+    </div>
+
+    <!-- 热门字帖：数据来自 GET /api/copybooks/popular -->
+    <div class="popular-section">
+      <h3 class="config-title">热门字帖</h3>
+
+      <el-alert
+        v-if="popularError"
+        type="error"
+        :title="popularError"
+        show-icon
+        :closable="false"
+        class="state-alert"
+      >
+        <el-button size="small" type="primary" @click="loadPopularCopybooks">重试</el-button>
+      </el-alert>
+
+      <div v-loading="popularLoading" class="popular-list">
+        <div
+          v-for="book in popularCopybooks"
+          :key="book.id"
+          class="popular-item"
+          @click="openDetail(book.id)"
+        >
+          <span class="popular-title">{{ book.title }}</span>
+          <span class="popular-count">使用 {{ book.usageCount ?? 0 }} 次</span>
+        </div>
+
+        <el-empty
+          v-if="!popularLoading && !popularError && popularCopybooks.length === 0"
+          description="暂无热门字帖"
+          :image-size="80"
+        />
+      </div>
+    </div>
+
+    <!-- 字帖详情：数据来自 GET /api/copybooks/{copybookId} -->
+    <el-dialog v-model="detailVisible" title="字帖详情" width="480px">
+      <div v-loading="detailLoading" class="detail-body">
+        <el-alert
+          v-if="detailError"
+          type="error"
+          :title="detailError"
+          show-icon
+          :closable="false"
+        >
+          <el-button size="small" type="primary" @click="retryDetail">重试</el-button>
+        </el-alert>
+
+        <div v-else-if="selectedCopybook" class="detail-content">
+          <h4 class="detail-title">{{ selectedCopybook.title }}</h4>
+          <p class="detail-desc">{{ selectedCopybook.description || '暂无简介' }}</p>
+          <div class="detail-row">
+            <span class="detail-label">分类：</span>
+            <span class="detail-value">{{ selectedCopybook.category || '未分类' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">难度：</span>
+            <span class="detail-value">{{ selectedCopybook.difficulty || '未标难度' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">字帖字数：</span>
+            <span class="detail-value">{{ selectedCopybook.characterCount ?? 0 }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">使用次数：</span>
+            <span class="detail-value">{{ selectedCopybook.usageCount ?? 0 }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">创建时间：</span>
+            <span class="detail-value">{{ formatDateTime(selectedCopybook.createdAt) }}</span>
+          </div>
+        </div>
+
+        <el-empty v-else-if="!detailLoading" description="暂无详情" />
+      </div>
+    </el-dialog>
+
     <div class="copybook-layout">
       <!-- 配置面板 -->
       <div class="config-panel">
@@ -24,17 +184,8 @@
             </el-form-item>
 
             <el-form-item label="示例文本">
-              <div class="example-texts">
-                <el-tag
-                  v-for="example in exampleTexts"
-                  :key="example"
-                  @click="useExampleText(example)"
-                  class="example-tag"
-                  effect="plain"
-                >
-                  {{ example }}
-                </el-tag>
-              </div>
+              <el-button size="small" @click="useSampleText">填入示例文本</el-button>
+              <span class="sample-hint">{{ sampleText }}</span>
             </el-form-item>
           </div>
 
@@ -193,7 +344,7 @@
           <div v-else class="copybook-preview">
             <div
               class="paper-preview"
-              :style="{ backgroundColor: copybookConfig.paperColor }"
+              :style="{ backgroundColor: copybookConfig.paperColor, fontFamily: fontFamily }"
               ref="paperRef"
             >
               <!-- 网格或横线 -->
@@ -243,9 +394,10 @@
 </template>
 
 <script setup>
-import { ref,  computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useCopybookStore } from '../stores/copybookStore';
+import { downloadCanvasAsImage } from '../utils';
 
 // 状态管理
 const copybookStore = useCopybookStore();
@@ -260,16 +412,168 @@ const showGenerated = ref(false);
 // 初始化
 onMounted(() => {
   copybookStore.initialize();
+  loadCopybooks();
+  loadPopularCopybooks();
 });
 
-// 示例文本
-const exampleTexts = [
-  '永字八法',
-  '天行健，君子以自强不息',
-  '上善若水',
-  '厚德载物',
-  '宁静致远'
-];
+// ---------------------------------------------------------------- 字帖库（后端数据）
+
+const copybooks = ref([]);
+const copybookTotal = ref(0);
+const copybookPage = ref(1);
+const copybookPageSize = ref(20);
+const copybookLoading = ref(false);
+const copybookError = ref('');
+const filters = reactive({ category: '', difficulty: '' });
+
+// 过滤项的可选值来自后端返回的数据，不在前端写死
+const knownCategories = ref([]);
+const knownDifficulties = ref([]);
+const categoryOptions = computed(() => knownCategories.value);
+const difficultyOptions = computed(() => knownDifficulties.value);
+
+const rememberOptions = (list) => {
+  const categories = new Set(knownCategories.value);
+  const difficulties = new Set(knownDifficulties.value);
+  list.forEach((book) => {
+    if (book.category) categories.add(book.category);
+    if (book.difficulty) difficulties.add(book.difficulty);
+  });
+  knownCategories.value = [...categories];
+  knownDifficulties.value = [...difficulties];
+};
+
+// 列表端点返回分页信封 {content,page,size,total,totalPages}，
+// 这里同时兼容 store 直接返回数组的情况，统一取出 content 与 total。
+const readPage = (payload, fallbackList, fallbackTotal) => {
+  if (Array.isArray(payload)) {
+    return {
+      content: payload,
+      total: typeof fallbackTotal === 'number' ? fallbackTotal : payload.length
+    };
+  }
+  if (payload && Array.isArray(payload.content)) {
+    return { content: payload.content, total: payload.total ?? payload.content.length };
+  }
+  return {
+    content: Array.isArray(fallbackList) ? fallbackList : [],
+    total: typeof fallbackTotal === 'number' ? fallbackTotal : 0
+  };
+};
+
+const buildCopybookParams = () => {
+  const params = {
+    page: copybookPage.value - 1,
+    size: copybookPageSize.value
+  };
+  if (filters.category) params.category = filters.category;
+  if (filters.difficulty) params.difficulty = filters.difficulty;
+  return params;
+};
+
+const loadCopybooks = async () => {
+  copybookLoading.value = true;
+  copybookError.value = '';
+  try {
+    const payload = await copybookStore.fetchCopybooks(buildCopybookParams());
+    const page = readPage(payload, copybookStore.copybooks, copybookStore.copybookTotal);
+    copybooks.value = page.content;
+    copybookTotal.value = page.total;
+    rememberOptions(page.content);
+  } catch (error) {
+    copybooks.value = [];
+    copybookTotal.value = 0;
+    copybookError.value = error?.message || '获取字帖列表失败';
+    ElMessage.error(copybookError.value);
+    console.error('获取字帖列表失败:', error);
+  } finally {
+    copybookLoading.value = false;
+  }
+};
+
+const handleFilterChange = () => {
+  copybookPage.value = 1;
+  loadCopybooks();
+};
+
+const handleCopybookSizeChange = () => {
+  copybookPage.value = 1;
+  loadCopybooks();
+};
+
+const handleCopybookPageChange = () => {
+  loadCopybooks();
+};
+
+// ---------------------------------------------------------------- 热门字帖
+
+const popularCopybooks = ref([]);
+const popularLoading = ref(false);
+const popularError = ref('');
+
+const loadPopularCopybooks = async () => {
+  popularLoading.value = true;
+  popularError.value = '';
+  try {
+    const payload = await copybookStore.fetchPopularCopybooks();
+    const page = readPage(payload, copybookStore.popularCopybooks);
+    popularCopybooks.value = page.content;
+    rememberOptions(page.content);
+  } catch (error) {
+    popularCopybooks.value = [];
+    popularError.value = error?.message || '获取热门字帖失败';
+    ElMessage.error(popularError.value);
+    console.error('获取热门字帖失败:', error);
+  } finally {
+    popularLoading.value = false;
+  }
+};
+
+// ---------------------------------------------------------------- 字帖详情
+
+const detailVisible = ref(false);
+const detailLoading = ref(false);
+const detailError = ref('');
+const selectedCopybook = ref(null);
+let detailCopybookId = null;
+
+const openDetail = async (copybookId) => {
+  detailCopybookId = copybookId;
+  detailVisible.value = true;
+  await loadDetail();
+};
+
+const loadDetail = async () => {
+  if (!detailCopybookId) return;
+  detailLoading.value = true;
+  detailError.value = '';
+  selectedCopybook.value = null;
+  try {
+    const payload = await copybookStore.fetchCopybookDetail(detailCopybookId);
+    selectedCopybook.value = payload && payload.id ? payload : copybookStore.selectedCopybook;
+  } catch (error) {
+    selectedCopybook.value = null;
+    detailError.value = error?.message || '获取字帖详情失败';
+    ElMessage.error(detailError.value);
+    console.error('获取字帖详情失败:', error);
+  } finally {
+    detailLoading.value = false;
+  }
+};
+
+const retryDetail = () => {
+  loadDetail();
+};
+
+const formatDateTime = (value) => {
+  if (!value) return '—';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString();
+};
+
+// ---------------------------------------------------------------- 字帖生成（本地）
+
+const sampleText = computed(() => copybookStore.getSampleText());
 
 // 计算属性 - 从store获取配置和数据
 const copybookConfig = computed({
@@ -295,6 +599,16 @@ const copybookConfig = computed({
   }
 });
 
+// 字体设置映射到真实字体族
+const FONT_FAMILIES = {
+  kai: "'KaiTi', 'STKaiti', 'SimSun', serif",
+  xing: "'STXingkai', 'KaiTi', 'SimSun', serif",
+  cao: "'STXingkai', 'KaiTi', 'SimSun', serif",
+  li: "'LiSu', 'SimSun', serif",
+  zhuan: "'FZZhuan-LeiZhen-Z03', 'SimSun', serif"
+};
+const fontFamily = computed(() => FONT_FAMILIES[copybookConfig.value.font] || "'SimSun', serif");
+
 const historyItems = computed(() => copybookStore.getHistory);
 const generatedCopybooks = computed(() => copybookStore.getGeneratedCopybooks);
 
@@ -317,8 +631,14 @@ const currentPageChars = computed(() => {
 });
 
 // 使用示例文本
-const useExampleText = (text) => {
+const useSampleText = () => {
+  const text = copybookStore.getSampleText();
+  if (!text) {
+    ElMessage.warning('当前没有可用的示例文本');
+    return;
+  }
   copybookStore.setContent(text);
+  ElMessage.success('已填入示例文本');
 };
 
 // 处理配置变化
@@ -420,18 +740,65 @@ const generateCopybook = async () => {
   }
 };
 
+// 把当前页的字渲染成 PNG 并下载
+const renderCurrentPage = () => {
+  const chars = currentPageChars.value;
+  const columns = 4;
+  const rows = Math.ceil(chars.length / columns);
+  const cell = Math.max(80, copybookConfig.value.fontSize + 32);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = columns * cell;
+  canvas.height = rows * cell;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('当前浏览器不支持 Canvas 导出');
+
+  ctx.fillStyle = copybookConfig.value.paperColor || '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.font = `${copybookConfig.value.fontSize}px ${fontFamily.value}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#333';
+
+  chars.forEach((char, index) => {
+    const col = index % columns;
+    const row = Math.floor(index / columns);
+    const originX = col * cell;
+    const originY = row * cell;
+
+    if (copybookConfig.value.layout !== 'blank') {
+      ctx.strokeStyle = copybookConfig.value.gridColor || '#dddddd';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(originX, originY, cell, cell);
+    }
+    if (copybookConfig.value.layout === 'line') {
+      ctx.beginPath();
+      ctx.moveTo(originX, originY + cell - 20);
+      ctx.lineTo(originX + cell, originY + cell - 20);
+      ctx.stroke();
+    }
+
+    ctx.fillText(char, originX + cell / 2, originY + cell / 2);
+  });
+
+  return canvas;
+};
+
 // 下载字帖
 const downloadCopybook = () => {
-  if (!hasGenerated.value || !paperRef.value) return;
+  if (!hasGenerated.value || currentPageChars.value.length === 0) {
+    ElMessage.warning('请先生成字帖');
+    return;
+  }
 
-  // 调用store的下载方法
-  copybookStore.downloadCopybook();
-
-  // 这里应该实现实际的下载功能
-  // 由于是模拟环境，我们只显示提示
-  ElMessage.success('字帖已加入下载队列（模拟）');
-
-  // 实际项目中，可以使用html2canvas等库将预览区域转换为图片下载
+  try {
+    const canvas = renderCurrentPage();
+    downloadCanvasAsImage(canvas, `字帖_${Date.now()}.png`);
+    ElMessage.success('字帖已下载');
+  } catch (error) {
+    ElMessage.error('字帖导出失败，请稍后重试');
+    console.error('导出字帖失败:', error);
+  }
 };
 
 // 翻页功能
@@ -469,6 +836,168 @@ const nextPage = () => {
   color: #666;
 }
 
+/* 字帖库 */
+.library-section,
+.popular-section {
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-select {
+  width: 200px;
+}
+
+.filter-hint {
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.state-alert {
+  margin-bottom: 1rem;
+}
+
+.copybook-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  min-height: 120px;
+}
+
+.copybook-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.copybook-cover {
+  width: 100%;
+  height: 140px;
+  border-radius: 4px;
+  background-color: #f5f5f5;
+}
+
+.cover-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.copybook-title {
+  margin: 0;
+  font-size: 1rem;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.copybook-desc {
+  margin: 0;
+  color: #666;
+  font-size: 0.85rem;
+  min-height: 2.4em;
+  overflow: hidden;
+}
+
+.copybook-meta {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.copybook-stat {
+  color: #999;
+  font-size: 0.8rem;
+}
+
+.pagination-container {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+/* 热门字帖 */
+.popular-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 60px;
+}
+
+.popular-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0.8rem;
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.popular-item:hover {
+  border-color: #8B4513;
+  color: #8B4513;
+}
+
+.popular-count {
+  color: #999;
+  font-size: 0.8rem;
+}
+
+/* 字帖详情 */
+.detail-body {
+  min-height: 120px;
+}
+
+.detail-title {
+  margin: 0 0 0.5rem;
+  color: #333;
+}
+
+.detail-desc {
+  margin: 0 0 1rem;
+  color: #666;
+}
+
+.detail-row {
+  margin-bottom: 0.6rem;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #333;
+  margin-right: 0.5rem;
+}
+
+.detail-value {
+  color: #666;
+}
+
+/* 配置面板样式 */
 .copybook-layout {
   display: flex;
   gap: 2rem;
@@ -476,7 +1005,6 @@ const nextPage = () => {
   flex-wrap: wrap;
 }
 
-/* 配置面板样式 */
 .config-panel {
   width: 380px;
   background-color: rgba(255, 255, 255, 0.95);
@@ -504,20 +1032,10 @@ const nextPage = () => {
   margin-top: 0.5rem;
 }
 
-.example-texts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.example-tag {
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.example-tag:hover {
-  color: #8B4513;
-  border-color: #8B4513;
+.sample-hint {
+  margin-left: 0.8rem;
+  color: #999;
+  font-size: 0.8rem;
 }
 
 .action-buttons {
@@ -598,7 +1116,6 @@ const nextPage = () => {
   border-radius: 4px;
 }
 
-/* 横线布局 */
 .line-container {
   display: flex;
   flex-direction: column;
@@ -637,49 +1154,7 @@ const nextPage = () => {
 }
 
 .char-preview {
-  font-family: 'SimSun', serif;
   color: #333;
-}
-
-.history-buttons {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.history-btn {
-  flex: 1;
-}
-
-.history-panel,
-.generated-panel {
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background-color: #f8f9fa;
-  border-radius: 6px;
-  border: 1px solid #e9ecef;
-}
-
-.history-header,
-.generated-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.history-header h4,
-.generated-header h4 {
-  margin: 0;
-  color: #333;
-  font-size: 1rem;
-}
-
-.empty-history,
-.empty-generated {
-  text-align: center;
-  color: #999;
-  padding: 1rem;
 }
 
 /* 响应式设计 */

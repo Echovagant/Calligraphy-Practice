@@ -65,6 +65,9 @@ export const useCopybookStore = defineStore('copybook', {
     
     // 后端字帖列表
     copybooks: [],
+
+    // 字帖总数（列表端点返回分页信封，total 在信封里）
+    copybookTotal: 0,
     
     // 热门字帖
     popularCopybooks: [],
@@ -206,11 +209,13 @@ export const useCopybookStore = defineStore('copybook', {
     },
     
     // 从后端获取字帖列表
+    // GET /api/copybooks —— 返回**分页信封** {content,page,size,total,totalPages}
     async fetchCopybooks(params = {}) {
       try {
         this.loading.copybooks = true;
         const response = await copybookAPI.getCopybooks(params);
-        this.copybooks = response.data.copybooks || [];
+        this.copybooks = response?.content || [];
+        this.copybookTotal = response?.total ?? 0;
         return this.copybooks;
       } catch (error) {
         console.error('获取字帖列表失败:', error);
@@ -219,13 +224,14 @@ export const useCopybookStore = defineStore('copybook', {
         this.loading.copybooks = false;
       }
     },
-    
+
     // 获取热门字帖
-    async fetchPopularCopybooks() {
+    // GET /api/copybooks/popular —— 同样是分页信封
+    async fetchPopularCopybooks(params = {}) {
       try {
         this.loading.popular = true;
-        const response = await copybookAPI.getPopularCopybooks();
-        this.popularCopybooks = response.data.copybooks || [];
+        const response = await copybookAPI.getPopularCopybooks(params);
+        this.popularCopybooks = response?.content || [];
         return this.popularCopybooks;
       } catch (error) {
         console.error('获取热门字帖失败:', error);
@@ -234,36 +240,39 @@ export const useCopybookStore = defineStore('copybook', {
         this.loading.popular = false;
       }
     },
-    
+
     // 获取字帖详情
+    // GET /api/copybooks/{id} —— 返回**裸字帖对象**
     async fetchCopybookDetail(copybookId) {
       try {
         const response = await copybookAPI.getCopybookDetail(copybookId);
-        this.selectedCopybook = response.data.copybook;
+        this.selectedCopybook = response;
         return this.selectedCopybook;
       } catch (error) {
         console.error('获取字帖详情失败:', error);
         throw error;
       }
     },
-    
+
     // 记录练习历史
+    // POST /api/copybooks/{id}/practice —— 返回**裸练习记录**
     async recordPractice(copybookId, practiceData) {
       try {
         const response = await copybookAPI.recordPractice(copybookId, practiceData);
-        return response.data;
+        return response;
       } catch (error) {
         console.error('记录练习历史失败:', error);
         throw error;
       }
     },
-    
+
     // 获取用户练习统计
+    // GET /api/copybooks/statistics/user —— 返回裸对象
     async fetchUserStatistics() {
       try {
         this.loading.statistics = true;
         const response = await copybookAPI.getUserStatistics();
-        this.practiceStatistics = response.data;
+        this.practiceStatistics = response;
         return this.practiceStatistics;
       } catch (error) {
         console.error('获取用户练习统计失败:', error);

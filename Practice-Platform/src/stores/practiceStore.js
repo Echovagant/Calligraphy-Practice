@@ -26,12 +26,15 @@ export const usePracticeStore = defineStore('practice', {
     // 推荐练习内容
     recommendedContent: [],
 
-    // 练习统计数据
+    // 练习统计数据 —— 形状与契约的 PracticeStatistics 一致
+    // （GET /api/copybooks/statistics/user 返回裸对象，没有 data 信封）
     practiceStats: {
-      totalPracticeTime: 0, // 总练习时间（分钟）
-      totalWorks: 0, // 总作品数
-      totalStrokes: 0, // 总笔画数
-      lastPracticeDate: null,
+      totalPractices: 0, // 练习总次数
+      totalDuration: 0, // 总练习时长（秒）
+      averageDuration: 0, // 平均单次时长（秒）
+      streakDays: 0, // 连续练习天数
+      characterCount: 0, // 累计练习字数
+      copybookCount: 0, // 练过的字帖数（去重）
     },
   }),
 
@@ -80,32 +83,33 @@ export const usePracticeStore = defineStore('practice', {
 
     // 添加练习记录
     async addPracticeRecord(record) {
-      try {
-        // 调用API保存练习记录
-        const response = await copybookAPI.addPracticeRecord({
-          copybookId: record.copybookId,
-          practiceTime: record.duration,
-          charactersPracticed: record.characters || 0,
-          notes: record.notes || '',
-        })
-
-        // 添加到本地状态
-        const newRecord = {
-          id: response.id,
-          date: response.createdAt,
-          ...record,
-        }
-
-        this.practiceHistory.push(newRecord)
-
-        // 更新统计数据
-        this.updatePracticeStats(record.duration, record.strokes)
-
-        return true
-      } catch (error) {
-        console.error('保存练习记录失败:', error)
-        throw error
+      // 真实方法叫 copybookAPI.recordPractice(copybookId, data) —— 两个参数
+      // （原来调的 copybookAPI.addPracticeRecord 根本不存在，运行时直接 TypeError）
+      if (!record?.copybookId) {
+        throw new Error('缺少字帖 ID，无法记录练习');
       }
+      const response = await copybookAPI.recordPractice(record.copybookId, {
+        title: record.title ?? null,
+        content: record.content ?? null,
+        practiceType: record.practiceType ?? null,
+        // 契约的 duration 单位是「秒」
+        duration: record.duration ?? 0,
+        characterCount: record.characters ?? record.characterCount ?? 0,
+        difficulty: record.difficulty ?? null,
+        notes: record.notes ?? '',
+      })
+
+      // 添加到本地状态
+      this.practiceHistory.unshift({
+        id: response.id,
+        date: response.createdAt,
+        ...record,
+      })
+
+      // 更新统计数据
+      this.updatePracticeStats(record.duration, record.characters ?? record.characterCount ?? 0)
+
+      return true
     },
 
     // 保存作品
@@ -173,11 +177,11 @@ export const usePracticeStore = defineStore('practice', {
       }
     },
 
-    // 更新练习统计数据
-    updatePracticeStats(duration, strokes) {
-      this.practiceStats.totalPracticeTime += duration
-      this.practiceStats.totalStrokes += strokes
-      this.practiceStats.lastPracticeDate = new Date().toISOString()
+    // 更新练习统计数据（字段与契约的 PracticeStatistics 一致）
+    updatePracticeStats(duration, characterCount) {
+      this.practiceStats.totalPractices += 1
+      this.practiceStats.totalDuration += duration || 0
+      this.practiceStats.characterCount += characterCount || 0
 
       // 保存统计数据到本地存储
       localStorage.setItem('practiceStats', JSON.stringify(this.practiceStats))
@@ -185,52 +189,34 @@ export const usePracticeStore = defineStore('practice', {
 
     // 获取推荐练习内容
     async getRecommendations() {
-      try {
-        const params = {
-          sort: 'popular',
-          limit: 5,
-        }
-        const response = await copybookAPI.getCopybooks(params)
+      // 用「热门字帖」端点 —— 列表端点只认 page/size/category/difficulty，
+      // 传 sort/limit 后端会忽略，等于拿到的是第 0 页默认排序而不是热门榜
+      const response = await copybookAPI.getPopularCopybooks({ size: 5 })
+      const list = response?.content ?? []
 
-        // 处理返回的数据格式
-        this.recommendedContent = response.map((copybook) => ({
-          id: copybook.id,
-          title: copybook.title,
-          description: copybook.description,
-          level: copybook.difficulty || 'beginner',
-          content: copybook.content || copybook.title,
-        }))
+      this.recommendedContent = list.map((copybook) => ({
+        id: copybook.id,
+        title: copybook.title,
+        description: copybook.description,
+        level: copybook.difficulty || 'beginner',
+        content: copybook.description || copybook.title,
+      }))
 
-        return this.recommendedContent
-      } catch (err) {
-        console.error('获取推荐内容失败:', err);
-        // 使用模拟数据作为备选
-        this.recommendedContent = [
-          { id: 1, title: '楷书基础练习', description: '从基本笔画开始，掌握楷书书写技巧', difficulty: '初级', duration: '30分钟' },
-          { id: 2, title: '行书进阶训练', description: '提升行书书写速度和美感', difficulty: '中级', duration: '45分钟' },
-          { id: 3, title: '草书艺术欣赏', description: '了解草书的历史和艺术价值', difficulty: '高级', duration: '60分钟' }
-        ];
-        return this.recommendedContent;
-      }
+      return this.recommendedContent
     },
 
     // 初始化数据
     async initializeData() {
-      // 加载本地设置
+      // 加载本地设置（这是用户自己的笔刷/纸张偏好，不是假数据）
       this.loadLocalSettings()
 
-      try {
-        // 从服务器加载数据
-        await Promise.all([
-          this.fetchPracticeHistory(),
-          this.fetchUserWorks(),
-          this.fetchPracticeStats(),
-        ])
-      } catch (error) {
-        console.error('初始化数据失败:', error)
-        // 失败时尝试加载本地数据作为备用
-        this.loadLocalDataAsBackup()
-      }
+      // 从服务器加载数据。
+      // 失败**不**回退到本地缓存的旧数据 —— 那会让接口没通时页面看起来是好的。
+      await Promise.all([
+        this.fetchPracticeHistory(),
+        this.fetchUserWorks(),
+        this.fetchPracticeStats(),
+      ])
     },
 
     // 加载本地设置
@@ -246,16 +232,19 @@ export const usePracticeStore = defineStore('practice', {
     },
 
     // 从服务器获取练习历史
+    // GET /api/copybooks/practice/history —— 返回**分页信封**，数据在 content 里
     async fetchPracticeHistory() {
       try {
         const response = await copybookAPI.getPracticeHistory()
-        this.practiceHistory = response.map((record) => ({
+        this.practiceHistory = (response?.content || []).map((record) => ({
           id: record.id,
           date: record.createdAt,
           copybookId: record.copybookId,
-          copybookTitle: record.copybook?.title || '未知字帖',
-          duration: record.practiceTime,
-          characters: record.charactersPracticed,
+          // 契约的练习记录里没有嵌套的 copybook 对象，字帖标题用 record.title
+          copybookTitle: record.title || '未知字帖',
+          // 契约字段是 duration（秒）与 characterCount
+          duration: record.duration,
+          characters: record.characterCount,
           notes: record.notes,
         }))
       } catch (error) {
@@ -292,50 +281,20 @@ export const usePracticeStore = defineStore('practice', {
     },
 
     // 从服务器获取练习统计
+    // GET /api/copybooks/statistics/user —— 返回裸对象，字段与契约的 PracticeStatistics 一致
     async fetchPracticeStats() {
       try {
-        const response = await copybookAPI.getPracticeStats()
+        const response = await copybookAPI.getUserStatistics()
         this.practiceStats = {
-          totalPracticeTime: response.totalPracticeTime || 0,
-          totalWorks: response.totalWorks || 0,
-          totalStrokes: response.totalCharactersPracticed || 0,
-          lastPracticeDate: response.lastPracticeDate,
+          totalPractices: response?.totalPractices || 0,
+          totalDuration: response?.totalDuration || 0,
+          averageDuration: response?.averageDuration || 0,
+          streakDays: response?.streakDays || 0,
+          characterCount: response?.characterCount || 0,
+          copybookCount: response?.copybookCount || 0,
         }
       } catch (error) {
         console.error('获取练习统计失败:', error)
-      }
-    },
-
-    // 加载本地数据作为备用
-    loadLocalDataAsBackup() {
-      // 加载统计数据
-      const savedStats = localStorage.getItem('practiceStats')
-      if (savedStats) {
-        try {
-          this.practiceStats = JSON.parse(savedStats)
-        } catch (e) {
-          console.error('加载练习统计失败', e)
-        }
-      }
-
-      // 加载历史记录
-      const savedHistory = localStorage.getItem('practiceHistory')
-      if (savedHistory) {
-        try {
-          this.practiceHistory = JSON.parse(savedHistory)
-        } catch (e) {
-          console.error('加载练习历史失败', e)
-        }
-      }
-
-      // 加载保存的作品
-      const savedWorks = localStorage.getItem('savedWorks')
-      if (savedWorks) {
-        try {
-          this.savedWorks = JSON.parse(savedWorks)
-        } catch (e) {
-          console.error('加载保存的作品失败', e)
-        }
       }
     },
 
@@ -344,10 +303,12 @@ export const usePracticeStore = defineStore('practice', {
       this.practiceHistory = []
       this.savedWorks = []
       this.practiceStats = {
-        totalPracticeTime: 0,
-        totalWorks: 0,
-        totalStrokes: 0,
-        lastPracticeDate: null,
+        totalPractices: 0,
+        totalDuration: 0,
+        averageDuration: 0,
+        streakDays: 0,
+        characterCount: 0,
+        copybookCount: 0,
       }
 
       // 清除本地存储

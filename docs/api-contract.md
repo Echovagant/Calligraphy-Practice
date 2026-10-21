@@ -286,28 +286,38 @@ Spring Security 6.2 的 `DaoAuthenticationProvider.retrieveUser` 有三个 catch
 `UserDetailsServiceImpl` 里被当成「账户不存在」。现已拆开 ——
 禁用看 `status` 列，锁定看 `account_locked` 列（数据库里本来就是两列）。
 
-## 4. 前端现存缺陷（P6 待修）
+## 4. 前端缺陷（**P6 已全部修掉**）
 
-这些是本轮提取时挖出来的真实缺陷。检查器会把它们列为 **warning**，
-不阻断构建，但必须排期修掉。
+P1 提取时挖出来的真实缺陷，以及 P6 施工中新发现的问题，都已修完。
+留这张表是为了说明「当时错在哪」—— 下面每一条都标注了修法。
 
-| 类型 | 位置 | 问题 |
+| 类型 | 位置 | 问题 → 修法 |
 |---|---|---|
-| ~~绕过统一客户端~~ | `src/utils/api.js:94` | **P2 已改**。401 刷新原本走裸 `fetch` 打 `/api/auth/refresh` —— 而**这个端点根本不在契约里**（契约只有 `/frontend/auth/refresh` 与 `/backend/auth/refresh`），自动续期路径必然 404。现按用户类型分流到带类型的 refresh 端点。裸 fetch 本身**保留**：它走 `post()` 会经 `request()`，而 `request()` 在 401 时又会调本函数，直接用会无限递归。 |
-| 幽灵方法 | `src/stores/practiceStore.js:84` | `copybookAPI.addPracticeRecord(...)` —— api.js 里没有这个方法，运行时直接 TypeError。真实的方法叫 `copybookAPI.recordPractice`。 |
-| 幽灵方法 | `src/stores/practiceStore.js:250` | `copybookAPI.getPracticeHistory(...)` —— api.js 里没有这个方法。契约已为 `GET /api/copybooks/practice/history` 预留端点，P6 需在 api.js 里补出这个方法。 |
-| 幽灵方法 | `src/stores/practiceStore.js:287` | `copybookAPI.getPracticeStats(...)` —— api.js 里没有这个方法。对应端点是 `GET /api/copybooks/statistics/user`（api.js 里的 `getUserStatistics`）。 |
-| **响应形状当数组用** | `src/stores/practiceStore.js:196` | `const response = await copybookAPI.getCopybooks(params)` 之后直接 `response.map(...)` —— 但契约里 `GET /api/copybooks` 返回的是分页信封 `{content,page,size,total,totalPages}`，**没有 `.map` 方法**，运行时 TypeError。P6 要改成 `response.content.map(...)`。 |
-| 字段名对不上 | `src/stores/practiceStore.js:257-258` | 读 `record.practiceTime` / `record.charactersPracticed`，而契约的练习记录字段是 **`duration`（秒）** 和 **`characterCount`**。 |
-| 字段名对不上 | `src/stores/practiceStore.js:256` | 读 `record.copybook?.title`（嵌套对象），契约的练习记录**没有 `copybook` 这个嵌套字段** —— 字帖标题不在响应里。 |
-| 字段名对不上 | `src/stores/practiceStore.js:298-301` | 读 `response.totalPracticeTime` / `totalWorks` / `totalCharactersPracticed` / `lastPracticeDate`，而契约的 `PracticeStatistics` 字段是 `totalPractices` / `totalDuration` / `averageDuration` / `streakDays` / `characterCount` / `copybookCount`。 |
-| store 动作名不符 | `src/stores/userStore.js` | 视图调 `userStore.updateProfile`，store 里定义的却是 `updateUserInfo` → 链路不可达。 |
-| 参数形状不对 | `src/stores/userStore.js:344` | `PUT /api/users/password` 实际发出去的是**裸 JSON 字符串**，而契约要求对象 `{email,verificationCode,newPassword,confirmPassword}`。 |
-| URL 拼错 | `src/stores/userStore.js` | `GET /api/works/user/{userId}` 实际请求的是 `/works/user/undefined`。 |
+| ~~绕过统一客户端~~ | `src/utils/api.js:94` | **P2 已改**。401 刷新原本走裸 `fetch` 打 `/api/auth/refresh` —— 而**这个端点根本不在契约里**，自动续期路径必然 404。现按用户类型分流到带类型的 refresh 端点。裸 fetch 本身**保留**：它走 `post()` 会经 `request()`，而 `request()` 在 401 时又会调本函数，直接用会无限递归。 |
+| 幽灵方法 | `practiceStore.js` | `copybookAPI.addPracticeRecord(...)` —— api.js 里没有这个方法，运行时直接 TypeError。→ 改调 `copybookAPI.recordPractice(copybookId, data)`（**两个参数**） |
+| 幽灵方法 | `practiceStore.js` | `copybookAPI.getPracticeHistory(...)` —— api.js 里没有。→ P6 在 api.js 补出 `getPracticeHistory: (params) => get('/copybooks/practice/history', params)` |
+| 幽灵方法 | `practiceStore.js` | `copybookAPI.getPracticeStats(...)` —— 不存在。→ 改调 `copybookAPI.getUserStatistics()`；同时 api.js 新增 `statsAPI.getOverview`（契约端点 53，前端原先没接） |
+| **响应形状当数组用** | `practiceStore.js` | `response.map(...)` —— 但 `GET /api/copybooks` 返回分页信封，**没有 `.map`**，运行时 TypeError。→ 改 `response.content.map(...)`；`copybookStore` 的 5 个取数函数原本全在读旧的 `response.data.xxx`，一并改掉 |
+| 字段名对不上 | `practiceStore.js` | 读 `record.practiceTime` / `record.charactersPracticed` / `record.copybook?.title` → 契约是 **`duration`（秒）** / **`characterCount`**，且**没有 `copybook` 嵌套字段** |
+| 字段名对不上 | `practiceStore.js` | 读 `response.totalPracticeTime` / `totalWorks` / `totalCharactersPracticed` / `lastPracticeDate` → 契约是 `totalPractices` / `totalDuration` / `averageDuration` / `streakDays` / `characterCount` / `copybookCount` |
+| store 动作名不符 | `userStore.js` | 视图调 `userStore.updateProfile`，store 里定义的却是 `updateUserInfo` → 链路不可达。→ store 动作改名 `updateProfile`；响应按契约读成**裸对象**（不是 `response.user`） |
+| store 动作缺失 | `userStore.js` | 视图调 `userStore.fetchPractices` / `fetchMyWorks`，store 里**没有** → 补上，返回分页信封 |
+| 参数形状不对 | `ProfileView.vue` | `PUT /api/users/password` 发的是**裸 JSON 字符串** → 改发 `{oldPassword,newPassword,confirmPassword}` |
+| URL 拼错 | `MyWorksView.vue` | `GET /api/works/user/{userId}` 请求的是 `/works/user/undefined` → 从 `userInfo.id` 取真实 userId |
+| **mock 降级（9 处）** | `api.js` 5 处 + store 4 处 | `catch` 里返回假数据 → **全部删掉**。最危险的是 `authAPI.sendVerificationCode`：接口没通时前端会拿到一个**编出来的验证码**（`code: '123456'`），用户能登录成功 |
+| **204 被当成错误** | `api.js` | `request()` 无条件 `await response.json()` → `PUT /api/users/password`、`DELETE /api/works/{id}`、两个 logout 成功返回 204 时，**成功也会抛「服务器响应格式错误」** → 加 `if (response.status === 204) return null` |
+| **公开端点被当成私有** | `api.js` | `publicPaths` 只有 login/register/verification-code → 契约标公开的 `GET /api/works`、`/api/copybooks*`、`/api/stats/overview`、`/api/discussions*`、`/api/community/comments/work/*` 全部会因没令牌而**跳登录页**，未登录用户连公开画廊都打不开 → 改成按契约的 `security: []` 列正则匹配 |
+| **令牌存取格式不一致** | `userStore.js` / `api.js` | `utils/storage.js` 的 `setStorage` 会 `JSON.stringify`，令牌存成 `"eyJ..."`（带引号），而 `api.js` 读的是裸值 → 请求头变成 `Bearer "eyJ..."` → **所有鉴权请求 401**。→ store 改用 api.js 的 `setToken`/`setRefreshToken`（裸串），`getToken` 兼容两种格式 |
+| **userType 同样被 JSON 编码** | `userStore.js` / `api.js` | `setStorage('userType','ADMIN')` → localStorage 里是 `"ADMIN"`，`getUserType()` 原样比较 `=== 'ADMIN'` 不成立 → 管理员的 401 自动续期会打到 `/frontend/auth/refresh`。→ 只用 api.js 的 `setUserType`（裸值），`getUserType` 兼容两种格式 |
+| **刷新页面登录态丢失** | `App.vue` | 没人调 `userStore.initUserFromStorage()` → 刷新后 `userInfo` 为空、`isLoggedIn` 为 false。→ App.vue 的 `onMounted` 里调一次；顺带修 `userInfo.username` 未登录时直接取属性会抛错 |
+| **管理员登录失败会污染 userType** | `userStore.js` | `adminLogin` 在**发请求之前**就把 userType 设成 BACKEND，失败不回滚 → 前端用户的令牌续期会打 `/backend/auth/refresh`。→ 改成登录成功后才切 |
+| **Error 不带状态码** | `api.js` | `new Error(message)` 不带 status → 视图没法程序化区分 401/403/404，只能靠中文文案匹配。→ 统一抛带 `status` 与 `code` 的 Error |
+| **查询参数把 undefined 变成字面量** | `api.js` | `new URLSearchParams({category: undefined})` → `category=undefined` → 后端收到一个值不是预期的参数。→ `get()` 先滤掉 undefined/null/空串 |
+| **无端点的假功能** | `AdminView.vue` / `CommunityView.vue` | 用户列表 / 分类管理 / 系统设置 / 活动 / 学习小组 / 用户评价 —— 契约里**没有**这些端点。→ 整块删除或换成有端点的等价物（社区公告 → 置顶讨论），**不拿假数据凑功能** |
 
-另有 **9 处 mock 降级分支**（api.js 里 5 处 `catch` 返回假数据 + store 里 4 处：
-`appStore.js` 的统计/公告/热门标签 3 处 + `practiceStore.js` 的推荐内容备选 1 处），
-P6 接线时必须全部删掉 —— 否则接口没通的时候页面会显示假数据，**看起来是好的**。
+**9 处 mock 降级分支已全部删除**（api.js 里 5 处 `catch` 返回假数据 + store 里 4 处：
+`appStore.js` 的统计/公告/热门标签 3 处 + `practiceStore.js` 的推荐内容备选 1 处）。
+现在全仓 grep `mock` / `模拟` / `假数据` / `picsum.photos` / `via.placeholder.com` **零命中**。
 
 ## 5. 当前差异清单（= 待实现清单）
 
@@ -345,7 +355,7 @@ P5 comments + discussions + file-reviews（端点 28–52）——
 | **P3 user + works + stats 域** | 端点 11–21、53 | 上传作品 → 可见 → 图片能取回；契约测试 12 项绿 | ✅ 完成 |
 | **P4 copybooks 域** | 端点 22–27 | 字帖列表/详情/记录练习/统计/历史；`copybooks` 既有 3 行数据可读 | ✅ 完成（17 项契约测试 + 36 项活体） |
 | **P5 comments + discussions + file-reviews 域** | 端点 28–52 | 发帖/回复/点赞/评论/审核；契约测试绿 | ✅ 完成（17 + 35 + 20 = 72 项契约测试 + 70 项活体） |
-| **P6 前端接线 + 删 mock** | §3.5、§4 | 六个视图无硬编码 mock；api.js 无 mock 降级分支 | 待做 |
+| **P6 前端接线 + 删 mock** | §3.5、§4 | 六个视图无硬编码 mock；api.js 无 mock 降级分支 | ✅ 完成（mock 零命中 + strict 零差异 + eslint 零问题） |
 | **P7 全量验证** | — | 53 项契约测试全绿；`--strict` 零差异；前后端联调冒烟通过 | 待做 |
 
 ## 7. 变更记录
@@ -377,3 +387,15 @@ P5 comments + discussions + file-reviews（端点 28–52）——
 
   顺带更正：§4 里写的「store 里 2 处 mock 降级」实际是 **4 处**
   （`appStore.js` 3 处 + `practiceStore.js` 1 处）。
+- 2026-10-21 P6（前端接线 + 删 mock）。契约检查达到 **violations 0 / gaps 0 / warnings 0**
+  （前端调用点 51 → 53，`--strict` 也零差异）。
+  **9 处 mock 降级全部删除**（api.js 5 处 + store 4 处）——
+  最危险的是 `authAPI.sendVerificationCode`：接口没通时前端会拿到一个
+  **编出来的验证码**（`code: '123456'`），用户能登录成功。
+  六个视图的硬编码假数据全部换成真实调用，**每个数据区都有加载中 / 空 / 错误三态**。
+  施工中又挖出 6 个**阻断级前端缺陷**（都已修）：
+  204 空响应体被当成错误、公开端点被当成私有而强制跳登录页、
+  令牌与 userType 的存取格式不一致导致**所有鉴权请求 401**、
+  刷新页面登录态丢失、Error 不带状态码、管理员登录失败会污染 userType。
+  顺带记下三个**后端缺口**（P7 登记，暂不实现）：
+  没有「待审核作品列表」端点、没有用户列表端点、没有评论全量列表端点。

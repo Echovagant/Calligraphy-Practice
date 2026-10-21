@@ -4,7 +4,7 @@
       <h2 class="section-title">书法练习</h2>
       <p class="section-subtitle">在这里练习你的书法技巧，体验毛笔书写的乐趣</p>
     </div>
-    
+
     <div class="practice-layout">
       <!-- 工具面板 -->
       <div class="tool-panel">
@@ -23,7 +23,7 @@
             <el-slider v-model="brushOpacity" :min="0.1" :max="1" :step="0.1" show-input />
           </div>
         </div>
-        
+
         <div class="tool-section">
           <h3 class="tool-title">背景设置</h3>
           <div class="tool-group">
@@ -43,32 +43,72 @@
             </el-radio-group>
           </div>
         </div>
-        
+
         <div class="tool-section">
           <h3 class="tool-title">操作</h3>
           <div class="tool-buttons">
             <el-button type="primary" @click="clearCanvas" icon="el-icon-delete">清空画布</el-button>
             <el-button type="success" @click="undoLast" icon="el-icon-refresh-left">撤销</el-button>
-            <el-button type="warning" @click="saveImage" icon="el-icon-download">保存作品</el-button>
+            <el-button type="warning" @click="saveImage" icon="el-icon-download" :loading="isSaving">保存作品</el-button>
           </div>
         </div>
-        
+
         <div class="tool-section">
           <h3 class="tool-title">参考字帖</h3>
-          <div class="reference-list">
+          <div v-if="currentCopybook" class="current-copybook">
+            <div class="current-title">《{{ currentCopybook.title }}》</div>
+            <div class="current-meta">
+              {{ currentCopybook.category || '未分类' }} · {{ currentCopybook.difficulty || '未标难度' }}
+              · 字帖字数 {{ currentCopybook.characterCount ?? 0 }}
+            </div>
+          </div>
+          <div v-else class="current-empty">尚未选择参考字帖，请先从下方推荐字帖中挑选</div>
+
+          <div v-if="referenceChars.length > 0" class="reference-list">
             <div class="reference-item" v-for="char in referenceChars" :key="char" @click="showReference(char)">
               {{ char }}
             </div>
           </div>
         </div>
+
+        <div class="tool-section">
+          <h3 class="tool-title">推荐字帖</h3>
+          <el-alert
+            v-if="recommendationsError"
+            type="error"
+            :title="recommendationsError"
+            show-icon
+            :closable="false"
+            class="tool-alert"
+          >
+            <el-button size="small" type="primary" @click="loadRecommendations">重试</el-button>
+          </el-alert>
+          <div v-loading="recommendationsLoading" class="recommendation-list">
+            <div
+              v-for="book in recommendations"
+              :key="book.id"
+              class="recommendation-item"
+              :class="{ active: currentCopybook && currentCopybook.id === book.id }"
+              @click="selectCopybook(book)"
+            >
+              <span class="recommendation-title">{{ book.title }}</span>
+              <span class="recommendation-desc">{{ book.description || '暂无简介' }}</span>
+            </div>
+            <el-empty
+              v-if="!recommendationsLoading && !recommendationsError && recommendations.length === 0"
+              description="暂无推荐字帖"
+              :image-size="60"
+            />
+          </div>
+        </div>
       </div>
-      
+
       <!-- 画布区域 -->
       <div class="canvas-container">
         <div class="canvas-wrapper">
           <canvas ref="canvasRef" :width="canvasWidth" :height="canvasHeight"></canvas>
         </div>
-        
+
         <!-- 参考字符显示 -->
         <div class="reference-display" v-if="showingReference">
           <div class="reference-char">{{ currentReference }}</div>
@@ -79,14 +119,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, nextTick, computed } from 'vue';
+import { ref, onMounted, onUnmounted, watch, nextTick, computed } from 'vue';
 import * as fabric from 'fabric';
 import { ElMessage } from 'element-plus';
 import { usePracticeStore } from '../stores/practiceStore';
+import { useUserStore } from '../stores/userStore';
 import { downloadCanvasAsImage } from '../utils';
 
 // 引入状态管理
 const practiceStore = usePracticeStore();
+const userStore = useUserStore();
 
 // 画布相关
 const canvasRef = ref(null);
@@ -120,10 +162,17 @@ const gridType = computed({
   set: (value) => practiceStore.updatePracticeSettings({ gridType: value })
 });
 
-// 练习状态
+// 当前参考的字帖（由推荐字帖选择而来）
+const currentCopybook = computed(() => practiceStore.currentCopybook);
 
-// 参考字符
-const referenceChars = ['永', '和', '书', '法', '文', '明', '德', '信'];
+// 参考字符来自所选字帖自身的文字，不再使用前端写死的字表
+const referenceChars = computed(() => {
+  const book = currentCopybook.value;
+  if (!book) return [];
+  const source = [book.content, book.title, book.description].filter(Boolean).join('');
+  return [...new Set(source.replace(/[^\u4e00-\u9fa5]/g, ''))].slice(0, 24);
+});
+
 const currentReference = ref('');
 const showingReference = ref(false);
 
@@ -134,27 +183,59 @@ const historyIndex = ref(-1);
 // 练习统计
 const practiceStartTime = ref(null);
 const strokeCount = ref(0);
+// 本次练习展示过的参考字 —— 即「练习字数」
+const practicedChars = ref([]);
+const isSaving = ref(false);
+
+// 推荐字帖：数据来自后端字帖接口
+const recommendations = ref([]);
+const recommendationsLoading = ref(false);
+const recommendationsError = ref('');
+
+const loadRecommendations = async () => {
+  recommendationsLoading.value = true;
+  recommendationsError.value = '';
+  try {
+    const payload = await practiceStore.getRecommendations();
+    const list = Array.isArray(payload)
+      ? payload
+      : (Array.isArray(payload?.content) ? payload.content : []);
+    recommendations.value = list.slice(0, 6);
+  } catch (error) {
+    recommendations.value = [];
+    recommendationsError.value = error?.message || '获取推荐字帖失败';
+    ElMessage.error(recommendationsError.value);
+    console.error('获取推荐字帖失败:', error);
+  } finally {
+    recommendationsLoading.value = false;
+  }
+};
+
+const selectCopybook = (copybook) => {
+  practiceStore.setCurrentCopybook(copybook);
+  ElMessage.success(`已选择《${copybook.title || '未命名字帖'}》作为参考字帖`);
+};
 
 // 初始化画布
 const initCanvas = () => {
   if (!canvasRef.value) return;
-  
+
   // 从store加载设置
   practiceStore.loadLocalSettings();
-  
+
   canvas = new fabric.Canvas(canvasRef.value, {
     backgroundColor: paperColor.value,
     width: canvasWidth,
     height: canvasHeight,
     preserveObjectStacking: true
   });
-  
+
   // 设置笔刷
   setupBrush();
-  
+
   // 绘制网格
   drawGrid();
-  
+
   // 监听画布事件，记录历史
   canvas.on('object:added', () => {
     saveToHistory();
@@ -174,11 +255,11 @@ const setupBrush = () => {
     offsetY: 0,
     affectStroke: true
   });
-  
+
   // 设置为当前笔刷
   canvas.isDrawingMode = true;
   canvas.freeDrawingBrush = customBrush;
-  
+
   // 监听绘图开始，增加笔画计数
   canvas.on('path:created', () => {
     strokeCount.value++;
@@ -193,18 +274,18 @@ const setupBrush = () => {
         canvas.remove(obj);
       }
     });
-    
+
     if (gridType.value === 'none') return;
-    
+
     const gridColor = '#dddddd';
     const gridSize = 50;
-    
+
     const grid = new fabric.Group([], {
       selectable: false,
       evented: false,
       data: { type: 'grid' }
     });
-    
+
     if (gridType.value === 'square' || gridType.value === 'horizontal') {
       // 绘制横线
       for (let i = 0; i <= canvasHeight / gridSize; i++) {
@@ -217,7 +298,7 @@ const setupBrush = () => {
         grid.add(line);
       }
     }
-    
+
     if (gridType.value === 'square') {
       // 绘制竖线
       for (let i = 0; i <= canvasWidth / gridSize; i++) {
@@ -230,7 +311,7 @@ const setupBrush = () => {
         grid.add(line);
       }
     }
-    
+
     canvas.add(grid);
     canvas.sendToBack && canvas.sendToBack(grid);
   };
@@ -238,12 +319,12 @@ const setupBrush = () => {
 // 保存到历史记录
 const saveToHistory = () => {
   const json = canvas.toJSON();
-  
+
   // 如果在历史记录中间进行了新操作，删除后面的历史
   if (historyIndex.value < history.value.length - 1) {
     history.value = history.value.slice(0, historyIndex.value + 1);
   }
-  
+
   history.value.push(json);
   historyIndex.value = history.value.length - 1;
 };
@@ -272,36 +353,47 @@ const clearCanvas = () => {
 };
 
 // 保存图片
-const saveImage = () => {
-  const dataURL = canvas.toDataURL({ format: 'png', quality: 1 });
-  const fileName = `书法作品_${new Date().getTime()}.png`;
-  
-  // 保存到store
-  practiceStore.saveWork({
-    title: `作品 ${new Date().toLocaleString()}`,
-    imageUrl: dataURL,
-    duration: calculatePracticeTime(),
-    strokes: strokeCount.value
-  });
-  
-  // 下载图片
-  downloadCanvasAsImage(canvas, fileName);
-  ElMessage.success('作品已保存');
-  
-  // 重置笔画计数
-  strokeCount.value = 0;
+const saveImage = async () => {
+  if (!canvas) return;
+  isSaving.value = true;
+  try {
+    const dataURL = canvas.toDataURL({ format: 'png', quality: 1 });
+    const fileName = `书法作品_${new Date().getTime()}.png`;
+
+    // 保存到store（store 读 imageDataUrl 里的 data URL 字符串）
+    await practiceStore.saveWork({
+      title: `作品 ${new Date().toLocaleString()}`,
+      imageDataUrl: dataURL,
+      imageUrl: dataURL,
+      duration: calculatePracticeTime(),
+      strokes: strokeCount.value
+    });
+
+    // 下载图片
+    downloadCanvasAsImage(canvas, fileName);
+    ElMessage.success('作品已保存');
+
+    // 重置笔画计数
+    strokeCount.value = 0;
+  } catch (error) {
+    ElMessage.error('作品保存失败，请稍后重试');
+    console.error('保存作品失败:', error);
+  } finally {
+    isSaving.value = false;
+  }
 };
 
-// 计算练习时间（分钟）
+// 计算练习时间（秒，与契约的 duration 一致）
 const calculatePracticeTime = () => {
   if (!practiceStartTime.value) return 0;
-  return Math.floor((new Date() - practiceStartTime.value) / 1000 / 60);
+  return Math.floor((Date.now() - practiceStartTime.value) / 1000);
 };
 
 // 显示参考字符
 const showReference = (char) => {
   currentReference.value = char;
   showingReference.value = true;
+  practicedChars.value.push(char);
   setTimeout(() => {
     showingReference.value = false;
   }, 3000); // 3秒后自动隐藏
@@ -322,19 +414,41 @@ watch(gridType, () => {
 });
 
 // 结束练习时保存记录
-const endPractice = () => {
-  if (practiceStartTime.value) {
-    const duration = calculatePracticeTime();
-    if (duration > 0 || strokeCount.value > 0) {
-      practiceStore.addPracticeRecord({
-        duration,
-        strokes: strokeCount.value,
-        content: practiceStore.currentCopybook?.content || '自由练习'
-      });
+const endPractice = async () => {
+  if (!practiceStartTime.value) return;
+
+  const duration = calculatePracticeTime();
+  const book = practiceStore.currentCopybook;
+
+  if (duration > 0 || strokeCount.value > 0) {
+    if (!book || !book.id) {
+      ElMessage.warning('未选择参考字帖，本次练习未记录到服务器');
+    } else if (!userStore.isLoggedIn) {
+      ElMessage.warning('请先登录后再保存练习记录');
+    } else {
+      try {
+        // 契约的 PracticeRecordCreate：copybookId 走路径，其余是请求体字段
+        await practiceStore.addPracticeRecord({
+          copybookId: book.id,
+          title: book.title,
+          content: practicedChars.value.join(''),
+          category: book.category,
+          difficulty: book.difficulty,
+          duration,
+          characterCount: practicedChars.value.length,
+          strokes: strokeCount.value,
+          notes: ''
+        });
+      } catch (error) {
+        ElMessage.error('练习记录保存失败，请稍后重试');
+        console.error('保存练习记录失败:', error);
+      }
     }
-    practiceStartTime.value = null;
-    strokeCount.value = 0;
   }
+
+  practiceStartTime.value = null;
+  strokeCount.value = 0;
+  practicedChars.value = [];
 };
 
 onMounted(() => {
@@ -343,12 +457,11 @@ onMounted(() => {
     // 记录开始练习时间
     practiceStartTime.value = new Date();
     // 获取推荐练习内容
-    practiceStore.getRecommendations();
+    loadRecommendations();
   });
 });
 
 // 组件卸载时清理
-import { onUnmounted } from 'vue';
 onUnmounted(() => {
   endPractice();
   if (canvas) {
@@ -423,6 +536,37 @@ onUnmounted(() => {
   gap: 0.8rem;
 }
 
+.tool-alert {
+  margin-bottom: 0.8rem;
+}
+
+/* 当前参考字帖 */
+.current-copybook {
+  padding: 0.6rem 0.8rem;
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  margin-bottom: 0.8rem;
+}
+
+.current-title {
+  color: #333;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+}
+
+.current-meta {
+  color: #999;
+  font-size: 0.78rem;
+}
+
+.current-empty {
+  color: #999;
+  font-size: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
 /* 参考字符样式 */
 .reference-list {
   display: grid;
@@ -446,6 +590,45 @@ onUnmounted(() => {
   background-color: #f0f0f0;
   border-color: #8B4513;
   transform: scale(1.05);
+}
+
+/* 推荐字帖 */
+.recommendation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 60px;
+}
+
+.recommendation-item {
+  padding: 0.5rem 0.7rem;
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.recommendation-item:hover,
+.recommendation-item.active {
+  border-color: #8B4513;
+  color: #8B4513;
+}
+
+.recommendation-title {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.recommendation-desc {
+  display: block;
+  color: #999;
+  font-size: 0.75rem;
+  margin-top: 0.2rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* 画布区域样式 */
@@ -501,12 +684,12 @@ onUnmounted(() => {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .tool-panel {
     width: 100%;
     max-width: 400px;
   }
-  
+
   .canvas-wrapper {
     max-width: 100%;
     overflow-x: auto;

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { getStorage, setStorage } from '../utils';
+import { statsAPI } from '../utils/api';
 
 // 应用状态管理
 export const useAppStore = defineStore('app', {
@@ -21,21 +22,18 @@ export const useAppStore = defineStore('app', {
       sidebarCollapsed: false
     },
     
-    // 统计信息
+    // 统计信息 —— 形状与契约的 statsOverview 响应一致
+    // （GET /api/stats/overview 返回裸对象，没有 data 信封）
     statistics: {
-      totalUsers: 0,
       totalWorks: 0,
-      totalComments: 0,
-      totalLikes: 0
+      totalUsers: 0,
+      totalPracticeRecords: 0,
+      popularCopybooks: []
     },
-    
-    // 公告信息
-    announcements: [],
-    
+
     // 缓存数据
     cache: {
-      recentWorks: [],
-      hotTags: []
+      recentWorks: []
     },
     
     // 加载状态
@@ -60,14 +58,6 @@ export const useAppStore = defineStore('app', {
     
     // 获取系统统计数据
     getStatistics: (state) => state.statistics,
-    
-    // 获取活跃公告
-    getActiveAnnouncements: (state) => {
-      return state.announcements.filter(ann => ann.isActive);
-    },
-    
-    // 获取热门标签
-    getHotTags: (state) => state.cache.hotTags
   },
   
   actions: {
@@ -84,13 +74,7 @@ export const useAppStore = defineStore('app', {
         
         // 加载统计数据
         await this.fetchStatistics();
-        
-        // 加载公告
-        await this.fetchAnnouncements();
-        
-        // 加载热门标签
-        await this.fetchHotTags();
-        
+
       } catch (error) {
         console.error('初始化应用失败:', error);
       } finally {
@@ -134,87 +118,19 @@ export const useAppStore = defineStore('app', {
       this.theme.sidebarCollapsed = !this.theme.sidebarCollapsed;
     },
     
-    // 获取统计数据（模拟）
+    // 获取统计数据 —— 真实调用 GET /api/stats/overview
+    // 响应是裸对象（没有 data 信封），字段与契约的 statsOverview 一致
     async fetchStatistics() {
-      // 模拟API调用
-      return new Promise(resolve => {
-        setTimeout(() => {
-          this.statistics = {
-            totalUsers: 1234,
-            totalWorks: 5678,
-            totalComments: 9012,
-            totalLikes: 13579
-          };
-          resolve(this.statistics);
-        }, 500);
-      });
-    },
-    
-    // 获取公告（模拟）
-    async fetchAnnouncements() {
-      // 模拟API调用
-      return new Promise(resolve => {
-        setTimeout(() => {
-          this.announcements = [
-            {
-              id: 1,
-              title: '欢迎使用数字书法练习平台',
-              content: '平台正式上线，欢迎各位书法爱好者加入！',
-              createdAt: new Date('2024-01-01'),
-              isActive: true
-            },
-            {
-              id: 2,
-              title: '每周书法比赛',
-              content: '参与每周主题创作，赢取精美礼品',
-              createdAt: new Date('2024-01-15'),
-              isActive: true
-            }
-          ];
-          resolve(this.announcements);
-        }, 500);
-      });
-    },
-    
-    // 获取热门标签（模拟）
-    async fetchHotTags() {
-      // 模拟API调用
-      return new Promise(resolve => {
-        setTimeout(() => {
-          this.cache.hotTags = [
-            { id: 1, name: '楷书', count: 156 },
-            { id: 2, name: '行书', count: 142 },
-            { id: 3, name: '隶书', count: 98 },
-            { id: 4, name: '篆书', count: 76 },
-            { id: 5, name: '草书', count: 64 }
-          ];
-          resolve(this.cache.hotTags);
-        }, 500);
-      });
-    },
-    
-    // 添加公告
-    addAnnouncement(announcement) {
-      const newAnnouncement = {
-        id: Date.now(),
-        createdAt: new Date(),
-        isActive: true,
-        ...announcement
+      const overview = await statsAPI.getOverview();
+      this.statistics = {
+        totalWorks: overview?.totalWorks ?? 0,
+        totalUsers: overview?.totalUsers ?? 0,
+        totalPracticeRecords: overview?.totalPracticeRecords ?? 0,
+        popularCopybooks: overview?.popularCopybooks ?? [],
       };
-      this.announcements.unshift(newAnnouncement);
-      return newAnnouncement;
+      return this.statistics;
     },
-    
-    // 更新公告状态
-    updateAnnouncementStatus(id, isActive) {
-      const announcement = this.announcements.find(ann => ann.id === id);
-      if (announcement) {
-        announcement.isActive = isActive;
-        return true;
-      }
-      return false;
-    },
-    
+
     // 设置全局加载状态
     setGlobalLoading(loading) {
       this.loading.global = loading;
@@ -228,7 +144,6 @@ export const useAppStore = defineStore('app', {
     // 清除缓存
     clearCache() {
       this.cache.recentWorks = [];
-      this.cache.hotTags = [];
     }
   }
 });

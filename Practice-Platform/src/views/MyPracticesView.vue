@@ -4,26 +4,32 @@
       <h2 class="page-title">练习记录</h2>
       <p class="page-subtitle">跟踪和管理您的书法练习进度</p>
     </div>
-    
-    <div class="stats-overview">
-      <div class="stat-card">
-        <div class="stat-number">{{ totalPracticeDays }}</div>
-        <div class="stat-label">练习天数</div>
+
+    <!-- 练习统计：数据来自 GET /api/copybooks/statistics/user -->
+    <div class="stats-overview" v-loading="statsLoading">
+      <el-alert
+        v-if="statsError"
+        type="error"
+        :title="statsError"
+        show-icon
+        :closable="false"
+        class="state-alert"
+      >
+        <el-button size="small" type="primary" @click="loadStatistics">重试</el-button>
+      </el-alert>
+
+      <div class="stat-card" v-for="card in statCards" :key="card.key" v-show="statistics">
+        <div class="stat-number">{{ card.value }}</div>
+        <div class="stat-label">{{ card.label }}</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-number">{{ totalPracticeHours.toFixed(1) }}</div>
-        <div class="stat-label">总练习时长(小时)</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number">{{ totalCharacters }}</div>
-        <div class="stat-label">练习字数</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number">{{ maxStreakDays }}</div>
-        <div class="stat-label">最长连续练习(天)</div>
-      </div>
+
+      <el-empty
+        v-if="!statsLoading && !statsError && !statistics"
+        description="暂无统计数据"
+        :image-size="80"
+      />
     </div>
-    
+
     <div class="filter-section">
       <el-date-picker
         v-model="dateRange"
@@ -33,82 +39,119 @@
         end-placeholder="结束日期"
         class="date-picker"
       />
-      
-      <el-select v-model="filterStyle" placeholder="筛选书法风格" class="filter-select">
-        <el-option label="全部" value="" />
-        <el-option label="楷书" value="regular" />
-        <el-option label="行书" value="running" />
-        <el-option label="草书" value="cursive" />
-        <el-option label="隶书" value="official" />
-        <el-option label="篆书" value="seal" />
+
+      <el-select
+        v-model="filterCategory"
+        placeholder="全部分类"
+        clearable
+        filterable
+        allow-create
+        default-first-option
+        class="filter-select"
+      >
+        <el-option v-for="item in categoryOptions" :key="item" :label="item" :value="item" />
       </el-select>
-      
-      <el-button type="primary" @click="refreshPractices">
+
+      <el-input
+        v-model="searchKeyword"
+        placeholder="搜索标题 / 内容 / 笔记"
+        clearable
+        class="filter-input"
+      />
+
+      <el-button type="primary" :loading="loading" @click="refreshPractices">
         <i class="el-icon-refresh"></i> 刷新数据
       </el-button>
     </div>
-    
+    <p class="filter-hint">共 {{ recordsTotal }} 条练习记录<template v-if="recordsTotal > practices.length">，当前展示最近 {{ practices.length }} 条</template></p>
+
     <div class="practice-content">
+      <!-- 练习记录与日历共用同一份数据，错误提示只报一次 -->
+      <el-alert
+        v-if="loadError"
+        type="error"
+        :title="loadError"
+        show-icon
+        :closable="false"
+        class="state-alert"
+      >
+        <el-button size="small" type="primary" @click="loadPractices">重试</el-button>
+      </el-alert>
+
       <!-- 练习日历 -->
       <div class="calendar-section">
         <div class="section-title">练习日历</div>
-        <div class="calendar-wrapper">
-          <!-- 简化版日历视图 -->
+        <div v-loading="loading" class="calendar-wrapper">
           <div class="calendar-heatmap">
-            <div class="calendar-month" v-for="month in 6" :key="month">
-              <div class="month-label">{{ getMonthLabel(month) }}</div>
+            <div class="calendar-month" v-for="month in calendarMonths" :key="month.key">
+              <div class="month-label">{{ month.label }}</div>
               <div class="calendar-days">
-                <div 
-                  v-for="day in 30" 
-                  :key="day"
+                <div
+                  v-for="day in month.days"
+                  :key="day.key"
                   class="calendar-day"
-                  :class="getCalendarDayClass(month, day)"
-                  :title="getCalendarDayTooltip(month, day)"
+                  :class="getCalendarDayClass(day)"
+                  :title="getCalendarDayTooltip(day)"
                 ></div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      
+
       <!-- 练习记录表格 -->
       <div class="table-section">
         <div class="section-title">最近练习记录</div>
-        <el-table :data="filteredPractices" style="width: 100%" border>
-          <el-table-column prop="date" label="练习日期" width="150">
-            <template #default="scope">
-              {{ formatDate(scope.row.date) }}
-            </template>
-          </el-table-column>
-          <el-table-column prop="style" label="书法风格" width="120">
-            <template #default="scope">
-              {{ getStyleName(scope.row.style) }}
-            </template>
-          </el-table-column>
-          <el-table-column prop="duration" label="练习时长(分钟)" width="150">
-            <template #default="scope">
-              {{ scope.row.duration }}
-            </template>
-          </el-table-column>
-          <el-table-column prop="charactersCount" label="练习字数" width="120" />
-          <el-table-column prop="content" label="练习内容" show-overflow-tooltip>
-            <template #default="scope">
-              {{ scope.row.content || '无详细记录' }}
-            </template>
-          </el-table-column>
-          <el-table-column prop="notes" label="练习笔记" show-overflow-tooltip />
-          <el-table-column label="操作" width="150" fixed="right">
-            <template #default="scope">
-              <el-button type="primary" size="small" @click="viewPracticeDetail(scope.row)">
-                查看详情
-              </el-button>
-              <el-button type="danger" size="small" @click="deletePractice(scope.row.id)">
-                删除
-              </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-        
+
+        <div v-loading="loading" class="table-wrapper">
+          <el-table :data="pagedPractices" style="width: 100%" border>
+            <el-table-column prop="title" label="标题" width="160" show-overflow-tooltip />
+            <el-table-column prop="practiceDate" label="练习日期" width="150">
+              <template #default="scope">
+                {{ formatDate(scope.row.practiceDate || scope.row.createdAt) }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="category" label="分类" width="110">
+              <template #default="scope">
+                {{ scope.row.category || '未分类' }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="style" label="风格" width="110">
+              <template #default="scope">
+                {{ scope.row.style || '—' }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="duration" label="练习时长(分钟)" width="140">
+              <template #default="scope">
+                {{ formatMinutes(scope.row.duration) }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="characterCount" label="练习字数" width="110">
+              <template #default="scope">
+                {{ scope.row.characterCount ?? 0 }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="content" label="练习内容" show-overflow-tooltip>
+              <template #default="scope">
+                {{ scope.row.content || '无详细记录' }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="notes" label="练习笔记" show-overflow-tooltip />
+            <el-table-column label="操作" width="110" fixed="right">
+              <template #default="scope">
+                <el-button type="primary" size="small" @click="viewPracticeDetail(scope.row)">
+                  查看详情
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+
+          <el-empty
+            v-if="!loading && !loadError && pagedPractices.length === 0"
+            :description="hasFilter ? '没有符合筛选条件的练习记录' : '暂无练习记录'"
+          />
+        </div>
+
         <!-- 分页 -->
         <div class="pagination-container" v-if="totalPages > 1">
           <el-pagination
@@ -123,30 +166,42 @@
         </div>
       </div>
     </div>
-    
+
     <!-- 练习详情对话框 -->
     <el-dialog
       v-model="dialogVisible"
       title="练习详情"
-      width="70%"
+      width="60%"
       :before-close="closeDialog"
     >
-      <div class="practice-detail">
+      <div class="practice-detail" v-if="selectedPractice">
         <div class="detail-row">
-          <span class="detail-label">练习日期：</span>
-          <span class="detail-value">{{ formatDate(selectedPractice.date) }}</span>
+          <span class="detail-label">标题：</span>
+          <span class="detail-value">{{ selectedPractice.title || '未命名练习' }}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">书法风格：</span>
-          <span class="detail-value">{{ getStyleName(selectedPractice.style) }}</span>
+          <span class="detail-label">练习日期：</span>
+          <span class="detail-value">{{ formatDate(selectedPractice.practiceDate || selectedPractice.createdAt) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">分类：</span>
+          <span class="detail-value">{{ selectedPractice.category || '未分类' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">风格：</span>
+          <span class="detail-value">{{ selectedPractice.style || '—' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">难度：</span>
+          <span class="detail-value">{{ selectedPractice.difficulty || '—' }}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">练习时长：</span>
-          <span class="detail-value">{{ selectedPractice.duration }} 分钟</span>
+          <span class="detail-value">{{ formatMinutes(selectedPractice.duration) }} 分钟</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">练习字数：</span>
-          <span class="detail-value">{{ selectedPractice.charactersCount }}</span>
+          <span class="detail-value">{{ selectedPractice.characterCount ?? 0 }}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">练习内容：</span>
@@ -156,25 +211,19 @@
           <span class="detail-label">练习笔记：</span>
           <div class="detail-notes">{{ selectedPractice.notes || '无笔记' }}</div>
         </div>
-        <div v-if="selectedPractice.attachments && selectedPractice.attachments.length > 0" class="detail-row">
+        <div v-if="selectedPractice.fileUrl" class="detail-row">
           <span class="detail-label">练习附件：</span>
           <div class="detail-attachments">
-            <div 
-              v-for="(attachment, index) in selectedPractice.attachments" 
-              :key="index"
-              class="attachment-item"
-            >
-              <el-image
-                :src="attachment.url"
-                :preview-src-list="selectedPractice.attachments.map(a => a.url)"
-                style="width: 100px; height: 100px;"
-                fit="cover"
-              />
-            </div>
+            <el-image
+              :src="selectedPractice.fileUrl"
+              :preview-src-list="[selectedPractice.fileUrl]"
+              style="width: 100px; height: 100px;"
+              fit="cover"
+            />
           </div>
         </div>
       </div>
-      
+
       <template #footer>
         <el-button @click="closeDialog">关闭</el-button>
         <el-button type="primary" @click="exportPracticeDetail(selectedPractice)">导出详情</el-button>
@@ -184,277 +233,301 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ref, onMounted, computed, watch } from 'vue';
+import { ElMessage } from 'element-plus';
+import { useUserStore } from '../stores/userStore';
+import { copybookAPI } from '../utils/api';
+import { downloadFile } from '../utils';
 
-// 状态管理 - userStore已废弃，使用后端API获取用户信息
+// 状态管理
+const userStore = useUserStore();
+
+// 后端单页上限是 100 条，这里取最近 100 条做筛选 / 日历
+const HISTORY_WINDOW = 100;
 
 // 筛选条件
 const dateRange = ref([]);
-const filterStyle = ref('');
+const filterCategory = ref('');
 const searchKeyword = ref('');
 
 // 练习记录数据
 const practices = ref([]);
+const recordsTotal = ref(0);
 const currentPage = ref(1);
 const pageSize = ref(10);
+const loading = ref(false);
+const loadError = ref('');
 
 // 统计数据
-const totalPracticeDays = ref(0);
-const totalPracticeHours = ref(0);
-const totalCharacters = ref(0);
-const maxStreakDays = ref(0);
+const statistics = ref(null);
+const statsLoading = ref(false);
+const statsError = ref('');
 
 // 对话框
 const dialogVisible = ref(false);
-const selectedPractice = reactive({
-  id: null,
-  date: '',
-  style: '',
-  duration: 0,
-  charactersCount: 0,
-  content: '',
-  notes: '',
-  attachments: []
+const selectedPractice = ref(null);
+
+const statCards = computed(() => {
+  const stats = statistics.value;
+  return [
+    { key: 'totalPractices', label: '练习次数', value: stats?.totalPractices ?? 0 },
+    { key: 'totalDuration', label: '总练习时长(小时)', value: ((stats?.totalDuration ?? 0) / 3600).toFixed(1) },
+    { key: 'characterCount', label: '累计练习字数', value: stats?.characterCount ?? 0 },
+    { key: 'streakDays', label: '连续练习(天)', value: stats?.streakDays ?? 0 }
+  ];
 });
+
+// 分类的可选值来自后端返回的记录，不在前端写死
+const categoryOptions = computed(() => {
+  const categories = new Set();
+  practices.value.forEach((practice) => {
+    if (practice.category) categories.add(practice.category);
+  });
+  return [...categories];
+});
+
+const hasFilter = computed(
+  () =>
+    Boolean(searchKeyword.value?.trim()) ||
+    Boolean(filterCategory.value) ||
+    (Array.isArray(dateRange.value) && dateRange.value.length === 2)
+);
 
 // 计算属性
 const filteredPractices = computed(() => {
   let filtered = [...practices.value];
-  
+
   // 日期筛选
   if (dateRange.value && dateRange.value.length === 2) {
     const startDate = new Date(dateRange.value[0]);
+    startDate.setHours(0, 0, 0, 0);
     const endDate = new Date(dateRange.value[1]);
+    endDate.setHours(23, 59, 59, 999);
     filtered = filtered.filter(practice => {
-      const practiceDate = new Date(practice.date);
+      const practiceDate = new Date(practice.practiceDate || practice.createdAt);
       return practiceDate >= startDate && practiceDate <= endDate;
     });
   }
-  
-  // 风格筛选
-  if (filterStyle.value) {
-    filtered = filtered.filter(practice => practice.style === filterStyle.value);
-  }
-  
-  // 按日期排序（最新的在前）
-  filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-  
-  // 更新总数（避免在computed中直接修改ref值）
-  // const totalFiltered = filtered.length;
-  
-  // 分页
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  return filtered.slice(start, end);
-});
 
-const totalPractices = computed(() => {
-  let filtered = practices.value;
-  
-  // 按搜索关键词过滤
-  if (searchKeyword.value) {
-    filtered = filtered.filter(practice =>
-      practice.title.includes(searchKeyword.value) ||
-      practice.content.includes(searchKeyword.value)
+  // 分类筛选
+  if (filterCategory.value) {
+    filtered = filtered.filter(practice => practice.category === filterCategory.value);
+  }
+
+  // 关键词筛选
+  const keyword = searchKeyword.value?.trim();
+  if (keyword) {
+    filtered = filtered.filter(
+      practice =>
+        (practice.title || '').includes(keyword) ||
+        (practice.content || '').includes(keyword) ||
+        (practice.notes || '').includes(keyword)
     );
   }
-  
-  // 按字体样式过滤
-  if (filterStyle.value) {
-    filtered = filtered.filter(practice => practice.style === filterStyle.value);
-  }
-  
-  return filtered.length;
-});
-const totalPages = computed(() => {
-  return Math.ceil(totalPractices.value / pageSize.value);
+
+  // 按练习日期排序（最新的在前）
+  filtered.sort(
+    (a, b) =>
+      new Date(b.practiceDate || b.createdAt) - new Date(a.practiceDate || a.createdAt)
+  );
+
+  return filtered;
 });
 
-// 统计数据 - 使用纯函数计算，避免副作用
-const calculateTotalPracticeDays = () => {
-  const uniqueDays = new Set(practices.value.map(p => p.date));
-  return uniqueDays.size;
-};
+const totalPractices = computed(() => filteredPractices.value.length);
+const totalPages = computed(() => Math.ceil(totalPractices.value / pageSize.value));
+const pagedPractices = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  return filteredPractices.value.slice(start, start + pageSize.value);
+});
 
-const calculateTotalPracticeHours = () => {
-  const totalMinutes = practices.value.reduce((sum, p) => sum + p.duration, 0);
-  return totalMinutes / 60;
-};
+// 练习日历：按真实记录聚合每一天的练习次数 / 时长 / 字数
+const practiceByDate = computed(() => {
+  const map = new Map();
+  practices.value.forEach(practice => {
+    const raw = practice.practiceDate || practice.createdAt;
+    if (!raw) return;
+    const date = new Date(raw);
+    if (Number.isNaN(date.getTime())) return;
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const entry = map.get(key) || { count: 0, duration: 0, characterCount: 0 };
+    entry.count += 1;
+    entry.duration += practice.duration || 0;
+    entry.characterCount += practice.characterCount || 0;
+    map.set(key, entry);
+  });
+  return map;
+});
 
-const calculateTotalCharacters = () => {
-  return practices.value.reduce((sum, p) => sum + p.charactersCount, 0);
-};
-
-const calculateMaxStreakDays = () => {
-  const sortedDates = practices.value
-    .map(p => new Date(p.date))
-    .sort((a, b) => a - b);
-    
-  if (sortedDates.length === 0) return 0;
-  
-  let maxStreak = 1;
-  let currentStreak = 1;
-  
-  for (let i = 1; i < sortedDates.length; i++) {
-    const prevDate = new Date(sortedDates[i - 1]);
-    const currDate = new Date(sortedDates[i]);
-    const dayDiff = (currDate - prevDate) / (1000 * 60 * 60 * 24);
-    
-    if (dayDiff === 1) {
-      currentStreak++;
-      maxStreak = Math.max(maxStreak, currentStreak);
-    } else if (dayDiff > 1) {
-      currentStreak = 1;
+const calendarMonths = computed(() => {
+  const months = [];
+  const now = new Date();
+  for (let offset = 5; offset >= 0; offset--) {
+    const cursor = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+    const year = cursor.getFullYear();
+    const month = cursor.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const days = [];
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      const key = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const stat = practiceByDate.value.get(key);
+      days.push({
+        key,
+        day,
+        isFuture: date.getTime() > now.getTime(),
+        count: stat?.count || 0,
+        duration: stat?.duration || 0,
+        characterCount: stat?.characterCount || 0
+      });
     }
+    months.push({
+      key: `${year}-${month + 1}`,
+      label: `${year}年${month + 1}月`,
+      days
+    });
   }
-  
-  return maxStreak;
-};
+  return months;
+});
 
 // 生命周期钩子
 onMounted(() => {
   loadPractices();
-  // 初始化统计数据
-  totalPracticeDays.value = calculateTotalPracticeDays();
-  totalPracticeHours.value = calculateTotalPracticeHours();
-  totalCharacters.value = calculateTotalCharacters();
-  maxStreakDays.value = calculateMaxStreakDays();
+  loadStatistics();
 });
 
 // 加载练习记录
 const loadPractices = async () => {
+  loading.value = true;
+  loadError.value = '';
   try {
-    // 在实际项目中，这里应该调用API获取用户练习记录
-    // const practiceData = await userStore.fetchPractices();
-    // practices.value = practiceData;
-    
-    // 这里使用模拟数据
-    console.log('加载练习记录');
-    
-    // 更新统计数据
-    totalPracticeDays.value = calculateTotalPracticeDays();
-    totalPracticeHours.value = calculateTotalPracticeHours();
-    totalCharacters.value = calculateTotalCharacters();
-    maxStreakDays.value = calculateMaxStreakDays();
+    if (typeof userStore.fetchPractices !== 'function') {
+      throw new Error('userStore 尚未提供 fetchPractices 动作');
+    }
+    // 列表端点返回分页信封 {content,page,size,total,totalPages}
+    const payload = await userStore.fetchPractices({ page: 0, size: HISTORY_WINDOW });
+    const list = Array.isArray(payload)
+      ? payload
+      : (Array.isArray(payload?.content) ? payload.content : []);
+    practices.value = list;
+    recordsTotal.value = typeof payload?.total === 'number' ? payload.total : list.length;
+    currentPage.value = 1;
   } catch (error) {
+    practices.value = [];
+    loadError.value = error?.message || '加载练习记录失败';
+    ElMessage.error(loadError.value);
     console.error('加载练习记录失败:', error);
-    ElMessage.error('加载练习记录失败，请稍后重试');
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 加载练习统计
+const loadStatistics = async () => {
+  statsLoading.value = true;
+  statsError.value = '';
+  try {
+    const payload = await copybookAPI.getUserStatistics();
+    statistics.value = payload || null;
+  } catch (error) {
+    statistics.value = null;
+    statsError.value = error?.message || '加载练习统计失败';
+    ElMessage.error(statsError.value);
+    console.error('加载练习统计失败:', error);
+  } finally {
+    statsLoading.value = false;
   }
 };
 
 // 刷新练习记录
-const refreshPractices = () => {
+const refreshPractices = async () => {
   currentPage.value = 1;
-  loadPractices();
+  await Promise.all([loadPractices(), loadStatistics()]);
   ElMessage.success('数据已刷新');
 };
 
 // 查看练习详情
 const viewPracticeDetail = (practice) => {
-  Object.assign(selectedPractice, practice);
+  selectedPractice.value = practice;
   dialogVisible.value = true;
-};
-
-// 删除练习记录
-const deletePractice = async (practiceId) => {
-  try {
-    await ElMessageBox.confirm(
-      '确定要删除这个练习记录吗？此操作不可撤销',
-      '确认删除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    );
-    
-    // 在实际项目中，这里应该调用API删除练习记录
-    const index = practices.value.findIndex(p => p.id === practiceId);
-    if (index !== -1) {
-      practices.value.splice(index, 1);
-      ElMessage.success('练习记录已删除');
-    }
-  } catch (error) {
-    // 如果用户取消确认，则不处理错误
-    if (error !== 'cancel') {
-      console.error('删除练习记录失败:', error);
-      ElMessage.error('删除练习记录失败，请稍后重试');
-    }
-  }
 };
 
 // 导出练习详情
 const exportPracticeDetail = (practice) => {
-  // 在实际项目中，这里应该实现导出功能
-  ElMessage.success('练习详情已导出为PDF');
-  console.log('导出练习详情:', practice);
+  if (!practice) return;
+  const payload = {
+    id: practice.id,
+    标题: practice.title || '',
+    练习日期: formatDate(practice.practiceDate || practice.createdAt),
+    分类: practice.category || '',
+    风格: practice.style || '',
+    难度: practice.difficulty || '',
+    练习时长秒: practice.duration ?? 0,
+    练习字数: practice.characterCount ?? 0,
+    练习内容: practice.content || '',
+    练习笔记: practice.notes || ''
+  };
+  try {
+    downloadFile(
+      JSON.stringify(payload, null, 2),
+      `练习详情_${practice.id || Date.now()}.json`,
+      'application/json'
+    );
+    ElMessage.success('练习详情已导出');
+  } catch (error) {
+    ElMessage.error('练习详情导出失败，请稍后重试');
+    console.error('导出练习详情失败:', error);
+  }
 };
 
 // 关闭对话框
 const closeDialog = () => {
   dialogVisible.value = false;
-  // 重置选中的练习
-  Object.keys(selectedPractice).forEach(key => {
-    selectedPractice[key] = key === 'duration' || key === 'charactersCount' ? 0 : 
-                          key === 'attachments' ? [] : '';
-  });
+  selectedPractice.value = null;
 };
 
 // 分页处理
-const handleSizeChange = (newSize) => {
-  pageSize.value = newSize;
+const handleSizeChange = () => {
   currentPage.value = 1;
 };
 
-const handleCurrentChange = (newCurrent) => {
-  currentPage.value = newCurrent;
+const handleCurrentChange = () => {
+  // 页码变化由 v-model:current-page 处理
 };
+
+// 筛选条件变化后回到第一页
+watch([dateRange, filterCategory, searchKeyword], () => {
+  currentPage.value = 1;
+});
 
 // 工具函数
-const getStyleName = (style) => {
-  const styleMap = {
-    'regular': '楷书',
-    'running': '行书',
-    'cursive': '草书',
-    'official': '隶书',
-    'seal': '篆书'
-  };
-  return styleMap[style] || style;
-};
-
 const formatDate = (dateStr) => {
   if (!dateStr) return '';
   const date = new Date(dateStr);
+  if (Number.isNaN(date.getTime())) return '';
   return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
 };
 
-const getMonthLabel = (monthOffset) => {
-  const now = new Date();
-  const targetDate = new Date(now.getFullYear(), now.getMonth() - monthOffset + 1, 1);
-  return new Intl.DateTimeFormat('zh-CN', { month: 'short' }).format(targetDate);
+// 契约里 duration 的单位是秒
+const formatMinutes = (seconds) => {
+  const value = Number(seconds);
+  if (!Number.isFinite(value) || value <= 0) return '0.0';
+  return (value / 60).toFixed(1);
 };
 
-const getCalendarDayClass = () => {
-  // 模拟日历热力图数据
-  const intensity = Math.floor(Math.random() * 4);
-  return `intensity-${intensity}`;
+const getCalendarDayClass = (day) => {
+  if (day.isFuture) return 'is-future';
+  if (day.count === 0) return 'intensity-0';
+  if (day.count === 1) return 'intensity-1';
+  if (day.count === 2) return 'intensity-2';
+  return 'intensity-3';
 };
 
-const getCalendarDayTooltip = () => {
-  // 模拟日历提示信息
-  const intensity = Math.floor(Math.random() * 4);
-  const hours = intensity * 0.5;
-  const characters = intensity * 100;
-  
-  const now = new Date();
-  const targetDate = new Date(now.getFullYear(), now.getMonth(), 1);
-  const dateStr = formatDate(targetDate);
-  
-  if (intensity === 0) {
-    return `${dateStr}: 未练习`;
-  }
-  return `${dateStr}: 练习 ${hours} 小时, ${characters} 字`;
+const getCalendarDayTooltip = (day) => {
+  const label = `${day.key}`;
+  if (day.isFuture) return `${label}: 未开始`;
+  if (day.count === 0) return `${label}: 未练习`;
+  return `${label}: 练习 ${day.count} 次, ${formatMinutes(day.duration)} 分钟, ${day.characterCount} 字`;
 };
 </script>
 
@@ -472,8 +545,8 @@ const getCalendarDayTooltip = () => {
 
 .page-title {
   font-size: 2rem;
-  color: #333;
   margin-bottom: 0.5rem;
+  color: #333;
   font-family: 'SimSun', serif;
 }
 
@@ -513,9 +586,15 @@ const getCalendarDayTooltip = () => {
 .filter-section {
   display: flex;
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 0.5rem;
   flex-wrap: wrap;
   align-items: center;
+}
+
+.filter-hint {
+  color: #999;
+  font-size: 0.8rem;
+  margin: 0 0 1.5rem;
 }
 
 .date-picker {
@@ -524,6 +603,14 @@ const getCalendarDayTooltip = () => {
 
 .filter-select {
   min-width: 150px;
+}
+
+.filter-input {
+  width: 220px;
+}
+
+.state-alert {
+  margin-bottom: 1rem;
 }
 
 .practice-content {
@@ -593,12 +680,17 @@ const getCalendarDayTooltip = () => {
 .intensity-1 { background-color: #c6e48b; }
 .intensity-2 { background-color: #7bc96f; }
 .intensity-3 { background-color: #196127; }
+.is-future { background-color: #f5f5f5; }
 
 .table-section {
   background-color: rgba(255, 255, 255, 0.95);
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.table-wrapper {
+  min-height: 120px;
 }
 
 .pagination-container {
@@ -655,21 +747,22 @@ const getCalendarDayTooltip = () => {
   .my-practices-container {
     padding: 1rem;
   }
-  
+
   .stats-overview {
     grid-template-columns: 1fr;
   }
-  
+
   .filter-section {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .date-picker,
-  .filter-select {
+  .filter-select,
+  .filter-input {
     width: 100%;
   }
-  
+
   .calendar-heatmap {
     min-width: 600px;
   }

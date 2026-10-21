@@ -30,7 +30,7 @@
             <el-col :span="14">
               <el-input
                 v-model="registerForm.verificationCode"
-                placeholder="请输入验证码"
+                placeholder="请输入验证码（可选）"
                 prefix-icon="el-icon-key"
               />
             </el-col>
@@ -52,7 +52,7 @@
           <el-input
             v-model="registerForm.password"
             type="password"
-            placeholder="请设置密码（至少6位）"
+            placeholder="请设置密码（至少6位，含大小写字母和数字）"
             prefix-icon="el-icon-lock"
             show-password
           />
@@ -99,10 +99,12 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { useUserStore } from '../stores/userStore';
+import { authAPI, setToken, setRefreshToken, setUserType } from '../utils/api';
+import { USER_TYPES, STORAGE_KEYS } from '../utils/constants';
 
 // 引入状态管理
 const userStore = useUserStore();
@@ -112,6 +114,7 @@ const isLoading = ref(false);
 const sendingCode = ref(false);
 const countdown = ref(0);
 const agreeTerms = ref(false);
+let countdownTimer = null;
 
 // 注册表单数据
 const registerForm = reactive({
@@ -134,12 +137,16 @@ const registerRules = {
     { type: 'email', message: '请输入有效的邮箱地址', trigger: 'blur' }
   ],
   verificationCode: [
-    { required: true, message: '请输入验证码', trigger: 'blur' },
-    { min: 4, max: 6, message: '验证码长度为4-6位', trigger: 'blur' }
+    { max: 6, message: '验证码长度不能超过6位', trigger: 'blur' }
   ],
   password: [
     { required: true, message: '请设置密码', trigger: 'blur' },
-    { min: 6, message: '密码长度至少为 6 个字符', trigger: 'blur' }
+    { min: 6, message: '密码长度至少为 6 个字符', trigger: 'blur' },
+    {
+      pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/,
+      message: '密码必须同时包含大写字母、小写字母和数字',
+      trigger: 'blur'
+    }
   ],
   confirmPassword: [
     { required: true, message: '请再次输入密码', trigger: 'blur' },
@@ -165,33 +172,51 @@ const registerRules = {
   ]
 };
 
-// 发送验证码
+// 读取存储里的令牌：store 写入时做过 JSON.stringify，
+// 而统一请求层读的是裸字符串，这里把引号去掉再写回去。
+const readStoredToken = (raw) => {
+  if (!raw) {
+    return '';
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    return typeof parsed === 'string' ? parsed : '';
+  } catch {
+    return raw;
+  }
+};
+
+// 注册成功后把令牌写进统一请求层读的那份存储（注册走会话存储）
+const persistSession = () => {
+  const token = readStoredToken(sessionStorage.getItem(STORAGE_KEYS.AUTH_TOKEN))
+    || readStoredToken(localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN));
+  const refreshToken = readStoredToken(sessionStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN))
+    || readStoredToken(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN));
+
+  if (token) {
+    setToken(token, false);
+  }
+  if (refreshToken) {
+    setRefreshToken(refreshToken, false);
+  }
+  setUserType(USER_TYPES.FRONTEND);
+};
+
+// 发送验证码：POST /api/auth/verification-code
 const sendVerificationCode = async () => {
-  // 验证邮箱格式
-  const emailRule = registerRules.email[1];
-  if (!emailRule.validator || !emailRule.validator({}, registerForm.email, () => {})) {
-    if (!emailRule.type || emailRule.type !== 'email' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(registerForm.email)) {
-      ElMessage.warning('请输入有效的邮箱地址');
-      return;
-    }
+  const email = registerForm.email.trim();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    ElMessage.warning('请输入有效的邮箱地址');
+    return;
   }
 
+  sendingCode.value = true;
   try {
-    sendingCode.value = true;
-    console.log('准备发送验证码到邮箱:', registerForm.email);
-
-    // 模拟发送验证码API调用
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    console.log('验证码发送成功');
-    ElMessage.success('验证码已发送至您的邮箱: ' + registerForm.email);
-
-    // 开始倒计时
+    await authAPI.sendVerificationCode({ email });
+    ElMessage.success('验证码已发送至您的邮箱: ' + email);
     startCountdown();
-
   } catch (error) {
-    console.error('发送验证码失败:', error);
-    ElMessage.error('发送验证码失败，请稍后重试');
+    ElMessage.error(error?.message || '发送验证码失败，请稍后重试');
   } finally {
     sendingCode.value = false;
   }
@@ -200,71 +225,68 @@ const sendVerificationCode = async () => {
 // 倒计时功能
 const startCountdown = () => {
   countdown.value = 60;
-  const timer = setInterval(() => {
+  if (countdownTimer) {
+    clearInterval(countdownTimer);
+  }
+  countdownTimer = setInterval(() => {
     if (countdown.value > 0) {
       countdown.value--;
     } else {
-      clearInterval(timer);
+      clearInterval(countdownTimer);
+      countdownTimer = null;
     }
   }, 1000);
 };
 
 // 处理注册
 const handleRegister = async () => {
+  if (!registerFormRef.value) {
+    ElMessage.error('表单初始化失败，请刷新页面重试');
+    return;
+  }
+
   try {
-    // 添加表单引用检查
-    if (!registerFormRef.value) {
-      console.error('表单引用未找到');
-      ElMessage.error('表单初始化失败，请刷新页面重试');
-      return;
-    }
-
     await registerFormRef.value.validate();
-    console.log('注册表单验证通过，准备发送注册请求:', { username: registerForm.username, email: registerForm.email });
+  } catch {
+    return;
+  }
 
-    // 检查是否同意条款
-    if (!agreeTerms.value) {
-      ElMessage.warning('请阅读并同意用户协议和隐私政策');
-      return;
-    }
+  if (!agreeTerms.value) {
+    ElMessage.warning('请阅读并同意用户协议和隐私政策');
+    return;
+  }
 
-    // 调用store的注册方法
-    console.log('开始注册用户');
-    isLoading.value = true;
-
+  isLoading.value = true;
+  try {
+    // 契约的 RegisterRequest：username / email / password 必填，verificationCode 可选
     const success = await userStore.register({
-      username: registerForm.username,
-      email: registerForm.email,
+      username: registerForm.username.trim(),
+      email: registerForm.email.trim(),
       password: registerForm.password,
-      confirmPassword: registerForm.confirmPassword
+      verificationCode: registerForm.verificationCode.trim()
     });
 
-    if (success) {
-      console.log('注册成功，用户信息:', userStore.userInfo);
-      ElMessage.success('注册成功！欢迎加入书法练习平台，' + (userStore.userInfo?.username || registerForm.username));
-
-      // 注册成功后跳转到首页
-      setTimeout(() => {
-        console.log('注册成功，跳转到首页');
-        router.push('/');
-      }, 1500);
-    } else {
-      console.error('注册失败:', userStore.error);
+    if (!success) {
       ElMessage.error(userStore.error || '注册失败，请稍后重试');
+      return;
     }
+
+    persistSession();
+    ElMessage.success('注册成功！欢迎加入书法练习平台，' + (userStore.userInfo?.username || registerForm.username));
+    router.push('/');
   } catch (error) {
-    console.error('注册过程中发生错误:', error);
-    if (error !== false) {
-      if (error.message?.includes('表单验证失败')) {
-        ElMessage.warning('请检查表单填写是否正确');
-      } else {
-        ElMessage.error('注册过程中发生错误，请稍后重试');
-      }
-    }
+    ElMessage.error(error?.message || '注册过程中发生错误，请稍后重试');
   } finally {
     isLoading.value = false;
   }
 };
+
+onUnmounted(() => {
+  if (countdownTimer) {
+    clearInterval(countdownTimer);
+    countdownTimer = null;
+  }
+});
 </script>
 
 <style scoped>

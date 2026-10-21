@@ -61,7 +61,8 @@ import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { useUserStore } from '../stores/userStore';
-
+import { setToken, setRefreshToken, setUserType } from '../utils/api';
+import { USER_TYPES, STORAGE_KEYS } from '../utils/constants';
 
 // 引入状态管理
 const userStore = useUserStore();
@@ -88,59 +89,84 @@ const formRules = {
   ]
 };
 
+// 读取存储里的令牌：store 写入时做过 JSON.stringify，
+// 而统一请求层读的是裸字符串，这里把引号去掉再写回去。
+const readStoredToken = (raw) => {
+  if (!raw) {
+    return '';
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    return typeof parsed === 'string' ? parsed : '';
+  } catch {
+    return raw;
+  }
+};
+
+// 登录成功后把令牌写进统一请求层读的那份存储
+const persistSession = (remember) => {
+  const primary = remember ? localStorage : sessionStorage;
+  const fallback = remember ? sessionStorage : localStorage;
+
+  const token = readStoredToken(primary.getItem(STORAGE_KEYS.AUTH_TOKEN))
+    || readStoredToken(fallback.getItem(STORAGE_KEYS.AUTH_TOKEN));
+  const refreshToken = readStoredToken(primary.getItem(STORAGE_KEYS.REFRESH_TOKEN))
+    || readStoredToken(fallback.getItem(STORAGE_KEYS.REFRESH_TOKEN));
+
+  if (token) {
+    setToken(token, remember);
+  }
+  if (refreshToken) {
+    setRefreshToken(refreshToken, remember);
+  }
+  setUserType(USER_TYPES.FRONTEND);
+};
+
 // 处理登录
 const handleLogin = async () => {
+  if (!loginFormRef.value) {
+    ElMessage.error('表单初始化失败，请刷新页面重试');
+    return;
+  }
+
   try {
-    // 添加表单引用检查
-    if (!loginFormRef.value) {
-      console.error('表单引用未找到');
-      ElMessage.error('表单初始化失败，请刷新页面重试');
+    await loginFormRef.value.validate();
+  } catch {
+    return;
+  }
+
+  isLoading.value = true;
+  try {
+    const success = await userStore.login(loginForm.username, loginForm.password, rememberMe.value);
+
+    if (!success) {
+      // store 已把后端返回的 message 放进 error
+      ElMessage.error(userStore.error || '登录失败，请检查用户名和密码');
       return;
     }
 
-    // 表单验证
-    await loginFormRef.value.validate();
-    console.log('登录表单验证通过，准备发送登录请求');
+    persistSession(rememberMe.value);
+    ElMessage.success('登录成功！欢迎回来，' + (userStore.userInfo?.username || loginForm.username));
 
-    // 调用store的登录方法
-    const success = await userStore.login(loginForm.username, loginForm.password, rememberMe.value);
+    // 保存用户名到sessionStorage
+    sessionStorage.setItem('username', loginForm.username);
 
-    if (success) {
-      console.log('登录成功，用户信息:', userStore.userInfo);
-      ElMessage.success('登录成功！欢迎回来，' + (userStore.userInfo?.username || loginForm.username));
-
-      // 保存用户名到sessionStorage
-      sessionStorage.setItem('username', loginForm.username);
-
-      // 如果选择记住我，保存用户名到localStorage
-      if (rememberMe.value) {
-        localStorage.setItem('rememberedUsername', loginForm.username);
-      } else {
-        localStorage.removeItem('rememberedUsername');
-      }
-
-      // 根据用户角色跳转
-      console.log('用户角色:', userStore.getUserRole);
-      setTimeout(() => {
-        if (userStore.isAdmin) {
-          console.log('跳转到管理员页面');
-          router.push('/admin');
-        } else {
-          console.log('跳转到首页');
-          router.push('/');
-        }
-      }, 500);
+    // 如果选择记住我，保存用户名到localStorage
+    if (rememberMe.value) {
+      localStorage.setItem('rememberedUsername', loginForm.username);
     } else {
-      console.error('登录失败:', userStore.error);
-      ElMessage.error(userStore.error || '登录失败，请检查用户名和密码');
+      localStorage.removeItem('rememberedUsername');
+    }
+
+    if (userStore.isAdmin) {
+      router.push('/admin');
+    } else {
+      router.push('/');
     }
   } catch (error) {
-    console.error('登录过程中发生错误:', error);
-    if (error.message?.includes('表单验证失败')) {
-      ElMessage.warning('请检查表单填写是否正确');
-    } else {
-      ElMessage.error('登录过程中发生错误，请稍后重试');
-    }
+    ElMessage.error(error?.message || '登录过程中发生错误，请稍后重试');
+  } finally {
+    isLoading.value = false;
   }
 };
 

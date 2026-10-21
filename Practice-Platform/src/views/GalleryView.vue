@@ -4,7 +4,7 @@
       <h2 class="section-title">作品展示</h2>
       <p class="section-subtitle">欣赏书法爱好者的优秀作品，获得灵感</p>
     </div>
-    
+
     <!-- 筛选和搜索 -->
     <div class="filter-section">
       <div class="search-bar">
@@ -16,17 +16,8 @@
           @input="handleSearch"
         />
       </div>
-      
+
       <div class="filter-options">
-        <el-select v-model="selectedCategory" placeholder="分类" @change="handleFilter">
-          <el-option label="全部" value="all" />
-          <el-option label="楷书" value="kai" />
-          <el-option label="行书" value="xing" />
-          <el-option label="草书" value="cao" />
-          <el-option label="隶书" value="li" />
-          <el-option label="篆书" value="zhuan" />
-        </el-select>
-        
         <el-select v-model="sortBy" placeholder="排序" @change="handleSort">
           <el-option label="最新上传" value="latest" />
           <el-option label="最多点赞" value="popular" />
@@ -34,91 +25,109 @@
         </el-select>
       </div>
     </div>
-    
-    <!-- 作品网格 -->
-    <div class="works-grid">
-      <div 
-      v-for="work in filteredWorks" 
-      :key="work.id" 
-      class="work-card"
-      @click="viewWorkDetail(work.id)"
+    <p class="filter-hint">后端列表接口只支持分页，搜索与排序作用于当前页已加载的作品。</p>
+
+    <!-- 错误状态 -->
+    <el-alert
+      v-if="errorMessage"
+      class="state-alert"
+      type="error"
+      :title="errorMessage"
+      show-icon
+      :closable="false"
     >
-      <div class="work-thumbnail">
-        <img :src="work.imageUrl" :alt="work.title" class="work-image" />
-        <div class="work-category" :class="work.category">
-          {{ getCategoryName(work.category) }}
-        </div>
-        <div class="work-overlay">
-          <button class="overlay-btn" @click.stop="handleLike(work)" :class="{ active: work.isLiked }">
-            <i class="el-icon-thumb-up"></i>
-            {{ work.likes }}
-          </button>
-          <button class="overlay-btn" @click.stop="handleComment(work)">
-            <i class="el-icon-chat-dot-round"></i>
-            {{ work.comments }}
-          </button>
-          <button class="overlay-btn" @click.stop="handleFavorite(work)" :class="{ active: work.isFavorite }">
-            <i class="el-icon-star-off"></i>
-          </button>
-        </div>
-      </div>
-      
-      <div class="work-info">
-        <h3 class="work-title">{{ work.title }}</h3>
-        
-        <div class="work-meta">
-          <div class="author-info">
-            <img :src="work.authorAvatar" :alt="work.authorName" class="author-avatar" />
-            <span class="author-name">{{ work.authorName }}</span>
+      <template #default>
+        <el-button type="primary" size="small" @click="loadWorks">重新加载</el-button>
+      </template>
+    </el-alert>
+
+    <!-- 作品网格 -->
+    <div class="works-area" v-loading="loading">
+      <div class="works-grid">
+        <div
+          v-for="work in filteredWorks"
+          :key="work.id"
+          class="work-card"
+          @click="viewWorkDetail(work)"
+        >
+          <div class="work-thumbnail">
+            <img v-if="work.imageUrl" :src="work.imageUrl" :alt="work.title" class="work-image" />
+            <div v-else class="work-image work-image-placeholder">暂无图片</div>
+            <div class="work-overlay">
+              <span class="overlay-stat">
+                <i class="el-icon-thumb-up"></i>
+                {{ work.likeCount || 0 }}
+              </span>
+              <span class="overlay-stat">
+                <i class="el-icon-chat-dot-round"></i>
+                {{ work.commentCount || 0 }}
+              </span>
+            </div>
           </div>
-          
-          <div class="work-stats">
-            <span class="stat-item">
-              <i class="el-icon-thumb-up"></i>
-              {{ work.likes }}
-            </span>
-            <span class="stat-item">
-              <i class="el-icon-chat-dot-round"></i>
-              {{ work.comments }}
-            </span>
-            <span class="stat-item">
-              <i class="el-icon-view"></i>
-              {{ work.views }}
-            </span>
-          </div>
-        </div>
-          
-          <div class="work-desc">
-            {{ truncateText(work.description, 50) }}
-          </div>
-          
-          <div class="work-date">
-            {{ formatDate(work.createdAt) }}
+
+          <div class="work-info">
+            <h3 class="work-title">{{ work.title }}</h3>
+
+            <div class="work-meta">
+              <div class="author-info">
+                <img
+                  v-if="work.userAvatar"
+                  :src="work.userAvatar"
+                  :alt="authorName(work)"
+                  class="author-avatar"
+                />
+                <span v-else class="author-avatar author-avatar-fallback">{{ authorInitial(work) }}</span>
+                <span class="author-name">{{ authorName(work) }}</span>
+              </div>
+
+              <div class="work-stats">
+                <span class="stat-item">
+                  <i class="el-icon-thumb-up"></i>
+                  {{ work.likeCount || 0 }}
+                </span>
+                <span class="stat-item">
+                  <i class="el-icon-chat-dot-round"></i>
+                  {{ work.commentCount || 0 }}
+                </span>
+                <span class="stat-item">
+                  <i class="el-icon-view"></i>
+                  {{ work.viewCount || 0 }}
+                </span>
+              </div>
+            </div>
+
+            <div class="work-desc">
+              {{ truncateText(work.description, 50) }}
+            </div>
+
+            <div class="work-date">
+              {{ formatDate(work.createdAt) }}
+            </div>
           </div>
         </div>
       </div>
     </div>
-    
+
     <!-- 空状态 -->
-    <div v-if="filteredWorks.length === 0" class="empty-state">
-      <div class="empty-icon">🖼️</div>
-      <p>暂无符合条件的作品</p>
-      <el-button type="primary" @click="resetFilters">重置筛选条件</el-button>
+    <div v-if="!loading && !errorMessage && filteredWorks.length === 0" class="empty-state">
+      <el-empty :description="works.length === 0 ? '暂无公开作品' : '暂无符合条件的作品'">
+        <el-button v-if="works.length > 0" type="primary" @click="resetFilters">重置筛选条件</el-button>
+      </el-empty>
     </div>
-    
+
     <!-- 分页 -->
-    <div class="pagination" v-if="filteredWorks.length > 0">
+    <div class="pagination" v-if="totalItems > 0">
       <el-pagination
         v-model:current-page="currentPage"
         v-model:page-size="pageSize"
         :page-sizes="[12, 24, 36]"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="filteredWorks.length"
+        :total="totalItems"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       />
     </div>
-    
+
     <!-- 上传按钮 -->
     <div class="upload-button-container">
       <el-button
@@ -126,12 +135,12 @@
         icon="el-icon-plus"
         circle
         class="floating-upload-btn"
-        @click="goToUpload"
+        @click="openUploadDialog"
       >
         上传作品
       </el-button>
     </div>
-    
+
     <!-- 作品详情对话框 -->
     <el-dialog
       v-model="showDetailDialog"
@@ -141,219 +150,235 @@
     >
       <div v-if="selectedWork" class="work-detail">
         <div class="detail-image">
-          <img :src="selectedWork.imageUrl" :alt="selectedWork.title" class="full-image" />
+          <img
+            v-if="selectedWork.imageUrl"
+            :src="selectedWork.imageUrl"
+            :alt="selectedWork.title"
+            class="full-image"
+          />
+          <div v-else class="full-image full-image-placeholder">暂无图片</div>
         </div>
-        
+
         <div class="detail-info">
           <div class="detail-header">
             <h3>{{ selectedWork.title }}</h3>
-            <div class="detail-category" :class="selectedWork.category">
-              {{ getCategoryName(selectedWork.category) }}
-            </div>
           </div>
-          
+
           <div class="detail-meta">
             <div class="author-section">
-              <img :src="selectedWork.authorAvatar" :alt="selectedWork.authorName" class="author-avatar-large" />
+              <img
+                v-if="selectedWork.userAvatar"
+                :src="selectedWork.userAvatar"
+                :alt="authorName(selectedWork)"
+                class="author-avatar-large"
+              />
+              <span v-else class="author-avatar-large author-avatar-fallback">
+                {{ authorInitial(selectedWork) }}
+              </span>
               <div class="author-details">
-                <div class="author-name-large">{{ selectedWork.authorName }}</div>
+                <div class="author-name-large">{{ authorName(selectedWork) }}</div>
                 <div class="publish-date">{{ formatDate(selectedWork.createdAt) }}</div>
               </div>
-              <el-button type="primary" size="small" plain>关注作者</el-button>
             </div>
-            
+
             <div class="detail-stats">
               <div class="stat-box">
-                <div class="stat-number">{{ selectedWork.likes }}</div>
+                <div class="stat-number">{{ selectedWork.likeCount || 0 }}</div>
                 <div class="stat-label">点赞</div>
               </div>
               <div class="stat-box">
-                <div class="stat-number">{{ selectedWork.comments }}</div>
+                <div class="stat-number">{{ selectedWork.commentCount || 0 }}</div>
                 <div class="stat-label">评论</div>
               </div>
               <div class="stat-box">
-                <div class="stat-number">{{ selectedWork.views }}</div>
+                <div class="stat-number">{{ selectedWork.viewCount || 0 }}</div>
                 <div class="stat-label">浏览</div>
               </div>
             </div>
           </div>
-          
+
           <div class="detail-description">
             <h4>作品描述</h4>
-            <p>{{ selectedWork.description }}</p>
+            <p>{{ selectedWork.description || '这位书法家没有留下描述' }}</p>
           </div>
-          
+
           <div class="detail-actions">
-            <el-button 
-              type="primary" 
-              icon="el-icon-thumb-up" 
-              :class="{ active: selectedWork.isLiked }"
-              @click="handleLike(selectedWork)"
-            >
-              {{ selectedWork.isLiked ? '已点赞' : '点赞' }}
-            </el-button>
-            <el-button 
-              icon="el-icon-chat-dot-round" 
-              @click="handleComment(selectedWork)"
-            >
-              评论
-            </el-button>
-            <el-button 
-              icon="el-icon-star-off" 
-              :class="{ active: selectedWork.isFavorite }"
-              @click="handleFavorite(selectedWork)"
-            >
-              {{ selectedWork.isFavorite ? '已收藏' : '收藏' }}
-            </el-button>
-            <el-button 
-              icon="el-icon-share" 
-              @click="handleShare(selectedWork)"
-            >
-              分享
-            </el-button>
-            <el-button 
-              icon="el-icon-warning" 
-              type="danger" 
-              @click="handleReport(selectedWork)"
-            >
-              举报
+            <el-button icon="el-icon-chat-dot-round" @click="openComments(selectedWork)">
+              评论（{{ selectedWork.commentCount || 0 }}）
             </el-button>
           </div>
         </div>
       </div>
+    </el-dialog>
+
+    <!-- 评论对话框 -->
+    <el-dialog v-model="commentDialogVisible" title="作品评论" width="600px">
+      <div class="comment-area" v-loading="commentLoading">
+        <el-alert
+          v-if="commentError"
+          type="error"
+          :title="commentError"
+          show-icon
+          :closable="false"
+        />
+        <el-empty v-else-if="!commentLoading && comments.length === 0" description="暂无评论" :image-size="80" />
+        <ul v-else class="comment-list">
+          <li v-for="comment in comments" :key="comment.id" class="comment-item">
+            <div class="comment-author">{{ commentAuthor(comment) }}</div>
+            <div class="comment-content">{{ comment.content }}</div>
+            <div class="comment-date">{{ formatDate(comment.createdAt) }}</div>
+          </li>
+        </ul>
+      </div>
+
+      <template #footer>
+        <el-input
+          v-model="commentText"
+          type="textarea"
+          :rows="2"
+          maxlength="500"
+          show-word-limit
+          placeholder="说点什么吧…"
+        />
+        <el-button type="primary" :loading="commenting" @click="submitComment">发表</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 上传作品对话框 -->
+    <el-dialog v-model="uploadDialogVisible" title="上传作品" width="520px">
+      <el-form :model="uploadForm" label-width="80px">
+        <el-form-item label="标题" required>
+          <el-input v-model="uploadForm.title" maxlength="200" show-word-limit placeholder="请输入作品标题" />
+        </el-form-item>
+
+        <el-form-item label="描述">
+          <el-input
+            v-model="uploadForm.description"
+            type="textarea"
+            :rows="3"
+            maxlength="1000"
+            show-word-limit
+            placeholder="介绍一下你的作品"
+          />
+        </el-form-item>
+
+        <el-form-item label="图片">
+          <el-upload
+            :auto-upload="false"
+            :show-file-list="false"
+            accept="image/jpeg,image/png,image/webp"
+            :on-change="handleImageSelected"
+          >
+            <el-button>选择图片</el-button>
+          </el-upload>
+          <img v-if="imagePreview" :src="imagePreview" class="upload-preview" alt="待上传图片预览" />
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <el-button @click="uploadDialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="uploading" @click="submitWork">提交</el-button>
+      </template>
     </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
+import { worksAPI, communityAPI, getToken } from '../utils/api';
+import { useUserStore } from '../stores/userStore';
 
-// 状态管理
-const searchQuery = ref('');
-const selectedCategory = ref('all');
-const sortBy = ref('latest');
-const currentPage = ref(1);
+const router = useRouter();
+const userStore = useUserStore();
+
+// 是否已登录：store 状态 + 本地是否留有令牌
+const isLoggedIn = computed(() => userStore.isLoggedIn || Boolean(getToken()));
+
+// 列表状态
+const works = ref([]);
+const totalItems = ref(0);
+const currentPage = ref(1); // el-pagination 是 1 起，后端分页是 0 起
 const pageSize = ref(12);
+const loading = ref(false);
+const errorMessage = ref('');
+
+// 搜索与排序
+const searchQuery = ref('');
+const sortBy = ref('latest');
+
+// 详情对话框
 const showDetailDialog = ref(false);
 const selectedWork = ref(null);
 
-// 状态管理 - userStore已废弃，使用后端API获取用户信息
+// 评论对话框
+const commentDialogVisible = ref(false);
+const comments = ref([]);
+const commentText = ref('');
+const commentLoading = ref(false);
+const commenting = ref(false);
+const commentError = ref('');
 
-// 模拟作品数据
-const works = ref([
-  {
-    id: 1,
-    title: '宁静致远',
-    description: '这幅作品展现了宁静致远的意境，通过流畅的线条和和谐的布局，表达了书法家对平静生活的向往和追求。',
-    imageUrl: 'https://picsum.photos/seed/calligraphy1/800/600',
-    category: 'kai',
-    authorName: '王羲之',
-    authorAvatar: 'https://picsum.photos/seed/author1/100/100',
-    likes: 256,
-    comments: 32,
-    views: 1240,
-    createdAt: '2024-01-15T10:30:00Z'
-  },
-  {
-    id: 2,
-    title: '厚德载物',
-    description: '以楷书书写的经典名句，字体端庄大方，结构严谨，体现了中华传统文化的深厚底蕴。',
-    imageUrl: 'https://picsum.photos/seed/calligraphy2/800/600',
-    category: 'xing',
-    authorName: '颜真卿',
-    authorAvatar: 'https://picsum.photos/seed/author2/100/100',
-    likes: 189,
-    comments: 24,
-    views: 956,
-    createdAt: '2024-01-12T14:20:00Z'
-  },
-  {
-    id: 3,
-    title: '紫气东来',
-    description: '行草结合，笔势流畅，气势磅礴，展现了书法家深厚的功力和独特的艺术风格。',
-    imageUrl: 'https://picsum.photos/seed/calligraphy3/800/600',
-    category: 'cao',
-    authorName: '柳公权',
-    authorAvatar: 'https://picsum.photos/seed/author3/100/100',
-    likes: 324,
-    comments: 45,
-    views: 1567,
-    createdAt: '2024-01-10T09:15:00Z'
-  },
-  {
-    id: 4,
-    title: '天道酬勤',
-    description: '隶书作品，古朴典雅，结构扁平，蚕头燕尾，体现了汉代隶书的典型特征。',
-    imageUrl: 'https://picsum.photos/seed/calligraphy4/800/600',
-    category: 'li',
-    authorName: '欧阳询',
-    authorAvatar: 'https://picsum.photos/seed/author4/100/100',
-    likes: 210,
-    comments: 28,
-    views: 1023,
-    createdAt: '2024-01-08T16:45:00Z'
-  },
-  {
-    id: 5,
-    title: '上善若水',
-    description: '篆书作品，线条圆润，结构严谨，体现了中国古代文字的独特美感和艺术价值。',
-    imageUrl: 'https://picsum.photos/seed/calligraphy5/800/600',
-    category: 'zhuan',
-    authorName: '米芾',
-    authorAvatar: 'https://picsum.photos/seed/author5/100/100',
-    likes: 178,
-    comments: 21,
-    views: 876,
-    createdAt: '2024-01-05T11:20:00Z'
-  },
-  {
-    id: 6,
-    title: '家和万事兴',
-    description: '楷书作品，字体端庄秀丽，笔力雄健，表达了对家庭和睦的美好祝愿。',
-    imageUrl: 'https://picsum.photos/seed/calligraphy6/800/600',
-    category: 'kai',
-    authorName: '苏轼',
-    authorAvatar: 'https://picsum.photos/seed/author6/100/100',
-    likes: 234,
-    comments: 35,
-    views: 1156,
-    createdAt: '2024-01-03T13:50:00Z'
+// 上传对话框
+const uploadDialogVisible = ref(false);
+const uploadForm = ref({ title: '', description: '' });
+const selectedImage = ref(null);
+const imagePreview = ref('');
+const uploading = ref(false);
+
+// 加载公开作品：GET /api/works —— 公开端点，返回分页信封
+const loadWorks = async () => {
+  loading.value = true;
+  errorMessage.value = '';
+  try {
+    const response = await worksAPI.getWorks({
+      page: currentPage.value - 1,
+      size: pageSize.value,
+    });
+    works.value = Array.isArray(response?.content) ? response.content : [];
+    totalItems.value = typeof response?.total === 'number' ? response.total : works.value.length;
+    if (typeof response?.page === 'number' && response.page + 1 !== currentPage.value) {
+      currentPage.value = response.page + 1;
+    }
+  } catch (error) {
+    works.value = [];
+    totalItems.value = 0;
+    errorMessage.value = error?.message || '作品列表加载失败，请稍后重试';
+    ElMessage.error(errorMessage.value);
+  } finally {
+    loading.value = false;
   }
-]);
+};
 
-// 过滤后的作品
+// 过滤后的作品（后端列表接口只支持分页，筛选与排序在当前页内进行）
 const filteredWorks = computed(() => {
   let result = [...works.value];
-  
-  // 按分类过滤
-  if (selectedCategory.value !== 'all') {
-    result = result.filter(work => work.category === selectedCategory.value);
-  }
-  
-  // 按搜索词过滤
+
   if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase();
-    result = result.filter(work => 
-      work.title.toLowerCase().includes(query) ||
-      work.authorName.toLowerCase().includes(query) ||
-      work.description.toLowerCase().includes(query)
-    );
+    const query = searchQuery.value.trim().toLowerCase();
+    if (query) {
+      result = result.filter((work) =>
+        (work.title || '').toLowerCase().includes(query) ||
+        (work.username || '').toLowerCase().includes(query) ||
+        (work.userNickname || '').toLowerCase().includes(query) ||
+        (work.description || '').toLowerCase().includes(query)
+      );
+    }
   }
-  
-  // 排序
+
   switch (sortBy.value) {
-    case 'latest':
-      result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      break;
     case 'popular':
-      result.sort((a, b) => b.likes - a.likes);
+      result.sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0));
       break;
     case 'commented':
-      result.sort((a, b) => b.comments - a.comments);
+      result.sort((a, b) => (b.commentCount || 0) - (a.commentCount || 0));
+      break;
+    default:
+      result.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
       break;
   }
-  
+
   return result;
 });
 
@@ -362,13 +387,15 @@ const handleSearch = () => {
   currentPage.value = 1;
 };
 
-// 处理筛选
-const handleFilter = () => {
+// 处理排序
+const handleSort = () => {
   currentPage.value = 1;
 };
 
-// 处理排序
-const handleSort = () => {
+// 重置筛选条件
+const resetFilters = () => {
+  searchQuery.value = '';
+  sortBy.value = 'latest';
   currentPage.value = 1;
 };
 
@@ -376,29 +403,18 @@ const handleSort = () => {
 const handleSizeChange = (size) => {
   pageSize.value = size;
   currentPage.value = 1;
+  loadWorks();
 };
 
 const handleCurrentChange = (current) => {
   currentPage.value = current;
-};
-
-// 重置筛选条件
-const resetFilters = () => {
-  searchQuery.value = '';
-  selectedCategory.value = 'all';
-  sortBy.value = 'latest';
-  currentPage.value = 1;
+  loadWorks();
 };
 
 // 查看作品详情
-const viewWorkDetail = (workId) => {
-  const work = works.value.find(w => w.id === workId);
-  if (work) {
-    selectedWork.value = work;
-    showDetailDialog.value = true;
-    // 增加浏览量
-    work.views++;
-  }
+const viewWorkDetail = (work) => {
+  selectedWork.value = work;
+  showDetailDialog.value = true;
 };
 
 // 关闭详情对话框
@@ -407,23 +423,120 @@ const closeDetailDialog = () => {
   selectedWork.value = null;
 };
 
-// 前往上传页面
-const goToUpload = () => {
-  // 这里应该跳转到上传页面，目前显示提示
-  ElMessage.info('上传功能开发中');
+// 打开评论：GET /api/community/comments/work/{workId}
+const openComments = async (work) => {
+  selectedWork.value = work;
+  commentText.value = '';
+  commentError.value = '';
+  comments.value = [];
+  commentDialogVisible.value = true;
+  commentLoading.value = true;
+  try {
+    const response = await communityAPI.getWorkComments(work.id, { page: 0, size: 50 });
+    comments.value = Array.isArray(response?.content) ? response.content : [];
+  } catch (error) {
+    commentError.value = error?.message || '评论加载失败，请稍后重试';
+  } finally {
+    commentLoading.value = false;
+  }
+};
+
+// 发表评论：POST /api/community/comments
+const submitComment = async () => {
+  const content = commentText.value.trim();
+  if (!content) {
+    ElMessage.warning('请输入评论内容');
+    return;
+  }
+  if (!isLoggedIn.value) {
+    ElMessage.warning('请先登录后再发表评论');
+    router.push('/login');
+    return;
+  }
+
+  commenting.value = true;
+  try {
+    await communityAPI.createComment({ workId: selectedWork.value.id, content });
+    commentText.value = '';
+    ElMessage.success('评论已发表');
+    await openComments(selectedWork.value);
+    await loadWorks();
+  } catch (error) {
+    ElMessage.error(error?.message || '评论发表失败，请稍后重试');
+  } finally {
+    commenting.value = false;
+  }
+};
+
+// 打开上传对话框
+const openUploadDialog = () => {
+  if (!isLoggedIn.value) {
+    ElMessage.warning('请先登录后再上传作品');
+    router.push('/login');
+    return;
+  }
+  uploadForm.value = { title: '', description: '' };
+  selectedImage.value = null;
+  imagePreview.value = '';
+  uploadDialogVisible.value = true;
+};
+
+// 选择图片（只做本地校验，真正提交在 submitWork）
+const handleImageSelected = (file) => {
+  const raw = file?.raw;
+  if (!raw) {
+    return;
+  }
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(raw.type)) {
+    ElMessage.error('图片仅支持 JPG / PNG / WebP 格式');
+    return;
+  }
+  if (raw.size / 1024 / 1024 > 5) {
+    ElMessage.error('图片大小不能超过 5MB');
+    return;
+  }
+  selectedImage.value = raw;
+  imagePreview.value = URL.createObjectURL(raw);
+};
+
+// 提交作品：POST /api/works（multipart）
+const submitWork = async () => {
+  const title = uploadForm.value.title.trim();
+  if (!title) {
+    ElMessage.warning('请填写作品标题');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('title', title);
+  formData.append('description', uploadForm.value.description || '');
+  formData.append('content', uploadForm.value.description || title);
+  if (selectedImage.value) {
+    formData.append('image', selectedImage.value);
+  }
+
+  uploading.value = true;
+  try {
+    await worksAPI.createWork(formData);
+    ElMessage.success('作品已提交，审核通过后会出现在公开画廊');
+    uploadDialogVisible.value = false;
+    await loadWorks();
+  } catch (error) {
+    ElMessage.error(error?.message || '作品上传失败，请稍后重试');
+  } finally {
+    uploading.value = false;
+  }
 };
 
 // 工具函数
-const getCategoryName = (category) => {
-  const categories = {
-    kai: '楷书',
-    xing: '行书',
-    cao: '草书',
-    li: '隶书',
-    zhuan: '篆书'
-  };
-  return categories[category] || '其他';
+const authorName = (work) => work?.userNickname || work?.username || '匿名书友';
+
+const authorInitial = (work) => {
+  const name = authorName(work);
+  return name ? name.charAt(0) : '书';
 };
+
+const commentAuthor = (comment) => comment?.userNickname || comment?.username || '匿名书友';
 
 const truncateText = (text, maxLength) => {
   if (!text) return '';
@@ -431,16 +544,15 @@ const truncateText = (text, maxLength) => {
 };
 
 const formatDate = (dateString) => {
+  if (!dateString) return '';
   const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return '';
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 };
 
-
-
-// 组件挂载时初始化数据
+// 组件挂载时拉取真实数据
 onMounted(() => {
-  // 模拟从服务器加载数据
-  console.log('加载作品数据');
+  loadWorks();
 });
 </script>
 
@@ -470,7 +582,7 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 0.5rem;
   gap: 1rem;
   flex-wrap: wrap;
 }
@@ -485,7 +597,21 @@ onMounted(() => {
   gap: 1rem;
 }
 
+.filter-hint {
+  color: #999;
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.state-alert {
+  margin-bottom: 1.5rem;
+}
+
 /* 作品网格 */
+.works-area {
+  min-height: 12rem;
+}
+
 .works-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -520,25 +646,35 @@ onMounted(() => {
   transition: transform 0.3s;
 }
 
+.work-image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0eee9;
+  color: #999;
+  font-size: 0.9rem;
+}
+
 .work-card:hover .work-image {
   transform: scale(1.05);
 }
 
-.work-category {
+.work-overlay {
   position: absolute;
-  top: 10px;
   right: 10px;
-  padding: 0.3rem 0.8rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  color: white;
+  bottom: 10px;
+  display: flex;
+  gap: 0.8rem;
+  color: #fff;
+  font-size: 0.85rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
-.work-category.kai { background-color: #8B4513; }
-.work-category.xing { background-color: #A0522D; }
-.work-category.cao { background-color: #CD853F; }
-.work-category.li { background-color: #DEB887; }
-.work-category.zhuan { background-color: #F4A460; }
+.overlay-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
 
 .work-info {
   padding: 1.5rem;
@@ -569,6 +705,15 @@ onMounted(() => {
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+.author-avatar-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #8B4513;
+  color: #fff;
+  font-size: 0.9rem;
 }
 
 .author-name {
@@ -607,11 +752,6 @@ onMounted(() => {
   text-align: center;
   padding: 4rem 2rem;
   color: #999;
-}
-
-.empty-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
 }
 
 /* 分页 */
@@ -664,6 +804,15 @@ onMounted(() => {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
+.full-image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  background-color: #f0eee9;
+  color: #999;
+}
+
 .detail-info {
   flex: 1;
   display: flex;
@@ -675,13 +824,6 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.detail-category {
-  padding: 0.4rem 1rem;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  color: white;
 }
 
 .detail-meta {
@@ -754,39 +896,84 @@ onMounted(() => {
   margin-top: auto;
 }
 
+/* 评论 */
+.comment-area {
+  min-height: 8rem;
+  max-height: 22rem;
+  overflow-y: auto;
+}
+
+.comment-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.comment-item {
+  padding: 0.8rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.comment-author {
+  font-weight: bold;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.comment-content {
+  color: #555;
+  line-height: 1.6;
+  margin: 0.3rem 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.comment-date {
+  color: #999;
+  font-size: 0.8rem;
+}
+
+/* 上传 */
+.upload-preview {
+  display: block;
+  margin-top: 0.8rem;
+  max-width: 220px;
+  border-radius: 6px;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .filter-section {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .filter-options {
     justify-content: center;
   }
-  
+
   .works-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .work-detail {
     flex-direction: column;
   }
-  
+
   .detail-image {
     max-width: 100%;
   }
-  
+
   .detail-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
   .author-section {
     flex-wrap: wrap;
   }
-  
+
   .detail-stats {
     justify-content: space-around;
   }

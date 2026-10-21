@@ -21,14 +21,33 @@ const isSessionExpired = () => {
   return Date.now() - lastActivityTime > SESSION_TIMEOUT;
 };
 
+// 取存储里的令牌。
+// 注意：utils/storage.js 的 setStorage 会 JSON.stringify，存进去的是带引号的 "eyJ..."，
+// 而这里读的是裸值。早期 store 用 setStorage 存过令牌，所以这里要能兼容两种格式，
+// 否则请求头会变成 `Bearer "eyJ..."` → 401。
+const readRawToken = (raw) => {
+  if (!raw) return null;
+  const value = raw.trim();
+  if (value.startsWith('"') && value.endsWith('"')) {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value;
+    }
+  }
+  return value;
+};
+
 // 获取token
 const getToken = () => {
-  return localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN) || sessionStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+  return readRawToken(localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN))
+    || readRawToken(sessionStorage.getItem(STORAGE_KEYS.AUTH_TOKEN));
 };
 
 // 获取refreshToken
 const getRefreshToken = () => {
-  return localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN) || sessionStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+  return readRawToken(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN))
+    || readRawToken(sessionStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN));
 };
 
 // 设置token
@@ -59,7 +78,22 @@ const clearTokens = () => {
 };
 
 // 获取用户类型
-const getUserType = () => localStorage.getItem(STORAGE_KEYS.USER_TYPE) || USER_TYPES.FRONTEND;
+// 兼容 utils/storage.js 的 setStorage 写过的值：它会 JSON.stringify，
+// localStorage 里存的是带引号的 "ADMIN"，原样比较 === 'ADMIN' 会不成立，
+// 导致管理员的 401 自动续期打到 /frontend/auth/refresh。
+const getUserType = () => {
+  const raw = localStorage.getItem(STORAGE_KEYS.USER_TYPE);
+  if (!raw) return USER_TYPES.FRONTEND;
+  const value = raw.trim();
+  if (value.startsWith('"') && value.endsWith('"')) {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value;
+    }
+  }
+  return value;
+};
 
 // 设置用户类型
 const setUserType = (userType) => localStorage.setItem(STORAGE_KEYS.USER_TYPE, userType);
@@ -149,13 +183,31 @@ const checkAndRefreshToken = async () => {
   return getToken();
 };
 
+// 契约里标了 security: [] 的**公开端点**。
+// 这些端点不带令牌也能访问 —— 不能因为「没令牌」就把用户踢去登录页。
+// 路径是相对 /api 的（API_BASE_URL 已经带了 /api 前缀）。
+const PUBLIC_ENDPOINT_PATTERNS = [
+  /^\/frontend\/auth\/register$/,
+  /^\/frontend\/auth\/login$/,
+  /^\/backend\/auth\/login$/,
+  /^\/auth\/verification-code$/,
+  /^\/works$/,                                  // 公开画廊
+  /^\/stats\/overview$/,                        // 首页概览
+  /^\/copybooks$/,                              // 字帖列表
+  /^\/copybooks\/popular$/,                     // 热门字帖
+  /^\/copybooks\/[^/]+$/,                       // 字帖详情（单段，不会命中 statistics/user 与 practice/history）
+  /^\/discussions$/,                            // 讨论列表
+  /^\/discussions\/(hot|featured|pinned|search)$/,
+  /^\/discussions\/[^/]+$/,                      // 讨论详情
+  /^\/discussions\/[^/]+\/replies$/,             // 某个讨论的回复列表
+  /^\/community\/comments\/work\/[^/]+$/,        // 作品评论列表（按用户查评论历史仍需令牌）
+];
+
 // 请求拦截器
 const request = async (url, options = {}) => {
-  // 跳过某些公开接口的token验证（如登录、刷新token）
-  const publicPaths = ['/auth/login', '/auth/register', '/auth/verification-code'];
-  const isPublicPath = publicPaths.some(path =>
-    url.includes(path) || url.endsWith(path)
-  );
+  // 跳过某些公开接口的token验证（如登录、刷新token、公开画廊）
+  const pathOnly = url.split('?')[0];
+  const isPublicPath = PUBLIC_ENDPOINT_PATTERNS.some(re => re.test(pathOnly));
 
   let token;
 
@@ -207,6 +259,12 @@ const request = async (url, options = {}) => {
 
     // 解析响应数据
     let data;
+    // 204 No Content：成功但没有响应体。
+    // 契约里 PUT /api/users/password、DELETE /api/works/{id}、两个 logout 都返回 204，
+    // 无条件 await response.json() 会把**成功**当成「服务器响应格式错误」。
+    if (response.status === 204) {
+      return null;
+    }
     try {
       data = await response.json();
     } catch (jsonError) {
@@ -262,21 +320,30 @@ const request = async (url, options = {}) => {
     // 处理其他错误
     if (!response.ok) {
       console.error(`[API错误] ${url}:`, data);
+      // 统一抛一个带 status 的 Error —— 视图要能程序化区分
+      // 401（未登录）/ 403（越权）/ 404（不存在）/ 422（业务校验），
+      // 不能只能靠中文文案去匹配。
+      const apiError = (message) => {
+        const err = new Error(message);
+        err.status = response.status;
+        err.code = data?.code;
+        return err;
+      };
       // 429: 请求过于频繁
       if (response.status === 429) {
-        throw new Error(data.message || '请求过于频繁，请稍后再试');
+        throw apiError(data.message || '请求过于频繁，请稍后再试');
       }
       // 403: 权限不足
       else if (response.status === 403) {
-        throw new Error(data.message || '权限不足，无法访问');
+        throw apiError(data.message || '权限不足，无法访问');
       }
       // 500系列: 服务器错误
       else if (response.status >= 500) {
-        throw new Error(data.message || '服务器错误，请稍后再试');
+        throw apiError(data.message || '服务器错误，请稍后再试');
       }
       // 其他错误
       else {
-        throw new Error(data.message || data.title || '请求失败');
+        throw apiError(data.message || data.title || '请求失败');
       }
     }
 
@@ -290,11 +357,16 @@ const request = async (url, options = {}) => {
 };
 
 // 导出工具函数
-export { getToken, setToken, getRefreshToken, setRefreshToken, clearTokens, logout, updateActivityTime, setUserType };
+export { getToken, setToken, getRefreshToken, setRefreshToken, clearTokens, logout, updateActivityTime, setUserType, getUserType };
 
 // GET请求
 export const get = (url, params) => {
-  const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
+  // URLSearchParams 会把 undefined / null 变成字面量 "undefined" / "null"，
+  // 后端会收到一个值不是预期的查询参数。所以先滤掉空值。
+  const query = params
+    ? Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '')
+    : [];
+  const queryString = query.length ? '?' + new URLSearchParams(query).toString() : '';
   return request(`${url}${queryString}`, { method: 'GET' });
 };
 
@@ -330,88 +402,13 @@ export const upload = (url, formData) => {
 // 用户认证相关API
 export const authAPI = {
   // 前端用户注册
-  register: async (userData) => {
-    try {
-      // 尝试调用真实API
-      console.log('尝试前端用户注册API:', userData);
-      return await post('/frontend/auth/register', userData);
-    } catch (error) {
-      console.log('真实API调用失败，使用模拟数据:', error.message);
-      // 模拟数据响应，用于开发和演示
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve({
-            accessToken: 'mock-jwt-token-frontend-register-' + Date.now(),
-            refreshToken: 'mock-refresh-token-frontend-register-' + Date.now(),
-            user: {
-              id: 'frontend-new-' + Date.now(),
-              username: userData.username,
-              email: userData.email,
-              role: 'USER',
-              userType: USER_TYPES.FRONTEND,
-              avatar: 'https://picsum.photos/seed/' + userData.username + '/100/100'
-            }
-          });
-        }, 300);
-      });
-    }
-  },
+  register: (userData) => post('/frontend/auth/register', userData),
 
   // 前端用户登录
-  login: async (credentials) => {
-    try {
-      // 尝试调用真实API
-      console.log('尝试前端用户登录API:', credentials);
-      return await post('/frontend/auth/login', credentials);
-    } catch (error) {
-      console.log('真实API调用失败，使用模拟数据:', error.message);
-      // 模拟数据响应，用于开发和演示
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve({
-            accessToken: 'mock-jwt-token-frontend-' + Date.now(),
-            refreshToken: 'mock-refresh-token-frontend-' + Date.now(),
-            user: {
-              id: 'frontend-1',
-              username: credentials.username,
-              email: credentials.username + '@example.com',
-              role: 'USER',
-              userType: USER_TYPES.FRONTEND,
-              avatar: 'https://picsum.photos/seed/' + credentials.username + '/100/100'
-            }
-          });
-        }, 300);
-      });
-    }
-  },
+  login: (credentials) => post('/frontend/auth/login', credentials),
 
   // 后端管理员登录
-  adminLogin: async (credentials) => {
-    try {
-      // 尝试调用真实API
-      console.log('尝试后端管理员登录API:', credentials);
-      return await post('/backend/auth/login', credentials);
-    } catch (error) {
-      console.log('真实API调用失败，使用模拟数据:', error.message);
-      // 模拟数据响应，用于开发和演示
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve({
-            accessToken: 'mock-jwt-token-backend-' + Date.now(),
-            refreshToken: 'mock-refresh-token-backend-' + Date.now(),
-            user: {
-              id: 'backend-1',
-              username: credentials.username,
-              email: credentials.username + '@admin.com',
-              role: 'ADMIN',
-              userType: USER_TYPES.BACKEND,
-              avatar: 'https://picsum.photos/seed/admin-' + credentials.username + '/100/100'
-            }
-          });
-        }, 300);
-      });
-    }
-  },
+  adminLogin: (credentials) => post('/backend/auth/login', credentials),
 
   // 获取当前用户信息（根据用户类型）
   getProfile: () => {
@@ -448,22 +445,8 @@ export const authAPI = {
     }
   },
 
-  // 发送验证码（添加模拟数据支持）
-  sendVerificationCode: async (data) => {
-    try {
-      // 尝试调用真实API
-      console.log('尝试真实发送验证码API:', data);
-      return await post('/auth/verification-code', data);
-    } catch (error) {
-      console.log('真实API调用失败，使用模拟数据:', error.message);
-      // 模拟数据响应，用于开发和演示
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve({ success: true, message: '验证码已发送（模拟）', code: '123456' });
-        }, 300);
-      });
-    }
-  },
+  // 发送验证码
+  sendVerificationCode: (data) => post('/auth/verification-code', data),
 };
 
 // 用户管理相关API
@@ -483,24 +466,8 @@ export const userAPI = {
 
 // 作品相关API
 export const worksAPI = {
-  // 创建作品（添加模拟数据支持）
-  createWork: async (formData) => {
-    try {
-      // 尝试调用真实API
-      return await upload('/works', formData);
-    } catch (error) {
-      console.log('API调用失败，使用模拟数据:', error.message);
-      // 返回模拟数据，使用占位图片或Base64编码的简单图片
-      return {
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString(),
-        title: formData.get('title') || '未命名作品',
-        description: formData.get('description') || '',
-        imageUrl: 'https://via.placeholder.com/500x300?text=书法作品',
-        status: 'draft'
-      };
-    }
-  },
+  // 创建作品（multipart）
+  createWork: (formData) => upload('/works', formData),
 
   // 获取作品列表
   getWorks: (params) => get('/works', params),
@@ -534,11 +501,11 @@ export const fileReviewsAPI = {
 
 // 字帖相关API
 export const copybookAPI = {
-  // 获取字帖列表
+  // 获取字帖列表（返回分页信封 {content,page,size,total,totalPages}）
   getCopybooks: (params) => get('/copybooks', params),
 
   // 获取热门字帖
-  getPopularCopybooks: () => get('/copybooks/popular'),
+  getPopularCopybooks: (params) => get('/copybooks/popular', params),
 
   // 获取字帖详情
   getCopybookDetail: (copybookId) => get(`/copybooks/${copybookId}`),
@@ -546,8 +513,17 @@ export const copybookAPI = {
   // 记录练习历史
   recordPractice: (copybookId, practiceData) => post(`/copybooks/${copybookId}/practice`, practiceData),
 
+  // 获取当前用户的练习历史（分页信封）
+  getPracticeHistory: (params) => get('/copybooks/practice/history', params),
+
   // 获取用户练习统计
   getUserStatistics: () => get('/copybooks/statistics/user'),
+};
+
+// 统计相关API
+export const statsAPI = {
+  // 首页概览统计
+  getOverview: () => get('/stats/overview'),
 };
 
 // 社区评论相关API
@@ -576,6 +552,7 @@ export default {
   user: userAPI,
   works: worksAPI,
   copybook: copybookAPI,
+  stats: statsAPI,
   community: communityAPI,
   fileReviews: fileReviewsAPI,
   // Token管理函数

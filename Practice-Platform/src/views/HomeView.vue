@@ -15,7 +15,39 @@
         </div>
       </div>
     </section>
-    
+
+    <!-- 平台数据 -->
+    <section class="stats-section">
+      <h2 class="section-title">平台数据</h2>
+      <div class="stats-area" v-loading="statsLoading">
+        <el-alert
+          v-if="statsError"
+          type="error"
+          :title="statsError"
+          show-icon
+          :closable="false"
+        >
+          <template #default>
+            <el-button type="primary" size="small" @click="loadOverview">重新加载</el-button>
+          </template>
+        </el-alert>
+        <div v-else class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number">{{ overview.totalWorks }}</div>
+            <div class="stat-label">收录作品</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">{{ overview.totalUsers }}</div>
+            <div class="stat-label">注册用户</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">{{ overview.totalPracticeRecords }}</div>
+            <div class="stat-label">练习记录</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- 功能特点 -->
     <section class="features-section">
       <h2 class="section-title">平台特色</h2>
@@ -46,36 +78,66 @@
         </div>
       </div>
     </section>
-    
+
     <!-- 最新作品预览 -->
     <section class="preview-section">
       <div class="section-header">
         <h2 class="section-title">精选作品</h2>
         <router-link to="/gallery" class="view-more">查看更多 →</router-link>
       </div>
-      <div class="works-grid">
-        <div class="work-card" v-for="work in featuredWorks" :key="work.id">
-          <div class="work-thumbnail">
-            <img :src="work.thumbnail" :alt="work.title" class="work-image" />
-          </div>
-          <div class="work-info">
-            <h3 class="work-title">{{ work.title }}</h3>
-            <p class="work-author">作者: {{ work.author }}</p>
+      <div class="works-area" v-loading="worksLoading">
+        <el-alert
+          v-if="worksError"
+          type="error"
+          :title="worksError"
+          show-icon
+          :closable="false"
+        >
+          <template #default>
+            <el-button type="primary" size="small" @click="loadFeaturedWorks">重新加载</el-button>
+          </template>
+        </el-alert>
+        <el-empty v-else-if="!worksLoading && featuredWorks.length === 0" description="暂无公开作品" />
+        <div v-else class="works-grid">
+          <div class="work-card" v-for="work in featuredWorks" :key="work.id">
+            <div class="work-thumbnail">
+              <img v-if="work.imageUrl" :src="work.imageUrl" :alt="work.title" class="work-image" />
+              <div v-else class="work-image work-image-placeholder">暂无图片</div>
+            </div>
+            <div class="work-info">
+              <h3 class="work-title">{{ work.title }}</h3>
+              <p class="work-author">作者：{{ work.userNickname || work.username || '匿名书友' }}</p>
+            </div>
           </div>
         </div>
       </div>
     </section>
-    
-    <!-- 用户评价 -->
-    <section class="testimonials-section">
-      <h2 class="section-title">用户评价</h2>
-      <div class="testimonials-slider">
-        <div class="testimonial-item" v-for="testimonial in testimonials" :key="testimonial.id">
-          <div class="testimonial-content">
-            <p class="testimonial-text">{{ testimonial.content }}</p>
-            <div class="testimonial-author">
-              <span class="author-name">{{ testimonial.author }}</span>
-              <span class="author-role">{{ testimonial.role }}</span>
+
+    <!-- 热门字帖 -->
+    <section class="copybooks-section">
+      <div class="section-header">
+        <h2 class="section-title">热门字帖</h2>
+        <router-link to="/copybook" class="view-more">去练习 →</router-link>
+      </div>
+      <div class="copybooks-area" v-loading="statsLoading">
+        <el-empty
+          v-if="!statsLoading && !statsError && popularCopybooks.length === 0"
+          description="暂无热门字帖"
+        />
+        <div v-else class="copybooks-grid">
+          <div class="copybook-card" v-for="book in popularCopybooks" :key="book.id">
+            <div class="copybook-thumbnail">
+              <img v-if="book.imageUrl" :src="book.imageUrl" :alt="book.title" class="copybook-image" />
+              <div v-else class="copybook-image copybook-image-placeholder">暂无图片</div>
+            </div>
+            <div class="copybook-info">
+              <h3 class="copybook-title">{{ book.title }}</h3>
+              <p class="copybook-desc">{{ truncateText(book.description, 40) }}</p>
+              <div class="copybook-meta">
+                <span class="meta-item">{{ book.difficulty || '难度未知' }}</span>
+                <span class="meta-item">{{ book.characterCount || 0 }} 字</span>
+                <span class="meta-item">练习 {{ book.usageCount || 0 }} 次</span>
+              </div>
             </div>
           </div>
         </div>
@@ -85,46 +147,70 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-// import { useUserStore } from '../stores/userStore';
 import { ElMessage } from 'element-plus';
+import { statsAPI, worksAPI, getToken } from '../utils/api';
+import { useUserStore } from '../stores/userStore';
 
-// 状态管理 - userStore已废弃，使用后端API获取用户信息
-// const userStore = useUserStore();
 const router = useRouter();
+const userStore = useUserStore();
 
-// 计算属性：获取用户显示名称 - 已废弃，使用后端API获取用户信息
-// const userDisplayName = computed(() => {
-//   return userStore.userInfo?.nickname || userStore.userInfo?.username || '游客';
-// });
+// 概览统计：GET /api/stats/overview
+const overview = ref({
+  totalWorks: 0,
+  totalUsers: 0,
+  totalPracticeRecords: 0
+});
+const popularCopybooks = ref([]);
+const statsLoading = ref(false);
+const statsError = ref('');
 
-// 计算属性：检查用户是否为管理员 - 已废弃，使用后端API获取用户信息
-// const isAdmin = computed(() => {
-//   return userStore.isAdmin;
-// });
+// 精选作品：GET /api/works
+const featuredWorks = ref([]);
+const worksLoading = ref(false);
+const worksError = ref('');
 
-// 用户状态 - 已废弃，使用后端API获取用户信息
-const isLoggedIn = ref(false); // 临时使用ref替代computed
+// 是否已登录：store 状态 + 本地是否留有令牌
+const isLoggedIn = computed(() => userStore.isLoggedIn || Boolean(getToken()));
 
-// 计算属性：检查用户是否为管理员 - 已废弃，使用后端API获取用户信息
-// const isAdmin = computed(() => {
-//   return userStore.isAdmin;
-// });
+// 加载首页概览与热门字帖
+const loadOverview = async () => {
+  statsLoading.value = true;
+  statsError.value = '';
+  try {
+    const response = await statsAPI.getOverview();
+    overview.value = {
+      totalWorks: response?.totalWorks ?? 0,
+      totalUsers: response?.totalUsers ?? 0,
+      totalPracticeRecords: response?.totalPracticeRecords ?? 0
+    };
+    popularCopybooks.value = Array.isArray(response?.popularCopybooks) ? response.popularCopybooks : [];
+  } catch (error) {
+    overview.value = { totalWorks: 0, totalUsers: 0, totalPracticeRecords: 0 };
+    popularCopybooks.value = [];
+    statsError.value = error?.message || '平台数据加载失败，请稍后重试';
+    ElMessage.error(statsError.value);
+  } finally {
+    statsLoading.value = false;
+  }
+};
 
-// 处理用户操作 - 已废弃，使用后端API处理用户认证
-// const handleLogin = () => {
-//   router.push('/login');
-// };
-
-// const handleRegister = () => {
-//   router.push('/register');
-// };
-
-// const handleLogout = () => {
-//   userStore.logout();
-//   ElMessage.success('已退出登录');
-// };
+// 加载精选作品
+const loadFeaturedWorks = async () => {
+  worksLoading.value = true;
+  worksError.value = '';
+  try {
+    const response = await worksAPI.getWorks({ page: 0, size: 4 });
+    featuredWorks.value = Array.isArray(response?.content) ? response.content : [];
+  } catch (error) {
+    featuredWorks.value = [];
+    worksError.value = error?.message || '精选作品加载失败，请稍后重试';
+    ElMessage.error(worksError.value);
+  } finally {
+    worksLoading.value = false;
+  }
+};
 
 const handleGoToPractice = () => {
   if (!isLoggedIn.value) {
@@ -139,55 +225,15 @@ const handleGoToCopybook = () => {
   router.push('/copybook');
 };
 
-// 精选作品数据
-const featuredWorks = ref([
-  {
-    id: 1,
-    title: '宁静致远',
-    author: '王羲之',
-    thumbnail: 'https://picsum.photos/seed/calligraphy1/300/200'
-  },
-  {
-    id: 2,
-    title: '厚德载物',
-    author: '颜真卿',
-    thumbnail: 'https://picsum.photos/seed/calligraphy2/300/200'
-  },
-  {
-    id: 3,
-    title: '紫气东来',
-    author: '柳公权',
-    thumbnail: 'https://picsum.photos/seed/calligraphy3/300/200'
-  },
-  {
-    id: 4,
-    title: '天道酬勤',
-    author: '欧阳询',
-    thumbnail: 'https://picsum.photos/seed/calligraphy4/300/200'
-  }
-]);
+const truncateText = (text, maxLength) => {
+  if (!text) return '';
+  return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+};
 
-// 用户评价数据
-const testimonials = ref([
-  {
-    id: 1,
-    content: '这个平台让我能够随时随地练习书法，界面优雅，功能强大，是书法爱好者的福音！',
-    author: '张三',
-    role: '书法爱好者'
-  },
-  {
-    id: 2,
-    content: '作为初学者，这里的字帖生成功能对我帮助很大，能够快速提升书写技巧。',
-    author: '李四',
-    role: '初学者'
-  },
-  {
-    id: 3,
-    content: '社区氛围很好，能够欣赏到其他爱好者的作品，也能得到他们的指导和建议。',
-    author: '王五',
-    role: '资深书友'
-  }
-]);
+onMounted(() => {
+  loadOverview();
+  loadFeaturedWorks();
+});
 </script>
 
 <style scoped>
@@ -225,36 +271,39 @@ const testimonials = ref([
   flex-wrap: wrap;
 }
 
-.primary-btn {
-  padding: 0.8rem 2rem;
-  background-color: #8B4513;
-  color: white;
-  text-decoration: none;
-  border-radius: 4px;
-  font-size: 1.1rem;
-  transition: all 0.3s;
+/* 平台数据 */
+.stats-section {
+  margin-bottom: 3rem;
 }
 
-.primary-btn:hover {
-  background-color: #6B340E;
-  transform: translateY(-2px);
+.stats-area {
+  min-height: 6rem;
 }
 
-.secondary-btn {
-  padding: 0.8rem 2rem;
-  background-color: transparent;
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-card {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: bold;
   color: #8B4513;
-  border: 2px solid #8B4513;
-  text-decoration: none;
-  border-radius: 4px;
-  font-size: 1.1rem;
-  transition: all 0.3s;
 }
 
-.secondary-btn:hover {
-  background-color: #8B4513;
-  color: white;
-  transform: translateY(-2px);
+.stat-label {
+  color: #666;
+  font-size: 0.95rem;
+  margin-top: 0.3rem;
 }
 
 /* 功能特点样式 */
@@ -327,6 +376,10 @@ const testimonials = ref([
   color: #6B340E;
 }
 
+.works-area {
+  min-height: 8rem;
+}
+
 .works-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -358,6 +411,15 @@ const testimonials = ref([
   transition: transform 0.3s;
 }
 
+.work-image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0eee9;
+  color: #999;
+  font-size: 0.9rem;
+}
+
 .work-card:hover .work-image {
   transform: scale(1.05);
 }
@@ -377,47 +439,77 @@ const testimonials = ref([
   color: #666;
 }
 
-/* 用户评价样式 */
-.testimonials-section {
-  background-color: rgba(245, 245, 240, 0.8);
-  padding: 3rem 2rem;
-  border-radius: 8px;
+/* 热门字帖 */
+.copybooks-section {
+  margin-bottom: 3rem;
 }
 
-.testimonials-slider {
-  max-width: 800px;
-  margin: 0 auto;
+.copybooks-area {
+  min-height: 8rem;
 }
 
-.testimonial-item {
-  background-color: white;
-  padding: 2rem;
+.copybooks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+.copybook-card {
+  background-color: rgba(255, 255, 255, 0.9);
   border-radius: 8px;
-  margin-bottom: 1rem;
+  overflow: hidden;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s;
 }
 
-.testimonial-text {
-  font-style: italic;
-  margin-bottom: 1rem;
-  color: #333;
-  line-height: 1.8;
+.copybook-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
-.testimonial-author {
+.copybook-thumbnail {
+  height: 160px;
+  overflow: hidden;
+}
+
+.copybook-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.copybook-image-placeholder {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-}
-
-.author-name {
-  font-weight: bold;
-  color: #8B4513;
-}
-
-.author-role {
-  color: #666;
+  justify-content: center;
+  background-color: #f0eee9;
+  color: #999;
   font-size: 0.9rem;
+}
+
+.copybook-info {
+  padding: 1rem;
+}
+
+.copybook-title {
+  font-size: 1.05rem;
+  margin: 0 0 0.4rem 0;
+  color: #333;
+}
+
+.copybook-desc {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0 0 0.6rem 0;
+  line-height: 1.5;
+}
+
+.copybook-meta {
+  display: flex;
+  gap: 0.8rem;
+  font-size: 0.8rem;
+  color: #999;
+  flex-wrap: wrap;
 }
 
 /* 响应式设计 */
@@ -425,19 +517,15 @@ const testimonials = ref([
   .hero-title {
     font-size: 2rem;
   }
-  
+
   .hero-actions {
     flex-direction: column;
   }
-  
+
   .section-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
-  }
-  
-  .testimonials-slider {
-    padding: 0 1rem;
   }
 }
 </style>

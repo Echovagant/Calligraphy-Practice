@@ -63,7 +63,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from './stores/userStore';
 import InkBackground from './components/InkBackground.vue';
@@ -76,7 +76,15 @@ const showDropdown = ref(false);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const isAdmin = computed(() => userStore.isAdmin);
 const userDisplayName = computed(() => {
-  return userStore.userInfo.username || '用户';
+  // 未登录时 userInfo 是 null —— 直接取 .username 会抛错
+  return userStore.userInfo?.username || '用户';
+});
+
+// 启动时从本地存储恢复登录态。
+// 不做这一步的话，刷新页面后 userInfo 为空、isLoggedIn 为 false，
+// 明明令牌还在却被当成未登录。
+onMounted(() => {
+  userStore.initUserFromStorage();
 });
 
 // 处理退出登录
