@@ -8,7 +8,7 @@
 
       <nav class="sidebar-nav">
         <div
-          class="nav-item"
+          class="admin-nav-item"
           :class="{ active: activeTab === 'works' }"
           @click="setActiveTab('works')"
         >
@@ -17,7 +17,7 @@
         </div>
 
         <div
-          class="nav-item"
+          class="admin-nav-item"
           :class="{ active: activeTab === 'reviews' }"
           @click="setActiveTab('reviews')"
         >
@@ -26,7 +26,7 @@
         </div>
 
         <div
-          class="nav-item"
+          class="admin-nav-item"
           :class="{ active: activeTab === 'comments' }"
           @click="setActiveTab('comments')"
         >
@@ -35,7 +35,7 @@
         </div>
 
         <div
-          class="nav-item"
+          class="admin-nav-item"
           :class="{ active: activeTab === 'users' }"
           @click="setActiveTab('users')"
         >
@@ -44,7 +44,7 @@
         </div>
 
         <div
-          class="nav-item"
+          class="admin-nav-item"
           :class="{ active: activeTab === 'analytics' }"
           @click="setActiveTab('analytics')"
         >
@@ -1193,18 +1193,20 @@ onMounted(async () => {
   background-color: #f5f7fa;
 }
 
-/* 侧边栏样式 */
+/* 侧边栏样式
+   底色用浓墨褐 #352c25，不用 Element Plus 模板那套深蓝灰 #304156 ——
+   全站主色锁死墨棕了，侧边栏还留默认蓝，跟首页/按钮对不上。 */
 .admin-sidebar {
   width: 240px;
-  background-color: #304156;
-  color: white;
+  background-color: #352c25;
+  color: #f2ece2;
   display: flex;
   flex-direction: column;
 }
 
 .sidebar-header {
   padding: 1.5rem;
-  border-bottom: 1px solid #475669;
+  border-bottom: 1px solid #4a3c33;
 }
 
 .sidebar-header h2 {
@@ -1218,34 +1220,47 @@ onMounted(async () => {
   padding: 1rem 0;
 }
 
-.nav-item {
+/* 后台侧边栏菜单项。类名必须带 admin- 前缀：
+   App.vue 的顶栏导航是**全局**样式（那个 style 块没有 scoped），
+   两边曾经都叫 .nav-item，全局的 color:#333 就漏进了深色侧边栏，
+   变成「深底 + 深字」，对比度只有 1.21，几乎看不见。 */
+.admin-nav-item {
   display: flex;
   align-items: center;
   padding: 1rem 1.5rem;
   cursor: pointer;
+  /* 暖白 #f2ece2 压在 #352c25 上对比度 11.6 */
+  color: #f2ece2;
   transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
   gap: 1rem;
 }
 
-.nav-item:hover {
-  background-color: #475669;
+.admin-nav-item:hover {
+  background-color: #453830;
 }
 
-.nav-item.active {
-  background-color: #1e9fff;
+/* 选中态用全站主色墨棕 #8B4513 —— 原来的 Element Plus 默认蓝 #1e9fff
+   配白字只有 2.29，对比度根本不过。 */
+.admin-nav-item.active {
+  background-color: #8B4513;
+  color: #f2ece2;
 }
 
 .sidebar-footer {
   padding: 1.5rem;
-  border-top: 1px solid #475669;
+  border-top: 1px solid #4a3c33;
 }
 
+/* 管理员信息条：半透明白底 + 暖白字。
+   原来是浅底 #f5f7fa 配「从侧边栏继承来的白字」—— 白字白底，
+   对比度 1.07，等于没写颜色。 */
 .admin-info {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
   padding: 10px;
-  background: #f5f7fa;
+  background: rgba(255, 255, 255, 0.12);
+  color: #f2ece2;
   border-radius: 8px;
   gap: 10px;
 }
@@ -1322,7 +1337,7 @@ onMounted(async () => {
 }
 
 .data-hint {
-  color: #909399;
+  color: #6b6259;
   font-size: 0.85rem;
   margin: 0 0 1rem;
 }
@@ -1348,7 +1363,7 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   background-color: #f0f2f5;
-  color: #909399;
+  color: #6b6259;
   font-size: 0.75rem;
   border-radius: 4px;
   text-align: center;
@@ -1386,7 +1401,7 @@ onMounted(async () => {
 }
 
 .stat-label {
-  color: #909399;
+  color: #6b6259;
   font-size: 0.9rem;
   margin-top: 0.5rem;
 }

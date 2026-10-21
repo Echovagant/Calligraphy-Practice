@@ -592,7 +592,7 @@ const getCalendarDayTooltip = (day) => {
 }
 
 .filter-hint {
-  color: #999;
+  color: #6b6259;
   font-size: 0.8rem;
   margin: 0 0 1.5rem;
 }

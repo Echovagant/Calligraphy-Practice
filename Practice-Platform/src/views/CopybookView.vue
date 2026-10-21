@@ -868,7 +868,7 @@ const nextPage = () => {
 }
 
 .filter-hint {
-  color: #999;
+  color: #6b6259;
   font-size: 0.85rem;
 }
 
@@ -901,7 +901,7 @@ const nextPage = () => {
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #999;
+  color: #6b6259;
   font-size: 0.85rem;
 }
 
@@ -928,7 +928,7 @@ const nextPage = () => {
 }
 
 .copybook-stat {
-  color: #999;
+  color: #6b6259;
   font-size: 0.8rem;
 }
 
@@ -964,7 +964,7 @@ const nextPage = () => {
 }
 
 .popular-count {
-  color: #999;
+  color: #6b6259;
   font-size: 0.8rem;
 }
 
@@ -1028,13 +1028,13 @@ const nextPage = () => {
 .char-count {
   text-align: right;
   font-size: 0.8rem;
-  color: #999;
+  color: #6b6259;
   margin-top: 0.5rem;
 }
 
 .sample-hint {
   margin-left: 0.8rem;
-  color: #999;
+  color: #6b6259;
   font-size: 0.8rem;
 }
 
@@ -1046,6 +1046,15 @@ const nextPage = () => {
 .generate-btn,
 .download-btn {
   flex: 1;
+}
+
+/* Element Plus 的 success 实心按钮在禁用态是「浅绿底 + 白字」——
+   白字压 #afb8a9 只有 2.05，糊成一团。框架没管这个组合，这里补上：
+   浅绿底 + 深绿字（4.65），既保留「不可点」的样子，文字也读得出来。 */
+.download-btn.is-disabled {
+  color: #5f7153;
+  background-color: #eff1ee;
+  border-color: #cfd4cb;
 }
 
 /* 预览面板样式 */
@@ -1079,7 +1088,7 @@ const nextPage = () => {
 
 .empty-preview {
   text-align: center;
-  color: #999;
+  color: #6b6259;
 }
 
 .empty-icon {

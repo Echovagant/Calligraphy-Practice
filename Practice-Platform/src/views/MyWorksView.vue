@@ -483,7 +483,7 @@ onMounted(() => {
 }
 
 .filter-hint {
-  color: #999;
+  color: #6b6259;
   font-size: 0.85rem;
   margin-bottom: 1.5rem;
 }
@@ -542,7 +542,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   background-color: #f0eee9;
-  color: #999;
+  color: #6b6259;
   font-size: 0.9rem;
 }
 
@@ -605,7 +605,7 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #999;
+  color: #6b6259;
   font-size: 0.8rem;
 }
 
@@ -645,7 +645,7 @@ onMounted(() => {
   justify-content: center;
   min-height: 240px;
   background-color: #f0eee9;
-  color: #999;
+  color: #6b6259;
 }
 
 .detail-info {

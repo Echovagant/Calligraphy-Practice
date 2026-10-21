@@ -11,19 +11,19 @@
         </router-link>
       </div>
       <nav class="nav-menu">
-        <router-link to="/" class="nav-item" exact>首页</router-link>
-        <router-link to="/practice" class="nav-item">书法练习</router-link>
-        <router-link to="/copybook" class="nav-item">字帖生成</router-link>
-        <router-link to="/gallery" class="nav-item">作品展示</router-link>
-        <router-link to="/community" class="nav-item">社区交流</router-link>
+        <router-link to="/" class="top-nav-item" exact>首页</router-link>
+        <router-link to="/practice" class="top-nav-item">书法练习</router-link>
+        <router-link to="/copybook" class="top-nav-item">字帖生成</router-link>
+        <router-link to="/gallery" class="top-nav-item">作品展示</router-link>
+        <router-link to="/community" class="top-nav-item">社区交流</router-link>
         <!-- 管理员链接只对管理员显示 -->
-        <router-link v-if="isAdmin" to="/admin" class="nav-item admin-link">管理后台</router-link>
+        <router-link v-if="isAdmin" to="/admin" class="top-nav-item admin-link">管理后台</router-link>
       </nav>
       <div class="user-actions">
         <!-- 未登录状态 -->
         <template v-if="!isLoggedIn">
-          <router-link to="/login" class="nav-item login-btn">登录</router-link>
-          <router-link to="/register" class="nav-item register-btn">注册</router-link>
+          <router-link to="/login" class="top-nav-item login-btn">登录</router-link>
+          <router-link to="/register" class="top-nav-item register-btn">注册</router-link>
         </template>
         <!-- 已登录状态 -->
         <template v-else>
@@ -159,7 +159,11 @@ html, body {
   gap: 1.5rem;
 }
 
-.nav-item {
+/* 顶栏导航项。
+   这个类名是**全局**的（App.vue 的 style 块没有 scoped），
+   所以必须够独特 —— 曾经叫 `.nav-item`，结果跟后台侧边栏的 `.nav-item` 撞名，
+   全局的 `color: #333` 漏进深色侧边栏，变成「深底深字」，对比度只有 1.21。 */
+.top-nav-item {
   color: #333;
   text-decoration: none;
   padding: 0.5rem 0;
@@ -167,11 +171,11 @@ html, body {
   transition: color 0.3s;
 }
 
-.nav-item:hover {
+.top-nav-item:hover {
   color: #8B4513;
 }
 
-.nav-item::after {
+.top-nav-item::after {
   content: '';
   position: absolute;
   bottom: 0;
@@ -185,7 +189,7 @@ html, body {
   transition: transform 0.3s;
 }
 
-.nav-item:hover::after {
+.top-nav-item:hover::after {
   transform: scaleX(1);
 }
 

@@ -557,12 +557,12 @@ onUnmounted(() => {
 }
 
 .current-meta {
-  color: #999;
+  color: #6b6259;
   font-size: 0.78rem;
 }
 
 .current-empty {
-  color: #999;
+  color: #6b6259;
   font-size: 0.8rem;
   margin-bottom: 0.8rem;
 }
@@ -623,7 +623,7 @@ onUnmounted(() => {
 
 .recommendation-desc {
   display: block;
-  color: #999;
+  color: #6b6259;
   font-size: 0.75rem;
   margin-top: 0.2rem;
   overflow: hidden;

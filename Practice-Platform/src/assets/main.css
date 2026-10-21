@@ -20,17 +20,28 @@ body {
    同一屏里出现两套主色。
    语义色也一起拉进墨色家族：成功=黛绿、警告=赭黄、危险=朱砂（与印章同色）、
    信息=墨灰。Element Plus 那套饱和的红绿橙黄在宣纸底上太「塑料」。
-   light-N 是与白色按 N% 混出来的，dark-2 是与黑色按 20% 混出来的。 */
+   light-N 是与白色按 N% 混出来的，dark-2 是与黑色按 20% 混出来的。
+
+   对比度（WCAG，正文要 ≥4.5:1）：
+   - 语义色同时要当「实心按钮的底色」和「标签上的文字色」用，
+     所以必须够深，白字压上去才读得出来：
+       success #5f7153 → 实心白字 5.28，标签字 4.65
+       warning #8f6524 → 实心白字 5.18，标签字 4.56
+       danger  #a83a2c → 实心白字 6.35
+       info    #6f675e → 实心白字 5.56，标签字 4.88
+   - Element Plus 默认的 --el-text-color-secondary 是 #909399（白底只有 3.08），
+     --el-text-color-placeholder 是 #a8abb2（白底只有 2.30）—— 表头、
+     空状态文案、输入框提示全是这两个值，太淡，一起压深。 */
 :root {
   --primary-color: #8B4513;
   --secondary-color: #a0856b;
   --background-color: #f9f9f9;
   --text-color: #333;
   --border-color: #e0e0e0;
-  --success-color: #6b7f5e;
-  --warning-color: #a8762f;
+  --success-color: #5f7153;
+  --warning-color: #8f6524;
   --danger-color: #a83a2c;
-  --info-color: #7a7268;
+  --info-color: #6f675e;
 
   --el-color-primary: #8b4513;
   --el-color-primary-light-3: #ae7d5a;
@@ -40,21 +51,21 @@ body {
   --el-color-primary-light-9: #f3ece7;
   --el-color-primary-dark-2: #6f370f;
 
-  --el-color-success: #6b7f5e;
-  --el-color-success-light-3: #97a58e;
-  --el-color-success-light-5: #b5bfae;
-  --el-color-success-light-7: #d3d9cf;
-  --el-color-success-light-8: #e1e5df;
-  --el-color-success-light-9: #f0f2ef;
-  --el-color-success-dark-2: #56664b;
+  --el-color-success: #5f7153;
+  --el-color-success-light-3: #8f9c87;
+  --el-color-success-light-5: #afb8a9;
+  --el-color-success-light-7: #cfd4cb;
+  --el-color-success-light-8: #dfe3dd;
+  --el-color-success-light-9: #eff1ee;
+  --el-color-success-dark-2: #4c5a42;
 
-  --el-color-warning: #a8762f;
-  --el-color-warning-light-3: #c29f6d;
-  --el-color-warning-light-5: #d4bb97;
-  --el-color-warning-light-7: #e5d6c1;
-  --el-color-warning-light-8: #eee4d5;
-  --el-color-warning-light-9: #f6f1ea;
-  --el-color-warning-dark-2: #865e26;
+  --el-color-warning: #8f6524;
+  --el-color-warning-light-3: #b19366;
+  --el-color-warning-light-5: #c7b292;
+  --el-color-warning-light-7: #ddd1bd;
+  --el-color-warning-light-8: #e9e0d3;
+  --el-color-warning-light-9: #f4f0e9;
+  --el-color-warning-dark-2: #72511d;
 
   --el-color-danger: #a83a2c;
   --el-color-danger-light-3: #c2756b;
@@ -64,13 +75,17 @@ body {
   --el-color-danger-light-9: #f6ebea;
   --el-color-danger-dark-2: #862e23;
 
-  --el-color-info: #7a7268;
-  --el-color-info-light-3: #a29c95;
-  --el-color-info-light-5: #bdb9b4;
-  --el-color-info-light-7: #d7d5d2;
-  --el-color-info-light-8: #e4e3e1;
-  --el-color-info-light-9: #f2f1f0;
-  --el-color-info-dark-2: #625b53;
+  --el-color-info: #6f675e;
+  --el-color-info-light-3: #9a958e;
+  --el-color-info-light-5: #b7b3af;
+  --el-color-info-light-7: #d4d1cf;
+  --el-color-info-light-8: #e2e1df;
+  --el-color-info-light-9: #f1f0ef;
+  --el-color-info-dark-2: #59524b;
+
+  /* 次级文字与占位符压深：表头、空状态、输入提示全靠这两个值 */
+  --el-text-color-secondary: #6b6259;
+  --el-text-color-placeholder: #6b6f76;
 }
 
 /* 全局链接样式 */

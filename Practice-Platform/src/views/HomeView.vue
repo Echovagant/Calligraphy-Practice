@@ -479,7 +479,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   background-color: #f0eee9;
-  color: #999;
+  color: #6b6259;
   font-size: 0.9rem;
 }
 
@@ -546,7 +546,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   background-color: #f0eee9;
-  color: #999;
+  color: #6b6259;
   font-size: 0.9rem;
 }
 
@@ -571,7 +571,7 @@ onMounted(() => {
   display: flex;
   gap: 0.8rem;
   font-size: 0.8rem;
-  color: #999;
+  color: #6b6259;
   flex-wrap: wrap;
 }
 

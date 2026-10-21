@@ -962,14 +962,14 @@ onMounted(() => {
 }
 
 .post-time {
-  color: #999;
+  color: #6b6259;
   font-size: 0.9rem;
 }
 
 .discussion-stats {
   display: flex;
   gap: 1.5rem;
-  color: #999;
+  color: #6b6259;
 }
 
 .stat-item {
@@ -1037,7 +1037,7 @@ onMounted(() => {
 }
 
 .announcement-date {
-  color: #999;
+  color: #6b6259;
   font-size: 0.85rem;
 }
 
@@ -1059,7 +1059,7 @@ onMounted(() => {
 }
 
 .user-rank {
-  color: #999;
+  color: #6b6259;
   font-size: 0.8rem;
 }
 
@@ -1085,7 +1085,7 @@ onMounted(() => {
   flex-wrap: wrap;
   align-items: center;
   gap: 1rem;
-  color: #999;
+  color: #6b6259;
   margin-top: 1rem;
   font-size: 0.9rem;
 }
