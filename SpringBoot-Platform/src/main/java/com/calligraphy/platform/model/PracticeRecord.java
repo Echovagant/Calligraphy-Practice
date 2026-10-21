@@ -41,11 +41,11 @@ public class PracticeRecord {
     @Column(name = "copybook_id")
     private Long copybookId;
     
-    @Size(max = 100, message = "瀛楀笘鏍囬长度不能超过100涓瓧绗")
+    @Size(max = 100, message = "字帖标题长度不能超过100个字符")
     @Column(name = "copybook_title", length = 100)
     private String copybookTitle;
     
-    @Min(value = 0, message = "缁冧範鏃堕棿涓嶈兘涓鸿礋鏁")
+    @Min(value = 0, message = "练习时间不能为负数")
     @Max(value = 1440, message = "练习时间不能超过24小时")
     @Column(name = "practice_time")
     private Integer practiceTime; // 练习时间（分钟）
@@ -54,31 +54,31 @@ public class PracticeRecord {
     @Column(name = "strokes_count")
     private Integer strokesCount;
     
-    @Min(value = 0, message = "缁冧範瀛楁暟涓嶈兘涓鸿礋鏁")
+    @Min(value = 0, message = "练习字数不能为负数")
     @Column(name = "characters_practiced")
     private Integer charactersPracticed;
     
-    @Size(max = 50, message = "练习类型长度不能超过50涓瓧绗")
+    @Size(max = 50, message = "练习类型长度不能超过50个字符")
     @Column(name = "practice_type", length = 50)
     private String practiceType;
     
-    @Size(max = 500, message = "鍐呭长度不能超过500涓瓧绗")
+    @Size(max = 500, message = "内容长度不能超过500个字符")
     @Column(name = "content", length = 500)
-    private String content; // 缁冧範鍐呭鎴栫瑪璁?    
+    private String content; // 练习内容或笔记     
     @Column(name = "image_url", length = 500)
-    private String imageUrl; // 缁冧範鎴浘鎴栦綔鍝佸浘鐗?    
+    private String imageUrl; // 练习截图或作品图片     
     @Column(name = "is_completed", nullable = false)
     @Builder.Default
     private Boolean isCompleted = false;
     
     @Column(name = "completion_rate")
-    private Double completionRate; // 瀹屾垚搴︾櫨鍒嗘瘮
+    private Double completionRate; // 完成度百分比
     
     @Column(name = "difficulty_level")
     private Integer difficultyLevel; // 难度等级 1-5
     
     @Column(name = "satisfaction_score")
-    private Integer satisfactionScore; // 婊℃剰搴﹁瘎鍒?1-10
+    private Integer satisfactionScore; // 满意度评分 1-10
     
     @Column(name = "practice_date")
     private LocalDateTime practiceDate; // 练习日期
@@ -130,7 +130,7 @@ public class PracticeRecord {
     
     public String getPracticeDurationDisplay() {
         if (practiceTime == null || practiceTime <= 0) {
-            return "鏈褰";
+            return "未记录";
         }
         if (practiceTime < 60) {
             return practiceTime + "分钟";

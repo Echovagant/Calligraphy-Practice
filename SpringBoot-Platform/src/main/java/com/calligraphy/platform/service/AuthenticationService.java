@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface AuthenticationService {
     
-    // 鍓嶇用户认证
+    // 前端用户认证
     LoginResponseDto loginFrontendUser(LoginDto loginDto);
     
     LoginResponseDto registerFrontendUser(RegisterDto registerDto);
@@ -20,7 +20,7 @@ public interface AuthenticationService {
     
     void logoutAllFrontendUserDevices(String userId);
     
-    // 鍚庣绠＄悊鍛樿璇
+    // 后端管理员认证
     LoginResponseDto loginBackendUser(LoginDto loginDto);
     
     LoginResponseDto registerBackendUser(RegisterDto registerDto);
@@ -40,7 +40,7 @@ public interface AuthenticationService {
     
     boolean isTokenExpired(String token);
     
-    // 瀵嗙爜绠＄悊
+    // 密码管理
     void resetPassword(String email);
     
     void resetPasswordWithToken(PasswordResetDto passwordResetDto);
@@ -49,7 +49,7 @@ public interface AuthenticationService {
     
     boolean checkPassword(String userId, String password);
     
-    // 鍙屽洜绱犺璇
+    // 双因素认证
     void enableTwoFactorAuth(String userId);
     
     void disableTwoFactorAuth(String userId);
@@ -60,7 +60,7 @@ public interface AuthenticationService {
     
     boolean verifyTwoFactorAuthCode(String userId, String code);
     
-    // 璐︽埛閿佸畾
+    // 账户锁定
     void lockAccount(String userId);
     
     void unlockAccount(String userId);
@@ -76,28 +76,28 @@ public interface AuthenticationService {
     
     boolean isAccountLockedDueToFailedAttempts(String identifier);
     
-    // 浼氳瘽绠＄悊
+    // 会话管理
     List<String> getActiveSessions(String userId);
     
     void terminateSession(String sessionId);
     
     void terminateAllUserSessions(String userId);
     
-    // 瀹夊叏瀹¤
+    // 安全审计
     void recordLoginActivity(String userId, String ipAddress, String userAgent, boolean success);
     
     void recordLogoutActivity(String userId, String ipAddress, String userAgent);
     
     void recordPasswordChangeActivity(String userId, String ipAddress, String userAgent);
     
-    // 鐢ㄦ埛鐘舵€佹鏌
+    // 用户状态检查
     boolean isUserActive(String userId);
     
     boolean isUserVerified(String userId);
     
     boolean isUserDeleted(String userId);
     
-    // 鏉冮檺妫€鏌
+    // 权限检查
     boolean hasPermission(String userId, String permissionCode);
     
     boolean hasAnyPermission(String userId, List<String> permissionCodes);
@@ -115,7 +115,7 @@ public interface AuthenticationService {
     
     boolean isBackendUser(String userId);
     
-    // 璁惧绠＄悊
+    // 设备管理
     void registerDevice(String userId, String deviceId, String deviceInfo);
     
     void unregisterDevice(String userId, String deviceId);
@@ -124,7 +124,7 @@ public interface AuthenticationService {
     
     boolean isDeviceRegistered(String userId, String deviceId);
     
-    // IP鍦板潃绠＄悊
+    // IP地址管理
     void addTrustedIp(String userId, String ipAddress);
     
     void removeTrustedIp(String userId, String ipAddress);
@@ -138,12 +138,12 @@ public interface AuthenticationService {
     
     java.util.Map<String, Object> getSecuritySettings(String userId);
     
-    // 瀹¤日志
+    // 审计日志
     List<com.calligraphy.platform.dto.UserActivityLogDto> getUserLoginHistory(String userId, int limit);
     
     List<com.calligraphy.platform.dto.UserActivityLogDto> getUserSecurityEvents(String userId, int limit);
     
-    // 绯荤粺瀹夊叏缁熻
+    // 系统安全统计
     java.util.Map<String, Object> getSystemSecurityStats();
     
     java.util.Map<String, Object> getUserSecurityStats(String userId);

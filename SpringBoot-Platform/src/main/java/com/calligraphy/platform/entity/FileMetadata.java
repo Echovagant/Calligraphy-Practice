@@ -54,11 +54,11 @@ public class FileMetadata {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
-    // 鏃犲弬鏋勯€犲櫒
+    // 无参构造器
     public FileMetadata() {
     }
     
-    // 鍏ㄥ弬鏋勯€犲櫒
+    // 全参构造器
     public FileMetadata(String fileId, String userId, String fileName, String fileUrl, String fileType, 
                       Long fileSize, String filePurpose, String relatedEntityId, String description, 
                       Boolean isPublic, Boolean isDeleted, LocalDateTime createdAt, LocalDateTime updatedAt) {
@@ -77,7 +77,7 @@ public class FileMetadata {
         this.updatedAt = updatedAt;
     }
     
-    // Getter 鍜?Setter 方法
+    // Getter 和 Setter 方法
     public String getFileId() {
         return fileId;
     }
@@ -194,7 +194,7 @@ public class FileMetadata {
         this.updatedAt = updatedAt;
     }
     
-    // Builder 绫
+    // Builder 类
     public static class Builder {
         private String fileId;
         private String userId;

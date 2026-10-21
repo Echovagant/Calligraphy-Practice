@@ -48,24 +48,24 @@ public class FileUploadServiceImpl implements FileUploadService {
     @Transactional
     @SuppressWarnings("null")
     public FileUploadResponseDto uploadFile(MultipartFile file, String username, String fileType) {
-        log.info("文件上传: 用户={}, 鏂囦欢鍚?{}, 类型={}", username, file.getOriginalFilename(), fileType);
+        log.info("文件上传: 用户={}, 文件名={}, 类型={}", username, file.getOriginalFilename(), fileType);
         
         // 验证文件
         validateFile(file, fileType);
         
-        // 鑾峰彇鐢ㄦ埛淇℃伅
+        // 获取用户信息
         User user = userService.findByUsername(username);
         
-        // 鐢熸垚鍞竴鏂囦欢鍚
+        // 生成唯一文件名
         String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
         String fileExtension = getFileExtension(originalFilename);
         String uniqueFilename = generateUniqueFilename(fileExtension);
         
-        // 鍒涘缓涓婁紶鐩綍
+        // 创建上传目录
         Path uploadPath = createUploadPath(user.getId(), fileType);
         
         try {
-            // 纭繚鐩綍瀛樺湪
+            // 确保目录存在
             Files.createDirectories(uploadPath);
             
             // 保存文件
@@ -75,23 +75,23 @@ public class FileUploadServiceImpl implements FileUploadService {
             // 构建文件访问URL
             String fileUrl = buildFileUrl(user.getId(), fileType, uniqueFilename);
             
-            log.info("文件上传成功: 用户={}, 鏂囦欢鍚?{}, 璺緞={}", username, uniqueFilename, filePath);
+            log.info("文件上传成功: 用户={}, 文件名={}, 路径={}", username, uniqueFilename, filePath);
             
             return new FileUploadResponseDto(uniqueFilename, fileUrl, fileType, file.getSize(), "success");
                 
         } catch (IOException e) {
-            log.error("文件上传失败: 用户={}, 閿欒={}", username, e.getMessage());
+            log.error("文件上传失败: 用户={}, 错误={}", username, e.getMessage());
             throw new FileUploadException("文件上传失败: " + e.getMessage());
         }
     }
     @Override
     @Transactional
     public FileUploadResponseDto uploadAvatar(MultipartFile file, String username) {
-        log.info("头像上传: 用户={}, 鏂囦欢鍚?{}", username, file.getOriginalFilename());
+        log.info("头像上传: 用户={}, 文件名={}", username, file.getOriginalFilename());
         
-        // 澶村儚鍙厑璁稿浘鐗囨牸寮
+        // 头像只允许图片格式
         if (!isImageFile(file)) {
-            throw new FileUploadException("澶村儚蹇呴』鏄浘鐗囨枃浠");
+            throw new FileUploadException("头像必须是图片文件");
         }
         
         FileUploadResponseDto response = uploadFile(file, username, "avatar");
@@ -104,18 +104,18 @@ public class FileUploadServiceImpl implements FileUploadService {
             .build();
         userService.updateUser(user.getId(), dto);
         
-        log.info("澶村儚涓婁紶骞舵洿鏂版垚鍔? 用户={}, 头像URL={}", username, response.getFileUrl());
+        log.info("头像上传并更新成功: 用户={}, 头像URL={}", username, response.getFileUrl());
         
         return response;
     }
     @Override
     @Transactional
     public FileUploadResponseDto uploadWorkFile(MultipartFile file, String username) {
-        log.info("作品文件上传: 用户={}, 鏂囦欢鍚?{}", username, file.getOriginalFilename());
+        log.info("作品文件上传: 用户={}, 文件名={}", username, file.getOriginalFilename());
         
-        // 浣滃搧鏂囦欢鍙厑璁稿浘鐗囧拰PDF格式
+        // 作品文件只允许图片和PDF格式
         if (!isAllowedWorkFile(file)) {
-            throw new FileUploadException("浣滃搧鏂囦欢蹇呴』鏄浘鐗囨垨PDF格式");
+            throw new FileUploadException("作品文件必须是图片或PDF格式");
         }
         
         return uploadFile(file, username, "work");
@@ -123,7 +123,7 @@ public class FileUploadServiceImpl implements FileUploadService {
     @Override
     @SuppressWarnings("null")
     public Resource loadFileAsResource(String filename, String fileType, String userId) {
-        log.info("加载文件资源: 鏂囦欢鍚?{}, 类型={}, 用户ID={}", filename, fileType, userId);
+        log.info("加载文件资源: 文件名={}, 类型={}, 用户ID={}", filename, fileType, userId);
         
         try {
             Path filePath = createUploadPath(userId, fileType).resolve(filename).normalize();
@@ -132,16 +132,16 @@ public class FileUploadServiceImpl implements FileUploadService {
             if (resource.exists()) {
                 return resource;
             } else {
-                throw new ResourceNotFoundException("鏂囦欢涓嶅瓨鍦? " + filename);
+                throw new ResourceNotFoundException("文件不存在: " + filename);
             }
         } catch (MalformedURLException e) {
-            throw new ResourceNotFoundException("鏂囦欢璺緞閿欒: " + filename);
+            throw new ResourceNotFoundException("文件路径错误: " + filename);
         }
     }
     @Override
     @Transactional
     public boolean deleteFile(String filename, String fileType, String username) {
-        log.info("删除文件: 鏂囦欢鍚?{}, 类型={}, 用户={}", filename, fileType, username);
+        log.info("删除文件: 文件名={}, 类型={}, 用户={}", filename, fileType, username);
         
         try {
             User user = userService.findByUsername(username);
@@ -149,14 +149,14 @@ public class FileUploadServiceImpl implements FileUploadService {
             
             if (Files.exists(filePath)) {
                 Files.delete(filePath);
-                log.info("文件删除成功: 鏂囦欢鍚?{}, 用户={}", filename, username);
+                log.info("文件删除成功: 文件名={}, 用户={}", filename, username);
                 return true;
             } else {
-                log.warn("鏂囦欢涓嶅瓨鍦? 鏂囦欢鍚?{}, 用户={}", filename, username);
+                log.warn("文件不存在: 文件名={}, 用户={}", filename, username);
                 return false;
             }
         } catch (IOException e) {
-            log.error("文件删除失败: 鏂囦欢鍚?{}, 用户={}, 閿欒={}", filename, username, e.getMessage());
+            log.error("文件删除失败: 文件名={}, 用户={}, 错误={}", filename, username, e.getMessage());
             throw new FileUploadException("文件删除失败: " + e.getMessage());
         }
     }
@@ -168,18 +168,18 @@ public class FileUploadServiceImpl implements FileUploadService {
         String avatarUrl = user.getAvatarUrl();
         
         if (avatarUrl != null && !avatarUrl.isEmpty()) {
-            // 浠嶶RL涓彁鍙栨枃浠跺悕
+            // 从URL中提取文件名
             String filename = extractFilenameFromUrl(avatarUrl);
             boolean deleted = deleteFile(filename, "avatar", username);
             
             if (deleted) {
-                // 更新用户头像URL涓虹┖
+                // 更新用户头像URL为空
                 com.calligraphy.platform.dto.FrontendUserUpdateDto dto = com.calligraphy.platform.dto.FrontendUserUpdateDto.builder()
                     .userId(Long.valueOf(user.getId()))
                     .avatar(null)
                     .build();
                 userService.updateUser(user.getId(), dto);
-                log.info("澶村儚鍒犻櫎骞舵洿鏂版垚鍔? 用户={}", username);
+                log.info("头像删除并更新成功: 用户={}", username);
             }
             
             return deleted;
@@ -190,38 +190,38 @@ public class FileUploadServiceImpl implements FileUploadService {
 
     private void validateFile(MultipartFile file, String fileType) {
         if (file == null || file.isEmpty()) {
-            throw new FileUploadException("鏂囦欢涓嶈兘涓虹┖");
+            throw new FileUploadException("文件不能为空");
         }
         
         if (file.getSize() > maxFileSize) {
-            throw new FileUploadException("鏂囦欢澶у皬瓒呰繃闄愬埗: " + (maxFileSize / 1024 / 1024) + "MB");
+            throw new FileUploadException("文件大小超过限制: " + (maxFileSize / 1024 / 1024) + "MB");
         }
         
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null || originalFilename.isEmpty()) {
-            throw new FileUploadException("鏂囦欢鍚嶄笉鑳戒负绌");
+            throw new FileUploadException("文件名不能为空");
         }
         
-        // 妫€鏌ユ枃浠跺悕鏄惁鍖呭惈璺緞閬嶅巻瀛楃
+        // 检查文件名是否包含路径遍历字符
         if (originalFilename.contains("..") || originalFilename.contains("/") || originalFilename.contains("\\")) {
-            throw new FileUploadException("鏂囦欢鍚嶅寘鍚潪娉曞瓧绗");
+            throw new FileUploadException("文件名包含非法字符");
         }
         
         // 根据文件类型验证文件格式
         switch (fileType) {
             case "avatar":
                 if (!isImageFile(file)) {
-                    throw new FileUploadException("澶村儚蹇呴』鏄浘鐗囨枃浠");
+                    throw new FileUploadException("头像必须是图片文件");
                 }
                 break;
             case "work":
                 if (!isAllowedWorkFile(file)) {
-                    throw new FileUploadException("浣滃搧鏂囦欢鏍煎紡涓嶆敮鎸");
+                    throw new FileUploadException("作品文件格式不支持");
                 }
                 break;
             default:
                 if (!isAllowedFile(file)) {
-                    throw new FileUploadException("鏂囦欢鏍煎紡涓嶆敮鎸");
+                    throw new FileUploadException("文件格式不支持");
                 }
         }
     }
@@ -252,13 +252,13 @@ public class FileUploadServiceImpl implements FileUploadService {
         String originalFilename = file.getOriginalFilename();
         String extension = getFileExtension(originalFilename);
         
-        // 浠庣郴缁熼厤缃幏鍙栧厑璁哥殑鏂囦欢绫诲瀷
+        // 从系统配置获取允许的文件类型
         try {
             String allowedTypes = systemConfigService.getConfigValue("work.upload.allowed.types");
             List<String> allowedExtensions = Arrays.asList(allowedTypes.split(","));
             return allowedExtensions.contains(extension.toLowerCase());
         } catch (Exception e) {
-            // 濡傛灉閰嶇疆涓嶅瓨鍦紝浣跨敤榛樿配置
+            // 如果配置不存在，使用默认配置
             List<String> defaultExtensions = Arrays.asList("jpg", "jpeg", "png", "gif", "pdf");
             return defaultExtensions.contains(extension.toLowerCase());
         }
@@ -292,7 +292,7 @@ public class FileUploadServiceImpl implements FileUploadService {
             return "";
         }
         
-        // 浠嶶RL涓彁鍙栨枃浠跺悕
+        // 从URL中提取文件名
         String[] parts = url.split("/");
         return parts.length > 0 ? parts[parts.length - 1] : "";
     }

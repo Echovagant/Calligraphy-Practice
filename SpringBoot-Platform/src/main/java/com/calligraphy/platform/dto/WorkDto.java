@@ -37,15 +37,15 @@ public class WorkDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
-    // 鐢ㄦ埛淇℃伅
+    // 用户信息
     private String userNickname;
     private String userAvatar;
     
-    // 瀹℃牳鑰呬俊鎭
+    // 审核者信息
     private String reviewerUsername;
     private String reviewerNickname;
     
-    // 缁熻淇℃伅
+    // 统计信息
     private long commentCount;
     private double popularityScore;
 }

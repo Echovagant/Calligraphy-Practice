@@ -9,21 +9,21 @@ import lombok.Data;
 @Schema(description = "角色创建数据传输对象")
 public class RoleCreateDto {
     
-    @NotBlank(message = "瑙掕壊鍚嶇О涓嶈兘涓虹┖")
-    @Size(min = 2, max = 50, message = "瑙掕壊鍚嶇О闀垮害蹇呴』鍦?-50涓瓧绗︿箣闂")
-    @Schema(description = "瑙掕壊鍚嶇О", example = "绠＄悊鍛")
+    @NotBlank(message = "角色名称不能为空")
+    @Size(min = 2, max = 50, message = "角色名称长度必须在2-50个字符之间")
+    @Schema(description = "角色名称", example = "管理员")
     private String name;
     
-    @Size(max = 200, message = "角色描述长度不能超过200涓瓧绗")
-    @Schema(description = "角色描述", example = "绯荤粺绠＄悊鍛樿鑹")
+    @Size(max = 200, message = "角色描述长度不能超过200个字符")
+    @Schema(description = "角色描述", example = "系统管理员角色")
     private String description;
     
-    @NotBlank(message = "瑙掕壊缂栫爜涓嶈兘涓虹┖")
-    @Size(min = 2, max = 30, message = "瑙掕壊缂栫爜闀垮害蹇呴』鍦?-30涓瓧绗︿箣闂")
+    @NotBlank(message = "角色编码不能为空")
+    @Size(min = 2, max = 30, message = "角色编码长度必须在2-30个字符之间")
     @Schema(description = "角色编码", example = "ROLE_ADMIN")
     private String code;
     
-    @Schema(description = "鐖惰鑹睮D", example = "parent-role-id")
+    @Schema(description = "父角色ID", example = "parent-role-id")
     private String parentId;
     
     @Schema(description = "角色类型", example = "SYSTEM")

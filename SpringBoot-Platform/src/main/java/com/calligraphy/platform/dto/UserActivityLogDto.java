@@ -31,7 +31,7 @@ public class UserActivityLogDto {
     private LocalDateTime activityTime;
     private LocalDateTime createdAt;
     
-    // 缁熻淇℃伅
+    // 统计信息
     private long totalActivities;
     private long activitiesToday;
     private long activitiesThisWeek;

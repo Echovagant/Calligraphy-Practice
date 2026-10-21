@@ -38,31 +38,31 @@ public class User implements UserDetails {
     @Column(name = "id", length = 36, nullable = false)
     private String id;
 
-    @NotBlank(message = "鐢ㄦ埛鍚嶄笉鑳戒负绌")
-    @Size(max = 50, message = "鐢ㄦ埛鍚嶉暱搴︿笉鑳借秴杩?0涓瓧绗")
+    @NotBlank(message = "用户名不能为空")
+    @Size(max = 50, message = "用户名长度不能超过50个字符")
     @Column(name = "username", length = 50, nullable = false, unique = true)
     private String username;
 
-    @Email(message = "閭鏍煎紡涓嶆纭")
-    @NotBlank(message = "閭涓嶈兘涓虹┖")
-    @Size(max = 100, message = "閭长度不能超过100涓瓧绗")
+    @Email(message = "邮箱格式不正确")
+    @NotBlank(message = "邮箱不能为空")
+    @Size(max = 100, message = "邮箱长度不能超过100个字符")
     @Column(name = "email", length = 100, nullable = false, unique = true)
     private String email;
 
-    @NotBlank(message = "瀵嗙爜涓嶈兘涓虹┖")
-    @Size(min = 6, max = 255, message = "瀵嗙爜闀垮害蹇呴』鍦?-255涓瓧绗︿箣闂")
+    @NotBlank(message = "密码不能为空")
+    @Size(min = 6, max = 255, message = "密码长度必须在6-255个字符之间")
     @Column(name = "password", length = 255, nullable = false)
     private String password;
 
-    @Size(max = 50, message = "鏄电О长度不能超过50涓瓧绗")
+    @Size(max = 50, message = "昵称长度不能超过50个字符")
     @Column(name = "nickname", length = 50)
     private String nickname;
 
-    @Size(max = 20, message = "真实姓名长度不能超过20涓瓧绗")
+    @Size(max = 20, message = "真实姓名长度不能超过20个字符")
     @Column(name = "real_name", length = 20)
     private String realName;
 
-    @Size(max = 20, message = "鎵嬫満鍙烽暱搴︿笉鑳借秴杩?0涓瓧绗")
+    @Size(max = 20, message = "手机号长度不能超过20个字符")
     @Column(name = "phone", length = 20)
     private String phone;
 
@@ -77,11 +77,11 @@ public class User implements UserDetails {
     @Column(name = "avatar_url", length = 500)
     private String avatarUrl;
 
-    @Size(max = 1000, message = "涓汉绠€浠嬮暱搴︿笉鑳借秴杩?000涓瓧绗")
+    @Size(max = 1000, message = "个人简介长度不能超过1000个字符")
     @Column(name = "bio", length = 1000)
     private String bio;
 
-    @Min(value = 0, message = "鐧诲綍澶辫触娆℃暟涓嶈兘涓鸿礋鏁")
+    @Min(value = 0, message = "登录失败次数不能为负数")
     @Column(name = "failed_login_attempts", nullable = false)
     private Integer failedLoginAttempts = 0;
 
@@ -125,9 +125,9 @@ public class User implements UserDetails {
     private String twoFactorSecret;
 
     @Column(name = "preferences", columnDefinition = "TEXT")
-    private String preferences; // JSON鏍煎紡鐨勭敤鎴峰亸濂借缃?
+    private String preferences; // JSON格式的用户偏好设置 
     @Column(name = "metadata", columnDefinition = "TEXT")
-    private String metadata; // JSON鏍煎紡鐨勬墿灞曟暟鎹?
+    private String metadata; // JSON格式的扩展数据 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -139,7 +139,7 @@ public class User implements UserDetails {
         USER, ADMIN, SUPER_ADMIN
     }
 
-    // 鐢ㄦ埛鐘舵€佹灇涓
+    // 用户状态枚举
     public enum UserStatus {
         ACTIVE, INACTIVE, SUSPENDED, PENDING_VERIFICATION
     }
@@ -200,7 +200,7 @@ public class User implements UserDetails {
             if (accountLockedUntil != null && accountLockedUntil.isAfter(LocalDateTime.now())) {
                 return false;
             } else {
-                // 閿佸畾鏃堕棿宸茶繃锛岃嚜鍔ㄨВ閿
+                // 锁定时间已过，自动解锁
                 accountLocked = false;
                 accountLockedUntil = null;
                 return true;
@@ -222,7 +222,7 @@ public class User implements UserDetails {
         this.failedLoginAttempts++;
         this.lastFailedLogin = LocalDateTime.now();
 
-        // 濡傛灉澶辫触娆℃暟杈惧埌5娆★紝閿佸畾璐︽埛15分钟
+        // 如果失败次数达到5次，锁定账户15分钟
         if (this.failedLoginAttempts >= 5) {
             this.accountLocked = true;
             this.accountLockedUntil = LocalDateTime.now().plusMinutes(15);
@@ -292,7 +292,7 @@ public class User implements UserDetails {
         return UserStatus.ACTIVE.equals(status) && emailVerified != null && emailVerified;
     }
 
-    // 娣诲姞蹇呰鐨刧etter方法
+    // 添加必要的getter方法
     public String getId() {
         return id;
     }

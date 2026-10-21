@@ -4,13 +4,15 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
- * 搴旂敤绋嬪簭鍩烘湰淇℃伅閰嶇疆绫? * 用于处理app.*鍓嶇紑鐨勯厤缃睘鎬э紝閬垮厤鏈煡灞炴€ц鍛? */
+ * 应用程序基本信息配置类
+ * 用于处理app.*前缀的配置属性，避免未知属性警告
+ */
 @Component
 @ConfigurationProperties(prefix = "app")
 public class AppProperties {
     
     /**
-     * 搴旂敤鍚嶇О
+     * 应用名称
      */
     private String name;
     
@@ -25,16 +27,16 @@ public class AppProperties {
     private String description;
     
     /**
-     * 鑾峰彇搴旂敤鍚嶇О
-     * @return 搴旂敤鍚嶇О
+     * 获取应用名称
+     * @return 应用名称
      */
     public String getName() {
         return name;
     }
     
     /**
-     * 璁剧疆搴旂敤鍚嶇О
-     * @param name 搴旂敤鍚嶇О
+     * 设置应用名称
+     * @param name 应用名称
      */
     public void setName(String name) {
         this.name = name;

@@ -22,7 +22,7 @@ public class DiscussionReply {
     @Column(name = "id", nullable = false)
     private Long id;
     
-    @NotBlank(message = "鍥炲鍐呭涓嶈兘涓虹┖")
+    @NotBlank(message = "回复内容不能为空")
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
     
@@ -70,16 +70,16 @@ public class DiscussionReply {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
-    // 鐘舵€佹灇涓
+    // 状态枚举
     public enum ReplyStatus {
         ACTIVE, INACTIVE, DELETED
     }
     
-    // 鏃犲弬鏋勯€犲櫒
+    // 无参构造器
     public DiscussionReply() {
     }
     
-    // 鍏ㄥ弬鏋勯€犲櫒
+    // 全参构造器
     public DiscussionReply(Long id, String content, Discussion discussion, Long discussionId, FrontendUser user, 
                           String userId, String username, String userAvatar, Long parentId, String replyToUserId, 
                           String replyToUsername, ReplyStatus status, Integer likeCount, LocalDateTime createdAt, 
@@ -101,7 +101,7 @@ public class DiscussionReply {
         this.updatedAt = updatedAt;
     }
     
-    // Getter 鍜?Setter 方法
+    // Getter 和 Setter 方法
     public Long getId() {
         return id;
     }
@@ -256,7 +256,7 @@ public class DiscussionReply {
         return ReplyStatus.DELETED.equals(this.status);
     }
     
-    // Builder 绫
+    // Builder 类
     public static class Builder {
         private Long id;
         private String content;

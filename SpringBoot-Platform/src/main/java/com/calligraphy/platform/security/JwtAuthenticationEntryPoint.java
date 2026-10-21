@@ -24,7 +24,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException {
         
-        log.warn("鏈巿鏉冭闂? {} {} - {}", request.getMethod(), request.getRequestURI(), authException.getMessage());
+        log.warn("未授权访问: {} {} - {}", request.getMethod(), request.getRequestURI(), authException.getMessage());
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -33,10 +33,10 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         errorResponse.put("timestamp", LocalDateTime.now().toString());
         errorResponse.put("status", HttpServletResponse.SC_UNAUTHORIZED);
         errorResponse.put("error", "Unauthorized");
-        errorResponse.put("message", "鏈巿鏉冭闂紝璇峰厛鐧诲綍");
+        errorResponse.put("message", "未授权访问，请先登录");
         errorResponse.put("path", request.getRequestURI());
 
-        // 娣诲姞寮€鍙戞ā寮忎笅鐨勮缁嗕俊鎭
+        // 添加开发模式下的详细信息
         String activeProfile = request.getServletContext().getInitParameter("spring.profiles.active");
         if ("dev".equals(activeProfile) || "development".equals(activeProfile)) {
             errorResponse.put("debug", authException.getMessage());

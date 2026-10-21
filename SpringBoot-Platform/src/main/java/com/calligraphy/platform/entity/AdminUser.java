@@ -77,7 +77,7 @@ public class AdminUser {
         updatedAt = LocalDateTime.now();
     }
     
-    // 娣诲姞蹇呰鐨刧etter方法
+    // 添加必要的getter方法
     public Long getId() {
         return id;
     }

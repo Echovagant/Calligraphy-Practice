@@ -31,8 +31,8 @@ public class Work {
     @Column(name = "id", nullable = false)
     private Long id;
     
-    @NotBlank(message = "鏍囬涓嶈兘涓虹┖")
-    @Size(max = 255, message = "鏍囬长度不能超过255涓瓧绗")
+    @NotBlank(message = "标题不能为空")
+    @Size(max = 255, message = "标题长度不能超过255个字符")
     @Column(name = "title", length = 255, nullable = false)
     private String title;
     
@@ -98,12 +98,12 @@ public class Work {
     @JsonIgnore
     private List<Comment> comments;
     
-    // 鐘舵€佹灇涓
+    // 状态枚举
     public enum WorkStatus {
         DRAFT, PUBLISHED, HIDDEN, UNDER_REVIEW
     }
     
-    // 瀹℃牳鐘舵€佹灇涓
+    // 审核状态枚举
     public enum ReviewStatus {
         PENDING, APPROVED, REJECTED, NEEDS_REVISION
     }

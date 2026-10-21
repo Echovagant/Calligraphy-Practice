@@ -33,17 +33,17 @@ public class Discussion {
     @Column(name = "id", nullable = false)
     private Long id;
     
-    @NotBlank(message = "璁ㄨ鏍囬涓嶈兘涓虹┖")
-    @Size(max = 200, message = "鏍囬长度不能超过200涓瓧绗")
+    @NotBlank(message = "讨论标题不能为空")
+    @Size(max = 200, message = "标题长度不能超过200个字符")
     @Column(name = "title", length = 200, nullable = false)
     private String title;
     
-    @NotBlank(message = "璁ㄨ鍐呭涓嶈兘涓虹┖")
+    @NotBlank(message = "讨论内容不能为空")
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
     
-    @NotBlank(message = "璁ㄨ鍒嗙被涓嶈兘涓虹┖")
-    @Size(max = 50, message = "分类长度不能超过50涓瓧绗")
+    @NotBlank(message = "讨论分类不能为空")
+    @Size(max = 50, message = "分类长度不能超过50个字符")
     @Column(name = "category", length = 50, nullable = false)
     private String category;
     
@@ -93,7 +93,7 @@ public class Discussion {
     @OrderBy("createdAt ASC")
     private List<DiscussionReply> replies = new ArrayList<>();
     
-    // 鐘舵€佹灇涓
+    // 状态枚举
     public enum DiscussionStatus {
         ACTIVE, INACTIVE, DELETED
     }
@@ -144,7 +144,7 @@ public class Discussion {
         return DiscussionStatus.DELETED.equals(this.status);
     }
     
-    // 娣诲姞缂哄皯鐨刧etter鍜宻etter方法
+    // 添加缺少的getter和setter方法
     public Long getId() {
         return id;
     }

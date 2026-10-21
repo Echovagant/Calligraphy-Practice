@@ -30,11 +30,11 @@ public class DiscussionDto {
     
     private List<DiscussionReplyDto> replies;
     
-    // 鏃犲弬鏋勯€犲櫒
+    // 无参构造器
     public DiscussionDto() {
     }
     
-    // 鍏ㄥ弬鏋勯€犲櫒
+    // 全参构造器
     public DiscussionDto(String discussionId, String title, String content, String category, String userId, 
                         String username, String userAvatar, String status, Integer viewCount, Integer likeCount, 
                         Integer replyCount, Boolean isPinned, Boolean isFeatured, String tags, 
@@ -58,7 +58,7 @@ public class DiscussionDto {
         this.replies = replies;
     }
     
-    // Getter 鍜?Setter 方法
+    // Getter 和 Setter 方法
     public String getDiscussionId() {
         return discussionId;
     }
@@ -195,7 +195,7 @@ public class DiscussionDto {
         this.replies = replies;
     }
     
-    // Builder 绫
+    // Builder 类
     public static class Builder {
         private String discussionId;
         private String title;

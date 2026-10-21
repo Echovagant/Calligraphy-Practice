@@ -35,14 +35,14 @@ public interface UserService {
 
     Page<FrontendUserDto> searchUsers(String keyword, Pageable pageable);
 
-    // 鐢ㄦ埛鐘舵€佺鐞
+    // 用户状态管理
     void updateLastLoginInfo(String username, String ipAddress);
 
     void updateEmailVerificationStatus(String email, boolean verified);
 
     void updateTwoFactorStatus(String username, boolean enabled);
 
-    // 鐢ㄦ埛缁熻
+    // 用户统计
     Map<String, Long> getUserStatistics();
 
     List<User> getUsersByRole(String role);

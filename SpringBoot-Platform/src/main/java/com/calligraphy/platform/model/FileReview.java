@@ -22,26 +22,26 @@ public class FileReview {
     @Column(name = "id", length = 36, nullable = false)
     private String id;
     
-    @NotBlank(message = "鏂囦欢鍚嶄笉鑳戒负绌")
-    @Size(max = 255, message = "鏂囦欢鍚嶉暱搴︿笉鑳借秴杩?55涓瓧绗")
+    @NotBlank(message = "文件名不能为空")
+    @Size(max = 255, message = "文件名长度不能超过255个字符")
     @Column(name = "file_name", length = 255, nullable = false)
     private String fileName;
     
-    @NotBlank(message = "鏂囦欢璺緞涓嶈兘涓虹┖")
-    @Size(max = 500, message = "鏂囦欢璺緞闀垮害涓嶈兘瓒呰繃500涓瓧绗")
+    @NotBlank(message = "文件路径不能为空")
+    @Size(max = 500, message = "文件路径长度不能超过500个字符")
     @Column(name = "file_path", length = 500, nullable = false)
     private String filePath;
     
-    @NotBlank(message = "鏂囦欢绫诲瀷涓嶈兘涓虹┖")
-    @Size(max = 50, message = "文件类型长度不能超过50涓瓧绗")
+    @NotBlank(message = "文件类型不能为空")
+    @Size(max = 50, message = "文件类型长度不能超过50个字符")
     @Column(name = "file_type", length = 50, nullable = false)
     private String fileType;
     
-    @Min(value = 0, message = "鏂囦欢澶у皬涓嶈兘涓鸿礋鏁")
+    @Min(value = 0, message = "文件大小不能为负数")
     @Column(name = "file_size", nullable = false)
-    private Long fileSize; // 鏂囦欢澶у皬锛堝瓧鑺傦級
+    private Long fileSize; // 文件大小（字节）
     
-    @Size(max = 100, message = "MIME类型长度不能超过100涓瓧绗")
+    @Size(max = 100, message = "MIME类型长度不能超过100个字符")
     @Column(name = "mime_type", length = 100)
     private String mimeType;
     
@@ -88,16 +88,16 @@ public class FileReview {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
-    // 鐘舵€佹灇涓
+    // 状态枚举
     public enum FileReviewStatus {
         PENDING, APPROVED, REJECTED, NEEDS_REVISION
     }
     
-    // 鏃犲弬鏋勯€犲櫒
+    // 无参构造器
     public FileReview() {
     }
     
-    // 鍏ㄥ弬鏋勯€犲櫒
+    // 全参构造器
     public FileReview(String id, String fileName, String filePath, String fileType, Long fileSize, String mimeType, 
                      FrontendUser uploadedBy, String uploadedById, BackendUser reviewer, String reviewerId, 
                      Work work, Long workId, FileReviewStatus status, String reviewNotes, LocalDateTime uploadTime, 
@@ -202,19 +202,19 @@ public class FileReview {
     public String getStatusDisplay() {
         switch (status) {
             case PENDING:
-                return "寰呭鏍";
+                return "待审核";
             case APPROVED:
-                return "宸查€氳繃";
+                return "已通过";
             case REJECTED:
-                return "宸叉嫆缁";
+                return "已拒绝";
             case NEEDS_REVISION:
-                return "闇€瑕佷慨鏀";
+                return "需要修改";
             default:
-                return "鏈煡";
+                return "未知";
         }
     }
     
-    // Getter 鍜?Setter 方法
+    // Getter 和 Setter 方法
     public String getId() {
         return id;
     }
@@ -359,7 +359,7 @@ public class FileReview {
         this.updatedAt = updatedAt;
     }
     
-    // Builder 绫
+    // Builder 类
     public static class Builder {
         private String id;
         private String fileName;

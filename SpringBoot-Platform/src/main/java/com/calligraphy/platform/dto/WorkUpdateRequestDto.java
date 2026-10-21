@@ -6,32 +6,32 @@ import java.util.List;
 
 public class WorkUpdateRequestDto {
     
-    @Size(max = 200, message = "浣滃搧鏍囬长度不能超过200浣")
+    @Size(max = 200, message = "作品标题长度不能超过200位")
     private String title;
     
-    @Size(max = 1000, message = "作品描述长度不能超过1000浣")
+    @Size(max = 1000, message = "作品描述长度不能超过1000位")
     private String description;
     
-    @Size(max = 10000, message = "浣滃搧鍐呭长度不能超过10000浣")
+    @Size(max = 10000, message = "作品内容长度不能超过10000位")
     private String content;
     
-    @Size(max = 50, message = "作品分类长度不能超过50浣")
+    @Size(max = 50, message = "作品分类长度不能超过50位")
     private String category;
     
-    private List<@Size(max = 50, message = "鏍囩长度不能超过50浣") String> tags;
+    private List<@Size(max = 50, message = "标签长度不能超过50位") String> tags;
     
     private List<String> fileUrls;
     
     private String style;
     
-    @Size(max = 500, message = "备注长度不能超过500浣")
+    @Size(max = 500, message = "备注长度不能超过500位")
     private String notes;
     
-    // 鏃犲弬鏋勯€犲櫒
+    // 无参构造器
     public WorkUpdateRequestDto() {
     }
     
-    // 鍏ㄥ弬鏋勯€犲櫒
+    // 全参构造器
     public WorkUpdateRequestDto(String title, String description, String content, String category, List<String> tags, 
                                List<String> fileUrls, String style, String notes) {
         this.title = title;
@@ -44,7 +44,7 @@ public class WorkUpdateRequestDto {
         this.notes = notes;
     }
     
-    // Getter 鍜?Setter 方法
+    // Getter 和 Setter 方法
     public String getTitle() {
         return title;
     }
@@ -109,7 +109,7 @@ public class WorkUpdateRequestDto {
         this.notes = notes;
     }
     
-    // Builder 绫
+    // Builder 类
     public static class Builder {
         private String title;
         private String description;

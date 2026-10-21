@@ -47,19 +47,19 @@ public class FileStorageServiceImpl implements FileStorageService {
             // 验证文件
             validateFile(file);
             
-            // 鐢熸垚鍞竴鏂囦欢鍚
+            // 生成唯一文件名
             String originalFilename = file.getOriginalFilename();
             String fileExtension = getFileExtension(originalFilename);
             String uniqueFilename = generateUniqueFilename(fileExtension);
             
-            // 鍒涘缓瀛樺偍鐩綍
+            // 创建存储目录
             Path fileStoragePath = createStoragePath(userId, filePurpose);
             Path filePath = fileStoragePath.resolve(uniqueFilename);
             
             // 保存文件
             Files.copy(file.getInputStream(), filePath);
             
-            // 鍒涘缓鏂囦欢鍏冩暟鎹
+            // 创建文件元数据
             FileMetadata metadata = FileMetadata.builder()
                     .fileId(UUID.randomUUID().toString())
                     .userId(userId)
@@ -89,7 +89,7 @@ public class FileStorageServiceImpl implements FileStorageService {
     public byte[] downloadFile(String fileId) {
         try {
             FileMetadata metadata = fileMetadataRepository.findById(fileId)
-                    .orElseThrow(() -> new ResourceNotFoundException("鏂囦欢涓嶅瓨鍦"));
+                    .orElseThrow(() -> new ResourceNotFoundException("文件不存在"));
             
             Path filePath = Paths.get(metadata.getFileUrl());
             return Files.readAllBytes(filePath);
@@ -104,13 +104,13 @@ public class FileStorageServiceImpl implements FileStorageService {
     public boolean deleteFile(String fileId) {
         try {
             FileMetadata metadata = fileMetadataRepository.findById(fileId)
-                    .orElseThrow(() -> new ResourceNotFoundException("鏂囦欢涓嶅瓨鍦"));
+                    .orElseThrow(() -> new ResourceNotFoundException("文件不存在"));
             
-            // 鍒犻櫎鐗╃悊鏂囦欢
+            // 删除物理文件
             Path filePath = Paths.get(metadata.getFileUrl());
             Files.deleteIfExists(filePath);
             
-            // 鍒犻櫎鏁版嵁搴撹褰
+            // 删除数据库记录
             fileMetadataRepository.delete(metadata);
             
             return true;
@@ -151,27 +151,27 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
     @Override
     public String copyFile(String sourceFileName, String destinationFileName) {
-        throw new UnsupportedOperationException("姝ゆ柟娉曞皻鏈疄鐜");
+        throw new UnsupportedOperationException("此方法尚未实现");
     }
     @Override
     public String copyFile(String sourceFileName, String destinationFileName, String userId) {
-        throw new UnsupportedOperationException("姝ゆ柟娉曞皻鏈疄鐜");
+        throw new UnsupportedOperationException("此方法尚未实现");
     }
     @Override
     public String moveFile(String sourceFileName, String destinationFileName) {
-        throw new UnsupportedOperationException("姝ゆ柟娉曞皻鏈疄鐜");
+        throw new UnsupportedOperationException("此方法尚未实现");
     }
     @Override
     public String moveFile(String sourceFileName, String destinationFileName, String userId) {
-        throw new UnsupportedOperationException("姝ゆ柟娉曞皻鏈疄鐜");
+        throw new UnsupportedOperationException("此方法尚未实现");
     }
     @Override
     public String renameFile(String oldFileName, String newFileName) {
-        throw new UnsupportedOperationException("姝ゆ柟娉曞皻鏈疄鐜");
+        throw new UnsupportedOperationException("此方法尚未实现");
     }
     @Override
     public String renameFile(String oldFileName, String newFileName, String userId) {
-        throw new UnsupportedOperationException("姝ゆ柟娉曞皻鏈疄鐜");
+        throw new UnsupportedOperationException("此方法尚未实现");
     }
     @Override
     public byte[] compressFiles(List<String> fileIds) {
@@ -181,7 +181,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             
             for (String fileId : fileIds) {
                 FileMetadata metadata = fileMetadataRepository.findById(fileId)
-                        .orElseThrow(() -> new ResourceNotFoundException("鏂囦欢涓嶅瓨鍦? " + fileId));
+                        .orElseThrow(() -> new ResourceNotFoundException("文件不存在: " + fileId));
                 
                 Path filePath = Paths.get(metadata.getFileUrl());
                 ZipEntry zipEntry = new ZipEntry(metadata.getFileName());
@@ -215,9 +215,9 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
 
     public boolean scanForViruses(MultipartFile file) {
-        // 杩欓噷搴旇闆嗘垚瀹為檯鐨勭梾姣掓壂鎻忔湇鍔
-        log.info("鎵弿鏂囦欢鐥呮瘨: {}", file.getOriginalFilename());
-        return true; // 妯℃嫙鎵弿閫氳繃
+        // 这里应该集成实际的病毒扫描服务
+        log.info("扫描文件病毒: {}", file.getOriginalFilename());
+        return true; // 模拟扫描通过
     }
 
     public long getStorageQuota(String userId) {
@@ -250,10 +250,10 @@ public class FileStorageServiceImpl implements FileStorageService {
                 deleteFile(metadata.getFileId());
             }
             
-            log.info("娓呯悊浜?{} 涓棫鏂囦欢", oldFiles.size());
+            log.info("清理了 {} 个旧文件", oldFiles.size());
             
         } catch (Exception e) {
-            log.error("娓呯悊鏃ф枃浠跺け璐? {}", e.getMessage());
+            log.error("清理旧文件失败: {}", e.getMessage());
         }
     }
 
@@ -264,8 +264,8 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
 
     public boolean restoreFiles(String backupPath) {
-        // 瀹炵幇鏂囦欢鎭㈠逻辑
-        log.info("浠?{} 鎭㈠文件", backupPath);
+        // 实现文件恢复逻辑
+        log.info("从 {} 恢复文件", backupPath);
         return true;
     }
 
@@ -309,7 +309,7 @@ public class FileStorageServiceImpl implements FileStorageService {
                     m.put("updatedAt", meta.getUpdatedAt());
                     return m;
                 })
-                .orElseThrow(() -> new ResourceNotFoundException("鏂囦欢涓嶅瓨鍦"));
+                .orElseThrow(() -> new ResourceNotFoundException("文件不存在"));
     }
     @Override
     public boolean validateFile(MultipartFile file) {
@@ -323,16 +323,16 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     private void validateFileInternal(MultipartFile file) {
         if (file == null) {
-            throw new IllegalArgumentException("鏂囦欢涓嶈兘涓虹┖");
+            throw new IllegalArgumentException("文件不能为空");
         }
         
         if (file.isEmpty()) {
-            throw new IllegalArgumentException("鏂囦欢涓嶈兘涓虹┖");
+            throw new IllegalArgumentException("文件不能为空");
         }
         
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null || originalFilename.trim().isEmpty()) {
-            throw new IllegalArgumentException("鏂囦欢鍚嶄笉鑳戒负绌");
+            throw new IllegalArgumentException("文件名不能为空");
         }
         
         if (!validateFileExtension(file)) {
@@ -340,11 +340,11 @@ public class FileStorageServiceImpl implements FileStorageService {
         }
         
         if (!validateFileSize(file)) {
-            throw new IllegalArgumentException("鏂囦欢澶у皬瓒呰繃闄愬埗");
+            throw new IllegalArgumentException("文件大小超过限制");
         }
         
         if (!scanForViruses(file)) {
-            throw new RuntimeException("鏂囦欢鐥呮瘨鎵弿澶辫触");
+            throw new RuntimeException("文件病毒扫描失败");
         }
     }
 
@@ -362,16 +362,16 @@ public class FileStorageServiceImpl implements FileStorageService {
     private Path createStoragePath(String userId, String filePurpose) {
         try {
             if (userId == null || userId.trim().isEmpty()) {
-                throw new IllegalArgumentException("用户ID涓嶈兘涓虹┖");
+                throw new IllegalArgumentException("用户ID不能为空");
             }
             if (filePurpose == null || filePurpose.trim().isEmpty()) {
-                throw new IllegalArgumentException("鏂囦欢鐢ㄩ€斾笉鑳戒负绌");
+                throw new IllegalArgumentException("文件用途不能为空");
             }
             Path path = Paths.get(storagePath, userId.trim(), filePurpose.trim());
             Files.createDirectories(path);
             return path;
         } catch (IOException e) {
-            throw new RuntimeException("鍒涘缓瀛樺偍鐩綍澶辫触: " + e.getMessage(), e);
+            throw new RuntimeException("创建存储目录失败: " + e.getMessage(), e);
         }
     }
     @Override

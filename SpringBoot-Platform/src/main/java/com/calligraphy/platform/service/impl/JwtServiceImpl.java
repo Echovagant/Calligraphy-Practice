@@ -44,23 +44,23 @@ public class JwtServiceImpl implements JwtService {
 
     @jakarta.annotation.PostConstruct
     public void init() {
-        // 鐢熶骇鐜妫€鏌
+        // 生产环境检查
         if ("prod".equals(activeProfile) || activeProfile.contains("prod")) {
             if (secret == null || secret.isEmpty() || "mySecretKey".equals(secret)) {
-                throw new IllegalArgumentException("鐢熶骇鐜蹇呴』璁剧疆鏈夋晥鐨凧WT瀵嗛挜锛屼笉鑳戒娇鐢ㄩ粯璁ゅ€");
+                throw new IllegalArgumentException("生产环境必须设置有效的JWT密钥，不能使用默认值");
             }
-            logger.info("鐢熶骇鐜JWT閰嶇疆妫€鏌ラ€氳繃");
+            logger.info("生产环境JWT配置检查通过");
         } else {
-            // 寮€鍙戠幆澧冩彁渚涢粯璁ゅ瘑閽
+            // 开发环境提供默认密钥
             if (secret == null || secret.isEmpty()) {
                 secret = "calligraphy-platform-jwt-secret-key-2024-secure-string-with-enough-length";
-                logger.warn("浣跨敤榛樿JWT瀵嗛挜锛屼粎閫傜敤浜庡紑鍙戠幆澧");
+                logger.warn("使用默认JWT密钥，仅适用于开发环境");
             }
         }
 
-        // 纭繚瀵嗛挜瓒冲闀
+        // 确保密钥足够长
         if (secret.length() < 32) {
-            logger.warn("JWT密钥长度不足32浣嶏紝寤鸿浣跨敤鏇撮暱鐨勫瘑閽ヤ互鎻愰珮瀹夊叏鎬");
+            logger.warn("JWT密钥长度不足32位，建议使用更长的密钥以提高安全性");
         }
     }
 
@@ -199,7 +199,7 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public String refreshAccessToken(String refreshToken) {
         if (!validateToken(refreshToken)) {
-            logger.error("鍒锋柊浠ょ墝楠岃瘉澶辫触锛屽彲鑳藉凡杩囨湡鎴栬绡℃敼");
+            logger.error("刷新令牌验证失败，可能已过期或被篡改");
             throw new IllegalArgumentException("刷新令牌无效");
         }
 
@@ -207,7 +207,7 @@ public class JwtServiceImpl implements JwtService {
         String userId = extractUserId(refreshToken);
         String userType = extractUserType(refreshToken);
 
-        // 鍒锋柊鍓嶅皢鏃х殑Refresh Token鍔犲叆榛戝悕鍗曪紝闃叉閲嶅使用
+        // 刷新前将旧的Refresh Token加入黑名单，防止重复使用
         invalidateToken(refreshToken);
 
         // 生成新的Access Token
@@ -231,11 +231,11 @@ public class JwtServiceImpl implements JwtService {
     }
     @Override
     public void associateTokenWithDevice(String token, String deviceId) {
-        // 瀹炵幇璁惧关联逻辑
+        // 实现设备关联逻辑
     }
     @Override
     public void disassociateTokenFromDevice(String token) {
-        // 瀹炵幇璁惧瑙ｇ粦閫昏緫
+        // 实现设备解绑逻辑
     }
     @Override
     public String getTokenDeviceId(String token) {
@@ -251,7 +251,7 @@ public class JwtServiceImpl implements JwtService {
     }
     @Override
     public void disassociateTokenFromIp(String token) {
-        // 实现IP瑙ｇ粦閫昏緫
+        // 实现IP解绑逻辑
     }
     @Override
     public String getTokenIpAddress(String token) {
@@ -338,21 +338,21 @@ public class JwtServiceImpl implements JwtService {
     }
     @Override
     public void invalidateUserTokensByType(String userId, String userType) {
-        // 瀹炵幇鎸夌被鍨嬪け鏁堢敤鎴蜂护鐗岄€昏緫
+        // 实现按类型失效用户令牌逻辑
     }
     @Override
     public String addCustomClaim(String token, String claimName, Object claimValue) {
-        // 瀹炵幇娣诲姞鑷畾涔夊０鏄庨€昏緫
+        // 实现添加自定义声明逻辑
         return token;
     }
     @Override
     public Object getCustomClaim(String token, String claimName) {
-        // 瀹炵幇鑾峰彇鑷畾涔夊０鏄庨€昏緫
+        // 实现获取自定义声明逻辑
         return null;
     }
     @Override
     public Map<String, Object> getAllCustomClaims(String token) {
-        // 瀹炵幇鑾峰彇鎵€有自定义声明逻辑
+        // 实现获取所有自定义声明逻辑
         return java.util.Collections.emptyMap();
     }
     @Override
@@ -433,7 +433,7 @@ public class JwtServiceImpl implements JwtService {
         // 记录Token生成事件
         String userId = (String) claims.get("userId");
         String userType = (String) claims.get("userType");
-        logger.info("鐢熸垚鏂癟oken锛岀敤鎴稩D: {}, 用户类型: {}, 过期时间: {}",
+        logger.info("生成新Token，用户ID: {}, 用户类型: {}, 过期时间: {}",
                 userId, userType, new Date(System.currentTimeMillis() + expiration));
 
         return token;
@@ -447,11 +447,11 @@ public class JwtServiceImpl implements JwtService {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (io.jsonwebtoken.MalformedJwtException e) {
-            logger.error("鏃犳晥鐨凧WT格式: {}", e.getMessage());
-            throw new io.jsonwebtoken.MalformedJwtException("鏃犳晥鐨凧WT格式", e);
+            logger.error("无效的JWT格式: {}", e.getMessage());
+            throw new io.jsonwebtoken.MalformedJwtException("无效的JWT格式", e);
         } catch (io.jsonwebtoken.ExpiredJwtException e) {
-            logger.error("JWT宸茶繃鏈? {}", e.getMessage());
-            throw new io.jsonwebtoken.ExpiredJwtException(e.getHeader(), e.getClaims(), "JWT宸茶繃鏈", e);
+            logger.error("JWT已过期: {}", e.getMessage());
+            throw new io.jsonwebtoken.ExpiredJwtException(e.getHeader(), e.getClaims(), "JWT已过期", e);
         } catch (io.jsonwebtoken.UnsupportedJwtException e) {
             logger.error("不支持的JWT: {}", e.getMessage());
             throw new io.jsonwebtoken.UnsupportedJwtException("不支持的JWT", e);

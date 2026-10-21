@@ -52,12 +52,12 @@ public interface PracticeRecordService {
     
     void deletePracticeRecord(String recordId, String userId);
     
-    // 鎼滅储鍜岀瓫閫
+    // 搜索和筛选
     Page<PracticeRecordDto> searchPracticeRecords(String keyword, Pageable pageable);
     
     List<PracticeRecordDto> searchPracticeRecords(String keyword);
     
-    // 缁熻相关
+    // 统计相关
     long getTotalPracticeRecordCount();
     
     long getPracticeRecordCountByUserId(String userId);
@@ -72,7 +72,7 @@ public interface PracticeRecordService {
     
     long getPracticeRecordCountByDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
     
-    // 鐢ㄦ埛缁冧範缁熻
+    // 用户练习统计
     long getUserTotalPracticeCount(String userId);
     
     long getUserCompletedPracticeCount(String userId);
@@ -83,33 +83,33 @@ public interface PracticeRecordService {
     
     double getUserAverageCompletionRate(String userId);
     
-    // 瀛楃缁冧範缁熻
+    // 字符练习统计
     long getCharacterPracticeCount(String character);
     
     double getCharacterAverageScore(String character);
     
     double getCharacterCompletionRate(String character);
     
-    // 瀛椾綋缁冧範缁熻
+    // 字体练习统计
     long getFontStylePracticeCount(String fontStyle);
     
     double getFontStyleAverageScore(String fontStyle);
     
     double getFontStyleCompletionRate(String fontStyle);
     
-    // 闅惧害绾у埆缁熻
+    // 难度级别统计
     long getDifficultyLevelPracticeCount(String difficultyLevel);
     
     double getDifficultyLevelAverageScore(String difficultyLevel);
     
     double getDifficultyLevelCompletionRate(String difficultyLevel);
     
-    // 鏈€杩戠粌涔
+    // 最近练习
     List<PracticeRecordDto> getRecentPracticeRecords(int limit);
     
     List<PracticeRecordDto> getRecentPracticeRecordsByUserId(String userId, int limit);
     
-    // 鏈€楂樺垎鍜屾渶浣宠〃鐜
+    // 最高分和最佳表现
     List<PracticeRecordDto> getTopScoringPracticeRecords(int limit);
     
     List<PracticeRecordDto> getTopScoringPracticeRecordsByUserId(String userId, int limit);
@@ -126,7 +126,7 @@ public interface PracticeRecordService {
     
     void bulkUpdateCompletionStatus(List<String> recordIds, String status);
     
-    // 缁冧範寤鸿
+    // 练习建议
     List<String> getRecommendedCharactersForUser(String userId);
     
     List<String> getRecommendedFontStylesForUser(String userId);

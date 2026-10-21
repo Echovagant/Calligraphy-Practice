@@ -44,19 +44,19 @@ public interface RoleService {
     
     boolean existsByName(String roleName);
     
-    // 鎼滅储鍜岀瓫閫
+    // 搜索和筛选
     Page<RoleDto> searchRoles(String keyword, Pageable pageable);
     
     List<RoleDto> searchRoles(String keyword);
     
-    // 缁熻相关
+    // 统计相关
     long getTotalRoleCount();
     
     long getRoleCountByType(Role.RoleType type);
     
     long getRoleCountByLevel(Integer level);
     
-    // 鐢ㄦ埛瑙掕壊绠＄悊
+    // 用户角色管理
     List<RoleDto> getRolesByUserId(String userId);
     
     List<RoleDto> getRolesByUsername(String username);
@@ -75,7 +75,7 @@ public interface RoleService {
     
     boolean userHasAllRoles(String userId, List<String> roleCodes);
     
-    // 瑙掕壊鏉冮檺绠＄悊
+    // 角色权限管理
     List<RoleDto> getRolesByPermissionId(String permissionId);
     
     List<RoleDto> getRolesByPermissionCode(String permissionCode);
@@ -94,7 +94,7 @@ public interface RoleService {
     
     boolean roleHasAllPermissions(String roleId, List<String> permissionCodes);
     
-    // 瑙掕壊灞傜骇绠＄悊
+    // 角色层级管理
     List<RoleDto> getChildRoles(String roleId);
     
     List<RoleDto> getParentRoles(String roleId);
@@ -107,7 +107,7 @@ public interface RoleService {
     
     boolean isRoleDescendant(String descendantRoleId, String ancestorRoleId);
     
-    // 棰勫畾涔夎鑹
+    // 预定义角色
     List<RoleDto> getPredefinedRoles();
     
     void initializePredefinedRoles();
@@ -132,7 +132,7 @@ public interface RoleService {
     
     void refreshPermissionRoleCache(String permissionId);
     
-    // 瑙掕壊瀹¤
+    // 角色审计
     java.util.Map<String, Object> getRoleUsageStats();
     
     java.util.Map<String, Object> getUserRoleStats(String userId);

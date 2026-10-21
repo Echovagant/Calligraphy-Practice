@@ -37,12 +37,12 @@ public class CommentDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
-    // 鍥炲淇℃伅
+    // 回复信息
     private List<CommentDto> replies;
     private long replyCount;
     private boolean hasReplies;
     
-    // 瀹℃牳鑰呬俊鎭
+    // 审核者信息
     private String reviewerUsername;
     private String reviewerNickname;
 }

@@ -7,11 +7,11 @@ public class FileUploadResponseDto {
     private long fileSize;
     private String message;
     
-    // 鏃犲弬鏋勯€犲櫒
+    // 无参构造器
     public FileUploadResponseDto() {
     }
     
-    // 鍏ㄥ弬鏋勯€犲櫒
+    // 全参构造器
     public FileUploadResponseDto(String fileName, String fileUrl, String fileType, long fileSize, String message) {
         this.fileName = fileName;
         this.fileUrl = fileUrl;
@@ -20,7 +20,7 @@ public class FileUploadResponseDto {
         this.message = message;
     }
     
-    // Getter 鍜?Setter 方法
+    // Getter 和 Setter 方法
     public String getFileName() {
         return fileName;
     }

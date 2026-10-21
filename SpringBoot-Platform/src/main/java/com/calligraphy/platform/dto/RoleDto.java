@@ -28,11 +28,11 @@ public class RoleDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
-    // 鏉冮檺淇℃伅
+    // 权限信息
     private List<PermissionDto> permissions;
     private int permissionCount;
     
-    // 鐢ㄦ埛淇℃伅
+    // 用户信息
     private long userCount;
     private long frontendUserCount;
     private long backendUserCount;

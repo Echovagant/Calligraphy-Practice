@@ -34,7 +34,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional
     public NotificationDto createNotification(NotificationCreateRequestDto createRequest) {
-        log.info("创建通知: 鎺ユ敹鑰?{}, 类型={}", createRequest.getRecipientId(), createRequest.getType());
+        log.info("创建通知: 接收者={}, 类型={}", createRequest.getRecipientId(), createRequest.getType());
 
         Notification notification = Notification.builder()
                 .title(createRequest.getTitle() != null ? createRequest.getTitle() : "通知")
@@ -61,7 +61,7 @@ public class NotificationServiceImpl implements NotificationService {
         log.info("更新通知: ID={}", notificationId);
 
         Notification notification = notificationRepository.findById(( Long) notificationId)
-                .orElseThrow(() -> new ResourceNotFoundException("閫氱煡涓嶅瓨鍦? " + notificationId));
+                .orElseThrow(() -> new ResourceNotFoundException("通知不存在: " + notificationId));
 
         if (updateRequest.getTitle() != null) {
             notification.setTitle(updateRequest.getTitle());
@@ -95,9 +95,9 @@ public class NotificationServiceImpl implements NotificationService {
         log.info("删除通知: ID={}", notificationId);
 
         Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new ResourceNotFoundException("閫氱煡涓嶅瓨鍦? " + notificationId));
+                .orElseThrow(() -> new ResourceNotFoundException("通知不存在: " + notificationId));
 
-        // 杞垹闄
+        // 软删除
         notification.setIsDeleted(true);
         notification.setUpdatedAt(LocalDateTime.now());
         notificationRepository.save(notification);
@@ -107,7 +107,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public NotificationDto getNotificationById(Long notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new ResourceNotFoundException("閫氱煡涓嶅瓨鍦? " + notificationId));
+                .orElseThrow(() -> new ResourceNotFoundException("通知不存在: " + notificationId));
 
         return notificationMapper.toDto(notification);
     }
@@ -165,21 +165,21 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional
     public void markAsRead(Long notificationId) {
-        log.info("鏍囪閫氱煡涓哄凡璇? ID={}", notificationId);
+        log.info("标记通知为已读: ID={}", notificationId);
 
         Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new ResourceNotFoundException("閫氱煡涓嶅瓨鍦? " + notificationId));
+                .orElseThrow(() -> new ResourceNotFoundException("通知不存在: " + notificationId));
 
         notification.setIsRead(true);
         notification.setUpdatedAt(LocalDateTime.now());
         notificationRepository.save(notification);
 
-        log.info("閫氱煡宸叉爣璁颁负宸茶: ID={}", notificationId);
+        log.info("通知已标记为已读: ID={}", notificationId);
     }
     @Override
     @Transactional
     public void markAllAsRead(Long userId) {
-        log.info("鏍囪鎵€鏈夐€氱煡涓哄凡璇? 用户ID={}", userId);
+        log.info("标记所有通知为已读: 用户ID={}", userId);
 
         List<Notification> unreadNotifications = notificationRepository
                 .findByRecipientIdAndIsReadFalseAndIsDeletedFalse(String.valueOf(userId));
@@ -191,7 +191,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         notificationRepository.saveAll(( Iterable<Notification>) unreadNotifications);
 
-        log.info("鎵€鏈夐€氱煡宸叉爣璁颁负宸茶: 用户ID={}, 数量={}", userId, unreadNotifications.size());
+        log.info("所有通知已标记为已读: 用户ID={}, 数量={}", userId, unreadNotifications.size());
     }
 
     public long getUnreadCount(Long userId) {
@@ -205,7 +205,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Transactional
     public void sendSystemNotification(String title, String content, Long recipientId) {
-        log.info("鍙戦€佺郴缁熼€氱煡: 鎺ユ敹鑰?{}, 鏍囬={}", recipientId, title);
+        log.info("发送系统通知: 接收者={}, 标题={}", recipientId, title);
 
         NotificationCreateRequestDto createRequest = new NotificationCreateRequestDto(String.valueOf(recipientId),
                 content, "SYSTEM", title, null, null);
@@ -215,45 +215,45 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Transactional
     public void sendCommentNotification(Long workId, Long commentId, Long authorId, Long commenterId) {
-        log.info("鍙戦€佽瘎璁洪€氱煡: 作品ID={}, 璇勮ID={}, 浣滆€匢D={}, 璇勮鑰匢D={}", workId, commentId, authorId, commenterId);
+        log.info("发送评论通知: 作品ID={}, 评论ID={}, 作者ID={}, 评论者ID={}", workId, commentId, authorId, commenterId);
 
-        // 閬垮厤缁欒嚜宸卞彂閫侀€氱煡
+        // 避免给自己发送通知
         if (authorId.equals(commenterId)) {
             return;
         }
 
         NotificationCreateRequestDto createRequest = new NotificationCreateRequestDto(String.valueOf(authorId),
-                "鏈変汉璇勮浜嗘偍鐨勪綔鍝?, "COMMENT", "鏂拌瘎璁?, String.valueOf(workId), "WORK");
+                "有人评论了您的作品", "COMMENT", "新评论", String.valueOf(workId), "WORK");
 
         createNotification(createRequest);
     }
 
     @Transactional
     public void sendLikeNotification(Long workId, Long authorId, Long likerId) {
-        log.info("鍙戦€佺偣璧為€氱煡: 作品ID={}, 浣滆€匢D={}, 鐐硅禐鑰匢D={}", workId, authorId, likerId);
+        log.info("发送点赞通知: 作品ID={}, 作者ID={}, 点赞者ID={}", workId, authorId, likerId);
 
-        // 閬垮厤缁欒嚜宸卞彂閫侀€氱煡
+        // 避免给自己发送通知
         if (authorId.equals(likerId)) {
             return;
         }
 
         NotificationCreateRequestDto createRequest = new NotificationCreateRequestDto(String.valueOf(authorId),
-                "鏈変汉鐐硅禐浜嗘偍鐨勪綔鍝?, "LIKE", "鏂扮偣璧?, String.valueOf(workId), "WORK");
+                "有人点赞了您的作品", "LIKE", "新点赞", String.valueOf(workId), "WORK");
 
         createNotification(createRequest);
     }
 
     @Transactional
     public void sendFollowNotification(Long followerId, Long followingId) {
-        log.info("鍙戦€佸叧娉ㄩ€氱煡: 鍏虫敞鑰匢D={}, 琚叧娉ㄨ€匢D={}", followerId, followingId);
+        log.info("发送关注通知: 关注者ID={}, 被关注者ID={}", followerId, followingId);
 
-        // 閬垮厤缁欒嚜宸卞彂閫侀€氱煡
+        // 避免给自己发送通知
         if (followerId.equals(followingId)) {
             return;
         }
 
         NotificationCreateRequestDto createRequest = new NotificationCreateRequestDto(String.valueOf(followingId),
-                "有人关注了您", "FOLLOW", "鏂板叧娉", String.valueOf(followerId), "USER");
+                "有人关注了您", "FOLLOW", "新关注", String.valueOf(followerId), "USER");
 
         createNotification(createRequest);
     }

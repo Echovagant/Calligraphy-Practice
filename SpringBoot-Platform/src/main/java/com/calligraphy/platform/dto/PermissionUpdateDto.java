@@ -15,37 +15,37 @@ import lombok.NoArgsConstructor;
 @Schema(description = "权限更新请求DTO")
 public class PermissionUpdateDto {
     
-    @NotBlank(message = "权限ID涓嶈兘涓虹┖")
+    @NotBlank(message = "权限ID不能为空")
     @Schema(description = "权限ID", example = "1")
     private Long permissionId;
     
-    @Size(max = 50, message = "鏉冮檺鍚嶇О长度不能超过50涓瓧绗")
-    @Schema(description = "鏉冮檺鍚嶇О", example = "USER_CREATE")
+    @Size(max = 50, message = "权限名称长度不能超过50个字符")
+    @Schema(description = "权限名称", example = "USER_CREATE")
     private String name;
     
-    @Size(max = 200, message = "权限描述长度不能超过200涓瓧绗")
-    @Schema(description = "权限描述", example = "鍒涘缓鐢ㄦ埛鐨勬潈闄")
+    @Size(max = 200, message = "权限描述长度不能超过200个字符")
+    @Schema(description = "权限描述", example = "创建用户的权限")
     private String description;
     
     @Schema(description = "权限编码", example = "user:create")
     private String code;
     
-    @Schema(description = "鐖舵潈闄怚D", example = "1")
+    @Schema(description = "父权限ID", example = "1")
     private Long parentId;
     
     @Schema(description = "权限类型", example = "menu")
     private String type;
     
-    @Schema(description = "鏉冮檺璺緞", example = "/users")
+    @Schema(description = "权限路径", example = "/users")
     private String path;
     
     @Schema(description = "权限图标", example = "user-icon")
     private String icon;
     
-    @Schema(description = "鎺掑簭鍙", example = "1")
+    @Schema(description = "排序号", example = "1")
     private Integer sortOrder;
     
-    @Schema(description = "鐘舵€", example = "active")
+    @Schema(description = "状态", example = "active")
     private String status;
 }
 

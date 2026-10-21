@@ -43,10 +43,10 @@ public class WorkServiceImpl implements WorkService {
 
     @Transactional
     public WorkDto createWork(WorkCreateRequestDto createRequest, String username) {
-        log.info("鍒涘缓鏂颁綔鍝? {} by {}", createRequest.getTitle(), username);
+        log.info("创建新作品: {} by {}", createRequest.getTitle(), username);
 
         FrontendUser author = userService.getUserByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("鐢ㄦ埛涓嶅瓨鍦? " + username));
+                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + username));
 
         Work work = Work.builder()
                 .title(createRequest.getTitle())
@@ -76,17 +76,17 @@ public class WorkServiceImpl implements WorkService {
         log.info("更新作品: {} (ID: {})", updateRequest.getTitle(), workId);
 
         Work work = workRepository.findById(workId)
-                .orElseThrow(() -> new ResourceNotFoundException("浣滃搧涓嶅瓨鍦? " + workId));
+                .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
-        // 妫€鏌ユ潈闄?- 鍙湁浣滆€呮垨绠＄悊鍛樺彲浠ユ洿鏂
+        // 检查权限 - 只有作者或管理员可以更新
         FrontendUser currentUser = userService.getUserByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("鐢ㄦ埛涓嶅瓨鍦? " + username));
+                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + username));
         if (!work.getUserId().equals(currentUser.getId()) &&
                 backendUserRepository.findByUsername(username).isEmpty()) {
-            throw new SecurityException("娌℃湁鏉冮檺鏇存柊姝や綔鍝");
+            throw new SecurityException("没有权限更新此作品");
         }
 
-        // 鏇存柊鍩烘湰淇℃伅
+        // 更新基本信息
         if (updateRequest.getTitle() != null) {
             work.setTitle(updateRequest.getTitle());
         }
@@ -109,7 +109,7 @@ public class WorkServiceImpl implements WorkService {
         return workMapper.toDto(updatedWork);
     }
 
-    // ===== 鍏煎接口方法签名 =====
+    // ===== 兼容接口方法签名 =====
     @Override
     @Transactional
     public WorkDto createWork(String userId, com.calligraphy.platform.dto.WorkCreateDto createDto,
@@ -134,7 +134,7 @@ public class WorkServiceImpl implements WorkService {
     @Transactional
     public WorkDto updateWork(Long workId, String userId, WorkUpdateRequestDto updateDto, MultipartFile[] files) {
         Work work = workRepository.findById(workId)
-                .orElseThrow(() -> new ResourceNotFoundException("浣滃搧涓嶅瓨鍦? " + workId));
+                .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
         if (updateDto.getTitle() != null)
             work.setTitle(updateDto.getTitle());
         if (updateDto.getDescription() != null)
@@ -156,14 +156,14 @@ public class WorkServiceImpl implements WorkService {
         log.info("删除作品 (ID: {}) by {}", workId, username);
 
         Work work = workRepository.findById(workId)
-                .orElseThrow(() -> new ResourceNotFoundException("浣滃搧涓嶅瓨鍦? " + workId));
+                .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
-        // 妫€鏌ユ潈闄?- 鍙湁浣滆€呮垨绠＄悊鍛樺彲浠ュ垹闄
+        // 检查权限 - 只有作者或管理员可以删除
         FrontendUser currentUser = userService.getUserByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("鐢ㄦ埛涓嶅瓨鍦? " + username));
+                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + username));
         if (!work.getUserId().equals(currentUser.getId()) &&
                 backendUserRepository.findByUsername(username).isEmpty()) {
-            throw new SecurityException("娌℃湁鏉冮檺鍒犻櫎姝や綔鍝");
+            throw new SecurityException("没有权限删除此作品");
         }
 
         workRepository.delete(work);
@@ -171,12 +171,12 @@ public class WorkServiceImpl implements WorkService {
     }
     @Override
     public WorkDto getWorkById(Long workId) {
-        log.info("鑾峰彇浣滃搧璇︽儏: {}", workId);
+        log.info("获取作品详情: {}", workId);
 
         Work work = workRepository.findById(workId)
-                .orElseThrow(() -> new ResourceNotFoundException("浣滃搧涓嶅瓨鍦? " + workId));
+                .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
-        // 澧炲姞娴忚閲
+        // 增加浏览量
         work.incrementViewCount();
         workRepository.save(work);
 
@@ -184,10 +184,10 @@ public class WorkServiceImpl implements WorkService {
     }
 
     public List<WorkDto> getWorksByUser(String username) {
-        log.info("获取用户 {} 鐨勬墍鏈変綔鍝", username);
+        log.info("获取用户 {} 的所有作品", username);
 
         FrontendUser author = userService.getUserByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("鐢ㄦ埛涓嶅瓨鍦? " + username));
+                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + username));
         List<Work> works = workRepository.findByUserId(author.getId());
 
         return works.stream()
@@ -201,7 +201,7 @@ public class WorkServiceImpl implements WorkService {
     }
     @Override
     public Page<WorkDto> getPublicWorks(Pageable pageable) {
-        log.info("鑾峰彇鍏紑浣滃搧鍒楄〃, 页码: {}, 每页数量: {}", pageable.getPageNumber(), pageable.getPageSize());
+        log.info("获取公开作品列表, 页码: {}, 每页数量: {}", pageable.getPageNumber(), pageable.getPageSize());
 
         Page<Work> works = workRepository.findByStatusAndReviewStatus(
                 Work.WorkStatus.PUBLISHED, Work.ReviewStatus.APPROVED, pageable);
@@ -209,7 +209,7 @@ public class WorkServiceImpl implements WorkService {
     }
     @Override
     public Page<WorkDto> getApprovedWorks(Pageable pageable) {
-        log.info("鑾峰彇宸叉壒鍑嗕綔鍝佸垪琛? 页码: {}, 每页数量: {}", pageable.getPageNumber(), pageable.getPageSize());
+        log.info("获取已批准作品列表: 页码: {}, 每页数量: {}", pageable.getPageNumber(), pageable.getPageSize());
 
         Page<Work> works = workRepository.findByStatusAndReviewStatus(
                 Work.WorkStatus.PUBLISHED, Work.ReviewStatus.APPROVED, pageable);
@@ -217,16 +217,16 @@ public class WorkServiceImpl implements WorkService {
     }
     @Override
     public Page<WorkDto> getWorksByCategory(String category, Pageable pageable) {
-        log.info("鑾峰彇鍒嗙被涓?{} 鐨勪綔鍝? 页码: {}, 每页数量: {}",
+        log.info("获取分类下 {} 的作品: 页码: {}, 每页数量: {}",
                 category, pageable.getPageNumber(), pageable.getPageSize());
-        // 由于Work瀹炰綋娌℃湁category瀛楁锛岃繖閲岃繑鍥炴墍鏈変綔鍝
+        // 由于Work实体没有category字段，这里返回所有作品
         List<Work> list = workRepository.findAll();
         List<WorkDto> dtos = list.stream().map(workMapper::toDto).collect(Collectors.toList());
         return new org.springframework.data.domain.PageImpl<>(dtos, pageable, dtos.size());
     }
 
     public Page<WorkDto> searchWorks(String keyword, Pageable pageable) {
-        log.info("搜索作品, 鍏抽敭璇? {}, 页码: {}, 每页数量: {}",
+        log.info("搜索作品, 关键词: {}, 页码: {}, 每页数量: {}",
                 keyword, pageable.getPageNumber(), pageable.getPageSize());
         List<Work> list = workRepository.searchWorks(keyword);
         List<WorkDto> dtos = list.stream().map(workMapper::toDto).collect(Collectors.toList());
@@ -284,7 +284,7 @@ public class WorkServiceImpl implements WorkService {
     @Transactional
     public WorkDto updateWorkStatus(Long workId, String userId, Work.WorkStatus status) {
         Work work = workRepository.findById(workId)
-                .orElseThrow(() -> new ResourceNotFoundException("浣滃搧涓嶅瓨鍦? " + workId));
+                .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
         work.setStatus(status);
         return workMapper.toDto(workRepository.save(work));
     }
@@ -293,7 +293,7 @@ public class WorkServiceImpl implements WorkService {
     public WorkDto updateWorkReviewStatus(Long workId, String reviewerId, Work.ReviewStatus reviewStatus,
             String reviewComment) {
         Work work = workRepository.findById(workId)
-                .orElseThrow(() -> new ResourceNotFoundException("浣滃搧涓嶅瓨鍦? " + workId));
+                .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
         work.setReviewStatus(reviewStatus);
         work.setReviewNotes(reviewComment);
         work.setReviewTime(LocalDateTime.now());
@@ -319,7 +319,7 @@ public class WorkServiceImpl implements WorkService {
     }
     @Override
     public List<WorkDto> getWorksByCategory(String category) {
-        // 由于Work瀹炰綋娌℃湁category瀛楁锛岃繖閲岃繑鍥炴墍鏈変綔鍝
+        // 由于Work实体没有category字段，这里返回所有作品
         return workRepository.findAll().stream().map(workMapper::toDto).collect(Collectors.toList());
     }
     @Override
@@ -338,7 +338,7 @@ public class WorkServiceImpl implements WorkService {
     @Transactional
     public void incrementViewCount(Long workId) {
         Work work = workRepository.findById(workId)
-                .orElseThrow(() -> new ResourceNotFoundException("浣滃搧涓嶅瓨鍦? " + workId));
+                .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
         work.setViewCount(work.getViewCount() + 1);
         workRepository.save(work);
@@ -349,17 +349,17 @@ public class WorkServiceImpl implements WorkService {
         log.info("用户 {} 点赞作品 ID: {}", username, workId);
 
         Work work = workRepository.findById(workId)
-                .orElseThrow(() -> new ResourceNotFoundException("浣滃搧涓嶅瓨鍦? " + workId));
+                .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
         // 验证用户存在
         FrontendUser user = userService.getUserByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("鐢ㄦ埛涓嶅瓨鍦? " + username));
+                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + username));
 
-        // 澧炲姞鐐硅禐鏁
+        // 增加点赞数
         work.incrementLikeCount();
         Work updatedWork = workRepository.save(work);
 
-        log.info("作品点赞成功: {} (ID: {}), 鐐硅禐鏁? {}",
+        log.info("作品点赞成功: {} (ID: {}), 点赞数: {}",
                 updatedWork.getTitle(), updatedWork.getId(), updatedWork.getLikeCount());
 
         return workMapper.toDto(updatedWork);
@@ -368,7 +368,7 @@ public class WorkServiceImpl implements WorkService {
     @Transactional
     public void decrementLikeCount(Long workId) {
         Work work = workRepository.findById(workId)
-                .orElseThrow(() -> new ResourceNotFoundException("浣滃搧涓嶅瓨鍦? " + workId));
+                .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
         if (work.getLikeCount() > 0) {
             work.setLikeCount(work.getLikeCount() - 1);
@@ -379,34 +379,34 @@ public class WorkServiceImpl implements WorkService {
     @Transactional
     public void incrementLikeCount(Long workId) {
         Work work = workRepository.findById(workId)
-                .orElseThrow(() -> new ResourceNotFoundException("浣滃搧涓嶅瓨鍦? " + workId));
+                .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
         work.incrementLikeCount();
         workRepository.save(work);
     }
     @Override
     public boolean isLikedByUser(Long workId, String userId) {
-        // 鐢变簬褰撳墠绯荤粺娌℃湁鐐硅禐璁板綍琛紝鏆傛椂杩斿洖false
-        // 鍚庣画鍙互娣诲姞鐐硅禐璁板綍鍔熻兘
+        // 由于当前系统没有点赞记录表，暂时返回false
+        // 后续可以添加点赞记录功能
         return false;
     }
     @Override
     @Transactional
     public void addLike(Long workId, String userId) {
-        // 鐢变簬褰撳墠绯荤粺娌℃湁鐐硅禐璁板綍琛紝鏆傛椂鍙加点赞数
+        // 由于当前系统没有点赞记录表，暂时只增加点赞数
         incrementLikeCount(workId);
     }
     @Override
     @Transactional
     public void removeLike(Long workId, String userId) {
-        // 鐢变簬褰撳墠绯荤粺娌℃湁鐐硅禐璁板綍琛紝鏆傛椂鍙噺灏戠偣璧炴暟
+        // 由于当前系统没有点赞记录表，暂时只减少点赞数
         decrementLikeCount(workId);
     }
     @Override
     @Transactional
     public void updateCommentCount(Long workId, int delta) {
         Work work = workRepository.findById(workId)
-                .orElseThrow(() -> new ResourceNotFoundException("浣滃搧涓嶅瓨鍦? " + workId));
+                .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
         work.setCommentCount(work.getCommentCount() + delta);
         workRepository.save(work);
@@ -414,36 +414,36 @@ public class WorkServiceImpl implements WorkService {
 
     @Transactional
     public WorkDto approveWork(Long workId, String adminUsername) {
-        log.info("绠＄悊鍛?{} 批准作品 ID: {}", adminUsername, workId);
+        log.info("管理员:{} 批准作品 ID: {}", adminUsername, workId);
 
         Work work = workRepository.findById(workId)
-                .orElseThrow(() -> new ResourceNotFoundException("浣滃搧涓嶅瓨鍦? " + workId));
+                .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
         BackendUser reviewer = backendUserRepository.findByUsername(adminUsername)
                 .orElseThrow(() -> new SecurityException("绠＄悊鍛樹笉瀛樺湪鎴栨棤鏉冮檺: " + adminUsername));
 
-        work.approve(reviewer, "瀹℃牳閫氳繃");
+        work.approve(reviewer, "审核通过");
         Work updated = workRepository.save(work);
         return workMapper.toDto(updated);
     }
 
     @Transactional
     public WorkDto rejectWork(Long workId, String adminUsername, String reason) {
-        log.info("绠＄悊鍛?{} 拒绝作品 ID: {}", adminUsername, workId);
+        log.info("管理员:{} 拒绝作品 ID: {}", adminUsername, workId);
 
         Work work = workRepository.findById(workId)
-                .orElseThrow(() -> new ResourceNotFoundException("浣滃搧涓嶅瓨鍦? " + workId));
+                .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
         BackendUser reviewer = backendUserRepository.findByUsername(adminUsername)
                 .orElseThrow(() -> new SecurityException("绠＄悊鍛樹笉瀛樺湪鎴栨棤鏉冮檺: " + adminUsername));
 
-        work.reject(reviewer, reason != null ? reason : "瀹℃牳鎷掔粷");
+        work.reject(reviewer, reason != null ? reason : "审核拒绝");
         Work updated = workRepository.save(work);
         return workMapper.toDto(updated);
     }
 
     public List<WorkDto> getWorksByStatus(String status) {
-        log.info("鑾峰彇鐘舵€佷负 {} 鐨勪綔鍝", status);
+        log.info("获取状态为 {} 的作品", status);
 
         try {
             Work.WorkStatus workStatus = Work.WorkStatus.valueOf(status.toUpperCase());
@@ -453,8 +453,8 @@ public class WorkServiceImpl implements WorkService {
                     .map(workMapper::toDto)
                     .collect(Collectors.toList());
         } catch (IllegalArgumentException e) {
-            log.error("鏃犳晥鐨勪綔鍝佺姸鎬? {}", status);
-            throw new IllegalArgumentException("鏃犳晥鐨勪綔鍝佺姸鎬? " + status);
+            log.error("无效的作品状态: {}", status);
+            throw new IllegalArgumentException("无效的作品状态: " + status);
         }
     }
     @Override
@@ -463,22 +463,22 @@ public class WorkServiceImpl implements WorkService {
     }
     @Override
     public long getPublicWorkCount() {
-        log.info("鑾峰彇鍏紑浣滃搧鏁伴噺");
+        log.info("获取公开作品数量");
         return workRepository.countByStatusAndReviewStatus(Work.WorkStatus.PUBLISHED, Work.ReviewStatus.APPROVED);
     }
     @Override
     public long countByStatusAndReviewStatus(Work.WorkStatus status, Work.ReviewStatus reviewStatus) {
-        log.info("鑾峰彇鐘舵€佷负{}涓斿核状态为{}鐨勪綔鍝佹暟閲", status, reviewStatus);
+        log.info("获取状态为{}且审核状态为{}的作品数量", status, reviewStatus);
         return workRepository.countByStatusAndReviewStatus(status, reviewStatus);
     }
     @Override
     public long getApprovedWorkCount() {
-        log.info("鑾峰彇宸叉壒鍑嗕綔鍝佹暟閲");
+        log.info("获取已批准作品数量");
         return workRepository.countByReviewStatus(Work.ReviewStatus.APPROVED);
     }
 
     public long getPendingWorkCount() {
-        log.info("鑾峰彇寰呭鏍镐綔鍝佹暟閲");
+        log.info("获取待审核作品数量");
         return workRepository.countByReviewStatus(Work.ReviewStatus.PENDING);
     }
     @Override
@@ -492,7 +492,7 @@ public class WorkServiceImpl implements WorkService {
     }
 
     public WorkStatisticsDto getWorkStatistics() {
-        log.info("鑾峰彇浣滃搧缁熻淇℃伅");
+        log.info("获取作品统计信息");
 
         long totalWorks = workRepository.count();
         long publishedWorks = workRepository.countByStatus(Work.WorkStatus.PUBLISHED);
@@ -520,7 +520,7 @@ public class WorkServiceImpl implements WorkService {
     @Transactional
     public WorkDto addTagToWork(Long workId, String tag) {
         Work work = workRepository.findById(workId)
-                .orElseThrow(() -> new ResourceNotFoundException("浣滃搧涓嶅瓨鍦? " + workId));
+                .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
         Work updatedWork = workRepository.save(work);
         return workMapper.toDto(updatedWork);
     }
@@ -528,23 +528,23 @@ public class WorkServiceImpl implements WorkService {
     @Transactional
     public WorkDto removeTagFromWork(Long workId, String tag) {
         Work work = workRepository.findById(workId)
-                .orElseThrow(() -> new ResourceNotFoundException("浣滃搧涓嶅瓨鍦? " + workId));
+                .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
         Work updatedWork = workRepository.save(work);
         return workMapper.toDto(updatedWork);
     }
     @Override
     public List<String> getWorkFileUrls(Long workId) {
         Work work = workRepository.findById(workId)
-                .orElseThrow(() -> new ResourceNotFoundException("浣滃搧涓嶅瓨鍦? " + workId));
+                .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
-        // 鍋囪imageUrl瀛楁瀛樺偍涓昏文件URL
+        // 假设imageUrl字段存储主要文件URL
         return work.getImageUrl() != null ? List.of(work.getImageUrl()) : List.of();
     }
     @Override
     @Transactional
     public WorkDto addFileToWork(Long workId, MultipartFile file) {
         Work work = workRepository.findById(workId)
-                .orElseThrow(() -> new ResourceNotFoundException("浣滃搧涓嶅瓨鍦? " + workId));
+                .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
         String username = work.getUser() != null ? work.getUser().getUsername() : null;
         FileUploadResponseDto uploaded = fileUploadService.uploadWorkFile(file, username);
@@ -556,7 +556,7 @@ public class WorkServiceImpl implements WorkService {
     @Transactional
     public WorkDto removeFileFromWork(Long workId, String fileUrl) {
         Work work = workRepository.findById(workId)
-                .orElseThrow(() -> new ResourceNotFoundException("浣滃搧涓嶅瓨鍦? " + workId));
+                .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
         if (work.getImageUrl() != null && work.getImageUrl().equals(fileUrl)) {
             work.setImageUrl(null);
@@ -611,7 +611,7 @@ public class WorkServiceImpl implements WorkService {
     public void bulkDeleteWorks(List<Long> workIds) {
         for (Long workId : workIds) {
             try {
-                deleteWork(workId, null); // 使用null作为用户ID锛岃〃绀虹郴缁熸搷浣
+                deleteWork(workId, null); // 使用null作为用户ID，表示系统操作
             } catch (Exception e) {
                 log.warn("删除作品 {} 失败: {}", workId, e.getMessage());
             }
@@ -622,9 +622,9 @@ public class WorkServiceImpl implements WorkService {
     public void bulkUpdateStatus(List<Long> workIds, Work.WorkStatus status) {
         for (Long workId : workIds) {
             try {
-                updateWorkStatus(workId, null, status); // 使用null作为用户ID锛岃〃绀虹郴缁熸搷浣
+                updateWorkStatus(workId, null, status); // 使用null作为用户ID，表示系统操作
             } catch (Exception e) {
-                log.warn("更新作品 {} 鐘舵€佸け璐? {}", workId, e.getMessage());
+                log.warn("更新作品 {} 状态失败: {}", workId, e.getMessage());
             }
         }
     }
@@ -633,9 +633,9 @@ public class WorkServiceImpl implements WorkService {
     public void bulkUpdateReviewStatus(List<Long> workIds, Work.ReviewStatus reviewStatus, String reviewerId) {
         for (Long workId : workIds) {
             try {
-                updateWorkReviewStatus(workId, reviewerId, reviewStatus, "鎵归噺瀹℃牳");
+                updateWorkReviewStatus(workId, reviewerId, reviewStatus, "批量审核");
             } catch (Exception e) {
-                log.warn("更新作品 {} 瀹℃牳鐘舵€佸け璐? {}", workId, e.getMessage());
+                log.warn("更新作品 {} 审核状态失败: {}", workId, e.getMessage());
             }
         }
     }

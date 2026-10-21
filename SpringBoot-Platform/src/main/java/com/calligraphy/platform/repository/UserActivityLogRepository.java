@@ -50,21 +50,21 @@ public interface UserActivityLogRepository extends JpaRepository<UserActivityLog
     @Query("SELECT l FROM UserActivityLog l WHERE l.userAgent LIKE %:userAgent%")
     List<UserActivityLog> findByUserAgentContaining(@Param("userAgent") String userAgent);
     
-    // 鐧诲綍鐩稿叧鏌ヨ
+    // 登录相关查询
     @Query("SELECT l FROM UserActivityLog l WHERE l.activityType = 'USER_LOGIN' AND l.userId = :userId ORDER BY l.createdAt DESC")
     List<UserActivityLog> findLoginActivitiesByUser(@Param("userId") String userId);
     
     @Query("SELECT l FROM UserActivityLog l WHERE l.activityType = 'USER_LOGIN' AND l.ipAddress = :ipAddress")
     List<UserActivityLog> findLoginActivitiesByIp(@Param("ipAddress") String ipAddress);
     
-    // 瀹夊叏鐩稿叧鏌ヨ
+    // 安全相关查询
     @Query("SELECT l FROM UserActivityLog l WHERE l.activityType IN ('LOGIN_FAILED', 'PASSWORD_RESET_REQUEST', 'ACCOUNT_LOCKED')")
     List<UserActivityLog> findSecurityActivities();
     
     @Query("SELECT l FROM UserActivityLog l WHERE l.userId = :userId AND l.activityType IN ('LOGIN_FAILED', 'PASSWORD_RESET_REQUEST', 'ACCOUNT_LOCKED')")
     List<UserActivityLog> findSecurityActivitiesByUser(@Param("userId") String userId);
     
-    // 缁熻鐩稿叧鏌ヨ
+    // 统计相关查询
     @Query("SELECT COUNT(l) FROM UserActivityLog l WHERE l.userId = :userId")
     long countByUserId(@Param("userId") String userId);
     
@@ -80,25 +80,25 @@ public interface UserActivityLogRepository extends JpaRepository<UserActivityLog
     @Query("SELECT COUNT(l) FROM UserActivityLog l WHERE l.createdAt BETWEEN :startDate AND :endDate")
     long countByDateRange(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
-    // 娲昏穬搴︾粺璁
+    // 活跃度统计
     @Query("SELECT COUNT(DISTINCT l.userId) FROM UserActivityLog l WHERE l.createdAt BETWEEN :startDate AND :endDate")
     long countActiveUsers(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
     @Query("SELECT COUNT(DISTINCT l.userId) FROM UserActivityLog l WHERE l.userType = :userType AND l.createdAt BETWEEN :startDate AND :endDate")
     long countActiveUsersByType(@Param("userType") UserActivityLog.UserType userType, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
-    // 娲诲姩绫诲瀷缁熻
+    // 活动类型统计
     @Query("SELECT l.activityType, COUNT(l) FROM UserActivityLog l WHERE l.createdAt BETWEEN :startDate AND :endDate GROUP BY l.activityType")
     List<Object[]> getActivityTypeStats(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
     @Query("SELECT l.activityType, COUNT(l) FROM UserActivityLog l WHERE l.userType = :userType AND l.createdAt BETWEEN :startDate AND :endDate GROUP BY l.activityType")
     List<Object[]> getActivityTypeStatsByUserType(@Param("userType") UserActivityLog.UserType userType, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
-    // 鐢ㄦ埛绫诲瀷缁熻
+    // 用户类型统计
     @Query("SELECT l.userType, COUNT(l) FROM UserActivityLog l WHERE l.createdAt BETWEEN :startDate AND :endDate GROUP BY l.userType")
     List<Object[]> getUserTypeStats(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
-    // 鍝嶅簲鐘舵€佺粺璁
+    // 响应状态统计
     @Query("SELECT l FROM UserActivityLog l WHERE l.responseStatusEnum = :status")
     List<UserActivityLog> findByResponseStatus(@Param("status") UserActivityLog.ResponseStatus status);
     
@@ -108,11 +108,11 @@ public interface UserActivityLogRepository extends JpaRepository<UserActivityLog
     @Query("SELECT l.responseStatusEnum, COUNT(l) FROM UserActivityLog l WHERE l.createdAt BETWEEN :startDate AND :endDate GROUP BY l.responseStatusEnum")
     List<Object[]> getResponseStatusStats(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
-    // IP鍦板潃缁熻
+    // IP地址统计
     @Query("SELECT l.ipAddress, COUNT(l) FROM UserActivityLog l WHERE l.createdAt BETWEEN :startDate AND :endDate GROUP BY l.ipAddress ORDER BY COUNT(l) DESC")
     List<Object[]> getIpAddressStats(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
-    // 鏈€鏂版椿鍔ㄦ煡璇
+    // 最新活动查询
     @Query("SELECT l FROM UserActivityLog l ORDER BY l.createdAt DESC")
     List<UserActivityLog> findLatestActivities();
     

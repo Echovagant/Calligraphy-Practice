@@ -41,19 +41,19 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User createUser(User user) {
-        log.info("鍒涘缓鏂扮敤鎴? {}", user.getUsername());
+        log.info("创建新用户: {}", user.getUsername());
 
-        // 妫€鏌ョ敤鎴峰悕鏄惁宸插瓨鍦
+        // 检查用户名是否已存在
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new UserAlreadyExistsException("用户名已存在: " + user.getUsername());
         }
 
-        // 妫€鏌ラ偖绠辨槸鍚﹀凡瀛樺湪
+        // 检查邮箱是否已存在
         if (userRepository.existsByEmail(user.getEmail())) {
-            throw new UserAlreadyExistsException("閭宸插瓨鍦? " + user.getEmail());
+            throw new UserAlreadyExistsException("邮箱已存在: " + user.getEmail());
         }
 
-        // 璁剧疆榛樿头像
+        // 设置默认头像
         if (user.getAvatarUrl() == null || user.getAvatarUrl().isEmpty()) {
             user.setAvatarUrl("/assets/default-avatar.png");
         }
@@ -70,21 +70,21 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @SuppressWarnings("null")
     public User updateUser(String userId, FrontendUserUpdateDto updateRequest) {
-        log.info("鏇存柊鐢ㄦ埛淇℃伅: {} (ID: {})", updateRequest.getNickname(), userId);
+        log.info("更新用户信息: {} (ID: {})", updateRequest.getNickname(), userId);
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("鐢ㄦ埛涓嶅瓨鍦? " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + userId));
 
-        // 鏇存柊鍩烘湰淇℃伅
+        // 更新基本信息
         if (updateRequest.getNickname() != null) {
             user.setNickname(updateRequest.getNickname());
         }
 
         if (updateRequest.getEmail() != null) {
-            // 妫€鏌ラ偖绠辨槸鍚﹀凡琚叾浠栫敤鎴蜂娇鐢
+            // 检查邮箱是否已被其他用户使用
             if (!user.getEmail().equals(updateRequest.getEmail()) &&
                     userRepository.existsByEmail(updateRequest.getEmail())) {
-                throw new UserAlreadyExistsException("閭宸茶使用: " + updateRequest.getEmail());
+                throw new UserAlreadyExistsException("邮箱已被使用: " + updateRequest.getEmail());
             }
             user.setEmail(updateRequest.getEmail());
         }
@@ -105,12 +105,12 @@ public class UserServiceImpl implements UserService {
             try {
                 user.setStatus(User.UserStatus.valueOf(updateRequest.getStatus().toUpperCase()));
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("鏃犳晥鐨勭敤鎴风姸鎬? " + updateRequest.getStatus());
+                throw new IllegalArgumentException("无效的用户状态: " + updateRequest.getStatus());
             }
         }
 
         User updatedUser = userRepository.save(user);
-        log.info("鐢ㄦ埛淇℃伅鏇存柊鎴愬姛: {} (ID: {})", updatedUser.getUsername(), updatedUser.getId());
+        log.info("用户信息更新成功: {} (ID: {})", updatedUser.getUsername(), updatedUser.getId());
 
         return updatedUser;
     }
@@ -121,7 +121,7 @@ public class UserServiceImpl implements UserService {
         log.info("删除用户 (ID: {})", userId);
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("鐢ㄦ埛涓嶅瓨鍦? " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + userId));
 
         userRepository.delete(user);
         log.info("用户删除成功: {} (ID: {})", user.getUsername(), userId);
@@ -130,17 +130,17 @@ public class UserServiceImpl implements UserService {
     @SuppressWarnings("null")
     public User findById(String userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("鐢ㄦ埛涓嶅瓨鍦? " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + userId));
     }
     @Override
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("鐢ㄦ埛涓嶅瓨鍦? " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("用户不存在: " + username));
     }
     @Override
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("鐢ㄦ埛涓嶅瓨鍦? " + email));
+                .orElseThrow(() -> new RuntimeException("用户不存在: " + email));
     }
     @Override
     public boolean existsByUsername(String username) {
@@ -193,49 +193,49 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void updateLastLoginInfo(String username, String ipAddress) {
-        log.info("鏇存柊鐢ㄦ埛鏈€鍚庣櫥褰曚俊鎭? {} (IP: {})", username, ipAddress);
+        log.info("更新用户最后登录信息: {} (IP: {})", username, ipAddress);
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("鐢ㄦ埛涓嶅瓨鍦? " + username));
+                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + username));
 
         user.setLastLoginAt(LocalDateTime.now());
         user.setLastLoginIp(ipAddress);
         user.setUpdatedAt(LocalDateTime.now());
 
         userRepository.save(user);
-        log.info("鐢ㄦ埛鏈€鍚庣櫥褰曚俊鎭洿鏂版垚鍔? {}", username);
+        log.info("用户最后登录信息更新成功: {}", username);
     }
     @Override
     @Transactional
     public void updateEmailVerificationStatus(String email, boolean verified) {
-        log.info("鏇存柊閭楠岃瘉鐘舵€? {} -> {}", email, verified);
+        log.info("更新邮箱验证状态: {} -> {}", email, verified);
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("鐢ㄦ埛涓嶅瓨鍦? " + email));
+                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + email));
 
         user.setEmailVerified(verified);
         user.setUpdatedAt(LocalDateTime.now());
 
         userRepository.save(user);
-        log.info("閭楠岃瘉鐘舵€佹洿鏂版垚鍔? {}", email);
+        log.info("邮箱验证状态更新成功: {}", email);
     }
     @Override
     @Transactional
     public void updateTwoFactorStatus(String username, boolean enabled) {
-        log.info("鏇存柊鍙屽洜绱犺璇佺姸鎬? {} -> {}", username, enabled);
+        log.info("更新双因素认证状态: {} -> {}", username, enabled);
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("鐢ㄦ埛涓嶅瓨鍦? " + username));
+                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + username));
 
         user.setTwoFactorEnabled(enabled);
         user.setUpdatedAt(LocalDateTime.now());
 
         userRepository.save(user);
-        log.info("鍙屽洜绱犺璇佺姸鎬佹洿鏂版垚鍔? {}", username);
+        log.info("双因素认证状态更新成功: {}", username);
     }
     @Override
     public Map<String, Long> getUserStatistics() {
-        log.info("鑾峰彇鐢ㄦ埛缁熻淇℃伅");
+        log.info("获取用户统计信息");
 
         Map<String, Long> statistics = new HashMap<>();
         statistics.put("totalUsers", userRepository.count());
@@ -245,23 +245,23 @@ public class UserServiceImpl implements UserService {
         statistics.put("adminUsers",
                 userRepository.countByRole(User.Role.ADMIN) + userRepository.countByRole(User.Role.SUPER_ADMIN));
 
-        // 浠婃棩鏂板用户
+        // 今日新增用户
         LocalDateTime startOfDay = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
         statistics.put("todayNewUsers", userRepository.countNewUsersSince(startOfDay));
 
-        log.info("鐢ㄦ埛缁熻淇℃伅鑾峰彇瀹屾垚");
+        log.info("用户统计信息获取完成");
         return statistics;
     }
     @Override
     public List<User> getUsersByRole(String role) {
-        log.info("鑾峰彇瑙掕壊涓?{} 鐨勭敤鎴峰垪琛", role);
+        log.info("获取角色为 {} 的用户列表", role);
         try {
             User.Role userRole = User.Role.valueOf(role.toUpperCase());
             List<User> users = userRepository.findByRole(userRole);
-            log.info("鑾峰彇鍒?{} 涓敤鎴", users.size());
+            log.info("获取到 {} 个用户", users.size());
             return users;
         } catch (IllegalArgumentException e) {
-            log.error("鏃犳晥鐨勮鑹? {}", role);
+            log.error("无效的角色: {}", role);
             return new ArrayList<>();
         }
     }

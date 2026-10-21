@@ -15,50 +15,54 @@ import java.util.Optional;
 public interface FileReviewRepository extends JpaRepository<FileReview, String> {
 
     /**
-     * 根据作品ID鏌ヨ瀹℃牳璁板綍
+     * 根据作品ID查询审核记录
      */
     Optional<FileReview> findByWorkId(Long workId);
 
     /**
-     * 妫€鏌ヤ綔鍝佹槸鍚﹀凡鏈夊鏍歌褰?     */
+     * 检查作品是否已有审核记录
+     */
     boolean existsByWorkId(Long workId);
 
     /**
-     * 鏍规嵁瀹℃牳鐘舵€佸垎椤垫煡璇?     */
+     * 根据审核状态分页查询
+     */
     Page<FileReview> findByStatus(FileReview.FileReviewStatus status, Pageable pageable);
 
     /**
-     * 鏍规嵁瀹℃牳鍛業D鍒嗛〉鏌ヨ
+     * 根据审核员ID分页查询
      */
     Page<FileReview> findByReviewerId(String reviewerId, Pageable pageable);
 
     /**
-     * 鏍规嵁瀹℃牳鐘舵€佺粺璁℃暟閲?     */
+     * 根据审核状态统计数量
+     */
     long countByStatus(FileReview.FileReviewStatus status);
 
     /**
-     * 鑾峰彇鏈€杩戝核的记录
+     * 获取最近审核的记录
      */
     List<FileReview> findTop10ByOrderByReviewTimeDesc();
 
     /**
-     * 鑾峰彇寰呭核的记录
+     * 获取待审核的记录
      */
     List<FileReview> findByStatusOrderByCreatedAtAsc(FileReview.FileReviewStatus status);
 
     /**
-     * 缁熻瀹℃牳鍛樼殑瀹℃牳鏁伴噺
+     * 统计审核员的审核数量
      */
     @Query("SELECT COUNT(fr) FROM FileReview fr WHERE fr.reviewerId = :reviewerId")
     long countByReviewerId(@Param("reviewerId") String reviewerId);
 
     /**
-     * 缁熻瀹℃牳鍛樺湪鎸囧畾鐘舵€佷笅鐨勫鏍告暟閲?     */
+     * 统计审核员在指定状态下的审核数量
+     */
     @Query("SELECT COUNT(fr) FROM FileReview fr WHERE fr.reviewerId = :reviewerId AND fr.status = :status")
     long countByReviewerIdAndStatus(@Param("reviewerId") String reviewerId, @Param("status") FileReview.FileReviewStatus status);
 
     /**
-     * 鑾峰彇瀹℃牳鍛樻渶杩戠殑瀹℃牳璁板綍
+     * 获取审核员最近的审核记录
      */
     List<FileReview> findTop10ByReviewerIdOrderByReviewTimeDesc(String reviewerId);
 }

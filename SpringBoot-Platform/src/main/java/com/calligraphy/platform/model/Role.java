@@ -30,17 +30,17 @@ public class Role {
     @Column(name = "id", nullable = false)
     private Long id;
     
-    @NotBlank(message = "瑙掕壊浠ｇ爜涓嶈兘涓虹┖")
-    @Size(max = 50, message = "瑙掕壊浠ｇ爜闀垮害涓嶈兘瓒呰繃50涓瓧绗")
+    @NotBlank(message = "角色代码不能为空")
+    @Size(max = 50, message = "角色代码长度不能超过50个字符")
     @Column(name = "code", length = 50, nullable = false, unique = true)
     private String code;
     
-    @NotBlank(message = "瑙掕壊鍚嶇О涓嶈兘涓虹┖")
-    @Size(max = 100, message = "瑙掕壊鍚嶇О长度不能超过100涓瓧绗")
+    @NotBlank(message = "角色名称不能为空")
+    @Size(max = 100, message = "角色名称长度不能超过100个字符")
     @Column(name = "name", length = 100, nullable = false, unique = true)
     private String name;
     
-    @Size(max = 500, message = "角色描述长度不能超过500涓瓧绗")
+    @Size(max = 500, message = "角色描述长度不能超过500个字符")
     @Column(name = "description", length = 500)
     private String description;
     
@@ -54,16 +54,16 @@ public class Role {
     
     @Column(name = "is_system", nullable = false)
     @Builder.Default
-    private Boolean isSystem = false; // 鏄惁涓虹郴缁熷唴缃鑹?    
+    private Boolean isSystem = false; // 是否为系统内置角色     
     @Column(name = "level")
-    private Integer level; // 瑙掕壊绛夌骇锛岀敤浜庢潈闄愭瘮杈?    
+    private Integer level; // 角色等级，用于权限比较     
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
-    // 澶氬澶氬叧绯伙細瑙掕壊涓庢潈闄
+    // 多对多关系：角色与权限
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "role_permissions",
@@ -191,14 +191,14 @@ public class Role {
         return permissions != null ? permissions.size() : 0;
     }
     
-    // 棰勫畾涔夎鑹蹭唬鐮佸父閲
+    // 预定义角色代码常量
     public static class RoleCodes {
-        // 鍓嶇用户角色
+        // 前端用户角色
         public static final String FRONTEND_USER = "FRONTEND_USER";
         public static final String FRONTEND_VIP = "FRONTEND_VIP";
         public static final String FRONTEND_PREMIUM = "FRONTEND_PREMIUM";
         
-        // 鍚庣绠＄悊鍛樿鑹
+        // 后端管理员角色
         public static final String BACKEND_ADMIN = "BACKEND_ADMIN";
         public static final String BACKEND_SUPER_ADMIN = "BACKEND_SUPER_ADMIN";
         public static final String BACKEND_CONTENT_MODERATOR = "BACKEND_CONTENT_MODERATOR";

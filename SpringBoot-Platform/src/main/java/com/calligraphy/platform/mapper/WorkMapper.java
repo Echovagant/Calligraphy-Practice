@@ -33,7 +33,7 @@ public interface WorkMapper {
     }
     
     default double calculatePopularityScore(Work work) {
-        // 绠€鍗曠殑鐑害璁＄畻鍏紡锛氭祻瑙堥噺 + 鐐硅禐鏁?* 2 + 璇勮鏁?* 3
+        // 简单的热度计算公式：浏览量 + 点赞数 * 2 + 评论数 * 3
         Long viewCount = work.getViewCount() != null ? work.getViewCount() : 0L;
         Long likeCount = work.getLikeCount() != null ? work.getLikeCount() : 0L;
         Long commentCount = work.getCommentCount() != null ? work.getCommentCount() : 0L;

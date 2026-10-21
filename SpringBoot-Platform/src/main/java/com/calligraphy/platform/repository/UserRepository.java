@@ -52,7 +52,7 @@ public interface UserRepository extends JpaRepository<User, String> {
        @Query("SELECT u FROM User u WHERE u.failedLoginAttempts >= :attempts")
        List<User> findUsersWithFailedAttempts(@Param("attempts") int attempts);
 
-       // 缁熻鐩稿叧鏌ヨ
+       // 统计相关查询
        @Query("SELECT COUNT(u) FROM User u WHERE u.role = :role")
        long countByRole(@Param("role") User.Role role);
 
@@ -71,14 +71,14 @@ public interface UserRepository extends JpaRepository<User, String> {
        @Query("SELECT COUNT(u) FROM User u WHERE u.createdAt >= :date")
        long countNewUsersSince(@Param("date") LocalDateTime date);
 
-       // 鎼滅储鐩稿叧鏌ヨ
+       // 搜索相关查询
        @Query("SELECT u FROM User u WHERE " +
                      "LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
                      "LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
                      "LOWER(u.nickname) LIKE LOWER(CONCAT('%', :keyword, '%'))")
        List<User> searchUsers(@Param("keyword") String keyword);
 
-       // 瀹夊叏鐩稿叧鏌ヨ
+       // 安全相关查询
        @Query("SELECT u FROM User u WHERE u.emailVerificationToken = :token")
        Optional<User> findByEmailVerificationToken(@Param("token") String token);
 

@@ -27,13 +27,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("UserDetailsServiceImpl.loadUserByUsername called with username: {}", username);
 
-        // 鍏堝皾璇曚粠鏅€氱敤鎴疯〃鏌ユ壘
+        // 先尝试从普通用户表查找
         java.util.Optional<User> userOptional = userRepository.findByUsername(username);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
 
             if (!user.isEnabled()) {
-                throw new UsernameNotFoundException("鐢ㄦ埛璐︽埛宸茶禁用: " + username);
+                throw new UsernameNotFoundException("用户账户已被禁用: " + username);
             }
 
             List<SimpleGrantedAuthority> authorities = new ArrayList<>();
@@ -50,13 +50,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                     .build();
         }
 
-        // 鍐嶅皾璇曚粠鍚庣鐢ㄦ埛琛ㄦ煡鎵
+        // 再尝试从后端用户表查找
         java.util.Optional<BackendUser> backendUserOptional = backendUserRepository.findByUsername(username);
         if (backendUserOptional.isPresent()) {
             BackendUser backendUser = backendUserOptional.get();
 
             if (!backendUser.isAccountNonLocked()) {
-                throw new UsernameNotFoundException("鐢ㄦ埛璐︽埛宸茶锁定: " + username);
+                throw new UsernameNotFoundException("用户账户已被锁定: " + username);
             }
 
             List<SimpleGrantedAuthority> authorities = new ArrayList<>();
@@ -69,24 +69,24 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                     .accountExpired(false)
                     .accountLocked(!backendUser.isAccountNonLocked())
                     .credentialsExpired(false)
-                    .disabled(false) // 鍚庣鐢ㄦ埛娌℃湁enabled瀛楁锛岄粯璁や负鍚敤
+                    .disabled(false) // 后端用户没有enabled字段，默认为启用
                     .build();
         }
 
-        throw new UsernameNotFoundException("鐢ㄦ埛涓嶅瓨鍦? " + username);
+        throw new UsernameNotFoundException("用户不存在: " + username);
     }
 
     /**
-     * 根据用户ID鍜岀敤鎴风被鍨嬪姞杞界敤鎴疯鎯?     */
+     * 根据用户ID和用户类型加载用户详情      */
     public UserDetails loadUserByIdAndType(String userId, String userType) {
         log.info("UserDetailsServiceImpl.loadUserByIdAndType called with userId: {}, userType: {}", userId, userType);
 
         if ("user".equals(userType)) {
             User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new UsernameNotFoundException("鐢ㄦ埛涓嶅瓨鍦? " + userId));
+                    .orElseThrow(() -> new UsernameNotFoundException("用户不存在: " + userId));
 
             if (!user.isEnabled()) {
-                throw new UsernameNotFoundException("鐢ㄦ埛璐︽埛宸茶禁用: " + userId);
+                throw new UsernameNotFoundException("用户账户已被禁用: " + userId);
             }
 
             List<SimpleGrantedAuthority> authorities = new ArrayList<>();
@@ -103,10 +103,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                     .build();
         } else if ("admin".equals(userType)) {
             BackendUser backendUser = backendUserRepository.findById(userId)
-                    .orElseThrow(() -> new UsernameNotFoundException("绠＄悊鍛樹笉瀛樺湪: " + userId));
+                    .orElseThrow(() -> new UsernameNotFoundException("管理员不存在: " + userId));
 
             if (!backendUser.isAccountNonLocked()) {
-                throw new UsernameNotFoundException("绠＄悊鍛樿处鎴峰凡琚攣瀹? " + userId);
+                throw new UsernameNotFoundException("管理员账户已被锁定: " + userId);
             }
 
             List<SimpleGrantedAuthority> authorities = new ArrayList<>();

@@ -57,7 +57,7 @@ public interface FrontendUserService {
     
     Page<FrontendUserDto> searchUsers(String keyword, Pageable pageable);
     
-    // 鐢ㄦ埛缁熻相关方法
+    // 用户统计相关方法
     long countByRegistrationDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
     
     long countByLastLoginDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
@@ -66,7 +66,7 @@ public interface FrontendUserService {
     
     List<FrontendUserDto> findRecentlyRegisteredUsers(int limit);
     
-    // 鐢ㄦ埛鐘舵€佺鐞
+    // 用户状态管理
     void lockUser(String userId);
     
     void unlockUser(String userId);
@@ -82,7 +82,7 @@ public interface FrontendUserService {
     
     String getUserPreferences(String userId);
     
-    // 鐢ㄦ埛缁冧範缁熻
+    // 用户练习统计
     long getUserPracticeCount(String userId);
     
     long getUserWorkCount(String userId);

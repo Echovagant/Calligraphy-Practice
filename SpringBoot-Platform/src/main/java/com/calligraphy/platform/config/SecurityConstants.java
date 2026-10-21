@@ -2,7 +2,7 @@ package com.calligraphy.platform.config;
 
 public class SecurityConstants {
     
-    // 鍏紑鐨凙PI璺緞
+    // 公开的API路径
     public static final String[] PUBLIC_URLS = {
         "/api/auth/**",
         "/api/frontend/auth/**",
@@ -18,7 +18,7 @@ public class SecurityConstants {
         "/favicon.ico"
     };
     
-    // 鍓嶇鐢ㄦ埛鍙闂殑API璺緞
+    // 前端用户可访问的API路径
     public static final String[] USER_URLS = {
         "/api/frontend/**",
         "/api/user/**",
@@ -28,7 +28,7 @@ public class SecurityConstants {
         "/api/file/download/**"
     };
     
-    // 鍚庣绠＄悊鍛樺彲璁块棶鐨凙PI璺緞
+    // 后端管理员可访问的API路径
     public static final String[] ADMIN_URLS = {
         "/api/backend/**",
         "/api/admin/**",
@@ -43,7 +43,7 @@ public class SecurityConstants {
     public static final String JWT_PREFIX = "Bearer ";
     public static final String JWT_SECRET = "mySecretKey";
     public static final long JWT_EXPIRATION = 86400000; // 24小时
-    public static final long JWT_REFRESH_EXPIRATION = 604800000; // 7澶?    
+    public static final long JWT_REFRESH_EXPIRATION = 604800000; // 7天     
     // 角色常量
     public static final String ROLE_USER = "USER";
     public static final String ROLE_ADMIN = "ADMIN";

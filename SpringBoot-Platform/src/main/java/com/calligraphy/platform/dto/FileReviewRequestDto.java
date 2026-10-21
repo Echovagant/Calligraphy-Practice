@@ -4,20 +4,20 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-@Schema(description = "鏂囦欢瀹℃牳璇锋眰鏁版嵁浼犺緭瀵硅薄")
+@Schema(description = "文件审核请求数据传输对象")
 public class FileReviewRequestDto {
     
-    (message = "作品ID涓嶈兘涓虹┖")
+    @NotNull(message = "作品ID不能为空")
     @Schema(description = "作品ID", example = "123")
     private Long workId;
     
-    (message = "瀹℃牳鐘舵€佷笉鑳戒负绌")
-    @Size(max = 50, message = "瀹℃牳鐘舵€侀暱搴︿笉鑳借秴杩?0瀛楃")
-    @Schema(description = "瀹℃牳鐘舵€", example = "PENDING", allowableValues = {"PENDING", "APPROVED", "REJECTED", "NEEDS_REVISION"})
+    @NotNull(message = "审核状态不能为空")
+    @Size(max = 50, message = "审核状态长度不能超过50字符")
+    @Schema(description = "审核状态", example = "PENDING", allowableValues = {"PENDING", "APPROVED", "REJECTED", "NEEDS_REVISION"})
     private String reviewStatus;
     
-    @Size(max = 1000, message = "瀹℃牳鎰忚长度不能超过1000瀛楃")
-    @Schema(description = "瀹℃牳鎰忚", example = "浣滃搧鍐呭绗﹀悎瑕佹眰锛岄€氳繃瀹℃牳")
+    @Size(max = 1000, message = "审核意见长度不能超过1000字符")
+    @Schema(description = "审核意见", example = "作品内容符合要求，通过审核")
     private String reviewComments;
     
     public FileReviewRequestDto() {

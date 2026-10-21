@@ -12,60 +12,64 @@ import java.util.Map;
 public interface FileReviewService {
     
     /**
-     * 鍒涘缓鏂囦欢瀹℃牳璁板綍
+     * 创建文件审核记录
      */
     FileReviewResponseDto createReview(FileReviewRequestDto requestDto, String adminId);
 
     /**
-     * 鏇存柊瀹℃牳璁板綍
+     * 更新审核记录
      */
     FileReviewResponseDto updateReview(String reviewId, FileReviewUpdateDto updateDto, String adminId);
 
     /**
-     * 鑾峰彇瀹℃牳璁板綍璇︽儏
+     * 获取审核记录详情
      */
     FileReviewResponseDto getReviewById(String reviewId);
 
     /**
-     * 鑾峰彇浣滃搧鐨勫鏍歌褰?     */
+     * 获取作品的审核记录
+     */
     FileReviewResponseDto getReviewByWorkId(Long workId);
 
     /**
-     * 鍒嗛〉鑾峰彇鎵€鏈夊鏍歌褰?     */
+     * 分页获取所有审核记录
+     */
     Page<FileReviewResponseDto> getAllReviews(Pageable pageable);
 
     /**
-     * 鏍规嵁瀹℃牳鐘舵€佸垎椤佃幏鍙栬褰?     */
+     * 根据审核状态分页获取记录
+     */
     Page<FileReviewResponseDto> getReviewsByStatus(String reviewStatus, Pageable pageable);
 
     /**
-     * 鑾峰彇绠＄悊鍛樼殑瀹℃牳璁板綍
+     * 获取管理员的审核记录
      */
     Page<FileReviewResponseDto> getReviewsByReviewer(String adminId, Pageable pageable);
 
     /**
-     * 鍒犻櫎瀹℃牳璁板綍
+     * 删除审核记录
      */
     void deleteReview(String reviewId, String adminId);
 
     /**
-     * 鎵归噺瀹℃牳浣滃搧
+     * 批量审核作品
      */
     List<FileReviewResponseDto> batchReviewWorks(List<Long> workIds, String reviewStatus, 
                                                         String reviewComments, String adminId);
 
     /**
-     * 鑾峰彇寰呭核的作品数量
+     * 获取待审核的作品数量
      */
     long getPendingReviewCount();
 
     /**
-     * 鑾峰彇瀹℃牳缁熻淇℃伅
+     * 获取审核统计信息
      */
     Map<String, Long> getReviewStatistics();
 
     /**
-     * 妫€鏌ヤ綔鍝佹槸鍚﹀凡琚鏍?     */
+     * 检查作品是否已被审核
+     */
     boolean isWorkReviewed(Long workId);
 }
 

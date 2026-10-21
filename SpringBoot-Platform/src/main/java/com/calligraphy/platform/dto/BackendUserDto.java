@@ -46,17 +46,17 @@ public class BackendUserDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
-    // 缁熻淇℃伅
+    // 统计信息
     private long reviewCount;
     private long approvedCount;
     private long rejectedCount;
     private long revisionRequestedCount;
     
-    // 鏉冮檺淇℃伅
+    // 权限信息
     private List<String> permissions;
     private List<String> roles;
     
-    // 娲诲姩淇℃伅
+    // 活动信息
     private LocalDateTime lastActivityAt;
     private String lastActivityType;
 }

@@ -1,7 +1,7 @@
 package com.calligraphy.platform.exception;
 
 /**
- * 涓氬姟閫昏緫寮傚父绫伙紝鐢ㄤ簬澶勭悊涓氬姟灞傞潰鐨勯敊璇? */
+ * 业务逻辑异常类，用于处理业务层面的错误  */
 public class BusinessException extends RuntimeException {
     private static final long serialVersionUID = 1L;
     

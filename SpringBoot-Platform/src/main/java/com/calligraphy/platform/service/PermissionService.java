@@ -44,12 +44,12 @@ public interface PermissionService {
     
     boolean existsByCode(String permissionCode);
     
-    // 鎼滅储鍜岀瓫閫
+    // 搜索和筛选
     Page<PermissionDto> searchPermissions(String keyword, Pageable pageable);
     
     List<PermissionDto> searchPermissions(String keyword);
     
-    // 缁熻相关
+    // 统计相关
     long getTotalPermissionCount();
     
     long getPermissionCountByType(Permission.PermissionType type);
@@ -58,7 +58,7 @@ public interface PermissionService {
     
     long getPermissionCountByCategory(String category);
     
-    // 瑙掕壊鏉冮檺绠＄悊
+    // 角色权限管理
     List<PermissionDto> getPermissionsByRoleId(String roleId);
     
     List<PermissionDto> getPermissionsByRoleCode(String roleCode);
@@ -77,7 +77,7 @@ public interface PermissionService {
     
     boolean hasAllPermissions(String roleId, List<String> permissionCodes);
     
-    // 鐢ㄦ埛鏉冮檺绠＄悊
+    // 用户权限管理
     List<PermissionDto> getPermissionsByUserId(String userId);
     
     List<PermissionDto> getPermissionsByUsername(String username);
@@ -88,7 +88,7 @@ public interface PermissionService {
     
     boolean userHasAllPermissions(String userId, List<String> permissionCodes);
     
-    // 鏉冮檺妫€鏌
+    // 权限检查
     void checkPermission(String userId, String permissionCode);
     
     void checkAnyPermission(String userId, List<String> permissionCodes);
@@ -102,7 +102,7 @@ public interface PermissionService {
     
     java.util.Map<Permission.PermissionType, List<PermissionDto>> getPermissionsGroupedByType();
     
-    // 棰勫畾涔夋潈闄
+    // 预定义权限
     List<PermissionDto> getPredefinedPermissions();
     
     void initializePredefinedPermissions();
@@ -128,7 +128,7 @@ public interface PermissionService {
     
     void refreshRolePermissionCache(String roleId);
     
-    // 鏉冮檺瀹¤
+    // 权限审计
     java.util.Map<String, Object> getPermissionUsageStats();
     
     java.util.Map<String, Object> getUserPermissionStats(String userId);

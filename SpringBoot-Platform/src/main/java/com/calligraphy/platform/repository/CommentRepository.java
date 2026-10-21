@@ -50,7 +50,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query("SELECT c FROM Comment c WHERE c.user = :user AND c.createdAt BETWEEN :startDate AND :endDate")
     List<Comment> findCommentsByUserCreatedBetween(@Param("user") User user, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
-    // 缁熻鐩稿叧鏌ヨ
+    // 统计相关查询
     @Query("SELECT COUNT(c) FROM Comment c WHERE c.work = :work")
     long countByWork(@Param("work") Work work);
     
@@ -63,22 +63,22 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query("SELECT COUNT(c) FROM Comment c WHERE c.work = :work AND c.status = :status")
     long countByWorkAndStatus(@Param("work") Work work, @Param("status") String status);
     
-    // 鐑棬璇勮鏌ヨ
+    // 热门评论查询
     @Query("SELECT c FROM Comment c WHERE c.status = 'APPROVED' ORDER BY c.likeCount DESC")
     List<Comment> findPopularComments();
     
-    // 鏈€鏂拌瘎璁烘煡璇
+    // 最新评论查询
     @Query("SELECT c FROM Comment c WHERE c.status = 'APPROVED' ORDER BY c.createdAt DESC")
     List<Comment> findLatestComments();
     
-    // 鎺掑簭鐩稿叧鏌ヨ
+    // 排序相关查询
     @Query("SELECT c FROM Comment c WHERE c.work = :work ORDER BY c.createdAt DESC")
     List<Comment> findByWorkOrderByCreatedAtDesc(@Param("work") Work work);
     
     @Query("SELECT c FROM Comment c WHERE c.work = :work ORDER BY c.likeCount DESC")
     List<Comment> findByWorkOrderByLikeCountDesc(@Param("work") Work work);
     
-    // 鏍硅瘎璁烘煡璇紙涓嶅寘鍚洖澶嶏級
+    // 根评论查询（不包含回复）
     @Query("SELECT c FROM Comment c WHERE c.work = :work AND c.parentId IS NULL AND c.status = 'APPROVED' ORDER BY c.createdAt DESC")
     List<Comment> findRootCommentsByWork(@Param("work") Work work);
     
@@ -89,7 +89,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query("UPDATE Comment c SET c.status = :status WHERE c.user = :user")
     void updateStatusByUser(@Param("user") User user, @Param("status") String status);
     
-    // 鏂板鏌ヨ方法
+    // 新增查询方法
     List<Comment> findByWorkIdAndStatusNotOrderByCreatedAtDesc(Long workId, String status);
     
     Page<Comment> findByWorkIdAndStatusNotOrderByCreatedAtDesc(Long workId, String status, Pageable pageable);

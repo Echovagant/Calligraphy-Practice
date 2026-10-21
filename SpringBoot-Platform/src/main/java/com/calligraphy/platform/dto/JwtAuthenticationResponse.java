@@ -4,22 +4,22 @@ public class JwtAuthenticationResponse {
     private String accessToken;
     private String tokenType = "Bearer";
     
-    // 鏃犲弬鏋勯€犲櫒
+    // 无参构造器
     public JwtAuthenticationResponse() {
     }
     
-    // 甯︿袱涓猄tring参数的构造器
+    // 带两个String参数的构造器
     public JwtAuthenticationResponse(String accessToken, String tokenType) {
         this.accessToken = accessToken;
         this.tokenType = tokenType;
     }
     
-    // 鍙甫accessToken的构造器
+    // 只带accessToken的构造器
     public JwtAuthenticationResponse(String accessToken) {
         this.accessToken = accessToken;
     }
     
-    // Getter 鍜?Setter 方法
+    // Getter 和 Setter 方法
     public String getAccessToken() {
         return accessToken;
     }

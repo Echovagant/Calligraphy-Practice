@@ -83,7 +83,7 @@ public interface JwtService {
     
     boolean canRefreshToken(String refreshToken);
     
-    // 鑷畾涔夊０鏄
+    // 自定义声明
     String addCustomClaim(String token, String claimName, Object claimValue);
     
     Object getCustomClaim(String token, String claimName);
@@ -97,7 +97,7 @@ public interface JwtService {
     
     String generateTokenFingerprint();
     
-    // 璁惧绠＄悊
+    // 设备管理
     void associateTokenWithDevice(String token, String deviceId);
     
     void disassociateTokenFromDevice(String token);
@@ -124,7 +124,7 @@ public interface JwtService {
     
     boolean isTokenSessionActive(String token);
     
-    // 榛戝悕鍗曠鐞
+    // 黑名单管理
     void addToBlacklist(String token);
     
     void removeFromBlacklist(String token);
@@ -133,14 +133,14 @@ public interface JwtService {
     
     void cleanupBlacklist();
     
-    // 浠ょ墝瀹¤
+    // 令牌审计
     java.util.Map<String, Object> getTokenInfo(String token);
     
     java.util.List<java.util.Map<String, Object>> getUserTokenInfo(String userId);
     
     java.util.List<java.util.Map<String, Object>> getUserTokenInfoByType(String userId, String userType);
     
-    // 鎬ц兘浼樺寲
+    // 性能优化
     void cleanupExpiredTokens();
     
     void cleanupInvalidatedTokens();

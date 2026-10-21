@@ -60,12 +60,12 @@ public interface CommentService {
     
     void removeLike(String commentId, String userId);
     
-    // 鎼滅储鍜岀瓫閫
+    // 搜索和筛选
     Page<CommentDto> searchComments(String keyword, Pageable pageable);
     
     List<CommentDto> searchComments(String keyword);
     
-    // 缁熻相关
+    // 统计相关
     long getTotalCommentCount();
     
     long getCommentCountByWorkId(String workId);
@@ -78,14 +78,14 @@ public interface CommentService {
     
     long getCommentCountByDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
     
-    // 瀹℃牳鐩稿叧
+    // 审核相关
     List<CommentDto> getCommentsPendingReview();
     
     List<CommentDto> getCommentsByReviewerId(String reviewerId);
     
     long getPendingReviewCount();
     
-    // 鐑棬鍜屾帹鑽
+    // 热门和推荐
     List<CommentDto> getTopLikedComments(int limit);
     
     List<CommentDto> getRecentComments(int limit);
@@ -97,7 +97,7 @@ public interface CommentService {
     
     void bulkUpdateReviewStatus(List<String> commentIds, Comment.CommentStatus reviewStatus, String reviewerId);
     
-    // 鍥炲相关
+    // 回复相关
     CommentDto createReply(String parentCommentId, String userId, CommentCreateDto createDto);
     
     List<CommentDto> getRepliesByCommentId(String commentId);
@@ -106,7 +106,7 @@ public interface CommentService {
     
     boolean hasReplies(String commentId);
     
-    // 鍐呭瀹℃牳
+    // 内容审核
     boolean containsSensitiveContent(String content);
     
     void autoModerateComment(String commentId);

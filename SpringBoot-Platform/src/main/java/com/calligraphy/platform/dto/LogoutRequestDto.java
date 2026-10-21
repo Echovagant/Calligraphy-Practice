@@ -8,18 +8,18 @@ public class LogoutRequestDto {
     
     private String ipAddress;
     
-    // 鏃犲弬鏋勯€犲櫒
+    // 无参构造器
     public LogoutRequestDto() {
     }
     
-    // 鍏ㄥ弬鏋勯€犲櫒
+    // 全参构造器
     public LogoutRequestDto(String refreshToken, String deviceInfo, String ipAddress) {
         this.refreshToken = refreshToken;
         this.deviceInfo = deviceInfo;
         this.ipAddress = ipAddress;
     }
     
-    // Getter 鍜?Setter 方法
+    // Getter 和 Setter 方法
     public String getRefreshToken() {
         return refreshToken;
     }
@@ -44,7 +44,7 @@ public class LogoutRequestDto {
         this.ipAddress = ipAddress;
     }
     
-    // Builder 绫
+    // Builder 类
     public static class Builder {
         private String refreshToken;
         private String deviceInfo;

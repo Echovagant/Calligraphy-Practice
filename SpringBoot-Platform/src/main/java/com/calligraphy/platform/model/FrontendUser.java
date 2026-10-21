@@ -32,20 +32,20 @@ public class FrontendUser {
     @Column(name = "id", length = 36, nullable = false)
     private String id;
     
-    @NotBlank(message = "鐢ㄦ埛鍚嶄笉鑳戒负绌")
-    @Size(min = 3, max = 50, message = "鐢ㄦ埛鍚嶉暱搴﹀繀椤诲湪3-50涓瓧绗︿箣闂")
+    @NotBlank(message = "用户名不能为空")
+    @Size(min = 3, max = 50, message = "用户名长度必须在3-50个字符之间")
     @Column(name = "username", length = 50, nullable = false, unique = true)
     private String username;
     
-    @NotBlank(message = "瀵嗙爜涓嶈兘涓虹┖")
-    @Size(min = 6, max = 255, message = "瀵嗙爜闀垮害蹇呴』鍦?-255涓瓧绗︿箣闂")
+    @NotBlank(message = "密码不能为空")
+    @Size(min = 6, max = 255, message = "密码长度必须在6-255个字符之间")
     @Column(name = "password", length = 255, nullable = false)
     @JsonIgnore
     private String password;
     
-    @NotBlank(message = "閭涓嶈兘涓虹┖")
-    @Email(message = "閭鏍煎紡涓嶆纭")
-    @Size(max = 100, message = "閭长度不能超过100涓瓧绗")
+    @NotBlank(message = "邮箱不能为空")
+    @Email(message = "邮箱格式不正确")
+    @Size(max = 100, message = "邮箱长度不能超过100个字符")
     @Column(name = "email", length = 100, nullable = false, unique = true)
     private String email;
     
@@ -54,15 +54,15 @@ public class FrontendUser {
     @Builder.Default
     private FrontendUserRole role = FrontendUserRole.USER;
     
-    @Size(max = 100, message = "姓名长度不能超过100涓瓧绗")
+    @Size(max = 100, message = "姓名长度不能超过100个字符")
     @Column(name = "full_name", length = 100)
     private String fullName;
     
-    @Size(max = 500, message = "头像URL长度不能超过500涓瓧绗")
+    @Size(max = 500, message = "头像URL长度不能超过500个字符")
     @Column(name = "avatar_url", length = 500)
     private String avatarUrl;
     
-    @Size(max = 20, message = "鎵嬫満鍙烽暱搴︿笉鑳借秴杩?0涓瓧绗")
+    @Size(max = 20, message = "手机号长度不能超过20个字符")
     @Column(name = "phone", length = 20)
     private String phone;
     
@@ -108,7 +108,7 @@ public class FrontendUser {
         USER, PREMIUM_USER
     }
     
-    // 鐘舵€佹灇涓
+    // 状态枚举
     public enum FrontendUserStatus {
         ACTIVE, INACTIVE, SUSPENDED
     }

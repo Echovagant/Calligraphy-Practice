@@ -37,7 +37,7 @@ public interface FileStorageService {
     
     void deleteUserFiles(String userId);
     
-    // 鏂囦欢淇℃伅
+    // 文件信息
     boolean fileExists(String fileName);
     
     boolean fileExists(String fileName, String userId);
@@ -71,7 +71,7 @@ public interface FileStorageService {
     
     List<String> listFilesByExtension(String extension, String userId);
     
-    // 鏂囦欢澶嶅埗鍜岀Щ鍔
+    // 文件复制和移动
     String copyFile(String sourceFileName, String destinationFileName);
     
     String copyFile(String sourceFileName, String destinationFileName, String userId);
@@ -80,7 +80,7 @@ public interface FileStorageService {
     
     String moveFile(String sourceFileName, String destinationFileName, String userId);
     
-    // 鏂囦欢閲嶅懡鍚
+    // 文件重命名
     String renameFile(String oldFileName, String newFileName);
     
     String renameFile(String oldFileName, String newFileName, String userId);
@@ -103,7 +103,7 @@ public interface FileStorageService {
     
     boolean validateFileContent(MultipartFile file);
     
-    // 瀹夊叏妫€鏌
+    // 安全检查
     boolean isFileSafe(String fileName);
     
     boolean scanFileForViruses(String fileName);
@@ -127,7 +127,7 @@ public interface FileStorageService {
     
     void setAllowedFileExtensions(List<String> allowedFileExtensions);
     
-    // 瀛樺偍缁熻
+    // 存储统计
     long getTotalStorageUsed();
     
     long getUserStorageUsed(String userId);
@@ -145,7 +145,7 @@ public interface FileStorageService {
     
     void cleanupOrphanedFiles();
     
-    // 澶囦唤鍜屾仮澶
+    // 备份和恢复
     byte[] backupFiles();
     
     byte[] backupUserFiles(String userId);
@@ -161,7 +161,7 @@ public interface FileStorageService {
     
     byte[] loadEncryptedFileAsBytes(String fileName, String encryptionKey);
     
-    // 鏂囦欢缂╃暐鍥
+    // 文件缩略图
     String generateThumbnail(String fileName);
     
     String generateThumbnail(String fileName, String userId);
@@ -179,7 +179,7 @@ public interface FileStorageService {
     
     void invalidateUserCdnCache(String userId);
     
-    // 鏂囦欢鍏冩暟鎹
+    // 文件元数据
     java.util.Map<String, Object> getFileMetadata(String fileName);
     
     java.util.Map<String, Object> getFileMetadata(String fileName, String userId);

@@ -35,7 +35,7 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
        @Query("SELECT r FROM Role r WHERE r.code = 'FRONTEND_USER'")
        List<Role> findDefaultRoles();
 
-       // 鎼滅储鐩稿叧鏌ヨ
+       // 搜索相关查询
        @Query("SELECT r FROM Role r WHERE " +
                      "LOWER(r.code) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
                      "LOWER(r.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
@@ -48,7 +48,7 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
        @Query("SELECT r FROM Role r WHERE r.name LIKE %:name%")
        List<Role> findByNameContaining(@Param("name") String name);
 
-       // 缁熻鐩稿叧鏌ヨ
+       // 统计相关查询
        @Query("SELECT COUNT(r) FROM Role r WHERE r.roleType = :type")
        long countByType(@Param("type") Role.RoleType type);
 
@@ -61,7 +61,7 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
        @Query("SELECT COUNT(r) FROM Role r WHERE r.code = 'FRONTEND_USER'")
        long countDefaultRoles();
 
-       // 瑙掕壊绫诲瀷缁熻
+       // 角色类型统计
        @Query("SELECT r.roleType, COUNT(r) FROM Role r GROUP BY r.roleType")
        List<Object[]> getTypeStats();
 
@@ -77,12 +77,12 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
        @Query("SELECT DISTINCT r FROM Role r JOIN r.permissions p WHERE p.code IN :permissionCodes")
        List<Role> findByPermissionCodes(@Param("permissionCodes") List<String> permissionCodes);
 
-       // 鏉冮檺妫€鏌
+       // 权限检查
        @Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END FROM Role r " +
                      "JOIN r.permissions p WHERE r.code = :roleCode AND p.code = :permissionCode")
        boolean hasPermission(@Param("roleCode") String roleCode, @Param("permissionCode") String permissionCode);
 
-       // 鎺掑簭鏌ヨ
+       // 排序查询
        @Query("SELECT r FROM Role r ORDER BY r.code")
        List<Role> findAllOrderByCode();
 
@@ -92,11 +92,11 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
        @Query("SELECT r FROM Role r ORDER BY r.name")
        List<Role> findAllOrderByName();
 
-       // 棰勫畾涔夎鑹叉煡璇
+       // 预定义角色查询
        @Query("SELECT r FROM Role r WHERE r.code IN :codes")
        List<Role> findByCodes(@Param("codes") List<String> codes);
 
-       // 鎵归噺鎿嶄綔妫€鏌
+       // 批量操作检查
        @Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END FROM Role r WHERE r.code LIKE 'SYSTEM_%' AND r.code IN :codes")
        boolean existsSystemRoles(@Param("codes") List<String> codes);
 }

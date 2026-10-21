@@ -4,21 +4,21 @@ import jakarta.validation.constraints.NotBlank;
 
 public class SystemConfigUpdateRequestDto {
     
-    @NotBlank(message = "閰嶇疆閿笉鑳戒负绌")
+    @NotBlank(message = "配置键不能为空")
     private String configKey;
     
-    @NotBlank(message = "閰嶇疆鍊间笉鑳戒负绌")
+    @NotBlank(message = "配置值不能为空")
     private String configValue;
     
     private String description;
 
     private String configType;
     
-    // 鏃犲弬鏋勯€犲櫒
+    // 无参构造器
     public SystemConfigUpdateRequestDto() {
     }
     
-    // 鍏ㄥ弬鏋勯€犲櫒
+    // 全参构造器
     public SystemConfigUpdateRequestDto(String configKey, String configValue, String description, String configType) {
         this.configKey = configKey;
         this.configValue = configValue;
@@ -26,7 +26,7 @@ public class SystemConfigUpdateRequestDto {
         this.configType = configType;
     }
     
-    // Getter 鍜?Setter 方法
+    // Getter 和 Setter 方法
     public String getConfigKey() {
         return configKey;
     }
@@ -59,7 +59,7 @@ public class SystemConfigUpdateRequestDto {
         this.configType = configType;
     }
     
-    // Builder 绫
+    // Builder 类
     public static class Builder {
         private String configKey;
         private String configValue;

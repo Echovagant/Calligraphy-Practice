@@ -26,7 +26,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException, ServletException {
         
-        log.warn("璁块棶琚嫆缁?- 用户: {}, 璺緞: {}, 原因: {}", 
+        log.warn("访问被拒绝 - 用户: {}, 路径: {}, 原因: {}", 
                 request.getRemoteUser(), request.getRequestURI(), accessDeniedException.getMessage());
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
@@ -34,7 +34,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("success", false);
-        errorResponse.put("message", "璁块棶琚嫆缁濓紝鏉冮檺涓嶈冻");
+        errorResponse.put("message", "访问被拒绝，权限不足");
         errorResponse.put("error", "FORBIDDEN");
         errorResponse.put("path", request.getRequestURI());
         errorResponse.put("timestamp", System.currentTimeMillis());

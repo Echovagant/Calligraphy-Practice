@@ -1,0 +1,30 @@
+# Maven 构建产物
+SpringBoot-Platform/target/
+*.class
+
+# Python 缓存
+__pycache__/
+*.pyc
+
+# 运行日志
+*.log
+app.log*
+
+# 编码修复工具的输出报告（可由 scripts/mojibake.py 重新生成）
+docs/mojibake-unresolved.md
+SpringBoot-Platform/message-check-report.txt
+
+# 验证脚本的输出
+.verify-*.txt
+.javac-*.txt
+.oracle-*.txt
+.apply-*.txt
+
+# IDE
+.idea/
+*.iml
+.vscode/settings.json
+
+# OS
+.DS_Store
+Thumbs.db

@@ -20,22 +20,22 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @NotBlank(message = "鎺ユ敹鑰匢D涓嶈兘涓虹┖")
+    @NotBlank(message = "接收者ID不能为空")
     @Column(name = "recipient_id", length = 36, nullable = false)
     private String recipientId;
     
     @Column(name = "recipient_type", length = 20)
     private String recipientType;
     
-    @NotBlank(message = "閫氱煡鏍囬涓嶈兘涓虹┖")
+    @NotBlank(message = "通知标题不能为空")
     @Column(name = "title", length = 200, nullable = false)
     private String title;
     
-    @NotBlank(message = "閫氱煡鍐呭涓嶈兘涓虹┖")
+    @NotBlank(message = "通知内容不能为空")
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
     
-    @NotBlank(message = "閫氱煡绫诲瀷涓嶈兘涓虹┖")
+    @NotBlank(message = "通知类型不能为空")
     @Column(name = "type", length = 50, nullable = false)
     private String type;
     
@@ -69,11 +69,11 @@ public class Notification {
     @Column(name = "expires_at")
     private LocalDateTime expiresAt;
     
-    // 鏃犲弬鏋勯€犲櫒
+    // 无参构造器
     public Notification() {
     }
     
-    // 鍏ㄥ弬鏋勯€犲櫒
+    // 全参构造器
     public Notification(Long id, String recipientId, String recipientType, String title, String content, String type, 
                        Boolean isRead, LocalDateTime readAt, String senderName, String relatedId, String relatedType, 
                        Integer priority, Boolean isDeleted, LocalDateTime createdAt, LocalDateTime updatedAt, 
@@ -96,7 +96,7 @@ public class Notification {
         this.expiresAt = expiresAt;
     }
     
-    // Getter 鍜?Setter 方法
+    // Getter 和 Setter 方法
     public Long getId() {
         return id;
     }
@@ -253,7 +253,7 @@ public class Notification {
         updatedAt = LocalDateTime.now();
     }
     
-    // Builder 绫
+    // Builder 类
     public static class Builder {
         private Long id;
         private String recipientId;

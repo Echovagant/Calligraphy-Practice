@@ -45,7 +45,7 @@ public interface PracticeRecordRepository extends JpaRepository<PracticeRecord, 
     @Query("SELECT p FROM PracticeRecord p WHERE p.copybookId = :copybookId AND p.isCompleted = false")
     List<PracticeRecord> findIncompleteByCopybookId(@Param("copybookId") String copybookId);
     
-    // 缁熻鐩稿叧鏌ヨ
+    // 统计相关查询
     @Query("SELECT COUNT(p) FROM PracticeRecord p WHERE p.user = :user")
     long countByUser(@Param("user") FrontendUser user);
     
@@ -67,7 +67,7 @@ public interface PracticeRecordRepository extends JpaRepository<PracticeRecord, 
     @Query("SELECT COUNT(p) FROM PracticeRecord p WHERE p.isCompleted = false")
     long countAllIncomplete();
     
-    // 缁冧範鏃堕棿缁熻
+    // 练习时间统计
     @Query("SELECT SUM(p.practiceTime) FROM PracticeRecord p WHERE p.user = :user")
     Integer sumPracticeTimeByUser(@Param("user") FrontendUser user);
     
@@ -77,14 +77,14 @@ public interface PracticeRecordRepository extends JpaRepository<PracticeRecord, 
     @Query("SELECT AVG(p.practiceTime) FROM PracticeRecord p WHERE p.copybookId = :copybookId")
     Double avgPracticeTimeByCopybookId(@Param("copybookId") String copybookId);
     
-    // 婊℃剰搴︾粺璁
+    // 满意度统计
     @Query("SELECT AVG(p.satisfactionScore) FROM PracticeRecord p WHERE p.user = :user")
     Double avgSatisfactionScoreByUser(@Param("user") FrontendUser user);
     
     @Query("SELECT AVG(p.satisfactionScore) FROM PracticeRecord p WHERE p.copybookId = :copybookId")
     Double avgSatisfactionScoreByCopybookId(@Param("copybookId") String copybookId);
     
-    // 瀹屾垚鐜囩粺璁
+    // 完成率统计
     @Query("SELECT CAST(COUNT(CASE WHEN p.isCompleted = true THEN 1 END) AS DOUBLE) / COUNT(p) * 100 " +
            "FROM PracticeRecord p WHERE p.user = :user")
     Double getCompletionRateByUser(@Param("user") FrontendUser user);
@@ -93,7 +93,7 @@ public interface PracticeRecordRepository extends JpaRepository<PracticeRecord, 
            "FROM PracticeRecord p WHERE p.copybookId = :copybookId")
     Double getCompletionRateByCopybookId(@Param("copybookId") String copybookId);
     
-    // 鏈€杩戠粌涔犺褰
+    // 最近练习记录
     @Query("SELECT p FROM PracticeRecord p WHERE p.user = :user ORDER BY p.practiceDate DESC")
     List<PracticeRecord> findByUserOrderByPracticeDateDesc(@Param("user") FrontendUser user);
     

@@ -33,7 +33,7 @@ public class EmailServiceImpl implements EmailService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
-    @Value("${app.name:涔︽硶缁冧範骞冲彴}")
+    @Value("${app.name:书法练习平台}")
     private String appName;
     @Override
     @Async
@@ -51,15 +51,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("娉ㄥ唽纭 - " + appName);
+            helper.setSubject("注册确认 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("娉ㄥ唽纭閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("注册确认邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("娉ㄥ唽纭閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("注册确认邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -82,10 +82,10 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("娉ㄥ唽娆㈣繋閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("注册欢迎邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("娉ㄥ唽娆㈣繋閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("注册欢迎邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -108,10 +108,10 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("娉ㄥ唽鎴愬姛閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("注册成功邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("娉ㄥ唽鎴愬姛閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("注册成功邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -135,10 +135,10 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("瀵嗙爜閲嶇疆閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("密码重置邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("瀵嗙爜閲嶇疆閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("密码重置邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -156,15 +156,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("瀵嗙爜淇敼纭 - " + appName);
+            helper.setSubject("密码修改确认 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("瀵嗙爜淇敼纭閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("密码修改确认邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("瀵嗙爜淇敼纭閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("密码修改确认邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -187,10 +187,10 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("瀵嗙爜閲嶇疆鎴愬姛閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("密码重置成功邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("瀵嗙爜閲嶇疆鎴愬姛閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("密码重置成功邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -208,15 +208,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("璐︽埛宸查攣瀹?- " + appName);
+            helper.setSubject("账户已锁定 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("璐︽埛閿佸畾閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("账户锁定邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("璐︽埛閿佸畾閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("账户锁定邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -234,15 +234,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("璐︽埛宸茶В閿?- " + appName);
+            helper.setSubject("账户已解锁 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("璐︽埛瑙ｉ攣閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("账户解锁邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("璐︽埛瑙ｉ攣閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("账户解锁邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -263,15 +263,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("鍙枒鐧诲綍灏濊瘯鎻愰啋 - " + appName);
+            helper.setSubject("可疑登录尝试提醒 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("鍙枒鐧诲綍灏濊瘯閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("可疑登录尝试邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("鍙枒鐧诲綍灏濊瘯閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("可疑登录尝试邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -292,15 +292,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("鏂拌澶囩櫥褰曟彁閱?- " + appName);
+            helper.setSubject("新设备登录提醒 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("鏂拌澶囩櫥褰曢偖浠跺彂閫佹垚鍔? {}", to);
+            log.info("新设备登录邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("鏂拌澶囩櫥褰曢偖浠跺彂閫佸け璐? {}", e.getMessage());
+            log.error("新设备登录邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -318,15 +318,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("鍙岄噸楠岃瘉宸插惎鐢?- " + appName);
+            helper.setSubject("双重验证已启用 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("鍙岄噸楠岃瘉鍚敤閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("双重验证启用邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("鍙岄噸楠岃瘉鍚敤閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("双重验证启用邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -344,15 +344,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("鍙岄噸楠岃瘉宸茬鐢?- " + appName);
+            helper.setSubject("双重验证已禁用 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("鍙岄噸楠岃瘉绂佺敤閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("双重验证禁用邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("鍙岄噸楠岃瘉绂佺敤閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("双重验证禁用邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -371,15 +371,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("绠＄悊鍛樿处鎴峰垱寤?- " + appName);
+            helper.setSubject("管理员账户创建 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("绠＄悊鍛樻敞鍐岄偖浠跺彂閫佹垚鍔? {}", to);
+            log.info("管理员注册邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("绠＄悊鍛樻敞鍐岄偖浠跺彂閫佸け璐? {}", e.getMessage());
+            log.error("管理员注册邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -398,15 +398,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("绠＄悊鍛樿鑹插垎閰?- " + appName);
+            helper.setSubject("管理员角色分配 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("绠＄悊鍛樿鑹插垎閰嶉偖浠跺彂閫佹垚鍔? {}", to);
+            log.info("管理员角色分配邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("绠＄悊鍛樿鑹插垎閰嶉偖浠跺彂閫佸け璐? {}", e.getMessage());
+            log.error("管理员角色分配邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -425,15 +425,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("绠＄悊鍛樿鑹茬Щ闄?- " + appName);
+            helper.setSubject("管理员角色移除 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("绠＄悊鍛樿鑹茬Щ闄ら偖浠跺彂閫佹垚鍔? {}", to);
+            log.info("管理员角色移除邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("绠＄悊鍛樿鑹茬Щ闄ら偖浠跺彂閫佸け璐? {}", e.getMessage());
+            log.error("管理员角色移除邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -451,15 +451,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("绠＄悊鍛樿处鎴峰凡鍋滅敤 - " + appName);
+            helper.setSubject("管理员账户已停用 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("绠＄悊鍛樿处鎴峰仠鐢ㄩ偖浠跺彂閫佹垚鍔? {}", to);
+            log.info("管理员账户停用邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("绠＄悊鍛樿处鎴峰仠鐢ㄩ偖浠跺彂閫佸け璐? {}", e.getMessage());
+            log.error("管理员账户停用邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -477,15 +477,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("绠＄悊鍛樿处鎴峰凡婵€娲?- " + appName);
+            helper.setSubject("管理员账户已激活 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("绠＄悊鍛樿处鎴锋縺娲婚偖浠跺彂閫佹垚鍔? {}", to);
+            log.info("管理员账户激活邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("绠＄悊鍛樿处鎴锋縺娲婚偖浠跺彂閫佸け璐? {}", e.getMessage());
+            log.error("管理员账户激活邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -500,11 +500,11 @@ public class EmailServiceImpl implements EmailService {
                 message.setFrom(fromEmail);
 
                 mailSender.send(message);
-                log.info("鎵归噺閭欢鍙戦€佹垚鍔? {}", to);
+                log.info("批量邮件发送成功: {}", to);
             }
 
         } catch (Exception e) {
-            log.error("鎵归噺閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("批量邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -528,10 +528,10 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("鏂囦欢涓婁紶纭閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("文件上传确认邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("鏂囦欢涓婁紶纭閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("文件上传确认邮件发送失败: {}", e.getMessage());
         }
     }
 
@@ -550,15 +550,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("鏂囦欢瀹℃牳寮€濮?- " + appName);
+            helper.setSubject("文件审核开始 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("鏂囦欢瀹℃牳寮€濮嬮偖浠跺彂閫佹垚鍔? {}", to);
+            log.info("文件审核开始邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("鏂囦欢瀹℃牳寮€濮嬮偖浠跺彂閫佸け璐? {}", e.getMessage());
+            log.error("文件审核开始邮件发送失败: {}", e.getMessage());
         }
     }
 
@@ -578,15 +578,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("鏂囦欢瀹℃牳瀹屾垚 - " + appName);
+            helper.setSubject("文件审核完成 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("鏂囦欢瀹℃牳瀹屾垚閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("文件审核完成邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("鏂囦欢瀹℃牳瀹屾垚閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("文件审核完成邮件发送失败: {}", e.getMessage());
         }
     }
 
@@ -606,15 +606,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("鏂囦欢瀹℃牳缁撴灉閫氱煡 - " + appName);
+            helper.setSubject("文件审核结果通知 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("鏂囦欢瀹℃牳閫氱煡閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("文件审核通知邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("鏂囦欢瀹℃牳閫氱煡閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("文件审核通知邮件发送失败: {}", e.getMessage());
         }
     }
 
@@ -638,10 +638,10 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("浣滃搧鍒涘缓閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("作品创建邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("浣滃搧鍒涘缓閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("作品创建邮件发送失败: {}", e.getMessage());
         }
     }
 
@@ -665,10 +665,10 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("浣滃搧鏇存柊閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("作品更新邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("浣滃搧鏇存柊閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("作品更新邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -692,10 +692,10 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("浣滃搧鍙戝竷閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("作品发布邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("浣滃搧鍙戝竷閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("作品发布邮件发送失败: {}", e.getMessage());
         }
     }
 
@@ -719,10 +719,10 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("缁冧範鍒涘缓閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("练习创建邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("缁冧範鍒涘缓閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("练习创建邮件发送失败: {}", e.getMessage());
         }
     }
 
@@ -746,10 +746,10 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("缁冧範鏇存柊閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("练习更新邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("缁冧範鏇存柊閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("练习更新邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -775,10 +775,10 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("缁冧範鎻愰啋閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("练习提醒邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("缁冧範鎻愰啋閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("练习提醒邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -804,10 +804,10 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("绯荤粺缁存姢閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("系统维护邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("绯荤粺缁存姢閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("系统维护邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -831,10 +831,10 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("绯荤粺閫氱煡閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("系统通知邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("绯荤粺閫氱煡閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("系统通知邮件发送失败: {}", e.getMessage());
         }
     }
 
@@ -869,11 +869,11 @@ public class EmailServiceImpl implements EmailService {
                 mailSender.send(message);
             }
 
-            log.info("鎵归噺閭欢鍙戦€佹垚鍔燂紝鍏卞彂閫?{} 灏侀偖浠", toList.size());
+            log.info("批量邮件发送成功，共发送 {} 封邮件", toList.size());
             return CompletableFuture.completedFuture(true);
 
         } catch (MessagingException e) {
-            log.error("鎵归噺閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("批量邮件发送失败: {}", e.getMessage());
             return CompletableFuture.completedFuture(false);
         }
     }
@@ -932,7 +932,7 @@ public class EmailServiceImpl implements EmailService {
     }
     @Override
     public void testEmailConfiguration() {
-        log.info("娴嬭瘯閭欢閰嶇疆");
+        log.info("测试邮件配置");
     }
     @Override
     public void sendTermsOfServiceUpdateEmail(String to, String username) {
@@ -953,33 +953,33 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public boolean isEmailServiceAvailable() {
         try {
-            // 绠€鍗曠殑閭欢鏈嶅姟鍙敤鎬ф鏌
+            // 简单的邮件服务可用性检查
             SimpleMailMessage testMessage = new SimpleMailMessage();
             testMessage.setTo(fromEmail);
-            testMessage.setSubject("閭欢鏈嶅姟娴嬭瘯");
-            testMessage.setText("閭欢鏈嶅姟娴嬭瘯");
+            testMessage.setSubject("邮件服务测试");
+            testMessage.setText("邮件服务测试");
             testMessage.setFrom(fromEmail);
 
             mailSender.send(testMessage);
             return true;
         } catch (Exception e) {
-            log.error("閭欢鏈嶅姟涓嶅彲鐢? {}", e.getMessage());
+            log.error("邮件服务不可用: {}", e.getMessage());
             return false;
         }
     }
     @Override
     public long getEmailQueueSize() {
-        // 杩欓噷搴旇瀹炵幇瀹為檯鐨勯槦鍒楀ぇ灏忔鏌
+        // 这里应该实现实际的队列大小检查
         return 0;
     }
     @Override
     public long getSentEmailCount() {
-        // 杩欓噷搴旇瀹炵幇瀹為檯鐨勫彂閫佹暟閲忕粺璁
+        // 这里应该实现实际的发送数量统计
         return 0;
     }
     @Override
     public long getFailedEmailCount() {
-        // 杩欓噷搴旇瀹炵幇瀹為檯鐨勫け璐ユ暟閲忕粺璁
+        // 这里应该实现实际的失败数量统计
         return 0;
     }
     @Override
@@ -992,8 +992,8 @@ public class EmailServiceImpl implements EmailService {
     }
     @Override
     public void updateEmailConfiguration(String smtpHost, int smtpPort, String username, String password) {
-        // 杩欓噷搴旇瀹炵幇閭欢閰嶇疆鏇存柊閫昏緫
-        log.info("鏇存柊閭欢閰嶇疆: {}:{}", smtpHost, smtpPort);
+        // 这里应该实现邮件配置更新逻辑
+        log.info("更新邮件配置: {}:{}", smtpHost, smtpPort);
     }
     @Override
     @Async
@@ -1012,15 +1012,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("鏂囦欢瀹℃牳閫氳繃 - " + appName);
+            helper.setSubject("文件审核通过 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("鏂囦欢瀹℃牳閫氳繃閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("文件审核通过邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("鏂囦欢瀹℃牳閫氳繃閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("文件审核通过邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -1042,15 +1042,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("鏂囦欢瀹℃牳鏈€氳繃 - " + appName);
+            helper.setSubject("文件审核未通过 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("鏂囦欢瀹℃牳鏈€氳繃閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("文件审核未通过邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("鏂囦欢瀹℃牳鏈€氳繃閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("文件审核未通过邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -1070,15 +1070,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("缁冧範鎻愪氦纭 - " + appName);
+            helper.setSubject("练习提交确认 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("缁冧範鎻愪氦纭閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("练习提交确认邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("缁冧範鎻愪氦纭閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("练习提交确认邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -1098,15 +1098,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("缁冧範璇勫通知 - " + appName);
+            helper.setSubject("练习评审通知 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("缁冧範璇勫閫氱煡閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("练习评审通知邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("缁冧範璇勫閫氱煡閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("练习评审通知邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -1126,15 +1126,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("缁冧範鍙嶉 - " + appName);
+            helper.setSubject("练习反馈 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("缁冧範鍙嶉閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("练习反馈邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("缁冧範鍙嶉閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("练习反馈邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -1151,13 +1151,13 @@ public class EmailServiceImpl implements EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setTo(to);
-            helper.setSubject("浣滃搧琚帹鑽?- " + appName);
+            helper.setSubject("作品被推荐 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
             mailSender.send(message);
-            log.info("浣滃搧鎺ㄨ崘閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("作品推荐邮件发送成功: {}", to);
         } catch (MessagingException e) {
-            log.error("浣滃搧鎺ㄨ崘閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("作品推荐邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -1177,13 +1177,13 @@ public class EmailServiceImpl implements EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setTo(to);
-            helper.setSubject("浣滃搧鏀跺埌璇勮 - " + appName);
+            helper.setSubject("作品收到评论 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
             mailSender.send(message);
-            log.info("浣滃搧璇勮閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("作品评论邮件发送成功: {}", to);
         } catch (MessagingException e) {
-            log.error("浣滃搧璇勮閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("作品评论邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -1203,13 +1203,13 @@ public class EmailServiceImpl implements EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setTo(to);
-            helper.setSubject("浣滃搧琚妇鎶?- " + appName);
+            helper.setSubject("作品被举报 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
             mailSender.send(message);
-            log.info("浣滃搧涓炬姤閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("作品举报邮件发送成功: {}", to);
         } catch (MessagingException e) {
-            log.error("浣滃搧涓炬姤閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("作品举报邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -1227,13 +1227,13 @@ public class EmailServiceImpl implements EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setTo(to);
-            helper.setSubject("鏂囦欢闇€瑕佷慨鏀?- " + appName);
+            helper.setSubject("文件需要修支 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
             mailSender.send(message);
-            log.info("鏂囦欢淇敼璇锋眰閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("文件修改请求邮件发送成功: {}", to);
         } catch (MessagingException e) {
-            log.error("鏂囦欢淇敼璇锋眰閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("文件修改请求邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -1251,13 +1251,13 @@ public class EmailServiceImpl implements EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setTo(to);
-            helper.setSubject("鏂囦欢瀹℃牳鍒嗛厤 - " + appName);
+            helper.setSubject("文件审核分配 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
             mailSender.send(message);
-            log.info("鏂囦欢瀹℃牳鍒嗛厤閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("文件审核分配邮件发送成功: {}", to);
         } catch (MessagingException e) {
-            log.error("鏂囦欢瀹℃牳鍒嗛厤閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("文件审核分配邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -1277,7 +1277,7 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
             mailSender.send(message);
         } catch (MessagingException e) {
-            log.error("妯℃澘閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("模板邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -1299,7 +1299,7 @@ public class EmailServiceImpl implements EmailService {
             message.setFrom(fromEmail);
             mailSender.send(message);
         } catch (Exception e) {
-            log.error("鏂囨湰妯℃澘閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("文本模板邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -1312,7 +1312,7 @@ public class EmailServiceImpl implements EmailService {
             message.setFrom(fromEmail);
             mailSender.send(message);
         } catch (Exception e) {
-            log.error("寮傛閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("异步邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -1331,7 +1331,7 @@ public class EmailServiceImpl implements EmailService {
             }
             mailSender.send(message);
         } catch (MessagingException e) {
-            log.error("闄勪欢閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("附件邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -1358,7 +1358,7 @@ public class EmailServiceImpl implements EmailService {
             }
             mailSender.send(message);
         } catch (MessagingException e) {
-            log.error("澶氶檮浠堕偖浠跺彂閫佸け璐? {}", e.getMessage());
+            log.error("多附件邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -1404,7 +1404,7 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
             mailSender.send(message);
         } catch (MessagingException e) {
-            log.error("缁冧範鎴愬氨閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("练习成就邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -1420,12 +1420,12 @@ public class EmailServiceImpl implements EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setTo(to);
-            helper.setSubject("缁冧範閲岀▼纰?- " + appName);
+            helper.setSubject("练习里程碑 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
             mailSender.send(message);
         } catch (MessagingException e) {
-            log.error("缁冧範閲岀▼纰戦偖浠跺彂閫佸け璐? {}", e.getMessage());
+            log.error("练习里程碑邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -1448,7 +1448,7 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
             mailSender.send(message);
         } catch (MessagingException e) {
-            log.error("缁冧範杩涘害鎶ュ憡閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("练习进度报告邮件发送失败: {}", e.getMessage());
         }
     }
     @Override
@@ -1469,12 +1469,12 @@ public class EmailServiceImpl implements EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setTo(to);
-            helper.setSubject("绯荤粺鍏憡 - " + appName);
+            helper.setSubject("系统公告 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
             mailSender.send(message);
         } catch (MessagingException e) {
-            log.error("绯荤粺鍏憡閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("系统公告邮件发送失败: {}", e.getMessage());
         }
     }
 
@@ -1496,15 +1496,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("鎴愬氨瑙ｉ攣 - " + appName);
+            helper.setSubject("成就解锁 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("鎴愬氨瑙ｉ攣閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("成就解锁邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("鎴愬氨瑙ｉ攣閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("成就解锁邮件发送失败: {}", e.getMessage());
         }
     }
 
@@ -1531,10 +1531,10 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("绛夌骇鎻愬崌閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("等级提升邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("绛夌骇鎻愬崌閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("等级提升邮件发送失败: {}", e.getMessage());
         }
     }
 
@@ -1554,15 +1554,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("绉垎鑾峰緱 - " + appName);
+            helper.setSubject("积分获得 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("绉垎鑾峰緱閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("积分获得邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("绉垎鑾峰緱閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("积分获得邮件发送失败: {}", e.getMessage());
         }
     }
 
@@ -1587,10 +1587,10 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("寰界珷鑾峰緱閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("徽章获得邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("寰界珷鑾峰緱閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("徽章获得邮件发送失败: {}", e.getMessage());
         }
     }
 
@@ -1610,15 +1610,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("姣旇禌鎶ュ悕纭 - " + appName);
+            helper.setSubject("比赛报名确认 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("姣旇禌鎶ュ悕纭閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("比赛报名确认邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("姣旇禌鎶ュ悕纭閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("比赛报名确认邮件发送失败: {}", e.getMessage());
         }
     }
 
@@ -1638,15 +1638,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("姣旇禌寮€濮?- " + appName);
+            helper.setSubject("比赛开始 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("姣旇禌寮€濮嬮偖浠跺彂閫佹垚鍔? {}", to);
+            log.info("比赛开始邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("姣旇禌寮€濮嬮偖浠跺彂閫佸け璐? {}", e.getMessage());
+            log.error("比赛开始邮件发送失败: {}", e.getMessage());
         }
     }
 
@@ -1671,10 +1671,10 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("姣旇禌缁撴潫閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("比赛结束邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("姣旇禌缁撴潫閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("比赛结束邮件发送失败: {}", e.getMessage());
         }
     }
 
@@ -1694,15 +1694,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("姣旇禌鑾峰通知 - " + appName);
+            helper.setSubject("比赛获奖通知 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("姣旇禌鑾峰閫氱煡閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("比赛获奖通知邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("姣旇禌鑾峰閫氱煡閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("比赛获奖通知邮件发送失败: {}", e.getMessage());
         }
     }
 
@@ -1729,10 +1729,10 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("姣旇禌缁撴灉閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("比赛结果邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("姣旇禌缁撴灉閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("比赛结果邮件发送失败: {}", e.getMessage());
         }
     }
 
@@ -1759,10 +1759,10 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("姣旇禌鎻愰啋閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("比赛提醒邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("姣旇禌鎻愰啋閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("比赛提醒邮件发送失败: {}", e.getMessage());
         }
     }
 
@@ -1782,15 +1782,15 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("姣旇禌閭€璇?- " + appName);
+            helper.setSubject("比赛邀请 - " + appName);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("姣旇禌閭€璇烽偖浠跺彂閫佹垚鍔? {}", to);
+            log.info("比赛邀请邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("姣旇禌閭€璇烽偖浠跺彂閫佸け璐? {}", e.getMessage());
+            log.error("比赛邀请邮件发送失败: {}", e.getMessage());
         }
     }
 
@@ -1816,10 +1816,10 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("姣旇禌鍙栨秷閫氱煡閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("比赛取消通知邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("姣旇禌鍙栨秷閫氱煡閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("比赛取消通知邮件发送失败: {}", e.getMessage());
         }
     }
 
@@ -1844,10 +1844,10 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(fromEmail);
 
             mailSender.send(message);
-            log.info("姣旇禌鏇存柊閫氱煡閭欢鍙戦€佹垚鍔? {}", to);
+            log.info("比赛更新通知邮件发送成功: {}", to);
 
         } catch (MessagingException e) {
-            log.error("姣旇禌鏇存柊閫氱煡閭欢鍙戦€佸け璐? {}", e.getMessage());
+            log.error("比赛更新通知邮件发送失败: {}", e.getMessage());
         }
     }
 }

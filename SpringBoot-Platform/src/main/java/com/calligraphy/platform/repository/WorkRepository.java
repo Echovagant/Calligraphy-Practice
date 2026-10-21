@@ -40,7 +40,7 @@ public interface WorkRepository extends JpaRepository<Work, Long> {
     @Query("SELECT w FROM Work w WHERE w.user = :user AND w.createdAt BETWEEN :startDate AND :endDate")
     List<Work> findUserWorksCreatedBetween(@Param("user") FrontendUser user, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
-    // 缁熻鐩稿叧鏌ヨ
+    // 统计相关查询
     @Query("SELECT COUNT(w) FROM Work w WHERE w.user = :user")
     long countByUser(@Param("user") FrontendUser user);
     
@@ -56,7 +56,7 @@ public interface WorkRepository extends JpaRepository<Work, Long> {
     @Query("SELECT COUNT(w) FROM Work w WHERE w.user = :user AND w.status = :status")
     long countByUserAndStatus(@Param("user") FrontendUser user, @Param("status") Work.WorkStatus status);
     
-    // 鎺掑簭鐩稿叧鏌ヨ
+    // 排序相关查询
     @Query("SELECT w FROM Work w ORDER BY w.createdAt DESC")
     List<Work> findAllOrderByCreatedAtDesc();
     
@@ -69,18 +69,18 @@ public interface WorkRepository extends JpaRepository<Work, Long> {
     @Query("SELECT w FROM Work w ORDER BY w.viewCount DESC")
     List<Work> findAllOrderByViewCountDesc();
     
-    // 寰呭鏍镐綔鍝佹煡璇
+    // 待审核作品查询
     @Query("SELECT w FROM Work w WHERE w.reviewStatus = :pending OR w.reviewStatus = :needsRevision ORDER BY w.createdAt ASC")
     List<Work> findWorksNeedingReview(@Param("pending") Work.ReviewStatus pending, @Param("needsRevision") Work.ReviewStatus needsRevision);
     
     @Query("SELECT w FROM Work w WHERE w.status = :status AND w.reviewStatus = :reviewStatus")
     Page<Work> findByStatusAndReviewStatus(@Param("status") Work.WorkStatus status, @Param("reviewStatus") Work.ReviewStatus reviewStatus, org.springframework.data.domain.Pageable pageable);
     
-    // 鐑棬浣滃搧鏌ヨ
+    // 热门作品查询
     @Query("SELECT w FROM Work w WHERE w.status = :published AND w.reviewStatus = :approved ORDER BY w.likeCount DESC")
     List<Work> findPopularWorks(@Param("published") Work.WorkStatus published, @Param("approved") Work.ReviewStatus approved);
     
-    // 鏈€鏂颁綔鍝佹煡璇
+    // 最新作品查询
     @Query("SELECT w FROM Work w WHERE w.status = :published AND w.reviewStatus = :approved ORDER BY w.createdAt DESC")
     List<Work> findLatestWorks(@Param("published") Work.WorkStatus published, @Param("approved") Work.ReviewStatus approved);
 

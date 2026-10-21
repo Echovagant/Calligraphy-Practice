@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 
 public class DiscussionReplyCreateDto {
     
-    @NotBlank(message = "鍥炲鍐呭涓嶈兘涓虹┖")
+    @NotBlank(message = "回复内容不能为空")
     private String content;
     
     private String parentId;
@@ -13,11 +13,11 @@ public class DiscussionReplyCreateDto {
     
     private String replyToUsername;
     
-    // 鏃犲弬鏋勯€犲櫒
+    // 无参构造器
     public DiscussionReplyCreateDto() {
     }
     
-    // 鍏ㄥ弬鏋勯€犲櫒
+    // 全参构造器
     public DiscussionReplyCreateDto(String content, String parentId, String replyToUserId, String replyToUsername) {
         this.content = content;
         this.parentId = parentId;
@@ -25,7 +25,7 @@ public class DiscussionReplyCreateDto {
         this.replyToUsername = replyToUsername;
     }
     
-    // Getter 鍜?Setter 方法
+    // Getter 和 Setter 方法
     public String getContent() {
         return content;
     }
@@ -58,7 +58,7 @@ public class DiscussionReplyCreateDto {
         this.replyToUsername = replyToUsername;
     }
     
-    // Builder 绫
+    // Builder 类
     public static class Builder {
         private String content;
         private String parentId;

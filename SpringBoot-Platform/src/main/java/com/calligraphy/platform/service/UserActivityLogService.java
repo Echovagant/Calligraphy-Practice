@@ -43,7 +43,7 @@ public interface UserActivityLogService {
     
     List<UserActivityLogDto> getActivityLogsByStatus(String status);
     
-    // 鏃堕棿鑼冨洿鏌ヨ
+    // 时间范围查询
     Page<UserActivityLogDto> getActivityLogsByDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate, Pageable pageable);
     
     List<UserActivityLogDto> getActivityLogsByDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
@@ -52,12 +52,12 @@ public interface UserActivityLogService {
     
     List<UserActivityLogDto> getActivityLogsByDateRangeAndUserId(String userId, java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
     
-    // 鎼滅储鍜岀瓫閫
+    // 搜索和筛选
     Page<UserActivityLogDto> searchActivityLogs(String keyword, Pageable pageable);
     
     List<UserActivityLogDto> searchActivityLogs(String keyword);
     
-    // 缁熻相关
+    // 统计相关
     long getTotalActivityLogCount();
     
     long getActivityLogCountByUserId(String userId);
@@ -72,7 +72,7 @@ public interface UserActivityLogService {
     
     long getActivityLogCountByDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
     
-    // 鐢ㄦ埛娲诲姩缁熻
+    // 用户活动统计
     long getUserLoginCount(String userId);
     
     long getUserLoginCountByDateRange(String userId, java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
@@ -83,29 +83,29 @@ public interface UserActivityLogService {
     
     String getUserLastLoginIp(String userId);
     
-    // 娲诲姩绫诲瀷缁熻
+    // 活动类型统计
     java.util.Map<String, Long> getActivityTypeCounts();
     
     java.util.Map<String, Long> getActivityTypeCountsByUserId(String userId);
     
     java.util.Map<String, Long> getActivityTypeCountsByDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
     
-    // IP鍦板潃缁熻
+    // IP地址统计
     java.util.Map<String, Long> getTopIpAddresses(int limit);
     
     java.util.Map<String, Long> getTopIpAddressesByDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate, int limit);
     
-    // 鐢ㄦ埛绫诲瀷缁熻
+    // 用户类型统计
     java.util.Map<UserActivityLog.UserType, Long> getUserTypeCounts();
     
     java.util.Map<UserActivityLog.UserType, Long> getUserTypeCountsByDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
     
-    // 鍝嶅簲鐘舵€佺粺璁
+    // 响应状态统计
     java.util.Map<String, Long> getResponseStatusCounts();
     
     java.util.Map<String, Long> getResponseStatusCountsByDateRange(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
     
-    // 鏈€杩戞椿鍔
+    // 最近活动
     List<UserActivityLogDto> getRecentActivityLogs(int limit);
     
     List<UserActivityLogDto> getRecentActivityLogsByUserId(String userId, int limit);

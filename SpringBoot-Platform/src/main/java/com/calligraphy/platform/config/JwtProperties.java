@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
- * JWT閰嶇疆灞炴€х被
+ * JWT配置属性类
  * 鐢ㄤ簬闆嗕腑绠＄悊JWT相关配置参数
  */
 @Component
@@ -17,16 +17,18 @@ public class JwtProperties {
     private String secret;
     
     /**
-     * 璁块棶浠ょ墝杩囨湡鏃堕棿锛堟绉掞級锛岄粯璁?4小时
+     * 访问令牌过期时间（毫秒），默认24小时
      */
     private Long expiration = 86400000L;
     
     /**
-     * 鍒锋柊浠ょ墝杩囨湡鏃堕棿锛堟绉掞級锛岄粯璁?澶?     */
+     * 刷新令牌过期时间（毫秒），默认7天
+     */
     private Long refreshExpiration = 604800000L;
     
     /**
-     * JWT绛惧彂鑰?     */
+     * JWT签名者
+     */
     private String issuer = "calligraphy-platform";
     
     /**
@@ -40,7 +42,8 @@ public class JwtProperties {
     private String tokenPrefix = "Bearer ";
     
     /**
-     * 鎺堟潈澶村悕绉?     */
+     * 授权头名称
+     */
     private String authHeaderName = "Authorization";
     
     /**
@@ -61,7 +64,7 @@ public class JwtProperties {
     
     /**
      * 获取访问令牌过期时间
-     * @return 杩囨湡鏃堕棿锛堟秒）
+     * @return 过期时间（毫秒）
      */
     public Long getExpiration() {
         return expiration;
@@ -69,7 +72,7 @@ public class JwtProperties {
     
     /**
      * 设置访问令牌过期时间
-     * @param expiration 杩囨湡鏃堕棿锛堟秒）
+     * @param expiration 过期时间（毫秒）
      */
     public void setExpiration(Long expiration) {
         this.expiration = expiration;
@@ -77,7 +80,7 @@ public class JwtProperties {
     
     /**
      * 获取刷新令牌过期时间
-     * @return 杩囨湡鏃堕棿锛堟秒）
+     * @return 过期时间（毫秒）
      */
     public Long getRefreshExpiration() {
         return refreshExpiration;
@@ -85,20 +88,24 @@ public class JwtProperties {
     
     /**
      * 设置刷新令牌过期时间
-     * @param refreshExpiration 杩囨湡鏃堕棿锛堟秒）
+     * @param refreshExpiration 过期时间（毫秒）
      */
     public void setRefreshExpiration(Long refreshExpiration) {
         this.refreshExpiration = refreshExpiration;
     }
     
     /**
-     * 获取JWT绛惧彂鑰?     * @return 绛惧彂鑰?     */
+     * 获取JWT签名者
+     * @return 签名者
+     */
     public String getIssuer() {
         return issuer;
     }
     
     /**
-     * 设置JWT绛惧彂鑰?     * @param issuer 绛惧彂鑰?     */
+     * 设置JWT签名者
+     * @param issuer 签名者
+     */
     public void setIssuer(String issuer) {
         this.issuer = issuer;
     }
@@ -136,13 +143,17 @@ public class JwtProperties {
     }
     
     /**
-     * 鑾峰彇鎺堟潈澶村悕绉?     * @return 鎺堟潈澶村悕绉?     */
+     * 获取授权头名称
+     * @return 授权头名称
+     */
     public String getAuthHeaderName() {
         return authHeaderName;
     }
     
     /**
-     * 璁剧疆鎺堟潈澶村悕绉?     * @param authHeaderName 鎺堟潈澶村悕绉?     */
+     * 设置授权头名称
+     * @param authHeaderName 授权头名称
+     */
     public void setAuthHeaderName(String authHeaderName) {
         this.authHeaderName = authHeaderName;
     }

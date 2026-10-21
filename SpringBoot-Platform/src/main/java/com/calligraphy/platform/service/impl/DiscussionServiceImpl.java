@@ -55,10 +55,10 @@ public class DiscussionServiceImpl implements DiscussionService {
     @Transactional
     @SuppressWarnings("null")
     public DiscussionDto createDiscussion(String userId, DiscussionCreateDto createDto) {
-        log.info("鍒涘缓璁ㄨ: 用户ID={}, 鏍囬={}, 分类={}", userId, createDto.getTitle(), createDto.getCategory());
+        log.info("创建讨论: 用户ID={}, 标题={}, 分类={}", userId, createDto.getTitle(), createDto.getCategory());
 
         FrontendUser user = frontendUserRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("鐢ㄦ埛涓嶅瓨鍦? " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + userId));
 
         Discussion discussion = new Discussion();
         discussion.setTitle(createDto.getTitle());
@@ -77,7 +77,7 @@ public class DiscussionServiceImpl implements DiscussionService {
         discussion.setTags(createDto.getTags());
 
         Discussion savedDiscussion = discussionRepository.save(discussion);
-        log.info("璁ㄨ创建成功: ID={}", savedDiscussion.getId());
+        log.info("讨论创建成功: ID={}", savedDiscussion.getId());
 
         return discussionMapper.toDto(savedDiscussion);
     }
@@ -86,7 +86,7 @@ public class DiscussionServiceImpl implements DiscussionService {
     public DiscussionDto getDiscussionById(String discussionId) {
         Discussion discussion = discussionRepository
                 .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("璁ㄨ涓嶅瓨鍦? " + discussionId));
+                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
 
         discussion.incrementViewCount();
         discussionRepository.save(discussion);
@@ -98,7 +98,7 @@ public class DiscussionServiceImpl implements DiscussionService {
     public DiscussionDto getDiscussionByIdWithReplies(String discussionId, Pageable replyPageable) {
         Discussion discussion = discussionRepository
                 .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("璁ㄨ涓嶅瓨鍦? " + discussionId));
+                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
 
         discussion.incrementViewCount();
         discussionRepository.save(discussion);
@@ -170,14 +170,14 @@ public class DiscussionServiceImpl implements DiscussionService {
     }
     @Override
     public DiscussionDto updateDiscussion(String discussionId, String userId, DiscussionUpdateDto updateDto) {
-        log.info("鏇存柊璁ㄨ: ID={}, 用户ID={}", discussionId, userId);
+        log.info("更新讨论: ID={}, 用户ID={}", discussionId, userId);
 
         Discussion discussion = discussionRepository
                 .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("璁ㄨ涓嶅瓨鍦? " + discussionId));
+                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
 
         if (!discussion.getUserId().equals(userId)) {
-            throw new UnauthorizedException("鎮ㄦ病鏈夋潈闄愭洿鏂版璁ㄨ");
+            throw new UnauthorizedException("您没有权限更新此讨论");
         }
 
         if (updateDto.getTitle() != null) {
@@ -194,32 +194,32 @@ public class DiscussionServiceImpl implements DiscussionService {
         }
 
         Discussion updatedDiscussion = discussionRepository.save(discussion);
-        log.info("璁ㄨ更新成功: ID={}", updatedDiscussion.getId());
+        log.info("讨论更新成功: ID={}", updatedDiscussion.getId());
 
         return discussionMapper.toDto(updatedDiscussion);
     }
     @Override
     public void deleteDiscussion(String discussionId, String userId) {
-        log.info("鍒犻櫎璁ㄨ: ID={}, 用户ID={}", discussionId, userId);
+        log.info("删除讨论: ID={}, 用户ID={}", discussionId, userId);
 
         Discussion discussion = discussionRepository
                 .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("璁ㄨ涓嶅瓨鍦? " + discussionId));
+                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
 
         if (!discussion.getUserId().equals(userId)) {
-            throw new UnauthorizedException("鎮ㄦ病鏈夋潈闄愬垹闄ゆ璁ㄨ");
+            throw new UnauthorizedException("您没有权限删除此讨论");
         }
 
         discussion.setStatus(Discussion.DiscussionStatus.DELETED);
         discussionRepository.save(discussion);
 
-        log.info("璁ㄨ删除成功: ID={}", discussionId);
+        log.info("讨论删除成功: ID={}", discussionId);
     }
     @Override
     public void incrementViewCount(String discussionId) {
         Discussion discussion = discussionRepository
                 .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("璁ㄨ涓嶅瓨鍦? " + discussionId));
+                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
 
         discussion.incrementViewCount();
         discussionRepository.save(discussion);
@@ -228,7 +228,7 @@ public class DiscussionServiceImpl implements DiscussionService {
     public void incrementLikeCount(String discussionId) {
         Discussion discussion = discussionRepository
                 .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("璁ㄨ涓嶅瓨鍦? " + discussionId));
+                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
 
         discussion.incrementLikeCount();
         discussionRepository.save(discussion);
@@ -237,7 +237,7 @@ public class DiscussionServiceImpl implements DiscussionService {
     public void decrementLikeCount(String discussionId) {
         Discussion discussion = discussionRepository
                 .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("璁ㄨ涓嶅瓨鍦? " + discussionId));
+                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
 
         discussion.decrementLikeCount();
         discussionRepository.save(discussion);
@@ -245,7 +245,7 @@ public class DiscussionServiceImpl implements DiscussionService {
     @Override
     @Transactional(readOnly = true)
     public boolean isLikedByUser(String discussionId, String userId) {
-        // 由于当前Discussion瀹炰綋娌℃湁璁板綍鐐硅禐鐢ㄦ埛鍒楄〃锛岃繑鍥瀎alse浣滀负榛樿实现
+        // 由于当前Discussion实体没有记录点赞用户列表，返回false作为默认实现
         return false;
     }
     @Override
@@ -260,14 +260,14 @@ public class DiscussionServiceImpl implements DiscussionService {
     @Transactional
     @SuppressWarnings("null")
     public DiscussionReplyDto createReply(String discussionId, String userId, DiscussionReplyCreateDto createDto) {
-        log.info("鍒涘缓鍥炲: 璁ㄨID={}, 用户ID={}", discussionId, userId);
+        log.info("创建回复: 讨论ID={}, 用户ID={}", discussionId, userId);
 
         Discussion discussion = discussionRepository
                 .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("璁ㄨ涓嶅瓨鍦? " + discussionId));
+                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
 
         FrontendUser user = frontendUserRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("鐢ㄦ埛涓嶅瓨鍦? " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + userId));
 
         DiscussionReply reply = new DiscussionReply();
         reply.setContent(createDto.getContent());
@@ -288,49 +288,49 @@ public class DiscussionServiceImpl implements DiscussionService {
         discussion.incrementReplyCount();
         discussionRepository.save(discussion);
 
-        log.info("鍥炲创建成功: ID={}", savedReply.getId());
+        log.info("回复创建成功: ID={}", savedReply.getId());
 
         return discussionReplyMapper.toDto(savedReply);
     }
     @Override
     public DiscussionReplyDto updateReply(String replyId, String userId, DiscussionReplyCreateDto updateDto) {
-        log.info("鏇存柊鍥炲: ID={}, 用户ID={}", replyId, userId);
+        log.info("更新回复: ID={}, 用户ID={}", replyId, userId);
 
         DiscussionReply reply = discussionReplyRepository.findById(( Long) Long.valueOf(replyId))
-                .orElseThrow(() -> new ResourceNotFoundException("鍥炲涓嶅瓨鍦? " + replyId));
+                .orElseThrow(() -> new ResourceNotFoundException("回复不存在: " + replyId));
 
         if (!reply.getUserId().equals(userId)) {
-            throw new UnauthorizedException("鎮ㄦ病鏈夋潈闄愭洿鏂版鍥炲");
+            throw new UnauthorizedException("您没有权限更新此回复");
         }
 
         reply.setContent(updateDto.getContent());
         reply.setUpdatedAt(LocalDateTime.now());
 
         DiscussionReply updatedReply = discussionReplyRepository.save(reply);
-        log.info("鍥炲更新成功: ID={}", updatedReply.getId());
+        log.info("回复更新成功: ID={}", updatedReply.getId());
 
         return discussionReplyMapper.toDto(updatedReply);
     }
     @Override
     public void deleteReply(String replyId, String userId) {
-        log.info("鍒犻櫎鍥炲: ID={}, 用户ID={}", replyId, userId);
+        log.info("删除回复: ID={}, 用户ID={}", replyId, userId);
 
         DiscussionReply reply = discussionReplyRepository.findById(( Long) Long.valueOf(replyId))
-                .orElseThrow(() -> new ResourceNotFoundException("鍥炲涓嶅瓨鍦? " + replyId));
+                .orElseThrow(() -> new ResourceNotFoundException("回复不存在: " + replyId));
 
         if (!reply.getUserId().equals(userId)) {
-            throw new UnauthorizedException("鎮ㄦ病鏈夋潈闄愬垹闄ゆ鍥炲");
+            throw new UnauthorizedException("您没有权限删除此回复");
         }
 
         reply.setStatus(DiscussionReply.ReplyStatus.DELETED);
         discussionReplyRepository.save(reply);
 
         Discussion discussion = discussionRepository.findById(( Long) reply.getDiscussionId())
-                .orElseThrow(() -> new ResourceNotFoundException("璁ㄨ涓嶅瓨鍦? " + reply.getDiscussionId()));
+                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + reply.getDiscussionId()));
         discussion.decrementReplyCount();
         discussionRepository.save(discussion);
 
-        log.info("鍥炲删除成功: ID={}", replyId);
+        log.info("回复删除成功: ID={}", replyId);
     }
     @Override
     @Transactional(readOnly = true)
@@ -415,48 +415,48 @@ public class DiscussionServiceImpl implements DiscussionService {
     public DiscussionDto pinDiscussion(String discussionId, String adminId) {
         Discussion discussion = discussionRepository
                 .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("璁ㄨ涓嶅瓨鍦? " + discussionId));
+                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
 
         discussion.setIsPinned(true);
         Discussion updatedDiscussion = discussionRepository.save(discussion);
 
-        log.info("璁ㄨ缃《鎴愬姛: ID={}, 绠＄悊鍛業D={}", discussionId, adminId);
+        log.info("讨论置顶成功: ID={}, 管理员ID={}", discussionId, adminId);
         return discussionMapper.toDto(updatedDiscussion);
     }
     @Override
     public DiscussionDto unpinDiscussion(String discussionId, String adminId) {
         Discussion discussion = discussionRepository
                 .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("璁ㄨ涓嶅瓨鍦? " + discussionId));
+                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
 
         discussion.setIsPinned(false);
         Discussion updatedDiscussion = discussionRepository.save(discussion);
 
-        log.info("璁ㄨ鍙栨秷缃《鎴愬姛: ID={}, 绠＄悊鍛業D={}", discussionId, adminId);
+        log.info("讨论取消置顶成功: ID={}, 管理员ID={}", discussionId, adminId);
         return discussionMapper.toDto(updatedDiscussion);
     }
     @Override
     public DiscussionDto featureDiscussion(String discussionId, String adminId) {
         Discussion discussion = discussionRepository
                 .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("璁ㄨ涓嶅瓨鍦? " + discussionId));
+                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
 
         discussion.setIsFeatured(true);
         Discussion updatedDiscussion = discussionRepository.save(discussion);
 
-        log.info("璁ㄨ加精成功: ID={}, 绠＄悊鍛業D={}", discussionId, adminId);
+        log.info("讨论加精成功: ID={}, 管理员ID={}", discussionId, adminId);
         return discussionMapper.toDto(updatedDiscussion);
     }
     @Override
     public DiscussionDto unfeatureDiscussion(String discussionId, String adminId) {
         Discussion discussion = discussionRepository
                 .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
-                .orElseThrow(() -> new ResourceNotFoundException("璁ㄨ涓嶅瓨鍦? " + discussionId));
+                .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
 
         discussion.setIsFeatured(false);
         Discussion updatedDiscussion = discussionRepository.save(discussion);
 
-        log.info("璁ㄨ取消加精成功: ID={}, 绠＄悊鍛業D={}", discussionId, adminId);
+        log.info("讨论取消加精成功: ID={}, 管理员ID={}", discussionId, adminId);
         return discussionMapper.toDto(updatedDiscussion);
     }
 }

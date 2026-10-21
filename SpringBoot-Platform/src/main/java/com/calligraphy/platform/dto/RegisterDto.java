@@ -16,30 +16,30 @@ import lombok.NoArgsConstructor;
 @Schema(description = "用户注册请求DTO")
 public class RegisterDto {
     
-    @NotBlank(message = "鐢ㄦ埛鍚嶄笉鑳戒负绌")
-    @Size(min = 3, max = 20, message = "鐢ㄦ埛鍚嶉暱搴﹀繀椤诲湪3-20涓瓧绗︿箣闂")
-    @Schema(description = "鐢ㄦ埛鍚", example = "user")
+    @NotBlank(message = "用户名不能为空")
+    @Size(min = 3, max = 20, message = "用户名长度必须在3-20个字符之间")
+    @Schema(description = "用户名", example = "user")
     private String username;
     
-    @NotBlank(message = "瀵嗙爜涓嶈兘涓虹┖")
-    @Size(min = 6, max = 20, message = "瀵嗙爜闀垮害蹇呴』鍦?-20涓瓧绗︿箣闂")
+    @NotBlank(message = "密码不能为空")
+    @Size(min = 6, max = 20, message = "密码长度必须在6-20个字符之间")
     @Schema(description = "密码", example = "password123")
     private String password;
     
-    @NotBlank(message = "閭涓嶈兘涓虹┖")
-    @Email(message = "閭鏍煎紡涓嶆纭")
-    @Schema(description = "閭", example = "user@example.com")
+    @NotBlank(message = "邮箱不能为空")
+    @Email(message = "邮箱格式不正确")
+    @Schema(description = "邮箱", example = "user@example.com")
     private String email;
     
-    @NotBlank(message = "鏄电О涓嶈兘涓虹┖")
-    @Size(max = 50, message = "鏄电О长度不能超过50涓瓧绗")
-    @Schema(description = "鏄电О", example = "鐢ㄦ埛鏄电О")
+    @NotBlank(message = "昵称不能为空")
+    @Size(max = 50, message = "昵称长度不能超过50个字符")
+    @Schema(description = "昵称", example = "用户昵称")
     private String nickname;
     
-    @Schema(description = "楠岃瘉鐮", example = "1234")
+    @Schema(description = "验证码", example = "1234")
     private String captcha;
     
-    @Schema(description = "閭€请码", example = "INVITE123")
+    @Schema(description = "邀请码", example = "INVITE123")
     private String inviteCode;
 }
 

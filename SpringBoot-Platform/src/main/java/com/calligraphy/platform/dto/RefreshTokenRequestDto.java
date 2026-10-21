@@ -4,19 +4,19 @@ import jakarta.validation.constraints.NotBlank;
 
 public class RefreshTokenRequestDto {
     
-    @NotBlank(message = "鍒锋柊浠ょ墝涓嶈兘涓虹┖")
+    @NotBlank(message = "刷新令牌不能为空")
     private String refreshToken;
     
-    // 鏃犲弬鏋勯€犲櫒
+    // 无参构造器
     public RefreshTokenRequestDto() {
     }
     
-    // 鍏ㄥ弬鏋勯€犲櫒
+    // 全参构造器
     public RefreshTokenRequestDto(String refreshToken) {
         this.refreshToken = refreshToken;
     }
     
-    // Getter 鍜?Setter 方法
+    // Getter 和 Setter 方法
     public String getRefreshToken() {
         return refreshToken;
     }
@@ -25,7 +25,7 @@ public class RefreshTokenRequestDto {
         this.refreshToken = refreshToken;
     }
     
-    // Builder 绫
+    // Builder 类
     public static class Builder {
         private String refreshToken;
         

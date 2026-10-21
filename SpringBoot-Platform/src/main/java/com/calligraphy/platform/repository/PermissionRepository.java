@@ -41,7 +41,7 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
        @Query("SELECT p FROM Permission p WHERE p.isActive = true AND p.module = :module")
        List<Permission> findActivePermissionsByModule(@Param("module") String module);
 
-       // 鎼滅储鐩稿叧鏌ヨ
+       // 搜索相关查询
        @Query("SELECT p FROM Permission p WHERE " +
                      "LOWER(p.code) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
                      "LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
@@ -51,14 +51,14 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
        @Query("SELECT p FROM Permission p WHERE p.module LIKE %:module%")
        List<Permission> findByModuleContaining(@Param("module") String module);
 
-       // 鏉冮檺浠ｇ爜鐩稿叧鏌ヨ
+       // 权限代码相关查询
        @Query("SELECT p FROM Permission p WHERE p.code LIKE %:code%")
        List<Permission> findByCodeContaining(@Param("code") String code);
 
        @Query("SELECT p FROM Permission p WHERE p.code LIKE :prefix%")
        List<Permission> findByCodeStartingWith(@Param("prefix") String prefix);
 
-       // 缁熻鐩稿叧鏌ヨ
+       // 统计相关查询
        @Query("SELECT COUNT(p) FROM Permission p WHERE p.permissionType = :type")
        long countByType(@Param("type") Permission.PermissionType type);
 
@@ -71,25 +71,25 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
        @Query("SELECT COUNT(p) FROM Permission p WHERE p.isActive = true")
        long countActivePermissions();
 
-       // 妯″潡缁熻
+       // 模块统计
        @Query("SELECT p.module, COUNT(p) FROM Permission p GROUP BY p.module")
        List<Object[]> getModuleStats();
 
        @Query("SELECT p.module, COUNT(p) FROM Permission p WHERE p.isActive = true GROUP BY p.module")
        List<Object[]> getActiveModuleStats();
 
-       // 鏉冮檺绫诲瀷缁熻
+       // 权限类型统计
        @Query("SELECT p.permissionType, COUNT(p) FROM Permission p GROUP BY p.permissionType")
        List<Object[]> getTypeStats();
 
        @Query("SELECT p.permissionType, COUNT(p) FROM Permission p WHERE p.isActive = true GROUP BY p.permissionType")
        List<Object[]> getActiveTypeStats();
 
-       // 棰勫畾涔夋潈闄愭煡璇
+       // 预定义权限查询
        @Query("SELECT p FROM Permission p WHERE p.code IN :codes")
        List<Permission> findByCodes(@Param("codes") List<String> codes);
 
-       // 瑙掕壊鏉冮檺鐩稿叧鏌ヨ
+       // 角色权限相关查询
        @Query("SELECT p FROM Permission p JOIN p.roles r WHERE r.id = :roleId")
        List<Permission> findByRoleId(@Param("roleId") Long roleId);
 
@@ -102,12 +102,12 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
        @Query("SELECT DISTINCT p FROM Permission p JOIN p.roles r WHERE r.code IN :roleCodes")
        List<Permission> findByRoleCodes(@Param("roleCodes") List<String> roleCodes);
 
-       // 鏉冮檺妫€鏌
+       // 权限检查
        @Query("SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END FROM Permission p " +
                      "JOIN p.roles r WHERE p.code = :permissionCode AND r.code = :roleCode")
        boolean hasPermission(@Param("roleCode") String roleCode, @Param("permissionCode") String permissionCode);
 
-       // 鎺掑簭鏌ヨ
+       // 排序查询
        @Query("SELECT p FROM Permission p ORDER BY p.code")
        List<Permission> findAllOrderByCode();
 

@@ -40,13 +40,13 @@ public class FileReviewDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
-    // 缁熻淇℃伅
+    // 统计信息
     private long totalReviews;
     private long approvedCount;
     private long rejectedCount;
     private long revisionRequestedCount;
     private double approvalRate;
-    private double averageReviewTime; // 骞冲潎瀹℃牳鏃堕棿锛堝皬鏃讹級
+    private double averageReviewTime; // 平均审核时间（小时）
 }
 
 

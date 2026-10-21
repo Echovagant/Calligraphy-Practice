@@ -4,21 +4,21 @@ import java.util.List;
 
 public interface EmailService {
     
-    // 鐢ㄦ埛娉ㄥ唽鐩稿叧閭欢
+    // 用户注册相关邮件
     void sendRegistrationConfirmationEmail(String to, String username, String confirmationToken);
     
     void sendRegistrationWelcomeEmail(String to, String username);
     
     void sendRegistrationSuccessEmail(String to, String username);
     
-    // 瀵嗙爜閲嶇疆鐩稿叧閭欢
+    // 密码重置相关邮件
     void sendPasswordResetEmail(String to, String username, String resetToken);
     
     void sendPasswordChangeConfirmationEmail(String to, String username);
     
     void sendPasswordResetSuccessEmail(String to, String username);
     
-    // 璐︽埛瀹夊叏鐩稿叧閭欢
+    // 账户安全相关邮件
     void sendAccountLockedEmail(String to, String username);
     
     void sendAccountUnlockedEmail(String to, String username);
@@ -31,7 +31,7 @@ public interface EmailService {
     
     void sendTwoFactorAuthDisabledEmail(String to, String username);
     
-    // 绠＄悊鍛樼浉鍏抽偖浠?
+    // 管理员相关邮件 
     void sendAdminRegistrationEmail(String to, String username, String temporaryPassword);
     
     void sendAdminRoleAssignedEmail(String to, String username, String roleName);
@@ -42,7 +42,7 @@ public interface EmailService {
     
     void sendAdminAccountActivatedEmail(String to, String username);
     
-    // 鏂囦欢瀹℃牳鐩稿叧閭欢
+    // 文件审核相关邮件
     void sendFileUploadConfirmationEmail(String to, String username, String fileName);
     
     void sendFileApprovedEmail(String to, String username, String fileName, String fileType);
@@ -53,7 +53,7 @@ public interface EmailService {
     
     void sendFileReviewAssignedEmail(String to, String reviewerName, String fileName, String uploaderName);
     
-    // 浣滃搧鐩稿叧閭欢
+    // 作品相关邮件
     void sendWorkPublishedEmail(String to, String username, String workTitle);
     
     void sendWorkFeaturedEmail(String to, String username, String workTitle);
@@ -64,7 +64,7 @@ public interface EmailService {
     
     void sendWorkReportedEmail(String to, String moderatorName, String workTitle, String reporterName, String reason);
     
-    // 缁冧範鐩稿叧閭欢
+    // 练习相关邮件
     void sendPracticeReminderEmail(String to, String username, String practiceType, java.time.LocalDateTime scheduledTime);
     
     void sendPracticeAchievementEmail(String to, String username, String achievementName, String description);
@@ -79,7 +79,7 @@ public interface EmailService {
     
     void sendPracticeFeedbackEmail(String to, String username, String practiceTitle, String feedbackContent);
     
-    // 绯荤粺閫氱煡閭欢
+    // 系统通知邮件
     void sendSystemMaintenanceEmail(String to, String maintenanceType, java.time.LocalDateTime startTime, java.time.LocalDateTime endTime);
     
     void sendSystemUpdateEmail(String to, String username, String updateDescription);
@@ -92,35 +92,35 @@ public interface EmailService {
     
     void sendSystemNotificationEmail(String to, String subject, String content, java.util.Map<String, Object> templateData);
     
-    // 鎵归噺閭欢
+    // 批量邮件
     void sendBulkEmail(List<String> toList, String subject, String content);
     
     void sendBulkEmailWithTemplate(List<String> toList, String templateName, java.util.Map<String, Object> templateVariables);
     
     java.util.concurrent.CompletableFuture<Boolean> sendBulkEmail(List<String> toList, String subject, String content, java.util.Map<String, Object> templateData);
     
-    // 閭欢妯℃澘绠＄悊
+    // 邮件模板管理
     void sendEmailWithTemplate(String to, String subject, String templateName, java.util.Map<String, Object> templateVariables);
     
     void sendEmailWithHtmlTemplate(String to, String subject, String htmlTemplate, java.util.Map<String, Object> templateVariables);
     
     void sendEmailWithTextTemplate(String to, String subject, String textTemplate, java.util.Map<String, Object> templateVariables);
     
-    // 閭欢闃熷垪绠＄悊
+    // 邮件队列管理
     void sendEmailAsync(String to, String subject, String content);
     
     void sendEmailWithAttachment(String to, String subject, String content, String attachmentPath, String attachmentName);
     
     void sendEmailWithMultipleAttachments(String to, String subject, String content, java.util.List<java.util.Map<String, String>> attachments);
     
-    // 閭欢鐘舵€佽窡韪?
+    // 邮件状态跟踪 
     boolean isEmailSent(String messageId);
     boolean isEmailDelivered(String messageId);
     boolean isEmailOpened(String messageId);
     boolean isEmailClicked(String messageId);
     java.util.Map<String, Object> getEmailStatus(String messageId);
     
-    // 閭欢缁熻
+    // 邮件统计
     long getTotalEmailsSent();
     
     long getTotalEmailsDelivered();
@@ -147,7 +147,7 @@ public interface EmailService {
     
     double getEmailSuccessRate();
     
-    // 閭欢閰嶇疆
+    // 邮件配置
     void updateEmailConfiguration(String smtpHost, int smtpPort, String username, String password);
     
     void updateEmailConfiguration(java.util.Map<String, Object> configuration);
@@ -158,7 +158,7 @@ public interface EmailService {
     
     boolean isEmailServiceAvailable();
     
-    // 閭欢楠岃瘉
+    // 邮件验证
     boolean validateEmailAddress(String emailAddress);
     boolean isEmailBlacklisted(String emailAddress);
     void addToEmailBlacklist(String emailAddress);

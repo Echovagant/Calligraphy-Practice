@@ -44,7 +44,7 @@ public interface BackendUserRepository extends JpaRepository<BackendUser, String
     @Query("SELECT u FROM BackendUser u WHERE u.passwordChangedAt < :date")
     List<BackendUser> findUsersWithExpiredPasswords(@Param("date") LocalDateTime date);
     
-    // 缁熻鐩稿叧鏌ヨ
+    // 统计相关查询
     @Query("SELECT COUNT(u) FROM BackendUser u WHERE u.role = :role")
     long countByRole(@Param("role") BackendUser.BackendUserRole role);
     
@@ -57,7 +57,7 @@ public interface BackendUserRepository extends JpaRepository<BackendUser, String
     @Query("SELECT u.department, COUNT(u) FROM BackendUser u GROUP BY u.department")
     List<Object[]> getDepartmentStats();
     
-    // 鎼滅储鐩稿叧鏌ヨ
+    // 搜索相关查询
     @Query("SELECT u FROM BackendUser u WHERE " +
            "LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
            "LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +

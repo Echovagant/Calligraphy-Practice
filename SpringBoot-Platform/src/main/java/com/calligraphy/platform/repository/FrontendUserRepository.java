@@ -41,7 +41,7 @@ public interface FrontendUserRepository extends JpaRepository<FrontendUser, Stri
     @Query("SELECT COUNT(u) FROM FrontendUser u WHERE u.status = :status")
     long countByStatus(@Param("status") FrontendUser.FrontendUserStatus status);
     
-    // 缁熻鐩稿叧鏌ヨ
+    // 统计相关查询
     @Query("SELECT COUNT(u) FROM FrontendUser u WHERE u.createdAt >= :date")
     long countNewUsersSince(@Param("date") LocalDateTime date);
     
@@ -49,7 +49,7 @@ public interface FrontendUserRepository extends JpaRepository<FrontendUser, Stri
            "WHERE u.createdAt >= :startDate GROUP BY DATE(u.createdAt) ORDER BY date")
     List<Object[]> getUserRegistrationStats(@Param("startDate") LocalDateTime startDate);
     
-    // 鎼滅储鐩稿叧鏌ヨ
+    // 搜索相关查询
     @Query("SELECT u FROM FrontendUser u WHERE " +
            "LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
            "LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +

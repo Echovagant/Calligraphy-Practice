@@ -25,25 +25,25 @@ public class FrontendUserDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
-    // 缁熻淇℃伅
+    // 统计信息
     private long practiceCount;
     private long workCount;
     private long commentCount;
     private long totalLikesReceived;
     private long totalViewsReceived;
     
-    // 瑙掕壊淇℃伅
+    // 角色信息
     private List<String> roles;
     
-    // 娲诲姩淇℃伅
+    // 活动信息
     private LocalDateTime lastActivityAt;
     private String lastActivityType;
     
-    // 鏃犲弬鏋勯€犲櫒
+    // 无参构造器
     public FrontendUserDto() {
     }
     
-    // 鍏ㄥ弬鏋勯€犲櫒
+    // 全参构造器
     public FrontendUserDto(String userId, String username, String email, String nickname, String avatar, String phone, 
                           String bio, String preferences, User.UserStatus status, boolean isVerified, 
                           boolean isTwoFactorEnabled, LocalDateTime lastLoginAt, String lastLoginIp, 
@@ -78,7 +78,7 @@ public class FrontendUserDto {
         this.lastActivityType = lastActivityType;
     }
     
-    // Getter 鍜?Setter 方法
+    // Getter 和 Setter 方法
     public String getUserId() {
         return userId;
     }
@@ -279,7 +279,7 @@ public class FrontendUserDto {
         this.lastActivityType = lastActivityType;
     }
     
-    // Builder 绫
+    // Builder 类
     public static class Builder {
         private String userId;
         private String username;

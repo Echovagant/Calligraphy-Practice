@@ -30,7 +30,7 @@ public class Comment {
     @Column(name = "id", nullable = false)
     private Long id;
     
-    @NotBlank(message = "璇勮鍐呭涓嶈兘涓虹┖")
+    @NotBlank(message = "评论内容不能为空")
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
     
@@ -83,7 +83,7 @@ public class Comment {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
-    // 鐘舵€佹灇涓
+    // 状态枚举
     public enum CommentStatus {
         PENDING, APPROVED, REJECTED, DELETED
     }
@@ -135,7 +135,7 @@ public class Comment {
         return CommentStatus.PENDING.equals(this.status);
     }
     
-    // 娣诲姞缂哄皯鐨刧etter鍜宻etter方法
+    // 添加缺少的getter和setter方法
     public Long getId() {
         return id;
     }

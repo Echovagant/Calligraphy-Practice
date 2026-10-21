@@ -27,7 +27,7 @@ public class SystemConfigServiceImpl implements SystemConfigService {
 
     private final SystemConfigRepository systemConfigRepository;
 
-    // 手动实现DTO杞崲
+    // 手动实现DTO转换
     private SystemConfigDto toDto(SystemConfig config) {
         SystemConfigDto dto = new SystemConfigDto();
         dto.setConfigKey(config.getConfigKey());
@@ -46,11 +46,11 @@ public class SystemConfigServiceImpl implements SystemConfigService {
     @Transactional
     @CacheEvict(value = "systemConfig", key = "#updateRequest.configKey")
     public SystemConfigDto updateConfig(SystemConfigUpdateRequestDto updateRequest, String updatedBy) {
-        log.info("更新系统配置: key={}, 鏇存柊鑰?{}", updateRequest.getConfigKey(), updatedBy);
+        log.info("更新系统配置: key={}, 更新者={}", updateRequest.getConfigKey(), updatedBy);
 
         SystemConfig config = systemConfigRepository.findByConfigKey(updateRequest.getConfigKey())
                 .orElseGet(() -> {
-                    // 濡傛灉閰嶇疆涓嶅瓨鍦紝鍒涘缓鏂扮殑閰嶇疆
+                    // 如果配置不存在，创建新的配置
                     SystemConfig newConfig = new SystemConfig();
                     newConfig.setConfigKey(updateRequest.getConfigKey());
                     newConfig.setConfigValue(updateRequest.getConfigValue());
@@ -66,7 +66,7 @@ public class SystemConfigServiceImpl implements SystemConfigService {
                     return newConfig;
                 });
 
-        // 鏇存柊閰嶇疆鍊
+        // 更新配置值
         if (updateRequest.getConfigValue() != null) {
             config.setConfigValue(updateRequest.getConfigValue());
         }
@@ -94,10 +94,10 @@ public class SystemConfigServiceImpl implements SystemConfigService {
         log.info("删除系统配置: key={}", configKey);
 
         SystemConfig config = systemConfigRepository.findByConfigKey(configKey)
-                .orElseThrow(() -> new ResourceNotFoundException("绯荤粺閰嶇疆涓嶅瓨鍦? " + configKey));
+                .orElseThrow(() -> new ResourceNotFoundException("系统配置不存在: " + configKey));
 
         if (!config.getIsEditable()) {
-            throw new SecurityException("璇ラ厤缃」涓嶅厑璁稿垹闄");
+            throw new SecurityException("该配置项不允许删除");
         }
 
         systemConfigRepository.delete(config);
@@ -107,7 +107,7 @@ public class SystemConfigServiceImpl implements SystemConfigService {
     @Cacheable(value = "systemConfig", key = "#configKey")
     public SystemConfigDto getConfig(String configKey) {
         SystemConfig config = systemConfigRepository.findByConfigKey(configKey)
-                .orElseThrow(() -> new ResourceNotFoundException("绯荤粺閰嶇疆涓嶅瓨鍦? " + configKey));
+                .orElseThrow(() -> new ResourceNotFoundException("系统配置不存在: " + configKey));
 
         return toDto(config);
     }
@@ -123,7 +123,7 @@ public class SystemConfigServiceImpl implements SystemConfigService {
     @Cacheable(value = "systemConfig", key = "#configKey + '_value'")
     public String getConfigValue(String configKey) {
         SystemConfig config = systemConfigRepository.findByConfigKey(configKey)
-                .orElseThrow(() -> new ResourceNotFoundException("绯荤粺閰嶇疆涓嶅瓨鍦? " + configKey));
+                .orElseThrow(() -> new ResourceNotFoundException("系统配置不存在: " + configKey));
 
         return config.getConfigValue();
     }
@@ -134,8 +134,8 @@ public class SystemConfigServiceImpl implements SystemConfigService {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            log.error("閰嶇疆鍊艰浆鎹㈡暣鏁板け璐? key={}, value={}", configKey, value);
-            throw new IllegalArgumentException("閰嶇疆鍊间笉鏄湁鏁堢殑鏁存暟: " + configKey);
+            log.error("配置值转换整数失败: key={}, value={}", configKey, value);
+            throw new IllegalArgumentException("配置值不是有效的整数: " + configKey);
         }
     }
     @Override
@@ -152,20 +152,20 @@ public class SystemConfigServiceImpl implements SystemConfigService {
             return Long.parseLong(value);
         } catch (NumberFormatException e) {
             log.error("配置值转换长整数失败: key={}, value={}", configKey, value);
-            throw new IllegalArgumentException("閰嶇疆鍊间笉鏄湁鏁堢殑闀挎暣鏁? " + configKey);
+            throw new IllegalArgumentException("配置值不是有效的长整数: " + configKey);
         }
     }
     @Override
     @Transactional
     @CacheEvict(value = "systemConfig", allEntries = true)
     public void batchUpdateConfigs(List<SystemConfigUpdateRequestDto> updateRequests, String updatedBy) {
-        log.info("批量更新系统配置: 数量={}, 鏇存柊鑰?{}", updateRequests.size(), updatedBy);
+        log.info("批量更新系统配置: 数量={}, 更新者={}", updateRequests.size(), updatedBy);
 
         for (SystemConfigUpdateRequestDto updateRequest : updateRequests) {
             try {
                 updateConfig(updateRequest, updatedBy);
             } catch (Exception e) {
-                log.error("更新配置失败: key={}, 閿欒={}", updateRequest.getConfigKey(), e.getMessage());
+                log.error("更新配置失败: key={}, 错误={}", updateRequest.getConfigKey(), e.getMessage());
                 throw new RuntimeException("更新配置失败: " + updateRequest.getConfigKey());
             }
         }
@@ -189,13 +189,13 @@ public class SystemConfigServiceImpl implements SystemConfigService {
     @Override
     @Transactional
     public void resetConfigToDefault(String configKey, String defaultValue, String updatedBy) {
-        log.info("閲嶇疆绯荤粺閰嶇疆鍒伴粯璁ゅ€? key={}, 鏇存柊鑰?{}", configKey, updatedBy);
+        log.info("重置系统配置到默认值: key={}, 更新者={}", configKey, updatedBy);
 
         SystemConfig config = systemConfigRepository.findByConfigKey(configKey)
-                .orElseThrow(() -> new ResourceNotFoundException("绯荤粺閰嶇疆涓嶅瓨鍦? " + configKey));
+                .orElseThrow(() -> new ResourceNotFoundException("系统配置不存在: " + configKey));
 
         if (!config.getIsEditable()) {
-            throw new SecurityException("璇ラ厤缃」涓嶅厑璁搁噸缃");
+            throw new SecurityException("该配置项不允许重置");
         }
 
         config.setConfigValue(defaultValue);
@@ -206,7 +206,7 @@ public class SystemConfigServiceImpl implements SystemConfigService {
         log.info("系统配置重置成功: key={}", configKey);
     }
 
-    // ===== SystemConfigService 鎺ュ彛鏂规硶瀹炵幇锛圡ap缁撴瀯锛?=====
+    // ===== SystemConfigService 接口方法实现（Map结构）======
     @Override
     public String getConfigValue(String key, String defaultValue) {
         return systemConfigRepository.findByConfigKey(key)
@@ -325,58 +325,58 @@ public class SystemConfigServiceImpl implements SystemConfigService {
     @Transactional
     @CacheEvict(value = "systemConfig", allEntries = true)
     public void initializeDefaultConfigs() {
-        log.info("鍒濆鍖栭粯璁ょ郴缁熼厤缃");
+        log.info("初始化默认系统配置");
 
         // 网站基本配置
-        createDefaultConfigIfNotExists("site.name", "涔︽硶缁冧範骞冲彴", "缃戠珯鍚嶇О", "STRING", false);
-        createDefaultConfigIfNotExists("site.description", "涓撲笟鐨勪功娉曠粌涔犲钩鍙", "网站描述", "STRING", false);
-        createDefaultConfigIfNotExists("site.keywords", "涔︽硶,练习,姣涚瑪瀛?纭瑪瀛?, "缃戠珯鍏抽敭璇?, "STRING", true);
+        createDefaultConfigIfNotExists("site.name", "书法练习平台", "网站名称", "STRING", false);
+        createDefaultConfigIfNotExists("site.description", "专业的书法练习平台", "网站描述", "STRING", false);
+        createDefaultConfigIfNotExists("site.keywords", "书法,练习,毛笔字,硬笔字", "网站关键词", "STRING", true);
         createDefaultConfigIfNotExists("site.logo", "/assets/logo.png", "网站Logo", "STRING", true);
         createDefaultConfigIfNotExists("site.favicon", "/assets/favicon.ico", "网站图标", "STRING", true);
 
         // 用户相关配置
-        createDefaultConfigIfNotExists("user.registration.enabled", "true", "鏄惁鍏佽用户注册", "BOOLEAN", true);
-        createDefaultConfigIfNotExists("user.email.verification.required", "false", "鏄惁闇€瑕侀偖绠遍獙璇", "BOOLEAN", true);
-        createDefaultConfigIfNotExists("user.avatar.default", "/assets/default-avatar.png", "榛樿头像", "STRING", true);
-        createDefaultConfigIfNotExists("user.password.min.length", "6", "瀵嗙爜鏈€灏忛暱搴", "INTEGER", true);
-        createDefaultConfigIfNotExists("user.login.max.attempts", "5", "鐧诲綍鏈€澶у皾璇曟鏁", "INTEGER", true);
+        createDefaultConfigIfNotExists("user.registration.enabled", "true", "是否允许用户注册", "BOOLEAN", true);
+        createDefaultConfigIfNotExists("user.email.verification.required", "false", "是否需要邮箱验证", "BOOLEAN", true);
+        createDefaultConfigIfNotExists("user.avatar.default", "/assets/default-avatar.png", "默认头像", "STRING", true);
+        createDefaultConfigIfNotExists("user.password.min.length", "6", "密码最小长度", "INTEGER", true);
+        createDefaultConfigIfNotExists("user.login.max.attempts", "5", "登录最大尝试次数", "INTEGER", true);
 
         // 作品相关配置
-        createDefaultConfigIfNotExists("work.upload.enabled", "true", "鏄惁鍏佽上传作品", "BOOLEAN", true);
-        createDefaultConfigIfNotExists("work.upload.max.size", "10485760", "浣滃搧涓婁紶鏈€澶уぇ灏?字节)", "LONG", true); // 10MB
-        createDefaultConfigIfNotExists("work.upload.allowed.types", "jpg,jpeg,png,gif,pdf", "鍏佽涓婁紶鐨勬枃浠剁被鍨", "STRING",
+        createDefaultConfigIfNotExists("work.upload.enabled", "true", "是否允许上传作品", "BOOLEAN", true);
+        createDefaultConfigIfNotExists("work.upload.max.size", "10485760", "作品上传最大大小(字节)", "LONG", true); // 10MB
+        createDefaultConfigIfNotExists("work.upload.allowed.types", "jpg,jpeg,png,gif,pdf", "允许上传的文件类型", "STRING",
                 true);
-        createDefaultConfigIfNotExists("work.auto.approve", "true", "浣滃搧鏄惁鑷姩瀹℃牳閫氳繃", "BOOLEAN", true);
-        createDefaultConfigIfNotExists("work.comment.enabled", "true", "鏄惁鍏佽璇勮作品", "BOOLEAN", true);
+        createDefaultConfigIfNotExists("work.auto.approve", "true", "作品是否自动审核通过", "BOOLEAN", true);
+        createDefaultConfigIfNotExists("work.comment.enabled", "true", "是否允许评论作品", "BOOLEAN", true);
 
-        // 瀹℃牳鐩稿叧閰嶇疆
-        createDefaultConfigIfNotExists("audit.work.enabled", "true", "鏄惁鍚敤浣滃搧瀹℃牳", "BOOLEAN", true);
-        createDefaultConfigIfNotExists("audit.comment.enabled", "true", "鏄惁鍚敤璇勮瀹℃牳", "BOOLEAN", true);
-        createDefaultConfigIfNotExists("audit.auto.approve.threshold", "10", "鑷姩瀹℃牳閫氳繃闃堝€", "INTEGER", true);
+        // 审核相关配置
+        createDefaultConfigIfNotExists("audit.work.enabled", "true", "是否启用作品审核", "BOOLEAN", true);
+        createDefaultConfigIfNotExists("audit.comment.enabled", "true", "是否启用评论审核", "BOOLEAN", true);
+        createDefaultConfigIfNotExists("audit.auto.approve.threshold", "10", "自动审核通过阈值", "INTEGER", true);
 
         // 存储相关配置
         createDefaultConfigIfNotExists("storage.type", "local", "存储类型(local,aliyun,qiniu)", "STRING", true);
-        createDefaultConfigIfNotExists("storage.local.path", "/uploads/", "鏈湴瀛樺偍璺緞", "STRING", true);
-        createDefaultConfigIfNotExists("storage.cdn.enabled", "false", "鏄惁鍚敤CDN", "BOOLEAN", true);
+        createDefaultConfigIfNotExists("storage.local.path", "/uploads/", "本地存储路径", "STRING", true);
+        createDefaultConfigIfNotExists("storage.cdn.enabled", "false", "是否启用CDN", "BOOLEAN", true);
         createDefaultConfigIfNotExists("storage.cdn.domain", "", "CDN域名", "STRING", true);
 
         // JWT配置
-        createDefaultConfigIfNotExists("jwt.user.expiration", "86400", "用户JWT过期时间(绉?", "LONG", true); // 24小时
-        createDefaultConfigIfNotExists("jwt.admin.expiration", "3600", "绠＄悊鍛楯WT过期时间(绉?", "LONG", true); // 1小时
-        createDefaultConfigIfNotExists("jwt.refresh.expiration", "604800", "刷新令牌过期时间(绉?", "LONG", true); // 7澶?
-        // 閭欢閰嶇疆
-        createDefaultConfigIfNotExists("email.enabled", "false", "鏄惁鍚敤閭欢鏈嶅姟", "BOOLEAN", true);
-        createDefaultConfigIfNotExists("email.smtp.host", "", "SMTP鏈嶅姟鍣ㄥ湴鍧€", "STRING", true);
-        createDefaultConfigIfNotExists("email.smtp.port", "587", "SMTP鏈嶅姟鍣ㄧ鍙", "INTEGER", true);
-        createDefaultConfigIfNotExists("email.smtp.username", "", "SMTP鐢ㄦ埛鍚", "STRING", true);
+        createDefaultConfigIfNotExists("jwt.user.expiration", "86400", "用户JWT过期时间(秒)", "LONG", true); // 24小时
+        createDefaultConfigIfNotExists("jwt.admin.expiration", "3600", "管理员JWT过期时间(秒)", "LONG", true); // 1小时
+        createDefaultConfigIfNotExists("jwt.refresh.expiration", "604800", "刷新令牌过期时间(秒)", "LONG", true); // 7天 
+        // 邮件配置
+        createDefaultConfigIfNotExists("email.enabled", "false", "是否启用邮件服务", "BOOLEAN", true);
+        createDefaultConfigIfNotExists("email.smtp.host", "", "SMTP服务器地址", "STRING", true);
+        createDefaultConfigIfNotExists("email.smtp.port", "587", "SMTP服务器端口", "INTEGER", true);
+        createDefaultConfigIfNotExists("email.smtp.username", "", "SMTP用户名", "STRING", true);
         createDefaultConfigIfNotExists("email.smtp.password", "", "SMTP密码", "STRING", true);
-        createDefaultConfigIfNotExists("email.from.address", "", "鍙戜欢浜洪偖绠", "STRING", true);
+        createDefaultConfigIfNotExists("email.from.address", "", "发件人邮箱", "STRING", true);
 
         // 分页配置
-        createDefaultConfigIfNotExists("pagination.default.size", "20", "榛樿鍒嗛〉澶у皬", "INTEGER", true);
-        createDefaultConfigIfNotExists("pagination.max.size", "100", "鏈€澶у垎椤靛ぇ灏", "INTEGER", true);
+        createDefaultConfigIfNotExists("pagination.default.size", "20", "默认分页大小", "INTEGER", true);
+        createDefaultConfigIfNotExists("pagination.max.size", "100", "最大分页大小", "INTEGER", true);
 
-        log.info("榛樿绯荤粺閰嶇疆鍒濆鍖栧畬鎴");
+        log.info("默认系统配置初始化完成");
     }
 
     private void createDefaultConfigIfNotExists(String configKey, String defaultValue, String description,
@@ -393,7 +393,7 @@ public class SystemConfigServiceImpl implements SystemConfigService {
             config.setUpdatedBy("system");
 
             systemConfigRepository.save(config);
-            log.info("鍒涘缓榛樿配置: key={}, value={}", configKey, defaultValue);
+            log.info("创建默认配置: key={}, value={}", configKey, defaultValue);
         }
     }
 }
