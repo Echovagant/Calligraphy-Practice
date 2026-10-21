@@ -56,8 +56,16 @@ import re
 import sys
 
 CJK_RUN = re.compile(r"[\u3000-\u9fff\uff00-\uffef]+")
-CJK_ONLY = re.compile(
-    r"^[\u3000-\u9fff\u2018\u2019\u201c\u201d\u3001\u3002\uff01\uff0c"
+# A mojibake run, and the text it decodes back to, must both look like real
+# CJK text.  Besides the CJK block the fullwidth forms (U+FF00..U+FFEF) and
+# the kana and Bopomofo ranges show up in mojibake, because the GBK decoder
+# produced them out of the bytes of the original text.  ASCII letters belong
+# to the set as well: the run "\u934d\u5b72" decodes back to "\u548cS", the
+# "S" of "Setter", and "\u5a23\u8bf2\u59de\u7f02\u54c4\u76af\u9428\u5227" decodes
+# back to "\u6dfb\u52a0\u7f3a\u5c11\u7684g".
+MOJIBAKE_TEXT = re.compile(
+    r"^[\u3000-\u9fff\u3040-\u30ff\u3100-\u312f\uff00-\uffef"
+    r"A-Za-z\u2018\u2019\u201c\u201d\u3001\u3002\uff01\uff0c"
     r"\uff1a\uff1b\uff08\uff09\u00b7\u2014\-\s]+$"
 )
 # a '?' immediately followed by one of these means a swallowed code statement
@@ -116,10 +124,10 @@ def guarded_roundtrip(run):
     if fixed == run:
         return None
     # both sides must look like real CJK text, else it is a false positive
-    if not CJK_ONLY.match(fixed) or not CJK_ONLY.match(run):
+    if not MOJIBAKE_TEXT.match(fixed) or not MOJIBAKE_TEXT.match(run):
         return None
     # a round trip that lands in the C1 range (U+0080..U+00FF) is a false
-    # positive: U+8DEF decodes back to U+00B7, U+807F to U+0085, U+8046 to
+    # positive: U+8DEF decodes back to U+00B7, U+805F to U+0085, U+807D to
     # U+00A0, ...  Keep this file pure ASCII so the GBK console can never
     # choke on a stray byte.
     for ch in fixed:
@@ -566,15 +574,17 @@ def cmd_selftest(args):
     check(restore_runs(run) == fixed, "rule A restore_runs failed")
 
     # 3. rule A must reject a round trip that lands in the C1 range
-    for word in ("\u807f", "\u8046", "\u8def"):
+    for word in ("\u805f", "\u807d", "\u8def"):
         candidate = None
         try:
             candidate = word.encode("gbk").decode("utf-8")
         except (UnicodeEncodeError, UnicodeDecodeError):
             candidate = None
-        if candidate is not None and any(0x80 <= ord(c) <= 0xFF for c in candidate):
-            check(guarded_roundtrip(word) is None,
-                  f"C1 guard failed on {word!r} -> {candidate!r}")
+        check(candidate is not None
+              and any(0x80 <= ord(c) <= 0xFF for c in candidate),
+              f"the C1 sample {word!r} no longer lands in the C1 range")
+        check(guarded_roundtrip(word) is None,
+              f"C1 guard failed on {word!r} -> {candidate!r}")
 
     # 4. rule C: a // comment that swallowed a statement
     line = "private int a = 1; // 7\u6fb6?    private String header = \"X\";"
@@ -655,6 +665,18 @@ def cmd_selftest(args):
     line = "        // \u8bc4\u5206\u8303\u56f4?1-10"
     repaired, _ = repair_line(line, LexerState())
     check(repaired == line, f"a same-line '?' was split: {repaired!r}")
+
+    # 17. the guard must see the mojibake classes it used to miss: a run
+    #     that holds a fullwidth form, and a run that decodes back to a
+    #     word with an ASCII letter in it
+    for run, expected in (
+            ("\u7ee0\uff04\u608a", "\u7ba1\u7406"),
+            ("\u7459\uff46\u703d", "\u89e3\u6790"),
+            ("\u5a23\u8bf2\u59de\u7f02\u54c4\u76af\u9428\u5227",
+             "\u6dfb\u52a0\u7f3a\u5c11\u7684g"),
+            ("\u935c\u5b72", "\u548cS")):
+        check(guarded_roundtrip(run) == expected,
+              f"the widened guard missed {run!r}: {guarded_roundtrip(run)!r}")
 
     if failures:
         for f in failures:

@@ -41,7 +41,7 @@ public interface JwtService {
     
     String getUsernameFromAdminToken(String token);
     
-    // JWT瑙ｆ瀽
+    // JWT解析
     String extractUserId(String token);
     
     String extractUserType(String token);
@@ -69,7 +69,7 @@ public interface JwtService {
     
     void setJwtSecret(String secret);
     
-    // 浠ょ墝绠＄悊
+    // 令牌管理
     void invalidateToken(String token);
     
     void invalidateUserTokens(String userId);
@@ -106,7 +106,7 @@ public interface JwtService {
     
     List<String> getUserDeviceTokens(String userId, String deviceId);
     
-    // IP鍦板潃绠＄悊
+    // IP地址管理
     void associateTokenWithIp(String token, String ipAddress);
     
     void disassociateTokenFromIp(String token);
@@ -115,7 +115,7 @@ public interface JwtService {
     
     boolean isTokenIpConsistent(String token, String currentIp);
     
-    // 浼氳瘽绠＄悊
+    // 会话管理
     void createTokenSession(String token, String sessionId);
     
     void terminateTokenSession(String token);
@@ -149,7 +149,7 @@ public interface JwtService {
     
     long getInvalidatedTokenCount();
     
-    // 閰嶇疆绠＄悊
+    // 配置管理
     void reloadConfiguration();
     
     java.util.Map<String, Object> getConfiguration();

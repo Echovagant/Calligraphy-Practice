@@ -142,7 +142,7 @@ public class FrontendUser {
         return FrontendUserRole.PREMIUM_USER.equals(this.role);
     }
     
-    // Getter鍜孲etter方法
+    // Getter和Setter方法
     public String getId() {
         return id;
     }

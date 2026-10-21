@@ -357,7 +357,7 @@ public class User implements UserDetails {
         this.updatedAt = updatedAt;
     }
 
-    // 娣诲姞缂哄皯鐨刧etter鍜宻etter方法
+    // 添加缺少的getter和setter方法
     public String getNickname() {
         return nickname;
     }

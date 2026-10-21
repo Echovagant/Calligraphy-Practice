@@ -420,7 +420,7 @@ public class WorkServiceImpl implements WorkService {
                 .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
         BackendUser reviewer = backendUserRepository.findByUsername(adminUsername)
-                .orElseThrow(() -> new SecurityException("绠＄悊鍛樹笉瀛樺湪鎴栨棤鏉冮檺: " + adminUsername));
+                .orElseThrow(() -> new SecurityException("管理员不存在或无权限: " + adminUsername));
 
         work.approve(reviewer, "审核通过");
         Work updated = workRepository.save(work);
@@ -435,7 +435,7 @@ public class WorkServiceImpl implements WorkService {
                 .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
         BackendUser reviewer = backendUserRepository.findByUsername(adminUsername)
-                .orElseThrow(() -> new SecurityException("绠＄悊鍛樹笉瀛樺湪鎴栨棤鏉冮檺: " + adminUsername));
+                .orElseThrow(() -> new SecurityException("管理员不存在或无权限: " + adminUsername));
 
         work.reject(reviewer, reason != null ? reason : "审核拒绝");
         Work updated = workRepository.save(work);

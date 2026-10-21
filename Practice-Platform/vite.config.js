@@ -20,11 +20,11 @@ export default defineConfig(async ({ mode }) => ({
   ].filter(Boolean),
   server: {
     host: '0.0.0.0',
-    port: 5173,
+    port: 5174,
     open: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:8083',
         changeOrigin: true
       }
     }

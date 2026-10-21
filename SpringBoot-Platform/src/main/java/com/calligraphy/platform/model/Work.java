@@ -182,7 +182,7 @@ public class Work {
                ReviewStatus.NEEDS_REVISION.equals(this.reviewStatus);
     }
     
-    // 娣诲姞缂哄皯鐨刧etter鍜宻etter方法
+    // 添加缺少的getter和setter方法
     public Long getId() {
         return id;
     }

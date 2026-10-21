@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * JWT配置属性类
- * 鐢ㄤ簬闆嗕腑绠＄悊JWT相关配置参数
+ * 用于集中管理JWT相关配置参数
  */
 @Component
 @ConfigurationProperties(prefix = "jwt")
