@@ -38,8 +38,8 @@ public class PracticeRecord {
     @Column(name = "user_id", length = 36, nullable = false, insertable = false, updatable = false)
     private String userId;
     
-    @Column(name = "copybook_id")
-    private Long copybookId;
+    @Column(name = "copybook_id", length = 36)
+    private String copybookId;
     
     @Size(max = 100, message = "字帖标题长度不能超过100个字符")
     @Column(name = "copybook_title", length = 100)
