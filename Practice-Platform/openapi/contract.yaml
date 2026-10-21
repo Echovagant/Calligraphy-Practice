@@ -1041,6 +1041,42 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+  /api/admin/works/pending:
+    get:
+      operationId: adminPendingWorks
+      summary: 待审核的作品列表
+      description: >
+        需要 ADMIN 或 SUPER_ADMIN 角色。待审核 = review_status 为 PENDING（还没审）
+        或 NEEDS_REVISION（作者改过、等复审），对应实体 Work.canBeReviewed()。
+        没有这个端点的话，后台的「作品审核」只能看到已发布且已审核通过的作品 ——
+        待审队列根本取不到，审核功能等于废的。
+      tags:
+        - works
+      x-frontend-call: adminAPI.getPendingWorks
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 分页后的待审核作品
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
   /api/discussions:
     get:
       operationId: discussionList

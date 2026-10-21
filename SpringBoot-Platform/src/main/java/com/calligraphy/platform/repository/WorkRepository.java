@@ -72,7 +72,13 @@ public interface WorkRepository extends JpaRepository<Work, Long> {
     // 待审核作品查询
     @Query("SELECT w FROM Work w WHERE w.reviewStatus = :pending OR w.reviewStatus = :needsRevision ORDER BY w.createdAt ASC")
     List<Work> findWorksNeedingReview(@Param("pending") Work.ReviewStatus pending, @Param("needsRevision") Work.ReviewStatus needsRevision);
-    
+
+    // 待审核作品查询（分页）—— 后台「作品审核」列表用
+    @Query("SELECT w FROM Work w WHERE w.reviewStatus = :pending OR w.reviewStatus = :needsRevision ORDER BY w.createdAt ASC")
+    Page<Work> findWorksNeedingReview(@Param("pending") Work.ReviewStatus pending,
+                                     @Param("needsRevision") Work.ReviewStatus needsRevision,
+                                     org.springframework.data.domain.Pageable pageable);
+
     @Query("SELECT w FROM Work w WHERE w.status = :status AND w.reviewStatus = :reviewStatus")
     Page<Work> findByStatusAndReviewStatus(@Param("status") Work.WorkStatus status, @Param("reviewStatus") Work.ReviewStatus reviewStatus, org.springframework.data.domain.Pageable pageable);
     

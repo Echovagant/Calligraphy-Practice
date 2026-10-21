@@ -96,7 +96,18 @@ public interface WorkService {
     WorkDto removeFileFromWork(Long workId, String fileUrl);
     
     List<WorkDto> getWorksPendingReview();
-    
+
+    /**
+     * 待审核作品（分页）—— 后台「作品审核」列表用。
+     *
+     * <p>待审核 = review_status 为 PENDING（还没审）或 NEEDS_REVISION（作者改过、等复审），
+     * 与实体 {@code Work.canBeReviewed()} 一致。
+     *
+     * <p>公开画廊只返回已发布且已审核通过的作品，所以后台要看到待审队列
+     * **必须**有这个查询 —— 少了它审核功能等于废的。
+     */
+    Page<WorkDto> getPendingReviewWorks(Pageable pageable);
+
     List<WorkDto> getWorksByReviewerId(String reviewerId);
     
     long getPendingReviewCount();

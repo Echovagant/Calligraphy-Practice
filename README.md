@@ -5,9 +5,10 @@
 前端 `Practice-Platform/`（Vue 3 + Vite 7 + Element Plus + Pinia + fabric.js），
 后端 `SpringBoot-Platform/`（Spring Boot 3.2.5 / JDK 17 / MySQL 8 / Redis）。
 
-> 项目当前处于**契约对齐阶段**（spec §8 的 P0–P7）。**P0–P6 已完成** ——
-> 契约里的 **53 个端点全部实现完毕**，前端也全部接到真实后端
+> 项目当前处于**契约对齐阶段**（spec §8 的 P0–P8）。**P0–P8 已完成** ——
+> 契约里的 **54 个端点全部实现完毕**，前端也全部接到真实后端
 > （`npm run contract:check` 现为 violations 0 / gaps 0 / warnings 0）。
+> 回归基线：136 项后端测试 + 194 项活体检查全绿。
 > 完整进度见 [`docs/api-contract.md`](docs/api-contract.md) §6。
 
 ---
@@ -97,7 +98,7 @@ UPDATE users SET role='SUPER_ADMIN' WHERE username='你的用户名';
 ## 3. API 契约
 
 - **权威文件**：[`Practice-Platform/openapi/contract.yaml`](Practice-Platform/openapi/contract.yaml)
-  （OpenAPI 3.1，53 个 operation）
+  （OpenAPI 3.1，54 个 operation）
 - **人读版**：[`docs/api-contract.md`](docs/api-contract.md)
 - **一致性检查**：
 

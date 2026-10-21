@@ -4,7 +4,7 @@
 Spring Data JPA / MySQL 8 / Redis / MapStruct / Lombok。
 
 > **权威文档在仓库根目录**，本文件只讲后端自己。
-> - 契约（唯一权威）：[`../Practice-Platform/openapi/contract.yaml`](../Practice-Platform/openapi/contract.yaml)，53 个 operation
+> - 契约（唯一权威）：[`../Practice-Platform/openapi/contract.yaml`](../Practice-Platform/openapi/contract.yaml)，54 个 operation
 > - 人读版契约：[`../docs/api-contract.md`](../docs/api-contract.md)
 > - 完整运行指南：[`../README.md`](../README.md)
 
@@ -96,7 +96,7 @@ IllegalStateException: JWT 密钥未配置。请设置环境变量 JWT_SECRET，
 
 ---
 
-## 4. 端点（53 个，全部已实现）
+## 4. 端点（54 个，全部已实现）
 
 以 `openapi/contract.yaml` 为准，这里只列分组与鉴权：
 
@@ -109,6 +109,7 @@ IllegalStateException: JWT 密钥未配置。请设置环境变量 JWT_SECRET，
 | `/api/community/comments*` | 4 | 按作品查公开，其余要令牌 |
 | `/api/discussions*` | 14 | 浏览公开，写操作要令牌 |
 | `/api/admin/file-reviews*` | 7 | **需要 ADMIN / SUPER_ADMIN** |
+| `/api/admin/works/pending` | 1 | 待审队列，**需要 ADMIN / SUPER_ADMIN** |
 | `/api/stats/overview` | 1 | 公开 |
 
 **响应形状**（见契约 §1.1）：

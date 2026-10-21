@@ -562,6 +562,13 @@ public class WorkServiceImpl implements WorkService {
                 .map(workMapper::toDto)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public Page<WorkDto> getPendingReviewWorks(Pageable pageable) {
+        return workRepository
+                .findWorksNeedingReview(Work.ReviewStatus.PENDING, Work.ReviewStatus.NEEDS_REVISION, pageable)
+                .map(workMapper::toDto);
+    }
     @Override
     public List<WorkDto> getWorksByReviewerId(String reviewerId) {
         List<Work> works = workRepository.findByReviewerId(reviewerId);

@@ -35,6 +35,11 @@ const removeSessionStorage = (key) => {
   }
 };
 
+// 恢复登录态的 promise。
+// App.vue 的 onMounted 与路由守卫可能在同一时刻都要求「恢复登录态」，
+// 不加这个闸门就会并发打两次 profile，第二次的结果可能覆盖第一次。
+let initPromise = null;
+
 export const useUserStore = defineStore('user', {
   state: () => ({
     // 用户信息
@@ -49,6 +54,10 @@ export const useUserStore = defineStore('user', {
     lastActivityTime: Date.now(),
     // 用户信息加载状态
     userInfoLoaded: false,
+    // 是否已尝试从本地存储恢复登录态。
+    // 路由守卫要等这个过程完成才能判断「是否已登录」——
+    // 刷新页面时 Pinia 状态是空的，不等它恢复完，受保护页面一律被踢去登录页。
+    initialized: false,
     // 用户类型（USER/ADMIN）
     userType: USER_TYPES.FRONTEND
   }),
@@ -457,7 +466,30 @@ export const useUserStore = defineStore('user', {
     },
 
     // 从本地存储恢复用户信息
+    //
+    // 对外只暴露这个入口，它负责三件事：
+    //   1. 幂等 —— 恢复过了就直接返回，路由守卫每次导航都调它也不重复拉 profile；
+    //   2. 并发安全 —— 正在恢复中就复用同一个 promise，不并发打两次接口；
+    //   3. 一定会把 initialized 置 true —— 守卫靠它决定「还要不要等」。
     async initUserFromStorage() {
+      if (this.initialized) return;
+      if (!initPromise) {
+        initPromise = this.restoreUserFromStorage()
+          .catch((error) => {
+            console.error('恢复登录态失败:', error);
+          })
+          .finally(() => {
+            // 无论成没成都标记「已尝试过恢复」——
+            // 路由守卫靠它决定要不要等，避免每次导航都重新拉一次。
+            this.initialized = true;
+            initPromise = null;
+          });
+      }
+      return initPromise;
+    },
+
+    // 恢复用户信息的实际逻辑
+    async restoreUserFromStorage() {
       // 检查是否有token（用 api.js 的读法 —— 令牌存的是裸串）
       const token = getToken();
 
@@ -468,7 +500,7 @@ export const useUserStore = defineStore('user', {
         const storedUserType = getUserType();
         this.userType = storedUserType;
         setUserType(storedUserType);
-        
+
         // 有token，尝试获取用户信息
         await this.fetchUserProfile();
       } else {

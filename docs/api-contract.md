@@ -96,7 +96,7 @@
 `BackendUserService` 更是**连实现类都没有**。本期一律不碰；
 将来若要合并，是一次独立的重构。
 
-## 2. 端点清单（53 个）
+## 2. 端点清单（54 个）
 
 | Method | Path | operationId | 说明 | 鉴权 | 前端调用 |
 |---|---|---|---|---|---|
@@ -138,6 +138,7 @@
 | GET | `/api/admin/file-reviews/{reviewId}` | `fileReviewGetById` | 审核记录详情 | 管理员 | `fileReviewsAPI.getReviewById` |
 | PUT | `/api/admin/file-reviews/{reviewId}` | `fileReviewUpdate` | 更新审核结论 | 管理员 | `fileReviewsAPI.updateReview` |
 | DELETE | `/api/admin/file-reviews/{reviewId}` | `fileReviewDelete` | 删除审核记录 | 管理员 | `fileReviewsAPI.deleteReview` |
+| GET | `/api/admin/works/pending` | `adminPendingWorks` | 待审队列（待审核 / 等复审的作品） | 管理员 | `adminAPI.getPendingWorks` |
 | GET | `/api/discussions` | `discussionList` | 讨论列表 | 公开 | `getDiscussions` |
 | POST | `/api/discussions` | `discussionCreate` | 发帖 | 需登录 | `createDiscussion` |
 | GET | `/api/discussions/hot` | `discussionHot` | 热门讨论 | 公开 | `getHotDiscussions` |
@@ -257,7 +258,7 @@ P3 把 `PUT /api/users/password` 的请求体定成
 `{oldPassword, newPassword, confirmPassword}`（已登录用户改自己的密码）。
 
 **不是**后端那个 `PasswordResetDto`（`email` + `verificationCode`）——
-那是**忘记密码的重置**语义（邮箱 + 验证码），而契约的 53 个端点里
+那是**忘记密码的重置**语义（邮箱 + 验证码），而契约的 54 个端点里
 **根本没有重置密码的端点**；拿它当「修改密码」的请求体是不对的。
 前端 `ProfileView` 的表单字段本来就正好是这三个。
 
@@ -319,32 +320,33 @@ P1 提取时挖出来的真实缺陷，以及 P6 施工中新发现的问题，�
 `appStore.js` 的统计/公告/热门标签 3 处 + `practiceStore.js` 的推荐内容备选 1 处）。
 现在全仓 grep `mock` / `模拟` / `假数据` / `picsum.photos` / `via.placeholder.com` **零命中**。
 
-## 5. 当前差异清单（= 待实现清单）
+## 5. 当前差异清单
 
 `npm run contract:check` 当前输出：
 
 ```
-contract  : 53 operation(s)
-frontend  : 51 call site(s)
-backend   : 53 controller route(s)
+contract  : 54 operation(s)
+frontend  : 54 call site(s)
+backend   : 54 controller route(s)
 violations: 0
-gaps      : 2
-warnings  : 3
+gaps      : 0
+warnings  : 0
 ```
 
-- **违规 0** —— 契约与现有代码没有矛盾，校验通过。
-- **缺口 2** = 两条「前端还没接线」：
-  `copybookAPI.getPracticeHistory`（`GET /api/copybooks/practice/history`）与
-  `statsAPI.getOverview`（`GET /api/stats/overview`）。两个端点**后端都已实现**，
-  缺的是前端调用入口 —— **P6 的工作**。
-- **警告 3** = 3 条前端幽灵方法（`copybookAPI.addPracticeRecord` /
-  `getPracticeHistory` / `getPracticeStats`）。**后端已无桩实现**。
+**这一节原来是「待实现清单」**（P1 起草时 violations 0 / gaps 27 / warnings 9）。
+P6 接完线之后已经清零，现在它只起「回归基线」的作用：
+
+- **违规 0** —— 契约与现有代码没有矛盾。
+- **缺口 0** —— 契约里的 54 个端点，前端 54 个调用点一个不差地对上了。
+- **警告 0** —— 没有「前端有调用但后端无路由」，也没有「后端有路由但契约里没有」。
+
+`--strict` 模式同样零差异，**这条命令是 CI 的门禁**：任何一边单方面改动都会被拦下。
 
 **已完成的域**：P2 auth（端点 1–10）、P3 user + works + stats（端点 11–21、53）、
 P4 copybooks + practice（端点 22–27）、
-P5 comments + discussions + file-reviews（端点 28–52）——
-后端路由数从 0 变成 **53**，**53 个端点全部实现完毕**。
-剩下的就是 P6 的前端接线与 P7 的全量验证。
+P5 comments + discussions + file-reviews（端点 28–52）、
+P8 补待审队列（端点 54）——
+后端路由数从 0 变成 **54**，**54 个端点全部实现完毕**。
 
 ## 6. 阶段划分与验收
 
@@ -356,7 +358,8 @@ P5 comments + discussions + file-reviews（端点 28–52）——
 | **P4 copybooks 域** | 端点 22–27 | 字帖列表/详情/记录练习/统计/历史；`copybooks` 既有 3 行数据可读 | ✅ 完成（17 项契约测试 + 36 项活体） |
 | **P5 comments + discussions + file-reviews 域** | 端点 28–52 | 发帖/回复/点赞/评论/审核；契约测试绿 | ✅ 完成（17 + 35 + 20 = 72 项契约测试 + 70 项活体） |
 | **P6 前端接线 + 删 mock** | §3.5、§4 | 六个视图无硬编码 mock；api.js 无 mock 降级分支 | ✅ 完成（mock 零命中 + strict 零差异 + eslint 零问题） |
-| **P7 全量验证** | — | 53 项契约测试全绿；`--strict` 零差异；前后端联调冒烟通过 | ✅ 完成（130 测试 + 181 活体 + 浏览器真机） |
+| **P7 全量验证** | — | 契约测试全绿；`--strict` 零差异；前后端联调冒烟通过 | ✅ 完成（130 测试 + 181 活体 + 浏览器真机） |
+| **P8 补缺口 + UI 打磨** | 端点 54、`AdminView.vue`、`router/index.js` | 待审队列可用；硬刷新受保护页不再被踢去登录页 | ✅ 完成（136 测试 + 194 活体 + 浏览器真机 4 条守卫分支） |
 
 ## 7. 变更记录
 
@@ -409,3 +412,22 @@ P5 comments + discussions + file-reviews（端点 28–52）——
   已改为只清本地状态。
   同时整份重写了 `SpringBoot-Platform/README.md`（原版库名、默认用户、
   API 路径全是事故前的形态，照着跑一定跑不通）。
+- 2026-10-21 P8（补后端缺口 + UI 打磨 + 修路由守卫竞态）。
+  - **补端点 54 `GET /api/admin/works/pending`（`adminPendingWorks`）**。
+    P6 登记的三个后端缺口里，只有「待审核作品列表」是**「UI 已有功能但根本跑不起来」**：
+    公开画廊 `GET /api/works` 只返回已发布且已审核通过的作品，而刚上传的作品是
+    DRAFT+PENDING，**永远不在列表里** —— 后台的「作品审核」列表等于废的。
+    待审定义沿用实体 `Work.canBeReviewed()`（PENDING + NEEDS_REVISION），不另造口径。
+    `AdminView` 的作品列表加了「待审队列 / 已发布作品」切换，按 scope 选端点。
+  - **修路由守卫竞态**：硬刷新 `/admin` 会被踢去 `/admin/login` ——
+    守卫在 `initUserFromStorage()` 完成前就判断 `isLoggedIn`，那时 Pinia 还是空的。
+    改法：`userStore` 加 `initialized` 状态并给初始化加**幂等 + 并发闸门**，
+    守卫 `await userStore.initUserFromStorage()` 之后再判权限。
+    真机验过四条分支：管理员硬刷新 `/admin` 原地不动、
+    普通用户硬刷新 `/my-works` 原地不动、已登录访问 `/login` 弹回首页、
+    匿名访问 `/admin` 带 `redirect` 跳 `/admin/login`。
+  - **UI 打磨**：主色锁死 `#8B4513` 并映射到 Element Plus 的 `--el-color-primary` 系；
+    语义色拉进墨色家族（成功=黛绿、警告=赭黄、危险=朱砂）；
+    页面底色改宣纸色 `#f4efe2`；13 处 `transition: all` 换成明确属性；
+    首页 emoji 换手绘水墨 SVG；「平台数据」3 张卡改印章数字样式。
+  - 回归：136 项后端测试 + 194 项活体检查 + 契约 54/54/54 零差异 + eslint 零问题。

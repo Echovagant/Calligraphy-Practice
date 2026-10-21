@@ -99,9 +99,18 @@
               />
               <el-button type="primary" :loading="worksLoading" @click="fetchWorks">刷新</el-button>
             </div>
+            <el-radio-group v-model="worksScope" size="small" @change="handleWorksScopeChange">
+              <el-radio-button label="pending">待审队列</el-radio-button>
+              <el-radio-button label="published">已发布作品</el-radio-button>
+            </el-radio-group>
           </div>
           <p class="data-hint">
-            作品来自公开画廊 GET /api/works，只包含已发布且已通过审核的作品。
+            <template v-if="worksScope === 'pending'">
+              待审队列来自 GET /api/admin/works/pending：还没审（待审核）或作者改过等复审的作品。
+            </template>
+            <template v-else>
+              已发布作品来自公开画廊 GET /api/works，只包含已发布且已通过审核的作品。
+            </template>
           </p>
 
           <el-alert
@@ -597,7 +606,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useUserStore } from '@/stores/userStore'
-import { fileReviewsAPI, worksAPI, communityAPI, userAPI, statsAPI } from '../utils/api.js'
+import { fileReviewsAPI, worksAPI, communityAPI, userAPI, statsAPI, adminAPI } from '../utils/api.js'
 import { formatDate as formatDateTime, truncateText } from '../utils'
 
 const router = useRouter()
@@ -645,6 +654,8 @@ const worksError = ref('')
 const worksPage = ref(1)
 const worksPageSize = ref(10)
 const workSearchQuery = ref('')
+// 作品列表的来源：待审队列（管理端端点）/ 已发布作品（公开画廊）
+const worksScope = ref('pending')
 
 // 当前页内的筛选（服务端只提供分页，没有按关键字查询作品的管理端点）
 const filteredWorks = computed(() => {
@@ -664,10 +675,17 @@ const fetchWorks = async () => {
   worksLoading.value = true
   worksError.value = ''
   try {
-    const payload = await worksAPI.getWorks({
-      page: worksPage.value - 1,
-      size: worksPageSize.value
-    })
+    // 待审队列走管理端端点，已发布作品走公开画廊 —— 公开画廊只含已发布且已审核通过的作品，
+    // 拿它当待审队列的话，刚上传的作品永远不在列表里，审核功能等于废的。
+    const payload = worksScope.value === 'pending'
+      ? await adminAPI.getPendingWorks({
+        page: worksPage.value - 1,
+        size: worksPageSize.value
+      })
+      : await worksAPI.getWorks({
+        page: worksPage.value - 1,
+        size: worksPageSize.value
+      })
     works.value = Array.isArray(payload?.content) ? payload.content : []
     worksTotal.value = payload?.total ?? works.value.length
   } catch (error) {
@@ -679,6 +697,12 @@ const fetchWorks = async () => {
   } finally {
     worksLoading.value = false
   }
+}
+
+// 切换来源：回到第一页重新拉
+const handleWorksScopeChange = () => {
+  worksPage.value = 1
+  fetchWorks()
 }
 
 const handleWorksPageChange = () => {

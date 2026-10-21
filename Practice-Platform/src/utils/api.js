@@ -499,6 +499,12 @@ export const fileReviewsAPI = {
   batchReviewWorks: (workIds, reviewStatus, reviewComments) => post('/admin/file-reviews/batch', { workIds, reviewStatus, reviewComments })
 };
 
+// 管理端作品查询（管理员）
+export const adminAPI = {
+  // 待审核队列：review_status 为 PENDING 或 NEEDS_REVISION
+  getPendingWorks: (params) => get('/admin/works/pending', params),
+};
+
 // 字帖相关API
 export const copybookAPI = {
   // 获取字帖列表（返回分页信封 {content,page,size,total,totalPages}）

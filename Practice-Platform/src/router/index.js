@@ -102,15 +102,23 @@ const router = createRouter({
 })
 
 // 路由前置守卫，设置页面标题和权限控制
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   // 设置页面标题
   if (to.meta.title) {
     document.title = to.meta.title
   }
-  
+
   // 权限控制
   const userStore = useUserStore()
-  
+
+  // 等登录态从本地存储恢复完，再判断「是否已登录」。
+  //
+  // 不等就会踩竞态：硬刷新 /admin 时 Pinia 状态是空的，
+  // userStore.isLoggedIn 还是 false，守卫直接把人踢去 /admin/login ——
+  // 可令牌明明还在。initUserFromStorage 内部带幂等与并发闸门，
+  // 重复调用不会重复打接口。
+  await userStore.initUserFromStorage()
+
   // 检查是否需要登录
   if (to.meta.requiresAuth) {
     if (!userStore.isLoggedIn) {
