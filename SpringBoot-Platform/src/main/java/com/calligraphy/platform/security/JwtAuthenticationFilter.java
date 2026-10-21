@@ -1,5 +1,6 @@
 package com.calligraphy.platform.security;
 
+import com.calligraphy.platform.service.JwtService;
 import com.calligraphy.platform.service.UserDetailsServiceImpl;
 
 import lombok.RequiredArgsConstructor;
@@ -8,7 +9,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -17,8 +17,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-    
-@Component
+
+// 刻意不加 @Component：作为 Bean 会被 Servlet 容器以普通过滤器注册，排序在安全过滤链之后，
+// 导致这里填充的 SecurityContext 对鉴权无意义。该过滤器改由 SecurityConfig 显式挂到
+// SecurityFilterChain 上（addFilterBefore UsernamePasswordAuthenticationFilter）。
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 

@@ -38,10 +38,13 @@ public interface UserActivityLogRepository extends JpaRepository<UserActivityLog
     @Query("SELECT l FROM UserActivityLog l WHERE l.createdAt BETWEEN :startDate AND :endDate")
     List<UserActivityLog> findByDateRange(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
-    @Query("SELECT l FROM UserActivityLog l WHERE l.responseStatusEnum = com.calligraphy.platform.model.UserActivityLog.ResponseStatus.ERROR")
+    // Hibernate 6 无法把嵌套枚举的「点号全限定名」当作枚举字面量解析
+    // （SemanticException: Could not interpret path expression），
+    // 嵌套枚举必须写成二进制名（$ 分隔），否则仓库 bean 创建失败、上下文启动不了。
+    @Query("SELECT l FROM UserActivityLog l WHERE l.responseStatusEnum = com.calligraphy.platform.model.UserActivityLog$ResponseStatus.ERROR")
     List<UserActivityLog> findErrorActivities();
-    
-    @Query("SELECT l FROM UserActivityLog l WHERE l.userId = :userId AND l.responseStatusEnum = com.calligraphy.platform.model.UserActivityLog.ResponseStatus.ERROR")
+
+    @Query("SELECT l FROM UserActivityLog l WHERE l.userId = :userId AND l.responseStatusEnum = com.calligraphy.platform.model.UserActivityLog$ResponseStatus.ERROR")
     List<UserActivityLog> findErrorActivitiesByUser(@Param("userId") String userId);
     
     @Query("SELECT l FROM UserActivityLog l WHERE l.ipAddress = :ipAddress")

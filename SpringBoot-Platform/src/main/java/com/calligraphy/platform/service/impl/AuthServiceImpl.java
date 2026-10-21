@@ -1,7 +1,7 @@
 package com.calligraphy.platform.service.impl;
 
 import com.calligraphy.platform.service.AuthService;
-import com.calligraphy.platform.security.JwtService;
+import com.calligraphy.platform.service.JwtService;
 import com.calligraphy.platform.service.UserService;
 import com.calligraphy.platform.dto.FrontendUserDto;
 import com.calligraphy.platform.dto.FrontendUserUpdateDto;
@@ -69,8 +69,8 @@ public class AuthServiceImpl implements AuthService {
             }
             
             // 生成token
-            String accessToken = jwtService.generateToken(user);
-            String refreshToken = jwtService.generateRefreshToken(user);
+            String accessToken = jwtService.generateToken(user.getId(), "USER", user.getUsername());
+            String refreshToken = jwtService.generateRefreshToken(user.getId(), "USER", user.getUsername());
             
             // 更新用户登录信息
             user.onSuccessfulLogin();
@@ -135,8 +135,8 @@ public class AuthServiceImpl implements AuthService {
             extraClaims.put("roles", roles);
             extraClaims.put("permissions", permissions);
             
-            String accessToken = jwtService.generateToken(user);
-            String refreshToken = jwtService.generateRefreshToken(user);
+            String accessToken = jwtService.generateToken(user.getId(), "USER", user.getUsername());
+            String refreshToken = jwtService.generateRefreshToken(user.getId(), "USER", user.getUsername());
             
             // 更新用户登录信息
             user.setLastLoginIp(loginRequest.getIpAddress());
@@ -201,7 +201,7 @@ public class AuthServiceImpl implements AuthService {
             }
             
             // 生成新的访问令牌
-            String newAccessToken = jwtService.generateToken(user);
+            String newAccessToken = jwtService.generateToken(user.getId(), "USER", user.getUsername());
             
             // 更新用户登录信息
             user.setLastLoginAt(LocalDateTime.now());
@@ -255,7 +255,7 @@ public class AuthServiceImpl implements AuthService {
             extraClaims.put("roles", roles);
             extraClaims.put("permissions", permissions);
             
-            String newAccessToken = jwtService.generateToken(user);
+            String newAccessToken = jwtService.generateToken(user.getId(), "USER", user.getUsername());
             
             // 更新用户登录信息
             user.setLastLoginAt(LocalDateTime.now());
@@ -353,8 +353,8 @@ public class AuthServiceImpl implements AuthService {
             User savedUser = userService.createUser(newUser);
             
             // 生成访问token
-            String accessToken = jwtService.generateToken(savedUser);
-            String refreshToken = jwtService.generateRefreshToken(savedUser);
+            String accessToken = jwtService.generateToken(savedUser.getId(), "USER", savedUser.getUsername());
+            String refreshToken = jwtService.generateRefreshToken(savedUser.getId(), "USER", savedUser.getUsername());
             
             // 记录注册活动日志
             log.info("用户注册成功: {} (ID: {})", savedUser.getUsername(), savedUser.getId());
@@ -387,7 +387,7 @@ public class AuthServiceImpl implements AuthService {
         try {
             if (jwtService.validateToken(token)) {
                 String username = jwtService.extractUsername(token);
-                jwtService.revokeToken(token);
+                jwtService.invalidateToken(token);
                 log.info("用户登出成功: {}", username);
             }
         } catch (Exception e) {
@@ -404,7 +404,7 @@ public class AuthServiceImpl implements AuthService {
             if (token != null && !token.isEmpty()) {
                 if (jwtService.validateToken(token)) {
                     String username = jwtService.extractUsername(token);
-                    jwtService.revokeToken(token);
+                    jwtService.invalidateToken(token);
                     log.info("访问令牌已失效: {}", username);
                 }
             }
@@ -413,7 +413,7 @@ public class AuthServiceImpl implements AuthService {
             if (refreshToken != null && !refreshToken.isEmpty()) {
                 if (jwtService.validateToken(refreshToken)) {
                     String username = jwtService.extractUsername(refreshToken);
-                    jwtService.revokeToken(refreshToken);
+                    jwtService.invalidateToken(refreshToken);
                     log.info("刷新令牌已失效: {}", username);
                 }
             }
