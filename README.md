@@ -82,6 +82,16 @@ dev server 跑在 **5174**（5173 被本机另一个项目占着）。
 Invoke-WebRequest http://127.0.0.1:8083/actuator/health   # {"status":"UP"}
 ```
 
+### 第一个管理员
+
+**新装的库里没有任何管理员**（默认口令已被去掉，种子 SQL 又不会被执行）。
+注册一个用户后把角色提上去即可，详见
+[`SpringBoot-Platform/README.md`](SpringBoot-Platform/README.md) §3「第一个管理员怎么来」。
+
+```sql
+UPDATE users SET role='SUPER_ADMIN' WHERE username='你的用户名';
+```
+
 ---
 
 ## 3. API 契约

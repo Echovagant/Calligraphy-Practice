@@ -176,14 +176,17 @@ html, body {
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 0;
+  width: 100%;
   height: 2px;
   background-color: #8B4513;
-  transition: width 0.3s;
+  /* 用 scaleX 画下划线，不要动 width —— 动 width 每帧都要重排 */
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.3s;
 }
 
 .nav-item:hover::after {
-  width: 100%;
+  transform: scaleX(1);
 }
 
 .user-actions {

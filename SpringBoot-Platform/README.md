@@ -68,9 +68,31 @@ IllegalStateException: JWT 密钥未配置。请设置环境变量 JWT_SECRET，
 | `db/02-unify-user-fk.sql` | 6 张域表的 user 外键统一指向 `users` |
 | `db/03-practice-records-contract.sql` | `practice_records` 对齐契约的 `PracticeRecord` schema |
 | `db/04-discussion-likes.sql` | 点赞去重表 `discussion_likes` |
+| `db/05-copybook-sample-images.sql` | 3 行播种字帖的封面图改指向真实存在的 `/sample/copybook-N.png` |
 
 > `src/main/resources/recreate_schema.sql` 是**历史遗留**的「部分重建」脚本，
 > 它的 `users` / `works` 列已经落后于当前实体定义，**不要**拿它重建线上库。
+
+### 第一个管理员怎么来
+
+**新装的库里没有任何管理员** —— 这是刻意的：
+`src/main/resources/dual_user_schema.sql` 里的默认超级管理员口令已经被换成占位符
+（`REPLACE_WITH_BCRYPT_HASH_OF_YOUR_OWN_PASSWORD`），
+而 `spring.sql.init.mode=never` 又意味着这个文件**根本不会被执行**
+（表结构由 `ddl-auto=update` + `db/` 下的手工脚本维护）。
+
+所以第一个管理员要自己建，两步：
+
+```powershell
+# 1. 正常注册一个用户（前端注册页，或 POST /api/frontend/auth/register）
+# 2. 把它的角色提上去
+& "E:\MySQL\MySQL Server 8.0\bin\mysql.exe" -h 127.0.0.1 -P 3306 -uroot -p123456 `
+  calligraphy_practice -e "UPDATE users SET role='SUPER_ADMIN' WHERE username='你的用户名';"
+```
+
+提完角色后用 `/admin/login` 登录即可（`POST /api/backend/auth/login`）。
+注意 `users.role` 的枚举是 `USER / ADMIN / SUPER_ADMIN`，管理员与前端用户**同表**，
+靠 role 区分。
 
 ---
 

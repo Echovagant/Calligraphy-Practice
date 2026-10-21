@@ -96,40 +96,34 @@ const goBack = () => {
   flex-wrap: wrap;
 }
 
-/* 书法风格按钮 */
+/* 书法风格按钮 —— 主色走全局变量，不要在这里硬覆盖 Element Plus 的主色 */
 :deep(.el-button) {
   border-radius: 4px;
   padding: 0.75rem 2rem;
   font-size: 1rem;
   font-family: 'Microsoft YaHei', sans-serif;
-  transition: all 0.3s ease;
-}
-
-:deep(.el-button--primary) {
-  background-color: #b49678;
-  border-color: #b49678;
-  color: white;
+  /* 只过渡颜色与位移，不动宽高 */
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease,
+    transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 :deep(.el-button--primary:hover) {
-  background-color: #a0856b;
-  border-color: #a0856b;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(180, 150, 120, 0.3);
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
 }
 
 :deep(.el-button:not(.el-button--primary)) {
   background-color: transparent;
-  border-color: #b49678;
-  color: #b49678;
+  border-color: var(--primary-color);
+  color: var(--primary-color);
 }
 
 :deep(.el-button:not(.el-button--primary):hover) {
-  background-color: #f0e6de;
-  border-color: #a0856b;
-  color: #a0856b;
+  background-color: #f3ece7;
+  border-color: var(--el-color-primary-dark-2);
+  color: var(--el-color-primary-dark-2);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(180, 150, 120, 0.2);
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.2);
 }
 
 .decorative-elements {

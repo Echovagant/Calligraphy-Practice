@@ -29,7 +29,9 @@
         <el-form-item>
           <div class="login-options">
             <el-checkbox v-model="rememberMe">记住我</el-checkbox>
-            <el-link type="primary" :underline="false">忘记密码？</el-link>
+            <!-- 这里原来有个「忘记密码？」死链：契约里没有密码重置端点
+                 （只有需要登录才能用的 PUT /api/users/password），
+                 按「没有端点的假功能就删」的规矩去掉了。 -->
           </div>
         </el-form-item>
 
@@ -223,6 +225,9 @@ if (rememberedUsername) {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  /* el-form-item 的内容区是 flex，这块会被挤窄 —— 不给宽度的话
+     space-between 没有空间，两边会贴在一起 */
+  width: 100%;
 }
 
 /* 复选框勾选后字体变红 */

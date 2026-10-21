@@ -582,7 +582,7 @@ onUnmounted(() => {
   border-radius: 4px;
   cursor: pointer;
   font-size: 1.2rem;
-  transition: all 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
   font-family: 'SimSun', serif;
 }
 
@@ -606,7 +606,7 @@ onUnmounted(() => {
   border: 1px solid #eee;
   border-radius: 4px;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
 }
 
 .recommendation-item:hover,

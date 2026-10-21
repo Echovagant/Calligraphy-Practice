@@ -9,7 +9,8 @@
           <el-button type="primary" size="large" @click="handleGoToPractice">
             开始练习
           </el-button>
-          <el-button type="success" size="large" @click="handleGoToCopybook">
+          <!-- 次要操作用同一主色的描边款：全屏只有一套主色，靠「实心 / 描边」分主次 -->
+          <el-button type="primary" plain size="large" @click="handleGoToCopybook">
             生成字帖
           </el-button>
         </div>
@@ -53,25 +54,40 @@
       <h2 class="section-title">平台特色</h2>
       <div class="features-grid">
         <div class="feature-card">
-          <div class="feature-icon">📝</div>
+          <svg class="feature-icon" viewBox="0 0 64 64" aria-hidden="true">
+            <path d="M13 49C21 36 30 27 47 15" stroke="currentColor" stroke-width="7" stroke-linecap="round" fill="none" />
+            <path d="M47 15c4-2 6-1 5 2" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none" />
+          </svg>
           <h3 class="feature-title">智能练习</h3>
           <p class="feature-desc">使用Fabric.js提供真实的毛笔书写体验，支持多种笔刷效果</p>
           <el-button type="primary" @click="handleGoToPractice">开始练习</el-button>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">📚</div>
+          <svg class="feature-icon" viewBox="0 0 64 64" aria-hidden="true">
+            <rect x="15" y="8" width="34" height="48" rx="3" stroke="currentColor" stroke-width="2.6" fill="none" />
+            <path d="M24 21h16M24 31h16M24 41h10" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" fill="none" />
+            <rect x="42" y="40" width="12" height="12" rx="2" fill="var(--el-color-danger)" />
+          </svg>
           <h3 class="feature-title">字帖生成</h3>
           <p class="feature-desc">根据用户需求生成个性化字帖，支持多种字体风格选择</p>
           <el-button type="primary" @click="handleGoToCopybook">生成字帖</el-button>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">🖼️</div>
+          <svg class="feature-icon" viewBox="0 0 64 64" aria-hidden="true">
+            <rect x="10" y="12" width="44" height="38" rx="3" stroke="currentColor" stroke-width="2.6" fill="none" />
+            <circle cx="24" cy="25" r="5" stroke="currentColor" stroke-width="2.6" fill="none" />
+            <path d="M14 46l12-13 9 9 7-8 8 12" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round" fill="none" />
+          </svg>
           <h3 class="feature-title">作品展示</h3>
           <p class="feature-desc">展示个人书法作品，获得其他用户的欣赏和评价</p>
           <el-button type="primary" @click="router.push('/gallery')">浏览作品</el-button>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">👥</div>
+          <svg class="feature-icon" viewBox="0 0 64 64" aria-hidden="true">
+            <path d="M32 10c12 0 22 7 22 16s-10 16-22 16c-3 0-6-.5-8-1.4L14 46l2.5-9.5C12.5 33 10 29.7 10 26c0-9 10-16 22-16z"
+              stroke="currentColor" stroke-width="2.6" stroke-linejoin="round" fill="none" />
+            <path d="M24 25h16M24 32h10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none" />
+          </svg>
           <h3 class="feature-title">社区交流</h3>
           <p class="feature-desc">与其他书法爱好者交流学习心得，共同进步</p>
           <el-button type="primary" @click="router.push('/community')">进入社区</el-button>
@@ -286,24 +302,44 @@ onMounted(() => {
   gap: 1.5rem;
 }
 
+/* 统计卡：做成「印章数字」的样子 ——
+   顶部一道朱砂细线（印章的边），数字用衬线体、不加粗、拉开字距，
+   三个数字压在一排白盒子上时就不会像三个一样的默认卡片。 */
 .stat-card {
-  background-color: rgba(255, 255, 255, 0.9);
-  border-radius: 8px;
-  padding: 1.5rem;
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.92);
+  border-radius: 4px;
+  padding: 1.75rem 1.5rem 1.5rem;
   text-align: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 10px rgba(90, 60, 30, 0.06);
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2.5rem;
+  height: 3px;
+  background-color: var(--el-color-danger);
+  border-radius: 0 0 2px 2px;
 }
 
 .stat-number {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #8B4513;
+  font-family: 'SimSun', 'Songti SC', serif;
+  font-size: 2.75rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  color: var(--primary-color);
 }
 
 .stat-label {
-  color: #666;
-  font-size: 0.95rem;
-  margin-top: 0.3rem;
+  color: #6f6a63;
+  font-size: 0.9rem;
+  letter-spacing: 0.12em;
+  margin-top: 0.6rem;
 }
 
 /* 功能特点样式 */
@@ -326,32 +362,59 @@ onMounted(() => {
 }
 
 .feature-card {
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 2rem;
-  border-radius: 8px;
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.92);
+  padding: 2rem 1.75rem 1.75rem;
+  border-radius: 4px;
   text-align: center;
-  transition: all 0.3s;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
+  box-shadow: 0 2px 10px rgba(90, 60, 30, 0.06);
+}
+
+/* 左侧一道墨线，悬停时由上往下长出来 —— 四张卡唯一的区分标记 */
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 1.25rem;
+  left: 0;
+  width: 3px;
+  height: 0;
+  background-color: var(--el-color-danger);
+  border-radius: 0 2px 2px 0;
+  transition: height 0.3s ease;
 }
 
 .feature-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 20px rgba(90, 60, 30, 0.12);
+}
+
+.feature-card:hover::before {
+  height: calc(100% - 2.5rem);
 }
 
 .feature-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  width: 56px;
+  height: 56px;
+  display: block;
+  margin: 0 auto 1.1rem;
+  color: var(--primary-color);
 }
 
 .feature-title {
   font-size: 1.3rem;
-  margin-bottom: 0.5rem;
-  color: #333;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.6rem;
+  color: #3a342d;
+  font-family: 'SimSun', 'Songti SC', serif;
 }
 
 .feature-desc {
-  color: #666;
+  color: #6f6a63;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin-bottom: 1.4rem;
 }
 
 /* 作品预览样式 */
@@ -390,7 +453,7 @@ onMounted(() => {
   background-color: rgba(255, 255, 255, 0.9);
   border-radius: 8px;
   overflow: hidden;
-  transition: all 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
@@ -459,7 +522,7 @@ onMounted(() => {
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
 }
 
 .copybook-card:hover {

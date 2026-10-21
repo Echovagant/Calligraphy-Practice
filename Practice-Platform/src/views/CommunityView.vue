@@ -907,7 +907,7 @@ onMounted(() => {
   padding: 1.5rem;
   background-color: #f8f9fa;
   border-radius: 8px;
-  transition: all 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
 }
 
 .discussion-item:hover {
@@ -1008,7 +1008,7 @@ onMounted(() => {
 .section-header {
   margin: 0 0 1rem;
   color: #333;
-  border-left: 3px solid #409eff;
+  border-left: 3px solid var(--el-color-primary);
   padding-left: 0.5rem;
 }
 

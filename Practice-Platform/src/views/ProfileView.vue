@@ -499,7 +499,7 @@ const uploadAvatarRequest = async ({ file, onSuccess, onError }) => {
   padding: 1rem;
   cursor: pointer;
   border-radius: 4px;
-  transition: all 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
   margin-bottom: 0.5rem;
 }
 
@@ -562,7 +562,7 @@ const uploadAvatarRequest = async ({ file, onSuccess, onError }) => {
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  transition: all 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
 }
 
 .avatar-uploader .el-upload:hover {
