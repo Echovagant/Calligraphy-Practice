@@ -341,7 +341,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PasswordResetRequest'
+              $ref: '#/components/schemas/PasswordChangeRequest'
       responses:
         '204':
           description: 已修改
@@ -409,30 +409,17 @@ paths:
         - name: page
           in: query
           required: false
+          description: 页码，从 0 开始
           schema:
             type: integer
             default: 0
         - name: size
           in: query
           required: false
+          description: 每页数量，上限 100
           schema:
             type: integer
             default: 20
-        - name: category
-          in: query
-          required: false
-          schema:
-            type: string
-        - name: status
-          in: query
-          required: false
-          schema:
-            type: string
-        - name: sort
-          in: query
-          required: false
-          schema:
-            type: string
       responses:
         '200':
           description: 分页后的作品列表
@@ -1714,14 +1701,13 @@ components:
           type: string
     FrontendUserUpdate:
       type: object
-      description: 对应后端 `FrontendUserUpdateDto`。
+      description: >
+        更新**当前**用户的资料 —— 用户 id 从令牌里取，不在请求体里传。
+        （后端 `FrontendUserUpdateDto` 上有个 `userId` 字段，契约不暴露它。）
       required:
         - nickname
         - email
       properties:
-        userId:
-          type: integer
-          format: int64
         nickname:
           type: string
           maxLength: 50
@@ -1745,7 +1731,7 @@ components:
       type: object
       description: 对应后端 `FrontendUserDto`。
       properties:
-        userId:
+        id:
           type: string
         username:
           type: string
@@ -1816,7 +1802,7 @@ components:
       type: object
       description: 对应后端 `BackendUserDto`。
       properties:
-        userId:
+        id:
           type: string
         username:
           type: string
@@ -1881,30 +1867,30 @@ components:
           format: date-time
         lastActivityType:
           type: string
-    PasswordResetRequest:
+    PasswordChangeRequest:
       type: object
-      description: 对应后端 `PasswordResetDto`。
+      description: >
+        已登录用户改自己的密码。**不是**「忘记密码重置」——重置需要邮箱验证码，
+        那是另一个流程，契约的 53 个端点里没有对应端点。
       required:
-        - email
-        - verificationCode
+        - oldPassword
         - newPassword
         - confirmPassword
       properties:
-        email:
-          type: string
-          format: email
-        verificationCode:
+        oldPassword:
           type: string
           minLength: 6
-          maxLength: 6
+          maxLength: 100
         newPassword:
           type: string
           minLength: 6
-          maxLength: 20
+          maxLength: 100
+          description: 必须含大小写字母和数字（与注册时同一套规则）
         confirmPassword:
           type: string
           minLength: 6
-          maxLength: 20
+          maxLength: 100
+          description: 必须与 newPassword 相同
     AvatarUpload:
       type: object
       description: 头像上传表单。
@@ -1931,9 +1917,9 @@ components:
           type: string
     Work:
       type: object
-      description: 对应后端 `WorkDto`。
+      description: 对应后端 `WorkDto`。主键叫 `id`（前端读的就是 `work.id`）。
       properties:
-        workId:
+        id:
           type: string
         userId:
           type: string
@@ -1951,6 +1937,9 @@ components:
           type: array
           items:
             type: string
+        imageUrl:
+          type: string
+          description: 主图 URL（前端 GalleryView / MyWorksView 读的是它）
         fileUrls:
           type: array
           items:
@@ -2172,7 +2161,7 @@ components:
       type: object
       description: 对应后端 `PracticeRecordDto`。
       properties:
-        recordId:
+        id:
           type: string
         userId:
           type: string
@@ -2290,9 +2279,9 @@ components:
           type: string
     Comment:
       type: object
-      description: 对应后端 `CommentDto`。
+      description: 对应后端 `CommentDto`。主键叫 `id`。
       properties:
-        commentId:
+        id:
           type: string
         workId:
           type: string
@@ -2444,7 +2433,7 @@ components:
       type: object
       description: 对应后端 `FileReviewDto`。
       properties:
-        reviewId:
+        id:
           type: string
         fileId:
           type: string
@@ -2588,7 +2577,7 @@ components:
       type: object
       description: 对应后端 `DiscussionDto`。
       properties:
-        discussionId:
+        id:
           type: string
         title:
           type: string
@@ -2634,7 +2623,7 @@ components:
       type: object
       description: 对应后端 `DiscussionReplyDto`。
       properties:
-        replyId:
+        id:
           type: string
         content:
           type: string

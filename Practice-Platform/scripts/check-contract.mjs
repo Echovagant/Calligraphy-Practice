@@ -497,12 +497,14 @@ function extractBackend() {
     const head = classIdx >= 0 ? text.slice(0, classIdx) : text
     const classMap = head.match(/@RequestMapping\s*\(\s*(?:value\s*=\s*)?"([^"]*)"/)
     if (classMap) prefix = classMap[1]
-    const methodRe = /@(GetMapping|PostMapping|PutMapping|DeleteMapping|PatchMapping)\s*\(\s*(?:value\s*=\s*)?"([^"]*)"/g
+    // 映射注解的路径参数是可选的：@GetMapping（不带路径，路径来自类级 @RequestMapping）
+    // 也合法。路径组匹配不到时按空串处理，否则会漏统计这类端点。
+    const methodRe = /@(GetMapping|PostMapping|PutMapping|DeleteMapping|PatchMapping)\b(?:\s*\(\s*(?:value\s*=\s*)?"([^"]*)")?/g
     const reqMapRe = /@RequestMapping\s*\(\s*(?:value\s*=\s*)?"([^"]*)"\s*,\s*method\s*=\s*RequestMethod\.(\w+)/g
     let m
     while ((m = methodRe.exec(text)) !== null) {
       const verb = m[1].replace('Mapping', '').toUpperCase()
-      routes.push({ file: rel, line: text.slice(0, m.index).split(/\r?\n/).length, verb, path: prefix + m[2] })
+      routes.push({ file: rel, line: text.slice(0, m.index).split(/\r?\n/).length, verb, path: prefix + (m[2] || '') })
     }
     while ((m = reqMapRe.exec(text)) !== null) {
       const verb = m[2].toUpperCase()

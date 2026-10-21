@@ -50,7 +50,7 @@ public class Discussion {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
-    private FrontendUser user;
+    private User user;
     
     @Column(name = "user_id", length = 36, nullable = false, insertable = false, updatable = false)
     private String userId;
@@ -177,11 +177,11 @@ public class Discussion {
         this.category = category;
     }
     
-    public FrontendUser getUser() {
+    public User getUser() {
         return user;
     }
     
-    public void setUser(FrontendUser user) {
+    public void setUser(User user) {
         this.user = user;
     }
     
@@ -299,7 +299,7 @@ public class Discussion {
         private String title;
         private String content;
         private String category;
-        private FrontendUser user;
+        private User user;
         private String userId;
         private String username;
         private String userAvatar;
@@ -320,7 +320,7 @@ public class Discussion {
         public Builder title(String title) { this.title = title; return this; }
         public Builder content(String content) { this.content = content; return this; }
         public Builder category(String category) { this.category = category; return this; }
-        public Builder user(FrontendUser user) { this.user = user; return this; }
+        public Builder user(User user) { this.user = user; return this; }
         public Builder userId(String userId) { this.userId = userId; return this; }
         public Builder username(String username) { this.username = username; return this; }
         public Builder userAvatar(String userAvatar) { this.userAvatar = userAvatar; return this; }

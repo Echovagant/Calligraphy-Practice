@@ -48,7 +48,7 @@ public class Work {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
-    private FrontendUser user;
+    private User user;
     
     @Column(name = "user_id", length = 36, nullable = false, insertable = false, updatable = false)
     private String userId;
@@ -223,11 +223,11 @@ public class Work {
         this.imageUrl = imageUrl;
     }
     
-    public FrontendUser getUser() {
+    public User getUser() {
         return user;
     }
     
-    public void setUser(FrontendUser user) {
+    public void setUser(User user) {
         this.user = user;
     }
     
@@ -354,7 +354,7 @@ public class Work {
         private String description;
         private String content;
         private String imageUrl;
-        private FrontendUser user;
+        private User user;
         private String userId;
         private WorkStatus status = WorkStatus.DRAFT;
         private ReviewStatus reviewStatus = ReviewStatus.PENDING;
@@ -377,7 +377,7 @@ public class Work {
         public Builder description(String description) { this.description = description; return this; }
         public Builder content(String content) { this.content = content; return this; }
         public Builder imageUrl(String imageUrl) { this.imageUrl = imageUrl; return this; }
-        public Builder user(FrontendUser user) { this.user = user; return this; }
+        public Builder user(User user) { this.user = user; return this; }
         public Builder userId(String userId) { this.userId = userId; return this; }
         public Builder status(WorkStatus status) { this.status = status; return this; }
         public Builder reviewStatus(ReviewStatus reviewStatus) { this.reviewStatus = reviewStatus; return this; }

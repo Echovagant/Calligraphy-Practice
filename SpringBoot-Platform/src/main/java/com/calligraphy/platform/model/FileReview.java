@@ -48,7 +48,7 @@ public class FileReview {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "uploaded_by", nullable = false)
     @JsonIgnore
-    private FrontendUser uploadedBy;
+    private User uploadedBy;
     
     @Column(name = "uploaded_by", length = 36, nullable = false, insertable = false, updatable = false)
     private String uploadedById;
@@ -99,7 +99,7 @@ public class FileReview {
     
     // 全参构造器
     public FileReview(String id, String fileName, String filePath, String fileType, Long fileSize, String mimeType, 
-                     FrontendUser uploadedBy, String uploadedById, BackendUser reviewer, String reviewerId, 
+                     User uploadedBy, String uploadedById, BackendUser reviewer, String reviewerId, 
                      Work work, Long workId, FileReviewStatus status, String reviewNotes, LocalDateTime uploadTime, 
                      LocalDateTime reviewTime, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
@@ -263,11 +263,11 @@ public class FileReview {
         this.mimeType = mimeType;
     }
     
-    public FrontendUser getUploadedBy() {
+    public User getUploadedBy() {
         return uploadedBy;
     }
     
-    public void setUploadedBy(FrontendUser uploadedBy) {
+    public void setUploadedBy(User uploadedBy) {
         this.uploadedBy = uploadedBy;
     }
     
@@ -367,7 +367,7 @@ public class FileReview {
         private String fileType;
         private Long fileSize;
         private String mimeType;
-        private FrontendUser uploadedBy;
+        private User uploadedBy;
         private String uploadedById;
         private BackendUser reviewer;
         private String reviewerId;
@@ -410,7 +410,7 @@ public class FileReview {
             return this;
         }
         
-        public Builder uploadedBy(FrontendUser uploadedBy) {
+        public Builder uploadedBy(User uploadedBy) {
             this.uploadedBy = uploadedBy;
             return this;
         }

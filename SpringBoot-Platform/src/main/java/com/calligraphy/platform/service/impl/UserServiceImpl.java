@@ -4,9 +4,14 @@ import com.calligraphy.platform.dto.FrontendUserDto;
 import com.calligraphy.platform.dto.FrontendUserRegistrationDto;
 import com.calligraphy.platform.dto.FrontendUserUpdateDto;
 import com.calligraphy.platform.model.User;
+import com.calligraphy.platform.model.Work;
+import com.calligraphy.platform.exception.BusinessException;
 import com.calligraphy.platform.exception.ResourceNotFoundException;
 import com.calligraphy.platform.exception.UserAlreadyExistsException;
+import com.calligraphy.platform.repository.CommentRepository;
+import com.calligraphy.platform.repository.PracticeRecordRepository;
 import com.calligraphy.platform.repository.UserRepository;
+import com.calligraphy.platform.repository.WorkRepository;
 import com.calligraphy.platform.service.FrontendUserService;
 import com.calligraphy.platform.service.UserService;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -38,6 +43,9 @@ public class UserServiceImpl implements UserService {
     private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final WorkRepository workRepository;
+    private final CommentRepository commentRepository;
+    private final PracticeRecordRepository practiceRecordRepository;
     @Override
     @Transactional
     public User createUser(User user) {
@@ -276,6 +284,37 @@ public class UserServiceImpl implements UserService {
     @Override
     public long getVerifiedUserCount() {
         return userRepository.count() - userRepository.countUnverifiedUsers();
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(String userId, String oldPassword, String newPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + userId));
+
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new BusinessException("旧密码不正确");
+        }
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+            throw new BusinessException("新密码不能与旧密码相同");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        log.info("用户密码已修改: {}", user.getUsername());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, Long> getUserCounts(String userId) {
+        List<Work> works = workRepository.findByUserId(userId);
+        Map<String, Long> counts = new HashMap<>();
+        counts.put("workCount", (long) works.size());
+        counts.put("commentCount", (long) commentRepository.findByUserId(userId).size());
+        counts.put("practiceCount", (long) practiceRecordRepository.findByUserId(userId).size());
+        counts.put("totalLikesReceived", works.stream().mapToLong(Work::getLikeCount).sum());
+        counts.put("totalViewsReceived", works.stream().mapToLong(Work::getViewCount).sum());
+        return counts;
     }
 }
 

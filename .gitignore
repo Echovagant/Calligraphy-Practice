@@ -2,6 +2,10 @@
 SpringBoot-Platform/target/
 *.class
 
+# 上传的文件（运行时生成，不入库）
+SpringBoot-Platform/uploads/
+uploads/
+
 # Python 缓存
 __pycache__/
 *.pyc

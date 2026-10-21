@@ -4,14 +4,14 @@ import com.calligraphy.platform.dto.WorkCreateRequestDto;
 import com.calligraphy.platform.dto.WorkDto;
 import com.calligraphy.platform.dto.WorkStatisticsDto;
 import com.calligraphy.platform.dto.WorkUpdateRequestDto;
-import com.calligraphy.platform.model.FrontendUser;
+import com.calligraphy.platform.model.User;
 import com.calligraphy.platform.model.BackendUser;
 
 import com.calligraphy.platform.model.Work;
 import com.calligraphy.platform.exception.ResourceNotFoundException;
 import com.calligraphy.platform.mapper.WorkMapper;
 import com.calligraphy.platform.repository.WorkRepository;
-import com.calligraphy.platform.service.FrontendUserService;
+import com.calligraphy.platform.service.UserService;
 import com.calligraphy.platform.service.WorkService;
 import com.calligraphy.platform.repository.BackendUserRepository;
 import com.calligraphy.platform.service.FileUploadService;
@@ -32,11 +32,15 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+// 类级只读事务：WorkMapper.toDto 会访问 work.getUser() / work.getReviewer() 这类
+// LAZY 关联。映射发生在事务之外时会抛 LazyInitializationException。
+// 写方法自己带 @Transactional（readOnly 默认 false），会覆盖类级设置。
+@Transactional(readOnly = true)
 public class WorkServiceImpl implements WorkService {
 
     private static final Logger log = LoggerFactory.getLogger(WorkServiceImpl.class);
     private final WorkRepository workRepository;
-    private final FrontendUserService userService;
+    private final UserService userService;
     private final WorkMapper workMapper;
     private final BackendUserRepository backendUserRepository;
     private final FileUploadService fileUploadService;
@@ -45,8 +49,7 @@ public class WorkServiceImpl implements WorkService {
     public WorkDto createWork(WorkCreateRequestDto createRequest, String username) {
         log.info("创建新作品: {} by {}", createRequest.getTitle(), username);
 
-        FrontendUser author = userService.getUserByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + username));
+        User author = userService.findByUsername(username);
 
         Work work = Work.builder()
                 .title(createRequest.getTitle())
@@ -79,8 +82,7 @@ public class WorkServiceImpl implements WorkService {
                 .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
         // 检查权限 - 只有作者或管理员可以更新
-        FrontendUser currentUser = userService.getUserByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + username));
+        User currentUser = userService.findByUsername(username);
         if (!work.getUserId().equals(currentUser.getId()) &&
                 backendUserRepository.findByUsername(username).isEmpty()) {
             throw new SecurityException("没有权限更新此作品");
@@ -159,8 +161,7 @@ public class WorkServiceImpl implements WorkService {
                 .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
         // 检查权限 - 只有作者或管理员可以删除
-        FrontendUser currentUser = userService.getUserByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + username));
+        User currentUser = userService.findByUsername(username);
         if (!work.getUserId().equals(currentUser.getId()) &&
                 backendUserRepository.findByUsername(username).isEmpty()) {
             throw new SecurityException("没有权限删除此作品");
@@ -186,8 +187,7 @@ public class WorkServiceImpl implements WorkService {
     public List<WorkDto> getWorksByUser(String username) {
         log.info("获取用户 {} 的所有作品", username);
 
-        FrontendUser author = userService.getUserByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + username));
+        User author = userService.findByUsername(username);
         List<Work> works = workRepository.findByUserId(author.getId());
 
         return works.stream()
@@ -352,8 +352,7 @@ public class WorkServiceImpl implements WorkService {
                 .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
         // 验证用户存在
-        FrontendUser user = userService.getUserByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + username));
+        User user = userService.findByUsername(username);
 
         // 增加点赞数
         work.incrementLikeCount();

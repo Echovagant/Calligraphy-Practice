@@ -207,12 +207,51 @@ Spring 字面量路径优先于模板路径，行为正确，但**契约测试�
 | `POST /api/copybooks/{copybookId}/practice` | `response.data`（另一处读裸 `id`/`createdAt`） | 裸资源 | P5 待改 |
 | `POST /api/{frontend,backend}/auth/refresh` | `const { data } = await ...` → `data.accessToken` | `{accessToken,refreshToken,...}` | **P2 已改** |
 | `GET /api/{frontend,backend}/auth/profile` | `response.user` | 裸资源 | **P2 已改** |
-| `PUT /api/users/profile` | `response.user` | 裸资源 | P5 待改 |
 | `POST /api/frontend/auth/register` | `this.userInfo = response`（整个信封） | `response.user` | **P2 已改** |
+| `GET /api/works/user/{userId}` | `worksAPI.getUserWorks()` **没传 userId** → 实际请求 `/works/user/undefined` | 传对 userId + 分页信封 | **P3 已改** |
+| `PUT /api/users/password` | 视图用两个位置参数调 store → 实际发出去的是**裸 JSON 字符串** | `{oldPassword,newPassword,confirmPassword}` | **P3 已改** |
+| `PUT /api/users/profile` | `response.user` | 裸资源 | P5 待改 |
 
-**P2 改法**：`authAPI.refreshToken` 的返回值去掉了 `data` 包装，`getProfile` 与 `register`
-改成直接用裸用户对象。**P5 接线时必须逐条改掉剩下的**。
+**P2/P3 改法**：`authAPI.refreshToken` 的返回值去掉了 `data` 包装，
+`getProfile` 与 `register` 改成直接用裸用户对象；`getUserWorks` 补上 userId
+并按分页信封读 `response.content`；改密码改成传对象。
+**P5 接线时必须逐条改掉剩下的**。
 改不掉就说明契约错了 —— 那时改契约，别偷偷在后端加信封。
+
+### 3.6 响应里的主键一律叫 `id`（P3 修订）
+
+前端从 API 响应里读的是 **`work.id` / `comment.id` / `user.id`**，
+它的 mock 数组里也全是 `id:`，全项目**没有一处读 `workId`**
+（`xxxId` 只出现在**路径参数名**里，那是另一回事 —— 路径参数名仍叫
+`{workId}` / `{commentId}` / `{reviewId}`，前后端一致，检查器也会校验）。
+
+⇒ P3 把各实体 schema 的主键字段统一改成 `id`：
+
+| schema | 改前 | 改后 |
+|---|---|---|
+| `Work` | `workId` | `id` |
+| `Comment` | `commentId` | `id` |
+| `Discussion` | `discussionId` | `id` |
+| `DiscussionReply` | `replyId` | `id` |
+| `FileReview` | `reviewId` | `id` |
+| `PracticeRecord` | `recordId` | `id` |
+| `FrontendUser` / `BackendUser` | `userId` | `id` |
+
+**其它字段一律不动** —— `userId` 作为「引用别人的 id」保留
+（`Work.userId`、`Comment.workId`、`DiscussionReply.parentId`……）。
+
+后端实现上：`WorkDto` 等 DTO 的 Java 字段名没动（`workId`），
+用 `@JsonProperty("id")` 把 JSON 名对上。
+
+### 3.7 修改密码的请求体是「旧密码 + 新密码」
+
+P3 把 `PUT /api/users/password` 的请求体定成
+`{oldPassword, newPassword, confirmPassword}`（已登录用户改自己的密码）。
+
+**不是**后端那个 `PasswordResetDto`（`email` + `verificationCode`）——
+那是**忘记密码的重置**语义（邮箱 + 验证码），而契约的 53 个端点里
+**根本没有重置密码的端点**；拿它当「修改密码」的请求体是不对的。
+前端 `ProfileView` 的表单字段本来就正好是这三个。
 
 ## 4. 前端现存缺陷（P5 待修）
 
@@ -239,19 +278,21 @@ P5 接线时必须全部删掉 —— 否则接口没通的时候页面会显示
 ```
 contract  : 53 operation(s)
 frontend  : 51 call site(s)
-backend   : 10 controller route(s)
+backend   : 22 controller route(s)
 violations: 0
-gaps      : 45
+gaps      : 33
 warnings  : 3
 ```
 
 - **违规 0** —— 契约与现有代码没有矛盾，校验通过。
-- **缺口 45** = 43 条「后端还没实现」+ 2 条「前端还没接线」
-  （`GET /api/copybooks/practice/history`、`GET /api/stats/overview`）。
-- **警告 3** = §4 表里的 3 条幽灵方法（裸 fetch 那条已在 P2 修掉）。
+- **缺口 33** = 31 条「后端还没实现」+ 2 条「前端还没接线」
+  （`GET /api/copybooks/practice/history`、`GET /api/stats/overview` 的前端调用入口；
+  端点本身已实现）。
+- **警告 3** = §4 表里的 3 条幽灵方法。
 
-**P2（auth 域，10 个端点）已关闭**，后端路由数从 0 变成 10。
-**这份缺口清单就是 P3–P6 的工作项。** 每完成一个域，缺口数下降，
+**已完成的域**：P2 auth（端点 1–10）、P3 user + works + stats（端点 11–21、53）——
+后端路由数从 0 变成 22。
+**剩下的缺口就是 P4–P6 的工作项。** 每完成一个域，缺口数下降，
 `npm run contract:check` 的输出就是进度。到 P7 必须 `--strict` 也过。
 
 ## 6. 阶段划分与验收
@@ -259,8 +300,8 @@ warnings  : 3
 | 阶段 | 覆盖 | 验收 | 状态 |
 |---|---|---|---|
 | **P1 契约定稿** | `contract.yaml` + 本文件 + `check-contract.mjs` | 校验脚本通过，差异清单即待实现清单 | ✅ 完成 |
-| **P2 auth 域** | 端点 1–10 | 登录 → 带 Bearer → refresh → logout 全链路通；契约测试绿 | ✅ 完成 |
-| **P3 user + works 域** | 端点 11–21、53 | 上传作品 → 画廊可见 → 图片能取回；契约测试绿 | 待做 |
+| **P2 auth 域** | 端点 1–10 | 登录 → 带 Bearer → refresh → logout 全链路通；契约测试 10 项绿 | ✅ 完成 |
+| **P3 user + works + stats 域** | 端点 11–21、53 | 上传作品 → 可见 → 图片能取回；契约测试 12 项绿 | ✅ 完成 |
 | **P4 copybooks 域** | 端点 22–27 | 字帖列表/详情/记录练习/统计/历史；`copybooks` 既有 3 行数据可读 | 待做 |
 | **P5 comments + discussions + file-reviews 域** | 端点 28–52 | 发帖/回复/点赞/评论/审核；契约测试绿 | 待做 |
 | **P6 前端接线 + 删 mock** | §3.5、§4 | 六个视图无硬编码 mock；api.js 无 mock 降级分支 | 待做 |

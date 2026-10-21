@@ -98,8 +98,10 @@ public class FileUploadServiceImpl implements FileUploadService {
         
         // 更新用户头像URL
         User user = userService.findByUsername(username);
+        // 注意：FrontendUserUpdateDto.userId 是 Long，而 model/User.id 是 UUID 字符串 ——
+        // 这里**不能** Long.valueOf(user.getId())（会抛 NumberFormatException）。
+        // updateUser 用的是方法参数上的 userId，dto 里的 userId 不参与定位，因此不设。
         com.calligraphy.platform.dto.FrontendUserUpdateDto dto = com.calligraphy.platform.dto.FrontendUserUpdateDto.builder()
-            .userId(Long.valueOf(user.getId()))
             .avatar(response.getFileUrl())
             .build();
         userService.updateUser(user.getId(), dto);
@@ -174,9 +176,11 @@ public class FileUploadServiceImpl implements FileUploadService {
             
             if (deleted) {
                 // 更新用户头像URL为空
+                // 同上：不能 Long.valueOf(user.getId())。
+                // 头像置空用空串而不是 null —— updateUser 会跳过 null 字段，
+                // 那样就清不掉头像了。
                 com.calligraphy.platform.dto.FrontendUserUpdateDto dto = com.calligraphy.platform.dto.FrontendUserUpdateDto.builder()
-                    .userId(Long.valueOf(user.getId()))
-                    .avatar(null)
+                    .avatar("")
                     .build();
                 userService.updateUser(user.getId(), dto);
                 log.info("头像删除并更新成功: 用户={}", username);

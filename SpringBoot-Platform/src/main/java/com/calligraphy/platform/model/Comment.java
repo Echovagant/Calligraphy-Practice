@@ -37,7 +37,7 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
-    private FrontendUser user;
+    private User user;
     
     @Column(name = "user_id", length = 36, nullable = false, insertable = false, updatable = false)
     private String userId;
@@ -152,11 +152,11 @@ public class Comment {
         this.content = content;
     }
     
-    public FrontendUser getUser() {
+    public User getUser() {
         return user;
     }
     
-    public void setUser(FrontendUser user) {
+    public void setUser(User user) {
         this.user = user;
     }
     
@@ -272,7 +272,7 @@ public class Comment {
     public static class Builder {
         private Long id;
         private String content;
-        private FrontendUser user;
+        private User user;
         private String userId;
         private Work work;
         private Long workId;
@@ -291,7 +291,7 @@ public class Comment {
         
         public Builder id(Long id) { this.id = id; return this; }
         public Builder content(String content) { this.content = content; return this; }
-        public Builder user(FrontendUser user) { this.user = user; return this; }
+        public Builder user(User user) { this.user = user; return this; }
         public Builder userId(String userId) { this.userId = userId; return this; }
         public Builder work(Work work) { this.work = work; return this; }
         public Builder workId(Long workId) { this.workId = workId; return this; }

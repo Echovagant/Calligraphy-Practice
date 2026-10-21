@@ -45,6 +45,9 @@ public class SecurityConfig {
             "/api/backend/auth/refresh",
             "/api/frontend/auth/logout",
             "/api/backend/auth/logout",
+            // 上传文件由 WebConfig 的静态资源映射提供（/api/files/** -> {file.upload-dir}），
+            // 作品画廊是公开的，图片也必须能匿名取回
+            "/api/files/**",
             "/uploads/**",
             "/error",
             "/swagger-ui/**",
@@ -71,6 +74,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // 公开画廊与首页概览不需要令牌（契约里这两个是 security: []）
+                        .requestMatchers(HttpMethod.GET, "/api/works").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/stats/overview").permitAll()
                         .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex

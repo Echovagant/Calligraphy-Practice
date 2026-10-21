@@ -2,6 +2,7 @@ package com.calligraphy.platform.service;
 
 import com.calligraphy.platform.dto.WorkDto;
 import com.calligraphy.platform.dto.WorkCreateDto;
+import com.calligraphy.platform.dto.WorkCreateRequestDto;
 import com.calligraphy.platform.dto.WorkUpdateRequestDto;
 import com.calligraphy.platform.model.Work;
 import org.springframework.data.domain.Page;
@@ -12,8 +13,28 @@ import java.util.List;
 import java.util.Optional;
 
 public interface WorkService {
-    
+
     WorkDto createWork(String userId, WorkCreateDto createDto, MultipartFile[] files);
+
+    /**
+     * 按用户名创建作品 —— 作者从 users 表查出来并**设置关联**
+     * （works.user_id 由 @ManyToOne 关联独占写入，只传 id 字符串会写成 NULL）。
+     *
+     * @param createRequest 作品内容
+     * @param username 作者用户名
+     * @return 创建后的作品
+     */
+    WorkDto createWork(WorkCreateRequestDto createRequest, String username);
+
+    /**
+     * 按用户名更新作品（带权限校验：只有作者或管理员能改）。
+     *
+     * @param workId 作品 id
+     * @param updateRequest 更新内容
+     * @param username 操作者用户名
+     * @return 更新后的作品
+     */
+    WorkDto updateWork(Long workId, WorkUpdateRequestDto updateRequest, String username);
     
     WorkDto getWorkById(Long workId);
     

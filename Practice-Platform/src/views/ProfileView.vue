@@ -254,10 +254,14 @@ const handleChangePassword = async () => {
     securityLoading.value = true;
     
     // 调用store修改密码
-    const success = await userStore.changePassword(
-      securityForm.oldPassword,
-      securityForm.newPassword
-    );
+    // 契约规定请求体是 {oldPassword, newPassword, confirmPassword} 对象；
+    // 之前这里传的是两个位置参数，store 只收一个对象，
+    // 结果发出去的是裸 JSON 字符串。
+    const success = await userStore.changePassword({
+      oldPassword: securityForm.oldPassword,
+      newPassword: securityForm.newPassword,
+      confirmPassword: securityForm.confirmPassword,
+    });
     
     if (success) {
       ElMessage.success('密码修改成功，请重新登录');

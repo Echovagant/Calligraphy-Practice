@@ -52,6 +52,27 @@ public interface UserService {
     long getActiveUserCount();
 
     long getVerifiedUserCount();
+
+    /**
+     * 修改当前用户的密码。
+     *
+     * <p>校验旧密码必须与库里的哈希匹配；新密码不能与旧密码相同。
+     *
+     * @param userId 用户 id
+     * @param oldPassword 旧密码（明文）
+     * @param newPassword 新密码（明文）
+     * @throws com.calligraphy.platform.exception.BusinessException 旧密码不对或新密码与旧密码相同
+     */
+    void changePassword(String userId, String oldPassword, String newPassword);
+
+    /**
+     * 用户的公开统计：作品数、评论数、练习数、累计获赞与累计浏览。
+     *
+     * @param userId 用户 id
+     * @return 键为 {@code workCount}/{@code commentCount}/{@code practiceCount}/
+     *         {@code totalLikesReceived}/{@code totalViewsReceived} 的映射
+     */
+    Map<String, Long> getUserCounts(String userId);
 }
 
 

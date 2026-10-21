@@ -4,13 +4,13 @@ import com.calligraphy.platform.dto.CommentDto;
 import com.calligraphy.platform.dto.CommentCreateDto;
 import com.calligraphy.platform.dto.CommentUpdateDto;
 import com.calligraphy.platform.model.Comment;
-import com.calligraphy.platform.model.FrontendUser;
+import com.calligraphy.platform.model.User;
 import com.calligraphy.platform.model.Work;
 import com.calligraphy.platform.exception.ResourceNotFoundException;
 import com.calligraphy.platform.mapper.CommentMapper;
 import com.calligraphy.platform.repository.CommentRepository;
 import com.calligraphy.platform.service.CommentService;
-import com.calligraphy.platform.service.FrontendUserService;
+import com.calligraphy.platform.service.UserService;
 import com.calligraphy.platform.service.WorkService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -32,7 +32,7 @@ public class CommentServiceImpl implements CommentService {
 
     private static final Logger log = LoggerFactory.getLogger(CommentServiceImpl.class);
     private final CommentRepository commentRepository;
-    private final FrontendUserService userService;
+    private final UserService userService;
     private final WorkService workService;
     private final CommentMapper commentMapper;
     @Override
@@ -41,8 +41,7 @@ public class CommentServiceImpl implements CommentService {
     public CommentDto createComment(String workId, String userId, CommentCreateDto createDto) {
         log.info("创建评论: 作品ID={}, 用户ID={}", workId, userId);
 
-        FrontendUser author = userService.getUserEntityById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + userId));
+        User author = userService.findById(userId);
         Work work = workService.getWorkEntityById(Long.valueOf(workId))
                 .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
@@ -164,8 +163,7 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new ResourceNotFoundException("评论不存在: " + commentId));
 
         // 检查权限 - 只有作者或管理员可以更新
-        FrontendUser currentUser = userService.getUserEntityById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + userId));
+        User currentUser = userService.findById(userId);
         if (!comment.getUser().getId().equals(currentUser.getId())) {
             throw new SecurityException("没有权限更新此评论");
         }
@@ -228,8 +226,7 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new ResourceNotFoundException("评论不存在: " + commentId));
 
         // 检查权限 - 只有作者或管理员可以删除
-        FrontendUser currentUser = userService.getUserEntityById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + userId));
+        User currentUser = userService.findById(userId);
         if (!comment.getUser().getId().equals(currentUser.getId())) {
             throw new SecurityException("没有权限删除此评论");
         }
@@ -381,8 +378,7 @@ public class CommentServiceImpl implements CommentService {
         Comment parentComment = commentRepository.findById(( Long) Long.valueOf(parentCommentId))
                 .orElseThrow(() -> new ResourceNotFoundException("父评论不存在: " + parentCommentId));
 
-        FrontendUser author = userService.getUserEntityById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + userId));
+        User author = userService.findById(userId);
         Work work = parentComment.getWork();
 
         Comment reply = Comment.builder()

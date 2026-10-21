@@ -17,10 +17,11 @@ import java.util.List;
 public interface WorkMapper {
     
     @Mapping(target = "fileUrls", expression = "java(work.getImageUrl() != null ? java.util.Collections.singletonList(work.getImageUrl()) : null)")
+    @Mapping(target = "imageUrl", source = "imageUrl")
     @Mapping(target = "workId", source = "id")
     @Mapping(target = "userId", source = "userId")
     @Mapping(target = "username", expression = "java(work.getUser() != null ? work.getUser().getUsername() : null)")
-    @Mapping(target = "userNickname", expression = "java(work.getUser() != null ? work.getUser().getFullName() : null)")
+    @Mapping(target = "userNickname", expression = "java(work.getUser() != null ? work.getUser().getDisplayName() : null)")
     @Mapping(target = "userAvatar", expression = "java(work.getUser() != null ? work.getUser().getAvatarUrl() : null)")
     @Mapping(target = "category", constant = "default")
     @Mapping(target = "isLikedByCurrentUser", constant = "false")

@@ -33,7 +33,7 @@ public class PracticeRecord {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
-    private FrontendUser user;
+    private User user;
     
     @Column(name = "user_id", length = 36, nullable = false, insertable = false, updatable = false)
     private String userId;

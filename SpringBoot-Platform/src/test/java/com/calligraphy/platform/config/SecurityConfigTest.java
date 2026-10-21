@@ -30,7 +30,8 @@ class SecurityConfigTest {
 
     @Test
     void protectedPathWithoutTokenReturns401() throws Exception {
-        mockMvc.perform(get("/api/works"))
+        // GET /api/users/{userId} 需要令牌（公开的只有 /api/works 画廊与 /api/stats/overview）
+        mockMvc.perform(get("/api/users/some-user-id"))
                 .andExpect(status().isUnauthorized());
     }
 

@@ -37,7 +37,7 @@ public class DiscussionReply {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
-    private FrontendUser user;
+    private User user;
     
     @Column(name = "user_id", length = 36, nullable = false, insertable = false, updatable = false)
     private String userId;
@@ -80,7 +80,7 @@ public class DiscussionReply {
     }
     
     // 全参构造器
-    public DiscussionReply(Long id, String content, Discussion discussion, Long discussionId, FrontendUser user, 
+    public DiscussionReply(Long id, String content, Discussion discussion, Long discussionId, User user, 
                           String userId, String username, String userAvatar, Long parentId, String replyToUserId, 
                           String replyToUsername, ReplyStatus status, Integer likeCount, LocalDateTime createdAt, 
                           LocalDateTime updatedAt) {
@@ -134,11 +134,11 @@ public class DiscussionReply {
         this.discussionId = discussionId;
     }
     
-    public FrontendUser getUser() {
+    public User getUser() {
         return user;
     }
     
-    public void setUser(FrontendUser user) {
+    public void setUser(User user) {
         this.user = user;
     }
     
@@ -262,7 +262,7 @@ public class DiscussionReply {
         private String content;
         private Discussion discussion;
         private Long discussionId;
-        private FrontendUser user;
+        private User user;
         private String userId;
         private String username;
         private String userAvatar;
@@ -294,7 +294,7 @@ public class DiscussionReply {
             return this;
         }
         
-        public Builder user(FrontendUser user) {
+        public Builder user(User user) {
             this.user = user;
             return this;
         }

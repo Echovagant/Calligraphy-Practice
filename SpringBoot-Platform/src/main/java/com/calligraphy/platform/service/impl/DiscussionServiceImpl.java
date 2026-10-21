@@ -11,10 +11,10 @@ import com.calligraphy.platform.mapper.DiscussionMapper;
 import com.calligraphy.platform.mapper.DiscussionReplyMapper;
 import com.calligraphy.platform.model.Discussion;
 import com.calligraphy.platform.model.DiscussionReply;
-import com.calligraphy.platform.model.FrontendUser;
+import com.calligraphy.platform.model.User;
 import com.calligraphy.platform.repository.DiscussionRepository;
 import com.calligraphy.platform.repository.DiscussionReplyRepository;
-import com.calligraphy.platform.repository.FrontendUserRepository;
+import com.calligraphy.platform.repository.UserRepository;
 import com.calligraphy.platform.service.DiscussionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,18 +36,18 @@ public class DiscussionServiceImpl implements DiscussionService {
 
     private final DiscussionRepository discussionRepository;
     private final DiscussionReplyRepository discussionReplyRepository;
-    private final FrontendUserRepository frontendUserRepository;
+    private final UserRepository userRepository;
     private final DiscussionMapper discussionMapper;
     private final DiscussionReplyMapper discussionReplyMapper;
 
     public DiscussionServiceImpl(DiscussionRepository discussionRepository,
             DiscussionReplyRepository discussionReplyRepository,
-            FrontendUserRepository frontendUserRepository,
+            UserRepository userRepository,
             DiscussionMapper discussionMapper,
             DiscussionReplyMapper discussionReplyMapper) {
         this.discussionRepository = discussionRepository;
         this.discussionReplyRepository = discussionReplyRepository;
-        this.frontendUserRepository = frontendUserRepository;
+        this.userRepository = userRepository;
         this.discussionMapper = discussionMapper;
         this.discussionReplyMapper = discussionReplyMapper;
     }
@@ -57,7 +57,7 @@ public class DiscussionServiceImpl implements DiscussionService {
     public DiscussionDto createDiscussion(String userId, DiscussionCreateDto createDto) {
         log.info("创建讨论: 用户ID={}, 标题={}, 分类={}", userId, createDto.getTitle(), createDto.getCategory());
 
-        FrontendUser user = frontendUserRepository.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + userId));
 
         Discussion discussion = new Discussion();
@@ -266,7 +266,7 @@ public class DiscussionServiceImpl implements DiscussionService {
                 .findByIdAndStatusNot(Long.valueOf(discussionId), Discussion.DiscussionStatus.DELETED)
                 .orElseThrow(() -> new ResourceNotFoundException("讨论不存在: " + discussionId));
 
-        FrontendUser user = frontendUserRepository.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("用户不存在: " + userId));
 
         DiscussionReply reply = new DiscussionReply();

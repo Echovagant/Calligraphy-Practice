@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { copybookAPI, worksAPI } from '../utils/api'
+import { getStorage, getSessionStorage } from '../utils/storage'
 
 export const usePracticeStore = defineStore('practice', {
   state: () => ({
@@ -265,8 +266,17 @@ export const usePracticeStore = defineStore('practice', {
     // 从服务器获取用户作品
     async fetchUserWorks() {
       try {
-        const response = await worksAPI.getUserWorks()
-        this.savedWorks = response.map((work) => ({
+        // 用户 id 从本地存储里取（userStore 登录时写入的 userInfo）。
+        // 之前这里没传 id，实际请求的是 /works/user/undefined。
+        const storedUser = getStorage('userInfo') || getSessionStorage('userInfo');
+        const userId = storedUser?.id;
+        if (!userId) {
+          console.warn('未登录，跳过获取用户作品');
+          return;
+        }
+        const response = await worksAPI.getUserWorks(userId);
+        // 契约规定列表返回分页信封 {content,page,size,total,totalPages}
+        this.savedWorks = (response?.content || []).map((work) => ({
           id: work.id,
           createdAt: work.createdAt,
           title: work.title,
