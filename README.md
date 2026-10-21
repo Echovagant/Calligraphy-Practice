@@ -5,9 +5,10 @@
 前端 `Practice-Platform/`（Vue 3 + Vite 7 + Element Plus + Pinia + fabric.js），
 后端 `SpringBoot-Platform/`（Spring Boot 3.2.5 / JDK 17 / MySQL 8 / Redis）。
 
-> 项目当前处于**契约对齐阶段**（spec §8 的 P0–P7）。P0–P3 已完成，
-> auth 域与 user/works/stats 域的后端端点可用；完整进度见
-> [`docs/api-contract.md`](docs/api-contract.md) §6。
+> 项目当前处于**契约对齐阶段**（spec §8 的 P0–P7）。**P0–P6 已完成** ——
+> 契约里的 **53 个端点全部实现完毕**，前端也全部接到真实后端
+> （`npm run contract:check` 现为 violations 0 / gaps 0 / warnings 0）。
+> 完整进度见 [`docs/api-contract.md`](docs/api-contract.md) §6。
 
 ---
 

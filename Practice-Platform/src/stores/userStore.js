@@ -472,8 +472,14 @@ export const useUserStore = defineStore('user', {
         // 有token，尝试获取用户信息
         await this.fetchUserProfile();
       } else {
-        // 没有token，清除可能残留的用户信息
-        this.logout();
+        // 没有token：清掉可能残留的用户信息。
+        //
+        // 这里**不能**调 logout() —— 它会去打 /api/frontend/auth/logout，
+        // 而那是个需要令牌的端点：没有令牌时 api.js 会硬跳登录页
+        // （window.location.href），页面重新加载后又走到这里 ⇒ 无限刷新循环。
+        this.userInfo = null;
+        this.isLoggedIn = false;
+        this.userInfoLoaded = false;
       }
     },
 

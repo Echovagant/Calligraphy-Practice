@@ -1,134 +1,147 @@
-# 书法练习平台后端 (Spring Boot)
+# 书法练习平台 · 后端（Spring Boot 3.2.5）
 
-这是书法练习平台的Spring Boot后端实现，包含用户管理和认证功能。
+在线书法练习平台的后端实现。JDK 17 / Spring Boot 3.2.5 / Spring Security /
+Spring Data JPA / MySQL 8 / Redis / MapStruct / Lombok。
 
-## 项目结构
-SpringBoot-Platform/
-├── src/
-│   ├── main/
-│   │   ├── java/com/calligraphy/platform/
-│   │   │   ├── config/           # 配置类
-│   │   │   ├── controller/       # 控制器
-│   │   │   ├── model/            # 数据模型
-│   │   │   ├── repository/       # 数据访问层
-│   │   │   ├── security/         # 安全相关
-│   │   │   ├── service/          # 业务逻辑层
-│   │   │   │   └── impl/         # 服务实现
-│   │   │   ├── util/             # 工具类
-│   │   │   └── CalligraphyPlatformApplication.java # 应用入口
-│   │   └── resources/
-│   │       └── application.properties # 应用配置
-│   └── test/                     # 测试代码
-├── pom.xml                       # Maven配置
-└── README.md                     # 项目说明
+> **权威文档在仓库根目录**，本文件只讲后端自己。
+> - 契约（唯一权威）：[`../Practice-Platform/openapi/contract.yaml`](../Practice-Platform/openapi/contract.yaml)，53 个 operation
+> - 人读版契约：[`../docs/api-contract.md`](../docs/api-contract.md)
+> - 完整运行指南：[`../README.md`](../README.md)
 
-## 技术栈
+---
 
-- Spring Boot 3.2.4
-- Spring Security
-- Spring Data JPA
-- MySQL
-- JWT (JSON Web Token)
-- Lombok
+## 1. 先配置密钥（**必做**）
 
-## 功能特性
+**密钥不在版本库里。** 仓库里没有真实密钥；JWT 签名密钥一旦公开，
+任何人都能伪造 `ROLE_ADMIN` 的令牌绕过全部鉴权。
 
-### 用户管理
-- 用户注册
-- 用户登录
-- 获取用户信息
-- 更新用户信息
-- 删除用户
-- 检查用户名/邮箱是否存在
-
-### 认证与授权
-- JWT令牌认证
-- 角色基础的访问控制 (USER, ADMIN, SUPER_ADMIN)
-- 令牌刷新
-- 用户登出
-
-## 快速开始
-
-### 前提条件
-
-- JDK 17 或更高版本
-- Maven 3.6 或更高版本
-- MySQL 8.0 或更高版本
-
-### 配置数据库
-
-1. 创建MySQL数据库：
-
-```sql
-CREATE DATABASE calligraphy_platform;
-CREATE USER 'calligraphy_user'@'localhost' IDENTIFIED BY 'calligraphy_password';
-GRANT ALL PRIVILEGES ON calligraphy_platform.* TO 'calligraphy_user'@'localhost';
-FLUSH PRIVILEGES;
+```powershell
+Copy-Item 'config\local-secrets.properties.example' 'config\local-secrets.properties'
 ```
 
-1. 修改 `application.properties` 中的数据库连接信息（如果需要）
+编辑 `config/local-secrets.properties`，填两项：
 
-### 运行项目
-
-```bash
-# 编译并运行
-cd SpringBoot-Platform
-mvn spring-boot:run
-
-# 或构建JAR包后运行
-cd SpringBoot-Platform
-mvn clean package
-java -jar target/SpringBoot-Platform-1.0.0.jar
+```properties
+JWT_SECRET=<至少 32 字符，建议 openssl rand -hex 32>
+DB_PASSWORD=<本地 MySQL 密码>
 ```
 
-### 默认用户
+`config/local-secrets.properties` **已被 .gitignore 忽略**，别提交它。
 
-应用启动时会自动创建以下默认用户：
+密钥**没有默认值** —— 缺失或短于 32 位时应用**启动即失败**：
 
-- 管理员: `admin` / `admin123`
-- 超级管理员: `superadmin` / `superadmin123`
+```
+IllegalStateException: JWT 密钥未配置。请设置环境变量 JWT_SECRET，
+或用 run-local.ps1 启动（它会读 config/local-secrets.properties 并注入环境变量）。
+```
 
-## API端点
+---
 
-### 认证相关
+## 2. 启动与测试
 
-- `POST /auth/login` - 用户登录
-- `POST /auth/register` - 用户注册
-- `POST /auth/refresh` - 刷新令牌
-- `POST /auth/logout` - 用户登出
+```powershell
+.\run-local.ps1             # 启动（等价于 mvn -o spring-boot:run），端口 8083
+.\run-local.ps1 -Task test  # 跑测试（当前 130 项）
+.\run-local.ps1 -Task compile
+```
 
-### 用户相关
+`run-local.ps1` 把 `config/local-secrets.properties` 读成**环境变量**注入当前进程
+（**从不回显**），再执行 Maven。直接跑 `mvn spring-boot:run` 的话，
+必须自己先设好 `JWT_SECRET` 与 `DB_PASSWORD`。
 
-- `GET /users` - 获取所有用户（需要管理员权限）
-- `GET /users/me` - 获取当前用户信息
-- `GET /users/{id}` - 根据ID获取用户
-- `PUT /users/{id}` - 更新用户信息
-- `DELETE /users/{id}` - 删除用户（需要管理员权限）
-- `GET /users/check-username/{username}` - 检查用户名是否存在
-- `GET /users/check-email/{email}` - 检查邮箱是否存在
+---
 
-## 安全配置
+## 3. 数据库
 
-- 除了 `/auth/**` 和 `/public/**` 路径外，所有请求都需要认证
-- 使用JWT令牌进行认证，令牌需要在请求头中以 `Bearer {token}` 形式提供
-- 不同的API端点需要不同的角色权限
+| 项 | 值 |
+|---|---|
+| 库名 | `calligraphy_practice` |
+| 地址 | `127.0.0.1:3306` |
+| 连接配置 | `application.properties` 的 `spring.datasource.*`，密码走 `DB_PASSWORD` 环境变量 |
+| 表结构演化 | `ddl-auto=update`（新增实体字段会自动加列） |
 
-## 开发说明
+**一次性/修正性 SQL 放在 `db/`**，按编号递增，**幂等**，手工执行：
 
-### 添加新功能
+| 脚本 | 作用 |
+|---|---|
+| `db/01-align-copybook-id.sql` | `practice_records.copybook_id` 从 bigint 改成 varchar(36) |
+| `db/02-unify-user-fk.sql` | 6 张域表的 user 外键统一指向 `users` |
+| `db/03-practice-records-contract.sql` | `practice_records` 对齐契约的 `PracticeRecord` schema |
+| `db/04-discussion-likes.sql` | 点赞去重表 `discussion_likes` |
 
-1. 在 `model` 包中添加新的数据模型
-2. 在 `repository` 包中添加相应的Repository接口
-3. 在 `service` 包中定义服务接口，并在 `service/impl` 包中实现
-4. 在 `controller` 包中添加相应的控制器
+> `src/main/resources/recreate_schema.sql` 是**历史遗留**的「部分重建」脚本，
+> 它的 `users` / `works` 列已经落后于当前实体定义，**不要**拿它重建线上库。
 
-### 测试
+---
 
-使用JUnit和Spring Boot Test进行单元测试和集成测试。测试代码应该放在 `src/test/java` 目录下。
+## 4. 端点（53 个，全部已实现）
 
-## 注意事项
+以 `openapi/contract.yaml` 为准，这里只列分组与鉴权：
 
-1. 在生产环境中，请修改默认的管理员密码
-2. 确保更新 `application.properties` 中的JWT密钥为安全的随机字符串
-3. 考虑为生产环境配置HTTPS
-4. 实现更完善的错误处理和日志记录
+| 分组 | 端点数 | 鉴权 |
+|---|---|---|
+| `/api/frontend/auth/*`、`/api/backend/auth/*`、`/api/auth/verification-code` | 10 | 登录/注册/验证码公开，其余要令牌 |
+| `/api/users/*` | 5 | 要令牌（`GET /api/users/{id}` 需令牌） |
+| `/api/works*` | 7 | `GET /api/works` 公开，其余要令牌 |
+| `/api/copybooks*` | 6 | 列表/热门/详情公开；统计/历史/记录练习要令牌 |
+| `/api/community/comments*` | 4 | 按作品查公开，其余要令牌 |
+| `/api/discussions*` | 14 | 浏览公开，写操作要令牌 |
+| `/api/admin/file-reviews*` | 7 | **需要 ADMIN / SUPER_ADMIN** |
+| `/api/stats/overview` | 1 | 公开 |
+
+**响应形状**（见契约 §1.1）：
+
+- 成功 + 单资源 → 裸对象，**没有 `data` 信封**
+- 成功 + 列表 → `{content, page, size, total, totalPages}`
+- 失败 → `{code, message}`
+
+**主键字段一律叫 `id`**（不是 `workId` / `commentId`）。
+
+---
+
+## 5. 代码结构
+
+```
+src/main/java/com/calligraphy/platform/
+  controller/            HTTP 入口层
+  service/ + service/impl/   业务层（接口与实现分离）
+  repository/            数据访问层
+  model/ + entity/       JPA 实体
+  dto/                   请求/响应体
+  mapper/                MapStruct 映射
+  exception/             统一错误处理（GlobalExceptionHandler）
+  config/                安全、CORS、静态资源、JWT 属性
+  security/              JWT 过滤器与鉴权入口点
+  converter/             JPA AttributeConverter
+```
+
+**三条容易踩的约定**：
+
+1. **响应形状**只有三种（裸资源 / 分页信封 / `{code,message}`），
+   `GlobalExceptionHandler` 已经把异常映射好了，控制器**不要**自己拼错误体。
+2. **LAZY 关联**：凡是映射 DTO 时会读关联字段的服务实现，类上加
+   `@Transactional(readOnly = true)`，写方法自己加 `@Transactional`。
+   否则事务外访问会抛 `LazyInitializationException`。
+3. **接口裁剪**：契约里没有对应端点的 service 方法，**连同实现一起删掉**，
+   不要留着当死代码。留着的桩要么真实现，要么删掉。
+
+---
+
+## 6. 数据库迁移与运维脚本
+
+| 脚本 | 作用 |
+|---|---|
+| `scripts/mojibake.py` | 编码污染检测与修复（`detect` / `repair` / `selftest`） |
+| `scripts/check_messages.py` | DTO 校验消息一致性检查 |
+| `db/*.sql` | 见 §3 |
+
+---
+
+## 7. 注意事项
+
+1. 生产环境务必换掉 `JWT_SECRET`，并用 HTTPS。
+2. `config/local-secrets.properties` 不要提交。
+3. `/api/admin/**` 的角色门禁在 `SecurityConfig` 里（`hasAnyRole("ADMIN","SUPER_ADMIN")`），
+   **没有**用注解式鉴权 —— 加新管理端点时不需要加 `@PreAuthorize`。
+4. 契约是唯一真相源：新增端点先改 `openapi/contract.yaml` → 再写后端 → 最后接前端，
+   并跑 `npm run contract:check`（漂移会让前端构建失败）。
