@@ -12,7 +12,11 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "copybooks")
+@Table(name = "copybooks", indexes = {
+    // 首页概览取「启用中的字帖，按使用次数倒序的前 5 条」。
+    // 索引名与列序必须与 db/06-performance-indexes.sql 一致。
+    @Index(name = "idx_copybooks_active_usage", columnList = "is_active, usage_count")
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

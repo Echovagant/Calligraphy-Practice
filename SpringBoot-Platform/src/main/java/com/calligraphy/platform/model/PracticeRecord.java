@@ -35,7 +35,10 @@ import java.util.List;
 @Table(name = "practice_records", indexes = {
         @Index(name = "idx_user_id", columnList = "user_id"),
         @Index(name = "idx_created_at", columnList = "created_at"),
-        @Index(name = "idx_practice_user_type", columnList = "user_id, practice_type")
+        @Index(name = "idx_practice_user_type", columnList = "user_id, practice_type"),
+        // 练习历史：某个用户的记录，按练习时间倒序翻页。
+        // 索引名与列序必须与 db/06-performance-indexes.sql 一致。
+        @Index(name = "idx_practice_user_date", columnList = "user_id, practice_date")
 })
 @Data
 @NoArgsConstructor

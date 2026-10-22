@@ -18,7 +18,11 @@ import java.util.List;
     @Index(name = "idx_status", columnList = "status"),
     @Index(name = "idx_review_status", columnList = "review_status"),
     @Index(name = "idx_created_at", columnList = "created_at"),
-    @Index(name = "idx_works_user_status", columnList = "user_id, status, review_status")
+    @Index(name = "idx_works_user_status", columnList = "user_id, status, review_status"),
+    // 公开画廊：status + review_status 等值过滤，再按 created_at 倒序翻页。
+    // 索引名与列序必须与 db/06-performance-indexes.sql 一致（见那里的说明：
+    // ddl-auto=update 对已建好的库不保证补索引，脚本才是可靠来源）。
+    @Index(name = "idx_works_status_review_created", columnList = "status, review_status, created_at")
 })
 @Data
 @NoArgsConstructor

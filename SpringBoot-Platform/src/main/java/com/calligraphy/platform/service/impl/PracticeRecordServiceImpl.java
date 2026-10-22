@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -74,14 +73,16 @@ public class PracticeRecordServiceImpl implements PracticeRecordService {
         copybookRepository.save(copybook);
 
         PracticeRecordDto dto = toDto(saved);
-        applyStatistics(dto, buildStatistics(user.getId()));
+        applyStatistics(dto, buildListStatistics(user.getId()));
         return dto;
     }
 
     @Override
     public Page<PracticeRecordDto> getPracticeHistory(String username, Pageable pageable) {
         User user = requireUser(username);
-        PracticeStatisticsDto stats = buildStatistics(user.getId());
+        // 统计只算一次（在分页映射之外），再逐条填进 DTO。
+        // 列表用的统计只含 DTO 里那 4 个字段 —— 少算两个用不上的聚合查询。
+        PracticeStatisticsDto stats = buildListStatistics(user.getId());
         return practiceRecordRepository
                 .findByUserIdOrderByPracticeDateDesc(user.getId(), pageable)
                 .map(record -> {
@@ -113,19 +114,65 @@ public class PracticeRecordServiceImpl implements PracticeRecordService {
                 .orElseThrow(() -> new UserNotFoundException("用户未找到: " + username));
     }
 
+    /**
+     * 完整统计：{@code GET /api/copybooks/statistics/user} 端点与「记录练习」的响应用。
+     *
+     * <p>六个字段全算。
+     */
     private PracticeStatisticsDto buildStatistics(String userId) {
-        Long totalDuration = practiceRecordRepository.sumDurationByUserId(userId);
-        Double averageDuration = practiceRecordRepository.avgDurationByUserId(userId);
-        Long totalCharacters = practiceRecordRepository.sumCharacterCountByUserId(userId);
-
         return PracticeStatisticsDto.builder()
                 .totalPractices(practiceRecordRepository.countByUserId(userId))
-                .totalDuration(totalDuration == null ? 0L : totalDuration)
-                .averageDuration(averageDuration == null ? 0.0 : averageDuration)
-                .streakDays(calculateStreakDays(practiceRecordRepository.findPracticeDatesByUserId(userId)))
-                .characterCount(totalCharacters == null ? 0L : totalCharacters)
+                .totalDuration(sumDuration(userId))
+                .averageDuration(avgDuration(userId))
+                .streakDays(streakDays(userId))
+                .characterCount(sumCharacters(userId))
                 .copybookCount(practiceRecordRepository.countDistinctCopybookByUserId(userId))
                 .build();
+    }
+
+    /**
+     * 列表用的统计：只要 {@link PracticeRecordDto} 里那 4 个字段。
+     *
+     * <p>练习历史列表每个元素只带 totalPractices / totalDuration /
+     * averageDuration / streakDays，characterCount 与 copybookCount 根本用不上 ——
+     * 以前每次翻页都为这两个没人看的数字多跑一次聚合查询。
+     */
+    private PracticeStatisticsDto buildListStatistics(String userId) {
+        return PracticeStatisticsDto.builder()
+                .totalPractices(practiceRecordRepository.countByUserId(userId))
+                .totalDuration(sumDuration(userId))
+                .averageDuration(avgDuration(userId))
+                .streakDays(streakDays(userId))
+                .build();
+    }
+
+    private long sumDuration(String userId) {
+        Long totalDuration = practiceRecordRepository.sumDurationByUserId(userId);
+        return totalDuration == null ? 0L : totalDuration;
+    }
+
+    private double avgDuration(String userId) {
+        Double averageDuration = practiceRecordRepository.avgDurationByUserId(userId);
+        return averageDuration == null ? 0.0 : averageDuration;
+    }
+
+    private long sumCharacters(String userId) {
+        Long totalCharacters = practiceRecordRepository.sumCharacterCountByUserId(userId);
+        return totalCharacters == null ? 0L : totalCharacters;
+    }
+
+    /**
+     * 连续练习天数。
+     *
+     * <p>用按天去重的投影查询（{@code SELECT DISTINCT DATE(practice_date)}）：
+     * 同一天练 10 次也只回 1 行，返回行数与练习次数无关。
+     */
+    private long streakDays(String userId) {
+        List<LocalDate> days = practiceRecordRepository.findDistinctPracticeDatesByUserId(userId)
+                .stream()
+                .map(java.sql.Date::toLocalDate)
+                .toList();
+        return calculateStreakDays(days);
     }
 
     /**
@@ -133,16 +180,11 @@ public class PracticeRecordServiceImpl implements PracticeRecordService {
      *
      * <p>今天还没练不算断 —— 从昨天开始接着数。
      */
-    private long calculateStreakDays(List<LocalDateTime> practiceDates) {
-        if (practiceDates == null || practiceDates.isEmpty()) {
+    private long calculateStreakDays(List<LocalDate> practiceDays) {
+        if (practiceDays == null || practiceDays.isEmpty()) {
             return 0L;
         }
-        Set<LocalDate> days = new HashSet<>();
-        for (LocalDateTime dateTime : practiceDates) {
-            if (dateTime != null) {
-                days.add(dateTime.toLocalDate());
-            }
-        }
+        Set<LocalDate> days = new HashSet<>(practiceDays);
         LocalDate cursor = LocalDate.now();
         if (!days.contains(cursor)) {
             cursor = cursor.minusDays(1);

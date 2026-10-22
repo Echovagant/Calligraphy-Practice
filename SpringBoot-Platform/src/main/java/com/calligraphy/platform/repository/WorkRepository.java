@@ -2,6 +2,7 @@ package com.calligraphy.platform.repository;
 
 import com.calligraphy.platform.model.Work;
 import com.calligraphy.platform.model.User;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -16,7 +17,14 @@ import java.util.List;
 public interface WorkRepository extends JpaRepository<Work, Long> {
     
     List<Work> findByUser(User user);
-    
+
+    /**
+     * 某个用户的全部作品。
+     *
+     * <p>{@code user} 走 JOIN 一次取齐：{@code WorkMapper.toDto} 会读
+     * {@code work.getUser()}，不 JOIN 的话每条作品都会再查一次 users（N+1）。
+     */
+    @EntityGraph(attributePaths = {"user"})
     List<Work> findByUserId(String userId);
 
     /**
@@ -25,6 +33,7 @@ public interface WorkRepository extends JpaRepository<Work, Long> {
      * <p>不能用 List 版本自己切片：那样 total / totalPages 会算错，
      * 而且数据量大时会把整批作品全查出来。
      */
+    @EntityGraph(attributePaths = {"user"})
     Page<Work> findByUserId(String userId, org.springframework.data.domain.Pageable pageable);
 
     /**
@@ -76,7 +85,20 @@ public interface WorkRepository extends JpaRepository<Work, Long> {
     
     @Query("SELECT COUNT(w) FROM Work w WHERE w.user = :user AND w.status = :status")
     long countByUserAndStatus(@Param("user") User user, @Param("status") Work.WorkStatus status);
-    
+
+    /**
+     * 某个用户的作品数、收到的点赞总数与浏览总数 —— **聚合查询**。
+     *
+     * <p>用户资料页要的就是这几个数字。以前是把该用户的全部作品（含 TEXT content 列）
+     * 查出来在内存里求和，数据量越大越慢；这里让数据库直接算，
+     * 返回行数恒为 1，与作品数量无关。
+     *
+     * <p>返回一行 {@code [作品数, 点赞总数, 浏览总数]}。
+     */
+    @Query("SELECT COUNT(w), COALESCE(SUM(w.likeCount), 0), COALESCE(SUM(w.viewCount), 0) "
+            + "FROM Work w WHERE w.userId = :userId")
+    List<Object[]> sumWorkCounts(@Param("userId") String userId);
+
     // 排序相关查询
     @Query("SELECT w FROM Work w ORDER BY w.createdAt DESC")
     List<Work> findAllOrderByCreatedAtDesc();
@@ -91,15 +113,34 @@ public interface WorkRepository extends JpaRepository<Work, Long> {
     List<Work> findAllOrderByViewCountDesc();
     
     // 待审核作品查询
+    /**
+     * 待审核作品（不分页）。
+     *
+     * <p>{@code user} 走 JOIN 一次取齐：{@code WorkMapper.toDto} 会读
+     * {@code work.getUser()}，不 JOIN 的话每条作品都会再查一次 users（N+1）。
+     */
+    @EntityGraph(attributePaths = {"user"})
     @Query("SELECT w FROM Work w WHERE w.reviewStatus = :pending OR w.reviewStatus = :needsRevision ORDER BY w.createdAt ASC")
     List<Work> findWorksNeedingReview(@Param("pending") Work.ReviewStatus pending, @Param("needsRevision") Work.ReviewStatus needsRevision);
 
     // 待审核作品查询（分页）—— 后台「作品审核」列表用
+    /**
+     * 待审核作品（分页）。
+     *
+     * <p>{@code user} 走 JOIN 一次取齐，避免每条作品再查一次 users。
+     */
+    @EntityGraph(attributePaths = {"user"})
     @Query("SELECT w FROM Work w WHERE w.reviewStatus = :pending OR w.reviewStatus = :needsRevision ORDER BY w.createdAt ASC")
     Page<Work> findWorksNeedingReview(@Param("pending") Work.ReviewStatus pending,
                                      @Param("needsRevision") Work.ReviewStatus needsRevision,
                                      org.springframework.data.domain.Pageable pageable);
 
+    /**
+     * 公开画廊的作品（分页）。
+     *
+     * <p>{@code user} 走 JOIN 一次取齐：一页 20 条作品原本会再发 20 次 users 查询。
+     */
+    @EntityGraph(attributePaths = {"user"})
     @Query("SELECT w FROM Work w WHERE w.status = :status AND w.reviewStatus = :reviewStatus")
     Page<Work> findByStatusAndReviewStatus(@Param("status") Work.WorkStatus status, @Param("reviewStatus") Work.ReviewStatus reviewStatus, org.springframework.data.domain.Pageable pageable);
     

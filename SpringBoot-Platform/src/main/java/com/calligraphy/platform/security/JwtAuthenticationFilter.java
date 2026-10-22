@@ -49,6 +49,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProperties jwtProperties;
     /** 类型不匹配时直接用它输出 403（过滤链里的 AccessDeniedException 不会被 @RestControllerAdvice 接住）。 */
     private final org.springframework.security.web.access.AccessDeniedHandler accessDeniedHandler;
+    /**
+     * 用户身份的短 TTL 本地缓存。
+     *
+     * <p>每个带令牌的请求都要 loadUserByUsername 一次（一次 users 查询 + 一次 BCrypt
+     * 比对）。缓存之后连续请求不必每次都查库。
+     */
+    private final UserDetailsCache userDetailsCache;
 
     @Override
     protected void doFilterInternal( HttpServletRequest request,  HttpServletResponse response,  FilterChain filterChain)
@@ -76,9 +83,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         tokenTypeMismatch = true;
                         logger.warn("令牌类型不匹配，拒绝访问管理端接口 - 路径: {}", pathOf(request));
                     } else {
-                        // 直接使用用户名来加载用户信息
+                        // 直接使用用户名来加载用户信息。
+                        // 走短 TTL 缓存：命中就不再查 users 表、也不再比对一次 BCrypt。
+                        // 缓存只影响「用户身份与权限」，
+                        // 上面的 userType 校验走令牌本身，与缓存无关。
                         logger.debug("使用用户名加载用户信息: username={}", username);
-                        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                        UserDetails userDetails =
+                                userDetailsCache.get(username, userDetailsService::loadUserByUsername);
                         
                         logger.debug("成功加载用户信息: username={}, authorities={}", userDetails.getUsername(), userDetails.getAuthorities());
                         

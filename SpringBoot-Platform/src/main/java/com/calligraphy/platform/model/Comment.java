@@ -17,7 +17,10 @@ import java.time.LocalDateTime;
     @Index(name = "idx_work_id", columnList = "work_id"),
     @Index(name = "idx_status", columnList = "status"),
     @Index(name = "idx_created_at", columnList = "created_at"),
-    @Index(name = "idx_comments_user_status", columnList = "user_id, status")
+    @Index(name = "idx_comments_user_status", columnList = "user_id, status"),
+    // 一批根评论的子评论是按 parent_id IN (...) 批量查的。
+    // 索引名与列序必须与 db/06-performance-indexes.sql 一致。
+    @Index(name = "idx_comments_parent_id", columnList = "parent_id")
 })
 @Data
 @NoArgsConstructor

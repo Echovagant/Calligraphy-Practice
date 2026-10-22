@@ -3,6 +3,7 @@ package com.calligraphy.platform.repository;
 import com.calligraphy.platform.model.FileReview;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -27,6 +28,13 @@ public interface FileReviewRepository extends JpaRepository<FileReview, String> 
     /** 批量取多个作品的审核记录（分页列表的统计字段用，避免 N+1）。 */
     List<FileReview> findByWorkIdIn(Collection<Long> workIds);
 
-    /** 某个审核员提交的审核记录（分页）。 */
+    /**
+     * 某个审核员提交的审核记录（分页）。
+     *
+     * <p>{@code uploadedBy / reviewer / work} 走 JOIN 一次取齐：
+     * {@code FileReviewMapper.toDto} 会读这三个关联，
+     * 不 JOIN 的话每条审核记录会再发 3 次查询（N+1）。
+     */
+    @EntityGraph(attributePaths = {"uploadedBy", "reviewer", "work"})
     Page<FileReview> findByReviewerId(String reviewerId, Pageable pageable);
 }

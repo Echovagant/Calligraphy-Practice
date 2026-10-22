@@ -3,6 +3,7 @@ package com.calligraphy.platform.config;
 import com.calligraphy.platform.security.CustomAccessDeniedHandler;
 import com.calligraphy.platform.security.JwtAuthenticationEntryPoint;
 import com.calligraphy.platform.security.JwtAuthenticationFilter;
+import com.calligraphy.platform.security.UserDetailsCache;
 import com.calligraphy.platform.service.JwtService;
 import com.calligraphy.platform.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -61,12 +62,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    JwtService jwtService,
-                                                   UserDetailsServiceImpl userDetailsService) throws Exception {
+                                                   UserDetailsServiceImpl userDetailsService,
+                                                   UserDetailsCache userDetailsCache) throws Exception {
         // JwtAuthenticationFilter 不是 Spring Bean，避免被 Servlet 容器当作普通过滤器重复注册
         // （那样它会以 LOWEST_PRECEDENCE 排在安全过滤链之后，填充的 SecurityContext 来得太晚）。
         // 这里显式挂到安全过滤链上，保证它在鉴权过滤器之前执行。
         JwtAuthenticationFilter jwtAuthenticationFilter =
-                new JwtAuthenticationFilter(jwtService, userDetailsService, jwtProperties, accessDeniedHandler);
+                new JwtAuthenticationFilter(jwtService, userDetailsService, jwtProperties, accessDeniedHandler,
+                        userDetailsCache);
 
         http
                 .csrf(csrf -> csrf.disable())

@@ -34,6 +34,8 @@ public class AdminServiceImpl implements AdminService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    /** 用户身份的短 TTL 缓存 —— 改密码后要把旧身份打掉。 */
+    private final com.calligraphy.platform.security.UserDetailsCache userDetailsCache;
     @Override
     @Transactional
     @SuppressWarnings("null")
@@ -265,6 +267,9 @@ public class AdminServiceImpl implements AdminService {
         adminUser.setPassword(passwordEncoder.encode(newPassword));
         adminUser.setUpdatedAt(LocalDateTime.now());
         adminUserRepository.save(adminUser);
+
+        // 旧身份（含旧密码哈希）不能继续留在缓存里
+        userDetailsCache.invalidate(adminUser.getUsername());
 
         log.info("管理员密码更新成功: ID={}", adminId);
     }

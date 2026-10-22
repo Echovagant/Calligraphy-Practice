@@ -8,10 +8,10 @@ import com.calligraphy.platform.service.StatsService;
 import com.calligraphy.platform.service.UserService;
 import com.calligraphy.platform.service.WorkService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 首页概览统计实现。
@@ -34,10 +34,10 @@ public class StatsServiceImpl implements StatsService {
 
     @Override
     public StatsOverviewDto getOverview() {
-        List<Copybook> popular = copybookRepository.findByIsActiveTrueOrderByUsageCountDesc()
-                .stream()
-                .limit(POPULAR_COPYBOOK_LIMIT)
-                .collect(Collectors.toList());
+        // LIMIT 下推到 SQL：以前是把全部启用字帖查出来在内存里 limit(5)，
+        // 字帖越多首页越慢。
+        List<Copybook> popular = copybookRepository.findByIsActiveTrueOrderByUsageCountDesc(
+                PageRequest.of(0, POPULAR_COPYBOOK_LIMIT));
 
         return StatsOverviewDto.builder()
                 .totalWorks(workService.getTotalWorkCount())

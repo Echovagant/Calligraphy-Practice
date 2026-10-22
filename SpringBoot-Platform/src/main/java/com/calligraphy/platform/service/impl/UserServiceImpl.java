@@ -4,7 +4,6 @@ import com.calligraphy.platform.dto.FrontendUserDto;
 import com.calligraphy.platform.dto.FrontendUserRegistrationDto;
 import com.calligraphy.platform.dto.FrontendUserUpdateDto;
 import com.calligraphy.platform.model.User;
-import com.calligraphy.platform.model.Work;
 import com.calligraphy.platform.exception.BusinessException;
 import com.calligraphy.platform.exception.ResourceNotFoundException;
 import com.calligraphy.platform.exception.UserAlreadyExistsException;
@@ -50,6 +49,11 @@ public class UserServiceImpl implements UserService {
     private final WorkRepository workRepository;
     private final CommentRepository commentRepository;
     private final PracticeRecordService practiceRecordService;
+    /**
+     * 用户身份的短 TTL 缓存 —— 改密码 / 改账号状态后要把旧身份打掉，
+     * 否则旧令牌还能在 TTL 内继续通行。
+     */
+    private final com.calligraphy.platform.security.UserDetailsCache userDetailsCache;
     @Override
     @Transactional
     public User createUser(User user) {
@@ -116,6 +120,8 @@ public class UserServiceImpl implements UserService {
         if (updateRequest.getStatus() != null) {
             try {
                 user.setStatus(User.UserStatus.valueOf(updateRequest.getStatus().toUpperCase()));
+                // 账号状态变了（被禁用 / 被锁定），缓存里的旧身份必须立刻作废
+                userDetailsCache.invalidate(user.getUsername());
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("无效的用户状态: " + updateRequest.getStatus());
             }
@@ -310,6 +316,8 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
+        // 旧身份（含旧密码哈希）不能继续留在缓存里
+        userDetailsCache.invalidate(user.getUsername());
         log.info("用户密码已修改: {}", user.getUsername());
     }
 
@@ -326,14 +334,26 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public Map<String, Long> getUserCounts(String userId) {
-        List<Work> works = workRepository.findByUserId(userId);
+        // 全部走聚合查询：以前是把该用户的全部作品（含 TEXT content 列）和
+        // 全部评论查出来在内存里求和 / size()，复杂度是 O(作品数 + 评论数)；
+        // 现在是 3 条固定返回 1 行的 SQL，复杂度 O(1)。
+        List<Object[]> workCountRows = workRepository.sumWorkCounts(userId);
+        Object[] workCounts = workCountRows.isEmpty() ? new Object[0] : workCountRows.get(0);
         Map<String, Long> counts = new HashMap<>();
-        counts.put("workCount", (long) works.size());
-        counts.put("commentCount", (long) commentRepository.findByUserId(userId).size());
+        counts.put("workCount", asLong(workCounts, 0));
+        counts.put("commentCount", commentRepository.countCommentsByUserId(userId));
         counts.put("practiceCount", practiceRecordService.countByUserId(userId));
-        counts.put("totalLikesReceived", works.stream().mapToLong(Work::getLikeCount).sum());
-        counts.put("totalViewsReceived", works.stream().mapToLong(Work::getViewCount).sum());
+        counts.put("totalLikesReceived", asLong(workCounts, 1));
+        counts.put("totalViewsReceived", asLong(workCounts, 2));
         return counts;
+    }
+
+    /** 取聚合查询结果里的第 index 个数字；空值一律当 0。 */
+    private long asLong(Object[] values, int index) {
+        if (values == null || values.length <= index || values[index] == null) {
+            return 0L;
+        }
+        return ((Number) values[index]).longValue();
     }
 }
 
