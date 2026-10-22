@@ -92,6 +92,20 @@ public class FileReviewServiceImpl implements FileReviewService {
 
         for (Long workId : workIds) {
             try {
+                // 作品必须存在、且处于「可审核」状态（PENDING / NEEDS_REVISION）。
+                // 已审过的作品再审一次会覆盖上一次的结论，审核历史就乱了。
+                Work work = workRepository.findById(workId).orElse(null);
+                if (work == null) {
+                    failed++;
+                    log.warn("批量审核失败 - 作品不存在: {}", workId);
+                    continue;
+                }
+                if (!work.canBeReviewed()) {
+                    failed++;
+                    log.warn("批量审核失败 - 作品已审过（review_status={}）: {}", work.getReviewStatus(), workId);
+                    continue;
+                }
+
                 FileReviewDto dto = transactionTemplate.execute(status -> createReviewInternal(
                         workId, batchDto.getReviewStatus(), batchDto.getReviewComments(), reviewerUsername));
                 if (dto != null) {
@@ -171,11 +185,63 @@ public class FileReviewServiceImpl implements FileReviewService {
     public void deleteReview(String reviewId, String reviewerUsername) {
         FileReview review = fileReviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ResourceNotFoundException("审核记录不存在: " + reviewId));
+
+        // 只能删自己提交的审核记录；SUPER_ADMIN 可以删任何人的。
+        requireReviewOwnerOrSuperAdmin(review, reviewerUsername);
+
+        // 作品还有别的审核记录时，结论仍由最新一条决定，不回滚。
+        boolean hasOtherReviews = fileReviewRepository.findByWorkId(review.getWorkId()).stream()
+                .anyMatch(other -> !other.getId().equals(reviewId));
+
         fileReviewRepository.delete(review);
+
+        if (!hasOtherReviews) {
+            rollbackWorkReviewStatus(review.getWorkId());
+        }
         log.info("删除审核记录 - ID: {}, 操作人: {}", reviewId, reviewerUsername);
     }
 
     // ------------------------------------------------------------ 内部实现
+
+    /**
+     * 审核记录归属校验：记录本人，或 SUPER_ADMIN。
+     *
+     * <p>审核记录挂在 {@code file_reviews.reviewer_id → backend_users} 上，
+     * 审核员记录是按管理员的用户名补建的，所以归属就是「用户名相同」。
+     */
+    private void requireReviewOwnerOrSuperAdmin(FileReview review, String username) {
+        User current = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("管理员账号不存在: " + username));
+        if (current.isSuperAdmin()) {
+            return;
+        }
+        BackendUser reviewer = review.getReviewer();
+        if (reviewer != null && username.equals(reviewer.getUsername())) {
+            return;
+        }
+        throw new AccessDeniedException("只能删除自己提交的审核记录");
+    }
+
+    /**
+     * 删除审核记录后，把关联作品回滚到「未审」状态。
+     *
+     * <p>不回滚的话，作品会带着一条已经不存在的审核结论留在库里
+     * （review_status=APPROVED 但记录已被删），状态与事实对不上。
+     */
+    private void rollbackWorkReviewStatus(Long workId) {
+        if (workId == null) {
+            return;
+        }
+        workRepository.findById(workId).ifPresent(work -> {
+            work.setReviewStatus(Work.ReviewStatus.PENDING);
+            work.setStatus(Work.WorkStatus.DRAFT);
+            work.setReviewNotes(null);
+            work.setReviewTime(null);
+            work.setReviewer(null);
+            workRepository.save(work);
+            log.info("审核记录已删除，作品状态回滚到未审 - 作品ID: {}", workId);
+        });
+    }
 
     /** 建一条审核记录并把结论回写到作品（调用方负责事务）。 */
     private FileReviewDto createReviewInternal(Long workId, String reviewStatus, String reviewComments,

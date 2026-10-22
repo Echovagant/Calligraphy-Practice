@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -49,6 +50,15 @@ import java.util.Map;
 public class WorkController {
 
     private static final int MAX_PAGE_SIZE = 100;
+
+    /**
+     * 列表默认排序：最新在前。
+     *
+     * <p>没有排序时分页顺序由数据库自己决定，翻页可能重复或漏掉；
+     * id 作为次级排序键，保证 createdAt 相同的作品也有稳定顺序。
+     */
+    private static final Sort DEFAULT_SORT =
+            Sort.by(Sort.Direction.DESC, "createdAt").and(Sort.by(Sort.Direction.DESC, "id"));
 
     private final WorkService workService;
     private final FileUploadService fileUploadService;
@@ -137,16 +147,18 @@ public class WorkController {
      * POST /api/works/{workId}/image —— 200 FileUploadResult
      *
      * <p>multipart 字段名是 {@code image}。
+     *
+     * <p>上传只做一次：由 workService.addFileToWork 负责鉴权 + 上传 + 落库，
+     * 返回的 fileUrl 就是写进 works.image_url 的那个 URL。
+     * （以前这里先传一遍、Service 内部又传一遍：磁盘上多一份孤儿文件，
+     * 而且响应里的 fileUrl 指的根本不是作品主图。）
      */
     @PostMapping("/{workId}/image")
     public ResponseEntity<FileUploadResponseDto> updateImage(
             @PathVariable String workId,
             @Valid @ModelAttribute WorkImageFormDto form) {
         Long id = parseWorkId(workId);
-        // 先校验作品存在且当前用户有权改，再传文件
-        workService.getWorkById(id);
-        FileUploadResponseDto uploaded = fileUploadService.uploadWorkFile(form.getImage(), currentUsername());
-        workService.addFileToWork(id, form.getImage());
+        FileUploadResponseDto uploaded = workService.addFileToWork(id, form.getImage(), currentUsername());
         return ResponseEntity.ok(uploaded);
     }
 
@@ -185,7 +197,7 @@ public class WorkController {
 
     private Pageable pageable(int page, int size) {
         int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
-        return PageRequest.of(Math.max(page, 0), safeSize);
+        return PageRequest.of(Math.max(page, 0), safeSize, DEFAULT_SORT);
     }
 
     /** 统一分页信封 {content,page,size,total,totalPages}。 */

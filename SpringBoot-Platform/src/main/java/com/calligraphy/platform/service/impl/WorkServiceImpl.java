@@ -16,6 +16,7 @@ import com.calligraphy.platform.service.WorkService;
 import com.calligraphy.platform.repository.BackendUserRepository;
 import com.calligraphy.platform.service.FileUploadService;
 import com.calligraphy.platform.dto.FileUploadResponseDto;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -44,6 +45,29 @@ public class WorkServiceImpl implements WorkService {
     private final WorkMapper workMapper;
     private final BackendUserRepository backendUserRepository;
     private final FileUploadService fileUploadService;
+
+    /**
+     * 作品归属校验：作者本人，或 ADMIN / SUPER_ADMIN。
+     *
+     * <p>管理员身份只看 {@code users.role}（{@link User.Role}）——
+     * 与 DiscussionServiceImpl.requireOwnerOrAdmin 同一套判定。
+     * 以前这里查的是 {@code backend_users}，而那张表只有「建过审核记录」的
+     * 管理员才有行，导致 users 表里 role=ADMIN 的真管理员反而改不了别人的作品。
+     *
+     * <p>越权抛 {@link AccessDeniedException}（Spring Security 的），
+     * 由 GlobalExceptionHandler 映射成 403；不要用 JDK 的 SecurityException，
+     * 那会掉进通用兜底变成 500。
+     */
+    private void requireOwnerOrAdmin(Work work, String username) {
+        User currentUser = userService.findByUsername(username);
+        if (currentUser.isAdmin()) {
+            return;
+        }
+        if (work.getUserId() != null && work.getUserId().equals(currentUser.getId())) {
+            return;
+        }
+        throw new AccessDeniedException("没有权限操作此作品");
+    }
 
     @Transactional
     public WorkDto createWork(WorkCreateRequestDto createRequest, String username) {
@@ -82,11 +106,7 @@ public class WorkServiceImpl implements WorkService {
                 .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
         // 检查权限 - 只有作者或管理员可以更新
-        User currentUser = userService.findByUsername(username);
-        if (!work.getUserId().equals(currentUser.getId()) &&
-                backendUserRepository.findByUsername(username).isEmpty()) {
-            throw new SecurityException("没有权限更新此作品");
-        }
+        requireOwnerOrAdmin(work, username);
 
         // 更新基本信息
         if (updateRequest.getTitle() != null) {
@@ -157,27 +177,29 @@ public class WorkServiceImpl implements WorkService {
                 .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
         // 检查权限 - 只有作者或管理员可以删除
-        User currentUser = userService.findByUsername(username);
-        if (!work.getUserId().equals(currentUser.getId()) &&
-                backendUserRepository.findByUsername(username).isEmpty()) {
-            throw new SecurityException("没有权限删除此作品");
-        }
+        requireOwnerOrAdmin(work, username);
 
         workRepository.delete(work);
         log.info("作品删除成功: {} (ID: {})", work.getTitle(), workId);
     }
     @Override
+    @Transactional
     public WorkDto getWorkById(Long workId) {
         log.info("获取作品详情: {}", workId);
 
         Work work = workRepository.findById(workId)
                 .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
-        // 增加浏览量
-        work.incrementViewCount();
-        workRepository.save(work);
+        // 增加浏览量：走独立的批量 UPDATE。
+        // 类级事务是 readOnly=true，「改实体再 save」不会 flush（FlushMode.MANUAL），
+        // 结果是响应里的数字在涨、works.view_count 永远是 0。
+        int before = work.getViewCount() == null ? 0 : work.getViewCount();
+        workRepository.incrementViewCount(workId);
 
-        return workMapper.toDto(work);
+        WorkDto dto = workMapper.toDto(work);
+        // 批量 UPDATE 绕过了持久化上下文，这里把自增后的真实值写回响应
+        dto.setViewCount(before + 1);
+        return dto;
     }
 
     public List<WorkDto> getWorksByUser(String username) {
@@ -234,9 +256,9 @@ public class WorkServiceImpl implements WorkService {
     }
     @Override
     public Page<WorkDto> getWorksByUserId(String userId, Pageable pageable) {
-        List<WorkDto> dtos = workRepository.findByUserId(userId).stream().map(workMapper::toDto)
-                .collect(Collectors.toList());
-        return new org.springframework.data.domain.PageImpl<>(dtos, pageable, dtos.size());
+        // 必须让数据库分页：以前是查出全量再塞进 PageImpl，
+        // content 里装的是全部作品，而 size/totalPages 又按 pageable 算 —— 信封自相矛盾。
+        return workRepository.findByUserId(userId, pageable).map(workMapper::toDto);
     }
     @Override
     public List<WorkDto> getWorksByUserId(String userId) {
@@ -531,15 +553,19 @@ public class WorkServiceImpl implements WorkService {
     }
     @Override
     @Transactional
-    public WorkDto addFileToWork(Long workId, MultipartFile file) {
+    public FileUploadResponseDto addFileToWork(Long workId, MultipartFile file, String username) {
         Work work = workRepository.findById(workId)
                 .orElseThrow(() -> new ResourceNotFoundException("作品不存在: " + workId));
 
-        String username = work.getUser() != null ? work.getUser().getUsername() : null;
+        // 换主图同样要判归属：以前这条路径完全没校验，
+        // 任何登录用户都能改别人的作品主图。
+        requireOwnerOrAdmin(work, username);
+
+        // 只上传一次，返回的 fileUrl 就是真正写进 works.image_url 的那个 URL
         FileUploadResponseDto uploaded = fileUploadService.uploadWorkFile(file, username);
         work.setImageUrl(uploaded.getFileUrl());
-        Work updated = workRepository.save(work);
-        return workMapper.toDto(updated);
+        workRepository.save(work);
+        return uploaded;
     }
     @Override
     @Transactional

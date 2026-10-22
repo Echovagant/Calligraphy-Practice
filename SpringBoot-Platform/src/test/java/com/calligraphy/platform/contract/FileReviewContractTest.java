@@ -119,7 +119,8 @@ class FileReviewContractTest {
                 .loginCount(0L)
                 .role(User.Role.SUPER_ADMIN)
                 .build());
-        adminToken = login(adminUsername, adminPassword);
+        // 管理端接口只认 ADMIN 类型的令牌（userType=ADMIN），必须走后台登录端点
+        adminToken = loginAdmin(adminUsername, adminPassword);
 
         Work work = workRepository.save(Work.builder()
                 .title("契约测试作品")
@@ -166,6 +167,18 @@ class FileReviewContractTest {
     /** 走真实的登录端点拿令牌，认证链本身就是被测对象。 */
     private String login(String username, String password) throws Exception {
         MvcResult login = mockMvc.perform(post("/api/frontend/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("username", username, "password", password))))
+                .andExpect(status().isOk())
+                .andReturn();
+        String token = body(login).get("accessToken").asText();
+        assertFalse(token.isBlank(), "登录必须拿到 accessToken");
+        return token;
+    }
+
+    /** 管理端令牌：必须是 userType=ADMIN 的令牌，前端登录发的 USER 令牌进不了管理端。 */
+    private String loginAdmin(String username, String password) throws Exception {
+        MvcResult login = mockMvc.perform(post("/api/backend/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json(Map.of("username", username, "password", password))))
                 .andExpect(status().isOk())

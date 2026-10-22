@@ -114,7 +114,8 @@ class AdminWorkContractTest {
                 .loginCount(0L)
                 .role(User.Role.SUPER_ADMIN)
                 .build());
-        adminToken = login(adminUsername, adminPassword);
+        // 管理端接口只认 ADMIN 类型的令牌（userType=ADMIN），必须走后台登录端点
+        adminToken = loginAdmin(adminUsername, adminPassword);
 
         User author = userRepository.findById(authorId).orElseThrow();
 
@@ -171,6 +172,17 @@ class AdminWorkContractTest {
 
     private String login(String username, String password) throws Exception {
         MvcResult login = mockMvc.perform(post("/api/frontend/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                java.util.Map.of("username", username, "password", password))))
+                .andExpect(status().isOk())
+                .andReturn();
+        return body(login).get("accessToken").asText();
+    }
+
+    /** 管理端令牌：必须是 userType=ADMIN 的令牌，前端登录发的 USER 令牌进不了管理端。 */
+    private String loginAdmin(String username, String password) throws Exception {
+        MvcResult login = mockMvc.perform(post("/api/backend/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 java.util.Map.of("username", username, "password", password))))

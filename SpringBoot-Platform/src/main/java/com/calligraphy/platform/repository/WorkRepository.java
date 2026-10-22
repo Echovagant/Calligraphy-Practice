@@ -3,6 +3,7 @@ package com.calligraphy.platform.repository;
 import com.calligraphy.platform.model.Work;
 import com.calligraphy.platform.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -17,7 +18,27 @@ public interface WorkRepository extends JpaRepository<Work, Long> {
     List<Work> findByUser(User user);
     
     List<Work> findByUserId(String userId);
-    
+
+    /**
+     * 某个用户的作品（**分页**）。
+     *
+     * <p>不能用 List 版本自己切片：那样 total / totalPages 会算错，
+     * 而且数据量大时会把整批作品全查出来。
+     */
+    Page<Work> findByUserId(String userId, org.springframework.data.domain.Pageable pageable);
+
+    /**
+     * 浏览量 +1 —— 独立的一条 UPDATE 语句，不依赖实体脏检查。
+     *
+     * <p>浏览量自增必须走批量 UPDATE：类级事务是 readOnly，
+     * 「改实体再 save」在只读事务里不会 flush（FlushMode.MANUAL），
+     * 响应里的数字变了、库里却永远是 0。
+     */
+    @Modifying(flushAutomatically = true)
+    @Query("UPDATE Work w SET w.viewCount = w.viewCount + 1 WHERE w.id = :id")
+    int incrementViewCount(@Param("id") Long id);
+
+
     List<Work> findByStatus(Work.WorkStatus status);
     
     List<Work> findByReviewStatus(Work.ReviewStatus reviewStatus);

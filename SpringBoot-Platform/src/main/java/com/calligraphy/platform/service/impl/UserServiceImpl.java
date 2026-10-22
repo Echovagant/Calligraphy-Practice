@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,6 +41,10 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
+
+    /** 密码复杂度规则：与 RegisterRequestDto.password 上的 @Pattern 一致。 */
+    private static final Pattern PASSWORD_COMPLEXITY =
+            Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$");
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final WorkRepository workRepository;
@@ -297,10 +302,25 @@ public class UserServiceImpl implements UserService {
         if (passwordEncoder.matches(newPassword, user.getPassword())) {
             throw new BusinessException("新密码不能与旧密码相同");
         }
+        // 改密码要走与注册同一套复杂度规则 —— 注册时拦住了，
+        // 改密码却能设一个弱密码，等于留了个绕过口。
+        if (!isStrongEnough(newPassword)) {
+            throw new BusinessException("新密码强度不足：至少 6 位，且必须同时包含大写字母、小写字母和数字");
+        }
 
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
         log.info("用户密码已修改: {}", user.getUsername());
+    }
+
+    /**
+     * 密码复杂度判定，与 {@code RegisterRequestDto.password} 上的规则一致：
+     * 至少 6 位，且同时包含小写字母、大写字母与数字。
+     */
+    private boolean isStrongEnough(String password) {
+        return password != null
+                && password.length() >= 6
+                && PASSWORD_COMPLEXITY.matcher(password).matches();
     }
 
     @Override

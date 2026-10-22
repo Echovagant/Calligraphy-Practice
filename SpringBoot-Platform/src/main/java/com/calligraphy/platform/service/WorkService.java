@@ -4,6 +4,7 @@ import com.calligraphy.platform.dto.WorkDto;
 import com.calligraphy.platform.dto.WorkCreateDto;
 import com.calligraphy.platform.dto.WorkCreateRequestDto;
 import com.calligraphy.platform.dto.WorkUpdateRequestDto;
+import com.calligraphy.platform.dto.FileUploadResponseDto;
 import com.calligraphy.platform.model.Work;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -91,7 +92,18 @@ public interface WorkService {
     
     List<String> getWorkFileUrls(Long workId);
     
-    WorkDto addFileToWork(Long workId, MultipartFile file);
+    /**
+     * 换作品主图：**上传 + 落库一次做完**，返回真正入库的那个文件。
+     *
+     * <p>只上传一次是关键：以前 Controller 先传一遍、Service 内部又传一遍，
+     * 磁盘上留下两份文件，而且响应里的 fileUrl 指向的是第一份（不是作品主图）。
+     *
+     * @param workId 作品 id
+     * @param file 新主图文件
+     * @param username 操作者用户名（用于归属校验与文件归属目录）
+     * @return 上传结果，{@code fileUrl} 与作品的 imageUrl 完全一致
+     */
+    FileUploadResponseDto addFileToWork(Long workId, MultipartFile file, String username);
     
     WorkDto removeFileFromWork(Long workId, String fileUrl);
     

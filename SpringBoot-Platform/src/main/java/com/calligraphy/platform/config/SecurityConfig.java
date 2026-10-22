@@ -44,8 +44,9 @@ public class SecurityConfig {
             // 刷新与登出在 access token 失效/过期时也要能调用，这两个端点自行校验 refreshToken
             "/api/frontend/auth/refresh",
             "/api/backend/auth/refresh",
-            "/api/frontend/auth/logout",
-            "/api/backend/auth/logout",
+            // 注意：**登出端点不在公开列表里**。契约标注两个 logout「需登录」，
+            // 放行匿名会让「谁都能登出」变成 204 —— 现在无令牌访问是 401，
+            // 有令牌（哪怕已过期）才是 204。
             // 上传文件由 WebConfig 的静态资源映射提供（/api/files/** -> {file.upload-dir}），
             // 作品画廊是公开的，图片也必须能匿名取回
             "/api/files/**",
@@ -65,7 +66,7 @@ public class SecurityConfig {
         // （那样它会以 LOWEST_PRECEDENCE 排在安全过滤链之后，填充的 SecurityContext 来得太晚）。
         // 这里显式挂到安全过滤链上，保证它在鉴权过滤器之前执行。
         JwtAuthenticationFilter jwtAuthenticationFilter =
-                new JwtAuthenticationFilter(jwtService, userDetailsService, jwtProperties);
+                new JwtAuthenticationFilter(jwtService, userDetailsService, jwtProperties, accessDeniedHandler);
 
         http
                 .csrf(csrf -> csrf.disable())

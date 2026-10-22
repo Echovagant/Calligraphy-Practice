@@ -85,10 +85,16 @@ public class UserController {
 
     /**
      * GET /api/users/{userId} —— 200 裸 FrontendUser
+     *
+     * <p>登录 IP、失败次数、锁定时间属于账号安全信息：
+     * 只有**本人**和**管理员**能看到，查别人时一律置空。
      */
     @GetMapping("/{userId}")
     public ResponseEntity<UserProfileResponseDto> getById(@PathVariable String userId) {
-        return ResponseEntity.ok(toProfileResponse(userService.findById(userId)));
+        User target = userService.findById(userId);
+        User current = userService.findByUsername(currentUsername());
+        boolean selfOrAdmin = current.getId().equals(target.getId()) || current.isAdmin();
+        return ResponseEntity.ok(toProfileResponse(target, selfOrAdmin));
     }
 
     // ------------------------------------------------------------ 内部工具
@@ -127,6 +133,16 @@ public class UserController {
 
     /** 实体 → 契约的 FrontendUser 形状（主键叫 id）。 */
     private UserProfileResponseDto toProfileResponse(User user) {
+        return toProfileResponse(user, true);
+    }
+
+    /**
+     * 实体 → 契约的 FrontendUser 形状（主键叫 id）。
+     *
+     * <p>{@code includeSensitive=false} 时把登录 IP、登录失败次数、账号锁定时间置空：
+     * 这三项是账号安全信息，暴露给任意登录用户等于泄露别人的登录痕迹与锁定状态。
+     */
+    private UserProfileResponseDto toProfileResponse(User user, boolean includeSensitive) {
         Map<String, Long> counts = userService.getUserCounts(user.getId());
         return UserProfileResponseDto.builder()
                 .id(user.getId())
@@ -141,9 +157,11 @@ public class UserController {
                 .verified(Boolean.TRUE.equals(user.getEmailVerified()))
                 .twoFactorEnabled(Boolean.TRUE.equals(user.getTwoFactorEnabled()))
                 .lastLoginAt(user.getLastLoginAt())
-                .lastLoginIp(user.getLastLoginIp())
-                .failedLoginAttempts(user.getFailedLoginAttempts() == null ? 0 : user.getFailedLoginAttempts())
-                .lockedUntil(user.getAccountLockedUntil())
+                .lastLoginIp(includeSensitive ? user.getLastLoginIp() : null)
+                .failedLoginAttempts(includeSensitive
+                        ? (user.getFailedLoginAttempts() == null ? 0 : user.getFailedLoginAttempts())
+                        : null)
+                .lockedUntil(includeSensitive ? user.getAccountLockedUntil() : null)
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .practiceCount(counts.getOrDefault("practiceCount", 0L))

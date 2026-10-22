@@ -45,8 +45,21 @@ public class UserProfileResponseDto {
     private boolean twoFactorEnabled;
 
     private LocalDateTime lastLoginAt;
+
+    /**
+     * 最后登录 IP —— 账号安全信息，查别人时为 null（只有本人与管理员看得到）。
+     */
     private String lastLoginIp;
-    private int failedLoginAttempts;
+
+    /**
+     * 登录失败次数 —— 账号安全信息，查别人时为 null。
+     *
+     * <p>用 Integer 而不是 int：置空时必须真的输出 null，不能变成 0
+     * （0 会被前端当成「没有失败过」，看起来像是有值）。
+     */
+    private Integer failedLoginAttempts;
+
+    /** 账号锁定截止时间 —— 账号安全信息，查别人时为 null。 */
     private LocalDateTime lockedUntil;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

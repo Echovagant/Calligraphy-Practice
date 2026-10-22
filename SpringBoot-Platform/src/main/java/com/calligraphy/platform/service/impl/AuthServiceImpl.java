@@ -422,7 +422,11 @@ public class AuthServiceImpl implements AuthService {
         if (userService.existsByEmail(registerRequest.getEmail())) {
             throw new UserAlreadyExistsException("邮箱已存在: " + registerRequest.getEmail());
         }
-        
+
+        // 验证码校验放在 try 之外：失败必须原样抛 BusinessException（422），
+        // 不能被下面兜底的 catch 换成「注册失败」的 401。
+        boolean emailVerified = verifyRegistrationCode(registerRequest);
+
         try {
             // 创建新用户
             // 密码加密：createUser 内部统一做一次 BCrypt 加密，这里只传明文，不要重复编码
@@ -433,7 +437,7 @@ public class AuthServiceImpl implements AuthService {
                 .nickname(registerRequest.getNickname())
                 .phone(registerRequest.getPhone())
                 .status(User.UserStatus.ACTIVE)
-                .emailVerified(false)
+                .emailVerified(emailVerified)
                 .twoFactorEnabled(false)
                 .loginCount(0L)
                 .lastLoginIp(registerRequest.getIpAddress())
@@ -665,6 +669,39 @@ public class AuthServiceImpl implements AuthService {
         String code = generateVerificationCode();
         redisTemplate.opsForValue().set(VERIFICATION_CODE_PREFIX + target, code, VERIFICATION_CODE_TTL);
         sendVerificationCodeMail(target, code);
+        return true;
+    }
+
+    /**
+     * 校验注册验证码。
+     *
+     * <p>验证码为空 → 允许注册（前端占位符写的是「请输入验证码（可选）」），
+     * 邮箱保持未验证。
+     *
+     * <p>验证码不为空 → 必须与 Redis 里 10 分钟有效的码一致；
+     * 校验通过后立刻删除该 key（一次性使用），并把邮箱标记为已验证。
+     * 验证码不存在或已过期 → 同样报「验证码错误或已过期」。
+     *
+     * @return true 表示验证码校验通过（邮箱已验证）
+     */
+    private boolean verifyRegistrationCode(RegisterRequestDto registerRequest) {
+        String code = registerRequest.getVerificationCode();
+        if (code == null || code.isBlank()) {
+            return false;
+        }
+        String email = registerRequest.getEmail();
+        if (email == null || email.isBlank()) {
+            throw new BusinessException("邮箱不能为空");
+        }
+        // key 的规范化方式必须与 sendVerificationCode 一致
+        String key = VERIFICATION_CODE_PREFIX + email.trim().toLowerCase(Locale.ROOT);
+        String expected = redisTemplate.opsForValue().get(key);
+        if (expected == null || !expected.equals(code.trim())) {
+            log.warn("注册验证码校验失败: {}", email);
+            throw new BusinessException("验证码错误或已过期");
+        }
+        // 一次性使用：校验通过即作废
+        redisTemplate.delete(key);
         return true;
     }
 

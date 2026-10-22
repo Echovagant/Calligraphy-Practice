@@ -129,6 +129,18 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.FORBIDDEN, CODE_FORBIDDEN, messageOrDefault(ex, "访问被拒绝，权限不足"));
     }
 
+    /**
+     * JDK 的 {@link SecurityException}（越权）。
+     *
+     * <p>兜底成 403：以前这类异常没有专门的分支，会掉进
+     * {@code @ExceptionHandler(Exception.class)} 变成 500 ——
+     * 契约声明的是 403。
+     */
+    @ExceptionHandler(SecurityException.class)
+    public ResponseEntity<ApiError> handleSecurityException(SecurityException ex) {
+        return build(HttpStatus.FORBIDDEN, CODE_FORBIDDEN, messageOrDefault(ex, "访问被拒绝，权限不足"));
+    }
+
     /** 账户被禁用。 */
     @ExceptionHandler(DisabledException.class)
     public ResponseEntity<ApiError> handleDisabled(DisabledException ex) {
