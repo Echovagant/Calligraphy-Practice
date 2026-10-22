@@ -431,3 +431,45 @@ P8 补待审队列（端点 54）——
     页面底色改宣纸色 `#f4efe2`；13 处 `transition: all` 换成明确属性；
     首页 emoji 换手绘水墨 SVG；「平台数据」3 张卡改印章数字样式。
   - 回归：136 项后端测试 + 194 项活体检查 + 契约 54/54/54 零差异 + eslint 零问题。
+- 2026-10-23 P9（**全量审计 + 安全与正确性修复**）。契约路径层面一直是干净的
+  （54/54/54、零差异），但契约**不校验方法体是否真干活**，这一轮补上了这一层。
+  审计方式：逐端点追 Service 实现方法体、逐视图追 UI→接口映射，
+  再用活体接口复核每一条结论。
+  - **修复的「界面有、后端没有 / 不生效」**：
+    - `GET /api/works/user/{userId}` **忽略 page/size** —— 以前 `findByUserId` 返回全量
+      List 再塞进 `PageImpl`，`content` 装的是全部作品，而 `size`/`totalPages` 按 pageable 算，
+      **信封自相矛盾**（实测 `?size=1` 返回 3 条）。改为仓储层 `Page<Work> findByUserId(String, Pageable)`。
+    - 作品**浏览量恒为 0**：类级 `@Transactional(readOnly=true)` 下「改实体再 save」
+      不会 flush（FlushMode.MANUAL），**响应里显示 1、库里永远是 0**。
+      改为独立的 `@Modifying` 批量 UPDATE，并把自增后的真实值写回响应。
+    - 公开作品列表**没有排序**，翻页可能重复或漏掉。改为 `createdAt DESC, id DESC`。
+  - **修复的越权与鉴权**：
+    - `POST /api/works/{workId}/image` **完全没有归属校验** —— 任意登录用户可改他人作品主图。
+    - 越权改/删作品抛 JDK 的 `SecurityException`，全局异常处理没有这个分支，
+      掉进兜底变成 **500**，而契约声明的是 403。改抛 Spring 的 `AccessDeniedException`，
+      并给 `SecurityException` 补一条 403 兜底。
+    - 管理员判定查的是 `backend_users` 表 —— 那张表只有「建过审核记录」的管理员才有行，
+      结果 `users.role=ADMIN` 的**真管理员反而改不了别人的作品**。统一改判 `users.role`。
+    - 两个 logout 端点在 `PUBLIC_ENDPOINTS` 里放行匿名，与契约「需登录」不符。
+    - JWT 的 `userType` 声明**从未被校验** —— 前端登录拿到的令牌照样能访问 `/api/admin/**`。
+      现在按路径族校验：访问 `/api/backend/**`、`/api/admin/**` 要求令牌 `userType=ADMIN`。
+    - `GET /api/users/{userId}` 对任意登录用户暴露他人的 `lastLoginIp` /
+      `failedLoginAttempts` / `lockedUntil`。现在仅本人与管理员可见。
+    - 批量审核不校验作品是否可审；删除审核记录不校验归属，且不回滚 `works.review_status`。
+  - **修复的假成功**：
+    - `POST /api/auth/verification-code` 把码存进 Redis 就返回「已发送」，
+      而 `spring.mail.*` 是占位配置（`smtp.example.com`），**邮件永远发不出去**；
+      同时 `register` **从不校验**这个码。现在：填了验证码就必须与 Redis 里的码一致
+      （一次性消费，用过即删），不匹配直接拒绝注册；不填验证码仍可注册，保持未验证状态。
+    - `POST /api/works/{workId}/image` 以前**上传两次**（Controller 一次、Service 一次），
+      磁盘上多一份孤儿文件，响应里的 `fileUrl` 指的根本不是作品主图。现在只上传一次，
+      响应 URL 与入库 `image_url` 一致。
+  - **前端修复**：42 处 Element Plus 1.x 的 `el-icon-*` 旧写法（2.x 已移除该 API，
+    **图标一个都不渲染**）改为真实图标；Element Plus 改按需引入（首屏 JS gzip 522.86 → 193.42 kB，
+    CSS 346.46 → 49.70 kB）；13 处纯 div 点击元素补可访问性与键盘操作；
+    练习页格子默认值 `cross` 绘制代码不认、导致画布默认无格子，已修并补「田字格」。
+  - **回归**：后端测试 136 → **173 项全绿**（新增 37 项，且逐条验证过「修复前是红的」）；
+    契约 `--strict` 仍 54/54/54 零差异；eslint 零问题；活体复核分页 / 浏览量落库 /
+    登出 401 / 换图 403 / 令牌类型 403 / 敏感字段脱敏 / 验证码校验全部通过。
+  - **契约增量**：`workUpdateImage` 的 responses 增加 `'403'`（复用已有 `components/responses/Forbidden`）。
+
