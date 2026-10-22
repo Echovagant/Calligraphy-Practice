@@ -66,27 +66,9 @@ export const isValidEmail = (email) => {
   return emailRegex.test(email);
 };
 
-// 本地存储读取
-export const getStorage = (key, defaultValue = null) => {
-  try {
-    const item = window.localStorage.getItem(key);
-    return item ? JSON.parse(item) : defaultValue;
-  } catch (error) {
-    console.error('Error reading from localStorage:', error);
-    return defaultValue;
-  }
-};
-
-// 本地存储写入
-export const setStorage = (key, value) => {
-  try {
-    window.localStorage.setItem(key, JSON.stringify(value));
-    return true;
-  } catch (error) {
-    console.error('Error writing to localStorage:', error);
-    return false;
-  }
-};
+// 本地存储读写在 utils/storage.js 里，本文件不再重复一份。
+// （重复定义时两份实现对「存不存引号」的处理不一致，令牌曾因此变成
+//   Bearer "eyJ..." 导致全部鉴权请求 401。）
 
 // 下载文件
 export const downloadFile = (content, fileName, contentType = 'text/plain') => {
