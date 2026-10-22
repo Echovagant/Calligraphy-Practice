@@ -106,10 +106,10 @@
           </div>
           <p class="data-hint">
             <template v-if="worksScope === 'pending'">
-              待审队列来自 GET /api/admin/works/pending：还没审（待审核）或作者改过等复审的作品。
+              这里只列出还没审、或作者改过需要复审的作品，审核结论会写回作品状态。
             </template>
             <template v-else>
-              已发布作品来自公开画廊 GET /api/works，只包含已发布且已通过审核的作品。
+              这里列出已通过审核、正在画廊里公开展示的作品。
             </template>
           </p>
 
@@ -126,8 +126,8 @@
 
           <div v-loading="worksLoading" class="data-table">
             <el-table :data="filteredWorks" style="width: 100%">
-              <el-table-column prop="id" label="作品ID" width="100" />
-              <el-table-column label="作品图片" width="100">
+              <el-table-column prop="id" label="作品ID" width="80" />
+              <el-table-column label="作品图片" width="96">
                 <template #default="scope">
                   <el-image
                     v-if="scope.row.imageUrl"
@@ -142,29 +142,28 @@
                   <div v-else class="image-fallback">暂无图片</div>
                 </template>
               </el-table-column>
-              <el-table-column prop="title" label="作品标题" />
-              <el-table-column prop="username" label="作者" />
-              <el-table-column prop="category" label="分类" />
-              <el-table-column label="审核状态" width="110">
+              <el-table-column prop="title" label="作品标题" min-width="150" />
+              <el-table-column prop="username" label="作者" width="110" />
+              <el-table-column label="审核状态" width="104">
                 <template #default="scope">
                   <el-tag :type="getReviewStatusType(scope.row.reviewStatus)">
                     {{ getReviewStatusText(scope.row.reviewStatus) }}
                   </el-tag>
                 </template>
               </el-table-column>
-              <el-table-column label="作品状态" width="100">
+              <el-table-column label="作品状态" width="92">
                 <template #default="scope">
                   <el-tag :type="getWorkStatusType(scope.row.status)">
                     {{ getWorkStatusText(scope.row.status) }}
                   </el-tag>
                 </template>
               </el-table-column>
-              <el-table-column label="上传时间" width="160">
+              <el-table-column label="上传时间" width="150">
                 <template #default="scope">
                   {{ formatDate(scope.row.createdAt) }}
                 </template>
               </el-table-column>
-              <el-table-column label="浏览量" width="90" prop="viewCount" />
+              <el-table-column label="浏览量" width="80" prop="viewCount" />
               <el-table-column label="操作" width="210" fixed="right">
                 <template #default="scope">
                   <el-button size="small" type="success" @click="reviewWork(scope.row, 'APPROVED')">
@@ -1190,6 +1189,7 @@ onMounted(async () => {
 .admin-container {
   display: flex;
   min-height: 100vh;
+  width: 100%;
   background-color: #f5f7fa;
 }
 

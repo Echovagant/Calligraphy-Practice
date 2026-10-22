@@ -2,6 +2,7 @@ package com.calligraphy.platform.contract;
 
 import com.calligraphy.platform.model.User;
 import com.calligraphy.platform.repository.UserRepository;
+import com.calligraphy.platform.repository.WorkRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
@@ -62,6 +63,9 @@ class UserWorksContractTest {
     private UserRepository userRepository;
 
     @Autowired
+    private WorkRepository workRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     private String userId;
@@ -104,7 +108,10 @@ class UserWorksContractTest {
 
     @AfterEach
     void tearDown() {
+        // 作品引用这条用户。测试库的外键约束是真的（works.user_id → users.id），
+        // 作品还在就删不掉用户，所以先删作品再删用户。
         if (userId != null) {
+            workRepository.findByUserId(userId).forEach(work -> workRepository.deleteById(work.getId()));
             userRepository.findById(userId).ifPresent(u -> userRepository.deleteById(u.getId()));
         }
     }

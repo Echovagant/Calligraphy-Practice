@@ -45,7 +45,7 @@
     </header>
 
     <!-- 主要内容区域 -->
-    <main class="app-main">
+    <main class="app-main" :class="{ 'app-main--wide': isWideLayout }">
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
           <component :is="Component" />
@@ -64,13 +64,18 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useUserStore } from './stores/userStore';
 import InkBackground from './components/InkBackground.vue';
 
 const router = useRouter();
+const route = useRoute();
 const userStore = useUserStore();
 const showDropdown = ref(false);
+
+// 管理后台是宽表 + 侧栏的双栏布局，塞在 1200px 的内容容器里会被挤到
+// 表格内部横滚，最右侧的审核操作列看不见。宽屏页面放开限宽。
+const isWideLayout = computed(() => route.path.startsWith('/admin'));
 
 // 计算属性
 const isLoggedIn = computed(() => userStore.isLoggedIn);
@@ -304,6 +309,11 @@ html, body {
   box-shadow: none;
   border: none;
   outline: none;
+}
+
+/* 宽屏页面（管理后台）：解除 1200px 限宽 */
+.app-main--wide {
+  max-width: none;
 }
 
 /* 页脚样式 */

@@ -3,6 +3,7 @@ package com.calligraphy.platform.contract;
 import com.calligraphy.platform.model.Copybook;
 import com.calligraphy.platform.model.User;
 import com.calligraphy.platform.repository.CopybookRepository;
+import com.calligraphy.platform.repository.PracticeRecordRepository;
 import com.calligraphy.platform.repository.UserRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,6 +57,9 @@ class CopybookContractTest {
 
     @Autowired
     private CopybookRepository copybookRepository;
+
+    @Autowired
+    private PracticeRecordRepository practiceRecordRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -118,8 +122,11 @@ class CopybookContractTest {
 
     @AfterEach
     void tearDown() {
-        // practice_records.user_id 有 ON DELETE CASCADE，删用户时练习记录一起清掉
+        // 练习记录引用这条用户（也引用刚建的字帖）。测试库的外键约束是真的，
+        // 记录还在就删不掉用户和字帖，所以按 记录 → 用户 → 字帖 的顺序清。
         if (userId != null) {
+            practiceRecordRepository.findByUserId(userId)
+                    .forEach(record -> practiceRecordRepository.deleteById(record.getId()));
             userRepository.findById(userId).ifPresent(u -> userRepository.deleteById(u.getId()));
         }
         for (String id : createdCopybookIds) {

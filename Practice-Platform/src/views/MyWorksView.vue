@@ -25,7 +25,7 @@
         <i class="el-icon-refresh"></i> 刷新列表
       </el-button>
     </div>
-    <p class="filter-hint">后端列表接口只支持分页，搜索与排序作用于当前页已加载的作品。</p>
+    <p class="filter-hint">搜索与排序在当前页内生效，翻页可查看更多作品。</p>
 
     <!-- 错误状态 -->
     <el-alert
