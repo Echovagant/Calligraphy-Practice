@@ -132,7 +132,7 @@
                   <el-image
                     v-if="scope.row.imageUrl"
                     :src="scope.row.imageUrl"
-                    fit="cover"
+                    fit="contain"
                     class="work-thumbnail-small"
                   >
                     <template #error>
@@ -1354,6 +1354,8 @@ onMounted(async () => {
   width: 60px;
   height: 60px;
   border-radius: 4px;
+  /* 缩略图也是 contain：留白比裁掉半个字好看 */
+  background-color: #f0eee9;
 }
 
 .image-fallback {

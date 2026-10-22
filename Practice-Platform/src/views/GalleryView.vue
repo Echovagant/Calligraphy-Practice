@@ -639,15 +639,18 @@ onMounted(() => {
 }
 
 .work-thumbnail {
-  height: 200px;
+  height: 240px;
   position: relative;
   overflow: hidden;
+  /* 作品图用 contain 完整展示，不裁切 —— 画廊不该替作者裁掉半张字。
+     两边留白用纸色填，看起来像作品铺在衬纸上。 */
+  background-color: #f0eee9;
 }
 
 .work-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   transition: transform 0.3s;
 }
 
@@ -670,9 +673,13 @@ onMounted(() => {
   bottom: 10px;
   display: flex;
   gap: 0.8rem;
+  /* 作品图改成 contain 后，这个浮层会落到图片旁边的衬纸上，
+     白字压浅色纸看不清 —— 给它自己的深色底，别再指望背后是图。 */
+  padding: 3px 10px;
+  border-radius: 999px;
+  background-color: rgba(38, 30, 24, 0.72);
   color: #fff;
   font-size: 0.85rem;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 .overlay-stat {

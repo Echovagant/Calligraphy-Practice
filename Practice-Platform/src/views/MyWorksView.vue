@@ -528,12 +528,14 @@ onMounted(() => {
   position: relative;
   overflow: hidden;
   height: 300px;
+  /* 作品图完整展示不裁切（contain），留白用纸色填 */
+  background-color: #f0eee9;
 }
 
 .work-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   transition: transform 0.3s;
 }
 

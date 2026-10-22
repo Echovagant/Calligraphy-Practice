@@ -463,14 +463,16 @@ onMounted(() => {
 }
 
 .work-thumbnail {
-  height: 180px;
+  height: 200px;
   overflow: hidden;
+  /* 作品图完整展示不裁切（contain），留白用纸色填 */
+  background-color: #f0eee9;
 }
 
 .work-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   transition: transform 0.3s;
 }
 
@@ -531,10 +533,14 @@ onMounted(() => {
 }
 
 .copybook-thumbnail {
-  height: 160px;
+  height: 180px;
   overflow: hidden;
+  background-color: #f0eee9;
 }
 
+/* 字帖封面用 cover（填满卡片），跟作品图相反：
+   封面是装饰性缩略图，裁一点没关系；
+   用户的作品图才必须 contain 完整展示，不能替作者裁掉半张字。 */
 .copybook-image {
   width: 100%;
   height: 100%;
