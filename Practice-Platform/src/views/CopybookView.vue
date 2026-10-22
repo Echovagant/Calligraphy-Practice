@@ -109,7 +109,11 @@
           v-for="book in popularCopybooks"
           :key="book.id"
           class="popular-item"
+          role="button"
+          tabindex="0"
           @click="openDetail(book.id)"
+          @keydown.enter="openDetail(book.id)"
+          @keydown.space.prevent="openDetail(book.id)"
         >
           <span class="popular-title">{{ book.title }}</span>
           <span class="popular-count">使用 {{ book.usageCount ?? 0 }} 次</span>
@@ -329,9 +333,9 @@
           <h3 class="preview-title">预览</h3>
           <div class="preview-controls">
             <el-button-group>
-              <el-button @click="prevPage" :disabled="currentPage <= 1" icon="el-icon-arrow-left"></el-button>
+              <el-button @click="prevPage" :disabled="currentPage <= 1" :icon="ArrowLeft"></el-button>
               <el-button disabled>{{ currentPage }} / {{ totalPages }}</el-button>
-              <el-button @click="nextPage" :disabled="currentPage >= totalPages" icon="el-icon-arrow-right"></el-button>
+              <el-button @click="nextPage" :disabled="currentPage >= totalPages" :icon="ArrowRight"></el-button>
             </el-button-group>
           </div>
         </div>
@@ -396,6 +400,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue';
 import { useCopybookStore } from '../stores/copybookStore';
 import { formatDifficulty } from '../utils/constants';
 import { downloadCanvasAsImage } from '../utils';

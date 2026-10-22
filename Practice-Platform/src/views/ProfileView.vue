@@ -8,9 +8,30 @@
     <div class="profile-content">
       <!-- 左侧菜单 -->
       <div class="profile-sidebar">
-        <div class="sidebar-item active" @click="activeTab = 'basic'">基本信息</div>
-        <div class="sidebar-item" @click="activeTab = 'security'">账号安全</div>
-        <div class="sidebar-item" @click="activeTab = 'preferences'">偏好设置</div>
+        <div
+          class="sidebar-item active"
+          role="button"
+          tabindex="0"
+          @click="activeTab = 'basic'"
+          @keydown.enter="activeTab = 'basic'"
+          @keydown.space.prevent="activeTab = 'basic'"
+        >基本信息</div>
+        <div
+          class="sidebar-item"
+          role="button"
+          tabindex="0"
+          @click="activeTab = 'security'"
+          @keydown.enter="activeTab = 'security'"
+          @keydown.space.prevent="activeTab = 'security'"
+        >账号安全</div>
+        <div
+          class="sidebar-item"
+          role="button"
+          tabindex="0"
+          @click="activeTab = 'preferences'"
+          @keydown.enter="activeTab = 'preferences'"
+          @keydown.space.prevent="activeTab = 'preferences'"
+        >偏好设置</div>
       </div>
 
       <!-- 右侧内容区 -->
@@ -82,7 +103,7 @@
                   accept="image/jpeg,image/png"
                 >
                   <img v-if="userInfo.avatar" :src="userInfo.avatar" class="avatar" alt="用户头像" />
-                  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                  <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
                 </el-upload>
                 <el-button type="primary" size="small" :loading="avatarLoading" @click="triggerAvatarPicker">
                   上传头像
@@ -167,6 +188,7 @@
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { Plus } from '@element-plus/icons-vue';
 import { useUserStore } from '../stores/userStore';
 import { userAPI } from '../utils/api';
 

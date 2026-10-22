@@ -11,7 +11,7 @@
           <el-input
             v-model="registerForm.username"
             placeholder="请输入用户名（3-20个字符）"
-            prefix-icon="el-icon-user"
+            :prefix-icon="User"
             clearable
           />
         </el-form-item>
@@ -20,7 +20,7 @@
           <el-input
             v-model="registerForm.email"
             placeholder="请输入邮箱地址"
-            prefix-icon="el-icon-message"
+            :prefix-icon="Message"
             clearable
           />
         </el-form-item>
@@ -31,7 +31,7 @@
               <el-input
                 v-model="registerForm.verificationCode"
                 placeholder="请输入验证码（可选）"
-                prefix-icon="el-icon-key"
+                :prefix-icon="Key"
               />
             </el-col>
             <el-col :span="10">
@@ -53,7 +53,7 @@
             v-model="registerForm.password"
             type="password"
             placeholder="请设置密码（至少6位，含大小写字母和数字）"
-            prefix-icon="el-icon-lock"
+            :prefix-icon="Lock"
             show-password
           />
         </el-form-item>
@@ -63,7 +63,7 @@
             v-model="registerForm.confirmPassword"
             type="password"
             placeholder="请再次输入密码"
-            prefix-icon="el-icon-lock"
+            :prefix-icon="Lock"
             show-password
           />
         </el-form-item>
@@ -102,6 +102,7 @@
 import { ref, reactive, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
+import { User, Message, Key, Lock } from '@element-plus/icons-vue';
 import { useUserStore } from '../stores/userStore';
 import { authAPI, setToken, setRefreshToken, setUserType } from '../utils/api';
 import { USER_TYPES, STORAGE_KEYS } from '../utils/constants';

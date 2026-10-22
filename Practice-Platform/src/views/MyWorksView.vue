@@ -9,7 +9,7 @@
       <el-input
         v-model="searchKeyword"
         placeholder="搜索作品标题"
-        prefix-icon="el-icon-search"
+        :prefix-icon="Search"
         clearable
         class="search-input"
         @input="handleSearch"
@@ -21,8 +21,8 @@
         <el-option label="最多评论" value="comments" />
       </el-select>
 
-      <el-button type="primary" :loading="loading" @click="refreshWorks">
-        <i class="el-icon-refresh"></i> 刷新列表
+      <el-button type="primary" :loading="loading" :icon="Refresh" @click="refreshWorks">
+        刷新列表
       </el-button>
     </div>
     <p class="filter-hint">搜索与排序在当前页内生效，翻页可查看更多作品。</p>
@@ -49,14 +49,14 @@
             <div v-else class="work-image work-image-placeholder">暂无图片</div>
             <div class="work-overlay">
               <div class="work-actions">
-                <el-button type="primary" size="small" @click="viewWorkDetail(work)">
-                  <i class="el-icon-view"></i> 查看
+                <el-button type="primary" size="small" :icon="View" @click="viewWorkDetail(work)">
+                  查看
                 </el-button>
-                <el-button type="success" size="small" @click="openEditDialog(work)">
-                  <i class="el-icon-edit"></i> 编辑
+                <el-button type="success" size="small" :icon="Edit" @click="openEditDialog(work)">
+                  编辑
                 </el-button>
-                <el-button type="danger" size="small" @click="deleteWork(work)">
-                  <i class="el-icon-delete"></i> 删除
+                <el-button type="danger" size="small" :icon="Delete" @click="deleteWork(work)">
+                  删除
                 </el-button>
               </div>
             </div>
@@ -73,15 +73,15 @@
 
             <div class="work-stats">
               <div class="stat-item">
-                <i class="el-icon-star-on"></i>
+                <el-icon><StarFilled /></el-icon>
                 <span>{{ work.likeCount || 0 }}</span>
               </div>
               <div class="stat-item">
-                <i class="el-icon-chat-dot-round"></i>
+                <el-icon><ChatDotRound /></el-icon>
                 <span>{{ work.commentCount || 0 }}</span>
               </div>
               <div class="stat-item">
-                <i class="el-icon-eye"></i>
+                <el-icon><View /></el-icon>
                 <span>{{ work.viewCount || 0 }}</span>
               </div>
             </div>
@@ -140,15 +140,15 @@
           <div class="detail-description">{{ selectedWork.description || '暂无描述' }}</div>
           <div class="detail-stats">
             <div class="detail-stat-item">
-              <i class="el-icon-star-on"></i>
+              <el-icon><StarFilled /></el-icon>
               <span>{{ selectedWork.likeCount || 0 }} 点赞</span>
             </div>
             <div class="detail-stat-item">
-              <i class="el-icon-chat-dot-round"></i>
+              <el-icon><ChatDotRound /></el-icon>
               <span>{{ selectedWork.commentCount || 0 }} 评论</span>
             </div>
             <div class="detail-stat-item">
-              <i class="el-icon-eye"></i>
+              <el-icon><View /></el-icon>
               <span>{{ selectedWork.viewCount || 0 }} 浏览</span>
             </div>
           </div>
@@ -191,6 +191,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { Search, Refresh, View, Edit, Delete, StarFilled, ChatDotRound } from '@element-plus/icons-vue';
 import { worksAPI } from '../utils/api';
 import { useUserStore } from '../stores/userStore';
 
@@ -520,7 +521,7 @@ onMounted(() => {
 }
 
 .work-item:hover {
-  transform: translateY(-5px);
+  transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
@@ -548,8 +549,9 @@ onMounted(() => {
   font-size: 0.9rem;
 }
 
+/* 作品图不再跟着 hover 放大 —— 卡片本身的 2px 抬升就是唯一的动效 */
 .work-item:hover .work-image {
-  transform: scale(1.05);
+  transform: none;
 }
 
 .work-overlay {

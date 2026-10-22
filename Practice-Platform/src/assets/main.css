@@ -99,6 +99,15 @@ a:hover {
   color: var(--secondary-color);
 }
 
+/* 全局焦点环（WCAG 2.4.7 Focus Visible）。
+   墨棕 #8B4513 压在宣纸底 #f4efe2 上对比度 6.18:1，
+   远高于非文本控件要求的 3:1 —— 键盘用户能一眼看出焦点在哪。
+   只用 :focus-visible，鼠标点击不会留下焦点框。 */
+:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
 /* 全局按钮基础样式 */
 button {
   font-family: inherit;
@@ -176,5 +185,36 @@ button {
 @media (max-width: 480px) {
   body {
     font-size: 14px;
+  }
+}
+
+/* 系统开启「减少动态效果」时的降级。
+   只压掉位移与缩放（引发不适的主因），颜色 / 透明度 / 阴影这类状态反馈照旧 ——
+   不能一锅端把 transition 打成 0.01ms，否则用户完全感知不到状态变化。 */
+@media (prefers-reduced-motion: reduce) {
+  /* 缩放类 hover 效果直接落位，不产生位移 */
+  .reference-item:hover,
+  .work-card:hover .work-image,
+  .work-item:hover .work-image,
+  .floating-upload-btn:hover,
+  .calendar-day:hover {
+    transform: none !important;
+  }
+
+  /* 顶栏下划线与下拉箭头：状态照旧出现，只是不再有过渡过程 */
+  .top-nav-item::after,
+  .dropdown-arrow {
+    transition: none !important;
+  }
+
+  /* 路由切换：保留淡入淡出，去掉横向位移 */
+  .slide-enter-active,
+  .slide-leave-active {
+    transition: opacity 0.15s ease !important;
+  }
+
+  .slide-enter-from,
+  .slide-leave-to {
+    transform: none !important;
   }
 }

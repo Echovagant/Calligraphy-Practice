@@ -10,45 +10,65 @@
         <div
           class="admin-nav-item"
           :class="{ active: activeTab === 'works' }"
+          role="button"
+          tabindex="0"
           @click="setActiveTab('works')"
+          @keydown.enter="setActiveTab('works')"
+          @keydown.space.prevent="setActiveTab('works')"
         >
-          <i class="el-icon-picture"></i>
+          <el-icon><Picture /></el-icon>
           <span>作品审核</span>
         </div>
 
         <div
           class="admin-nav-item"
           :class="{ active: activeTab === 'reviews' }"
+          role="button"
+          tabindex="0"
           @click="setActiveTab('reviews')"
+          @keydown.enter="setActiveTab('reviews')"
+          @keydown.space.prevent="setActiveTab('reviews')"
         >
-          <i class="el-icon-document-checked"></i>
+          <el-icon><DocumentChecked /></el-icon>
           <span>审核记录</span>
         </div>
 
         <div
           class="admin-nav-item"
           :class="{ active: activeTab === 'comments' }"
+          role="button"
+          tabindex="0"
           @click="setActiveTab('comments')"
+          @keydown.enter="setActiveTab('comments')"
+          @keydown.space.prevent="setActiveTab('comments')"
         >
-          <i class="el-icon-chat-dot-round"></i>
+          <el-icon><ChatDotRound /></el-icon>
           <span>评论管理</span>
         </div>
 
         <div
           class="admin-nav-item"
           :class="{ active: activeTab === 'users' }"
+          role="button"
+          tabindex="0"
           @click="setActiveTab('users')"
+          @keydown.enter="setActiveTab('users')"
+          @keydown.space.prevent="setActiveTab('users')"
         >
-          <i class="el-icon-user"></i>
+          <el-icon><User /></el-icon>
           <span>用户查询</span>
         </div>
 
         <div
           class="admin-nav-item"
           :class="{ active: activeTab === 'analytics' }"
+          role="button"
+          tabindex="0"
           @click="setActiveTab('analytics')"
+          @keydown.enter="setActiveTab('analytics')"
+          @keydown.space.prevent="setActiveTab('analytics')"
         >
-          <i class="el-icon-data-line"></i>
+          <el-icon><DataLine /></el-icon>
           <span>数据分析</span>
         </div>
       </nav>
@@ -93,7 +113,7 @@
               <el-input
                 v-model="workSearchQuery"
                 placeholder="在当前页筛选作品"
-                prefix-icon="el-icon-search"
+                :prefix-icon="Search"
                 clearable
                 style="width: 220px; margin-right: 10px;"
               />
@@ -604,6 +624,14 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import {
+  Picture,
+  DocumentChecked,
+  ChatDotRound,
+  User,
+  DataLine,
+  Search
+} from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/userStore'
 import { fileReviewsAPI, worksAPI, communityAPI, userAPI, statsAPI, adminAPI } from '../utils/api.js'
 import { formatDate as formatDateTime, truncateText } from '../utils'

@@ -11,7 +11,7 @@
         <el-input
           v-model="searchQuery"
           placeholder="搜索作品标题或作者"
-          prefix-icon="el-icon-search"
+          :prefix-icon="Search"
           clearable
           @input="handleSearch"
         />
@@ -48,18 +48,22 @@
           v-for="work in filteredWorks"
           :key="work.id"
           class="work-card"
+          role="button"
+          tabindex="0"
           @click="viewWorkDetail(work)"
+          @keydown.enter="viewWorkDetail(work)"
+          @keydown.space.prevent="viewWorkDetail(work)"
         >
           <div class="work-thumbnail">
             <img v-if="work.imageUrl" :src="work.imageUrl" :alt="work.title" class="work-image" />
             <div v-else class="work-image work-image-placeholder">暂无图片</div>
             <div class="work-overlay">
               <span class="overlay-stat">
-                <i class="el-icon-thumb-up"></i>
+                <el-icon><StarFilled /></el-icon>
                 {{ work.likeCount || 0 }}
               </span>
               <span class="overlay-stat">
-                <i class="el-icon-chat-dot-round"></i>
+                <el-icon><ChatDotRound /></el-icon>
                 {{ work.commentCount || 0 }}
               </span>
             </div>
@@ -82,15 +86,15 @@
 
               <div class="work-stats">
                 <span class="stat-item">
-                  <i class="el-icon-thumb-up"></i>
+                  <el-icon><StarFilled /></el-icon>
                   {{ work.likeCount || 0 }}
                 </span>
                 <span class="stat-item">
-                  <i class="el-icon-chat-dot-round"></i>
+                  <el-icon><ChatDotRound /></el-icon>
                   {{ work.commentCount || 0 }}
                 </span>
                 <span class="stat-item">
-                  <i class="el-icon-view"></i>
+                  <el-icon><View /></el-icon>
                   {{ work.viewCount || 0 }}
                 </span>
               </div>
@@ -132,7 +136,7 @@
     <div class="upload-button-container">
       <el-button
         type="primary"
-        icon="el-icon-plus"
+        :icon="Plus"
         class="floating-upload-btn"
         @click="openUploadDialog"
       >
@@ -202,7 +206,7 @@
           </div>
 
           <div class="detail-actions">
-            <el-button icon="el-icon-chat-dot-round" @click="openComments(selectedWork)">
+            <el-button :icon="ChatDotRound" @click="openComments(selectedWork)">
               评论（{{ selectedWork.commentCount || 0 }}）
             </el-button>
           </div>
@@ -286,6 +290,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
+import { Search, StarFilled, ChatDotRound, View, Plus } from '@element-plus/icons-vue';
 import { worksAPI, communityAPI, getToken } from '../utils/api';
 import { useUserStore } from '../stores/userStore';
 
@@ -634,7 +639,9 @@ onMounted(() => {
 }
 
 .work-card:hover {
-  transform: translateY(-5px);
+  /* 只做 2px 位移 —— 原来的 -5px / scale(1.05) 太跳，
+     而且缩放会把整块作品图放大，读起来不稳 */
+  transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
@@ -663,8 +670,9 @@ onMounted(() => {
   font-size: 0.9rem;
 }
 
+/* 作品图不再跟着 hover 放大 —— 卡片本身的 2px 抬升就是唯一的动效 */
 .work-card:hover .work-image {
-  transform: scale(1.05);
+  transform: none;
 }
 
 .work-overlay {
@@ -781,8 +789,8 @@ onMounted(() => {
 }
 
 .floating-upload-btn {
-  background-color: #8B4513;
-  border-color: #8B4513;
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
   /* 全圆角胶囊：4 个汉字塞不进 50px 的正圆按钮，文字会溢出圆外 */
   height: 48px;
   padding: 0 1.25rem;
@@ -793,9 +801,9 @@ onMounted(() => {
 }
 
 .floating-upload-btn:hover {
-  background-color: #6B340E;
-  border-color: #6B340E;
-  transform: scale(1.1);
+  background-color: var(--el-color-primary-dark-2);
+  border-color: var(--el-color-primary-dark-2);
+  transform: translateY(-2px);
 }
 
 /* 作品详情 */

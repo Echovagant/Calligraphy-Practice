@@ -1,77 +1,136 @@
 <template>
-  <div class="app-container">
-    <!-- WebGL水墨背景 -->
-    <InkBackground />
+  <el-config-provider :locale="zhCn">
+    <div class="app-container">
+      <!-- WebGL水墨背景 -->
+      <InkBackground />
 
-    <!-- 导航栏 -->
-    <header class="app-header">
-      <div class="logo">
-        <router-link to="/" class="logo-link">
-          <span class="logo-text">书法练习平台</span>
-        </router-link>
-      </div>
-      <nav class="nav-menu">
-        <router-link to="/" class="top-nav-item" exact>首页</router-link>
-        <router-link to="/practice" class="top-nav-item">书法练习</router-link>
-        <router-link to="/copybook" class="top-nav-item">字帖生成</router-link>
-        <router-link to="/gallery" class="top-nav-item">作品展示</router-link>
-        <router-link to="/community" class="top-nav-item">社区交流</router-link>
-        <!-- 管理员链接只对管理员显示 -->
-        <router-link v-if="isAdmin" to="/admin" class="top-nav-item admin-link">管理后台</router-link>
-      </nav>
-      <div class="user-actions">
-        <!-- 未登录状态 -->
-        <template v-if="!isLoggedIn">
-          <router-link to="/login" class="top-nav-item login-btn">登录</router-link>
-          <router-link to="/register" class="top-nav-item register-btn">注册</router-link>
-        </template>
-        <!-- 已登录状态 -->
-        <template v-else>
-          <div class="user-dropdown">
-            <div class="dropdown-trigger" @click.stop="showDropdown = !showDropdown">
-              <span class="user-name">{{ userDisplayName }}</span>
-              <span class="dropdown-arrow" :class="{ 'rotate': showDropdown }"></span>
+      <!-- 导航栏 -->
+      <header class="app-header">
+        <div class="logo">
+          <router-link to="/" class="logo-link">
+            <span class="logo-text">书法练习平台</span>
+          </router-link>
+        </div>
+        <nav class="nav-menu">
+          <router-link to="/" class="top-nav-item" exact>首页</router-link>
+          <router-link to="/practice" class="top-nav-item">书法练习</router-link>
+          <router-link to="/copybook" class="top-nav-item">字帖生成</router-link>
+          <router-link to="/gallery" class="top-nav-item">作品展示</router-link>
+          <router-link to="/community" class="top-nav-item">社区交流</router-link>
+          <!-- 管理员链接只对管理员显示 -->
+          <router-link v-if="isAdmin" to="/admin" class="top-nav-item admin-link">管理后台</router-link>
+        </nav>
+        <div class="user-actions">
+          <!-- 未登录状态 -->
+          <template v-if="!isLoggedIn">
+            <router-link to="/login" class="top-nav-item login-btn">登录</router-link>
+            <router-link to="/register" class="top-nav-item register-btn">注册</router-link>
+          </template>
+          <!-- 已登录状态 -->
+          <template v-else>
+            <div class="user-dropdown">
+              <!-- 触发器用 button 而不是 div：div + click 键盘到不了，
+                   违反 WCAG 2.1.1（Keyboard） -->
+              <button
+                ref="triggerRef"
+                type="button"
+                class="dropdown-trigger"
+                :aria-expanded="showDropdown"
+                aria-haspopup="menu"
+                @click.stop="toggleDropdown"
+                @keydown.down.prevent="openAndFocus('first')"
+                @keydown.up.prevent="openAndFocus('last')"
+                @keydown.esc.prevent="closeDropdown(true)"
+              >
+                <span class="user-name">{{ userDisplayName }}</span>
+                <span class="dropdown-arrow" :class="{ 'rotate': showDropdown }"></span>
+              </button>
+              <div
+                v-if="showDropdown"
+                class="dropdown-menu"
+                role="menu"
+                aria-label="用户菜单"
+                @click.stop
+                @keydown.esc.prevent.stop="closeDropdown(true)"
+                @keydown.down.prevent="moveMenuFocus(1)"
+                @keydown.up.prevent="moveMenuFocus(-1)"
+                @keydown.home.prevent="focusMenuEdge('first')"
+                @keydown.end.prevent="focusMenuEdge('last')"
+              >
+                <router-link
+                  ref="profileLinkRef"
+                  to="/profile"
+                  class="dropdown-item"
+                  role="menuitem"
+                  @click="closeDropdown()"
+                  @keydown.space.prevent="activateMenuLink('/profile')"
+                >个人资料</router-link>
+                <router-link
+                  ref="worksLinkRef"
+                  to="/my-works"
+                  class="dropdown-item"
+                  role="menuitem"
+                  @click="closeDropdown()"
+                  @keydown.space.prevent="activateMenuLink('/my-works')"
+                >我的作品</router-link>
+                <router-link
+                  ref="practicesLinkRef"
+                  to="/my-practices"
+                  class="dropdown-item"
+                  role="menuitem"
+                  @click="closeDropdown()"
+                  @keydown.space.prevent="activateMenuLink('/my-practices')"
+                >练习记录</router-link>
+                <div class="dropdown-divider" role="separator"></div>
+                <button
+                  ref="logoutBtnRef"
+                  type="button"
+                  class="dropdown-item logout-btn"
+                  role="menuitem"
+                  @click="handleLogout"
+                >
+                  退出登录
+                </button>
+              </div>
             </div>
-            <div v-if="showDropdown" class="dropdown-menu" @click.stop>
-              <router-link to="/profile" class="dropdown-item">个人资料</router-link>
-              <router-link to="/my-works" class="dropdown-item">我的作品</router-link>
-              <router-link to="/my-practices" class="dropdown-item">练习记录</router-link>
-              <div class="dropdown-divider"></div>
-              <div class="dropdown-item logout-btn" @click="handleLogout">退出登录</div>
-            </div>
-          </div>
-        </template>
-      </div>
-    </header>
+          </template>
+        </div>
+      </header>
 
-    <!-- 主要内容区域 -->
-    <main class="app-main" :class="{ 'app-main--wide': isWideLayout }">
-      <router-view v-slot="{ Component }">
-        <transition name="fade" mode="out-in">
-          <component :is="Component" />
-        </transition>
-      </router-view>
-    </main>
-    
-    <!-- 页脚 -->
-    <footer class="app-footer">
-      <div class="footer-content">
-        <p>© 2025 在线书法练习平台 - 传承中华文化，弘扬书法艺术</p>
-      </div>
-    </footer>
-  </div>
+      <!-- 主要内容区域 -->
+      <main class="app-main" :class="{ 'app-main--wide': isWideLayout }">
+        <router-view v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
+      </main>
+
+      <!-- 页脚 -->
+      <footer class="app-footer">
+        <div class="footer-content">
+          <p>© {{ currentYear }} 在线书法练习平台 - 传承中华文化，弘扬书法艺术</p>
+        </div>
+      </footer>
+    </div>
+  </el-config-provider>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import zhCn from 'element-plus/es/locale/lang/zh-cn';
 import { useUserStore } from './stores/userStore';
+import { USER_TYPES } from './utils/constants';
 import InkBackground from './components/InkBackground.vue';
 
 const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
 const showDropdown = ref(false);
+
+// 页脚年份跟着当前时间走，别写死
+const currentYear = new Date().getFullYear();
 
 // 管理后台是宽表 + 侧栏的双栏布局，塞在 1200px 的内容容器里会被挤到
 // 表格内部横滚，最右侧的审核操作列看不见。宽屏页面放开限宽。
@@ -85,12 +144,116 @@ const userDisplayName = computed(() => {
   return userStore.userInfo?.username || '用户';
 });
 
+// 下拉菜单的可聚焦节点（方向键在它们之间移动）
+const triggerRef = ref(null);
+const profileLinkRef = ref(null);
+const worksLinkRef = ref(null);
+const practicesLinkRef = ref(null);
+const logoutBtnRef = ref(null);
+
+// router-link 的 ref 拿到的是组件实例，真正的 DOM 节点在 $el 上
+const menuItemElements = computed(() =>
+  [profileLinkRef.value, worksLinkRef.value, practicesLinkRef.value, logoutBtnRef.value]
+    .map((node) => node?.$el || node)
+    .filter(Boolean)
+);
+
+// 把焦点落到菜单项上（index 为负数时从末尾算）
+const focusMenuItem = (index) => {
+  const items = menuItemElements.value;
+  if (!items.length) return;
+  items[(index + items.length) % items.length]?.focus?.();
+};
+
+// 方向键在菜单项之间移动
+const moveMenuFocus = (delta) => {
+  const items = menuItemElements.value;
+  if (!items.length) return;
+  const current = items.indexOf(document.activeElement);
+  // 焦点还不在菜单里时：向下从头开始，向上从尾开始
+  if (current === -1) {
+    focusMenuItem(delta > 0 ? 0 : items.length - 1);
+    return;
+  }
+  focusMenuItem(current + delta);
+};
+
+// Home / End 跳到首尾
+const focusMenuEdge = (edge) => {
+  const items = menuItemElements.value;
+  if (!items.length) return;
+  focusMenuItem(edge === 'first' ? 0 : items.length - 1);
+};
+
+const openDropdown = () => {
+  showDropdown.value = true;
+};
+
+const closeDropdown = (restoreFocus = false) => {
+  if (!showDropdown.value) return;
+  showDropdown.value = false;
+  if (restoreFocus) {
+    triggerRef.value?.focus?.();
+  }
+};
+
+const toggleDropdown = () => {
+  if (showDropdown.value) {
+    closeDropdown();
+    return;
+  }
+  openDropdown();
+  nextTick(() => focusMenuItem(0));
+};
+
+// 触发器上按上下键：打开菜单并把焦点送进去
+const openAndFocus = (edge) => {
+  openDropdown();
+  nextTick(() => {
+    const items = menuItemElements.value;
+    if (!items.length) return;
+    focusMenuItem(edge === 'first' ? 0 : items.length - 1);
+  });
+};
+
+// 菜单项用键盘激活（Space）。锚点原生只响应 Enter，
+// Space 在 <a> 上是「向下滚动」，所以这里自己接。
+const activateMenuLink = (path) => {
+  closeDropdown();
+  router.push(path);
+};
+
 // 启动时从本地存储恢复登录态。
 // 不做这一步的话，刷新页面后 userInfo 为空、isLoggedIn 为 false，
 // 明明令牌还在却被当成未登录。
 onMounted(() => {
   userStore.initUserFromStorage();
+  // 点击页面其他地方关闭下拉菜单。
+  // 监听器必须在 onMounted 注册、onUnmounted 移除 ——
+  // 写在 setup 顶层等于模块被 import 一次就永久挂一个全局监听器。
+  document.addEventListener('click', handleDocumentClick);
+  window.addEventListener('app:auth-expired', handleAuthExpired);
 });
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleDocumentClick);
+  window.removeEventListener('app:auth-expired', handleAuthExpired);
+});
+
+const handleDocumentClick = () => {
+  showDropdown.value = false;
+};
+
+// 会话失效（令牌过期 / 刷新失败）。
+// utils/api.js 不再用 window.location.href 整页跳走 —— 那会白屏重来。
+// 它派发这个事件，这里做路由内跳转。
+const handleAuthExpired = (event) => {
+  const userType = event?.detail?.userType;
+  showDropdown.value = false;
+  userStore.isLoggedIn = false;
+  userStore.userInfo = null;
+  router.push(userType === USER_TYPES.BACKEND ? '/admin/login' : '/login');
+};
 
 // 处理退出登录
 const handleLogout = async () => {
@@ -102,11 +265,6 @@ const handleLogout = async () => {
     console.error('退出登录失败:', error);
   }
 };
-
-// 点击页面其他地方关闭下拉菜单
-document.addEventListener('click', () => {
-  showDropdown.value = false;
-});
 </script>
 
 <style>
@@ -213,6 +371,8 @@ html, body {
   position: relative;
 }
 
+/* 触发器与菜单项都是原生 button —— 键盘、屏幕阅读器都能用。
+   这里把 button 的默认外观清掉，视觉跟原来的 div 一致。 */
 .dropdown-trigger {
   display: flex;
   align-items: center;
@@ -221,6 +381,11 @@ html, body {
   cursor: pointer;
   border-radius: 4px;
   transition: background-color 0.3s;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  color: inherit;
+  line-height: 1.6;
 }
 
 .dropdown-trigger:hover {
@@ -265,6 +430,12 @@ html, body {
   display: block;
   transition: background-color 0.3s;
   cursor: pointer;
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font-size: 1rem;
+  line-height: 1.6;
 }
 
 .dropdown-item:hover {

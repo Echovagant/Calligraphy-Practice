@@ -60,7 +60,7 @@
       />
 
       <el-button type="primary" :loading="loading" @click="refreshPractices">
-        <i class="el-icon-refresh"></i> 刷新数据
+        <el-icon><Refresh /></el-icon> 刷新数据
       </el-button>
     </div>
     <p class="filter-hint">共 {{ recordsTotal }} 条练习记录<template v-if="recordsTotal > practices.length">，当前展示最近 {{ practices.length }} 条</template></p>
@@ -235,6 +235,7 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { ElMessage } from 'element-plus';
+import { Refresh } from '@element-plus/icons-vue';
 import { useUserStore } from '../stores/userStore';
 import { copybookAPI } from '../utils/api';
 import { formatDifficulty } from '../utils/constants';
@@ -674,7 +675,9 @@ const getCalendarDayTooltip = (day) => {
 }
 
 .calendar-day:hover {
-  transform: scale(1.5);
+  /* 原来的 scale(1.5) 会把 12px 的日历格子放大到 18px，直接顶掉相邻格子。
+     收敛成 2px 位移。 */
+  transform: translateY(-2px);
 }
 
 .intensity-0 { background-color: #ebedf0; }

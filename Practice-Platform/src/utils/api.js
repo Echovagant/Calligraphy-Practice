@@ -99,11 +99,15 @@ const getUserType = () => {
 const setUserType = (userType) => localStorage.setItem(STORAGE_KEYS.USER_TYPE, userType);
 
 // 登出并跳转到登录页
+// 不要用 window.location.href —— 那是整页刷新，会白屏重来，
+// 而且在 utils 里 import router 会绕成循环依赖（router → stores → api）。
+// 改成派发事件，由 App.vue 监听后做路由内跳转。
 const logout = () => {
-  clearTokens();
+  // 注意顺序：clearTokens() 会把 USER_TYPE 一并清掉，
+  // 先取用户类型再清，否则管理员会被送去 /login 而不是 /admin/login。
   const userType = getUserType();
-  const loginPath = userType === USER_TYPES.BACKEND ? '/admin/login' : '/login';
-  window.location.href = loginPath;
+  clearTokens();
+  window.dispatchEvent(new CustomEvent('app:auth-expired', { detail: { userType } }));
 };
 
 // 添加请求到订阅队列
@@ -247,11 +251,9 @@ const request = async (url, options = {}) => {
     config.body = options.formData;
   }
 
-  // 添加请求时间戳，防止缓存
-  if (options.method === 'GET') {
-    const queryChar = url.includes('?') ? '&' : '?';
-    url = `${url}${queryChar}_t=${Date.now()}`;
-  }
+  // 注意：这里**不要**再给 GET 拼时间戳。
+  // 后端本来就发 Cache-Control: no-cache, no-store，额外的时间戳只是徒增负担，
+  // 还会把 URL 弄脏。查询参数由 get() 统一负责拼接。
 
   try {
     console.log(`[API请求] ${options.method || 'GET'}: ${API_BASE_URL}${url}`);
@@ -366,7 +368,9 @@ export const get = (url, params) => {
   const query = params
     ? Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '')
     : [];
-  const queryString = query.length ? '?' + new URLSearchParams(query).toString() : '';
+  // url 上已经有 query 时用 & 接着拼，别拼出两个 ?
+  const separator = url.includes('?') ? '&' : '?';
+  const queryString = query.length ? separator + new URLSearchParams(query).toString() : '';
   return request(`${url}${queryString}`, { method: 'GET' });
 };
 

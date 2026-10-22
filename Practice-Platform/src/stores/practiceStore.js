@@ -10,7 +10,11 @@ export const usePracticeStore = defineStore('practice', {
       brushColor: '#000000',
       brushOpacity: 1,
       paperColor: '#F5F5DC',
-      gridType: 'cross', // 'cross', 'square', 'none'
+      // 格子样式。取值必须与 PracticeView.drawGrid 支持的集合一致
+      // （none / square / horizontal / cross），否则画布会什么都不画。
+      // 早前的默认值是 'cross'，但绘制代码当时不认这个值 —— 表现是
+      // 单选框一个都没选中、画布没有格子。
+      gridType: 'square', // 'none', 'square', 'horizontal', 'cross'
       gridColor: '#CCCCCC',
     },
 

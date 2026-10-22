@@ -53,3 +53,7 @@ Thumbs.db
 
 # AI 工具生成的本机文档
 /.trae/
+
+# 前端构建期自动生成的类型声明（vite.config.js 已设 dts: false，此项兜底）
+Practice-Platform/components.d.ts
+Practice-Platform/auto-imports.d.ts

@@ -92,19 +92,30 @@
 
               <div class="discussion-stats">
                 <span class="stat-item">
-                  <i class="el-icon-view"></i>
+                  <el-icon><View /></el-icon>
                   {{ discussion.viewCount ?? 0 }}
                 </span>
-                <span class="stat-item" @click="openDetail(discussion)">
-                  <i class="el-icon-chat-dot-round"></i>
+                <span
+                  class="stat-item"
+                  role="button"
+                  tabindex="0"
+                  @click="openDetail(discussion)"
+                  @keydown.enter="openDetail(discussion)"
+                  @keydown.space.prevent="openDetail(discussion)"
+                >
+                  <el-icon><ChatDotRound /></el-icon>
                   {{ discussion.replyCount ?? 0 }}
                 </span>
                 <span
                   class="stat-item"
                   :class="{ active: discussion.liked }"
+                  role="button"
+                  tabindex="0"
                   @click="handleLike(discussion)"
+                  @keydown.enter="handleLike(discussion)"
+                  @keydown.space.prevent="handleLike(discussion)"
                 >
-                  <i class="el-icon-thumb-up"></i>
+                  <el-icon><StarFilled /></el-icon>
                   {{ discussion.likeCount ?? 0 }}
                 </span>
               </div>
@@ -163,7 +174,11 @@
             v-for="item in pinnedDiscussions"
             :key="item.id"
             class="announcement-item"
+            role="button"
+            tabindex="0"
             @click="openDetail(item)"
+            @keydown.enter="openDetail(item)"
+            @keydown.space.prevent="openDetail(item)"
           >
             <p class="announcement-title">{{ item.title }}</p>
             <span class="announcement-date">{{ formatDate(item.createdAt) }}</span>
@@ -348,7 +363,10 @@
         </el-form-item>
 
         <el-form-item label="标签">
-          <el-tag-input v-model="postFormTags" placeholder="请输入标签，回车确认" />
+          <!-- el-tag-input 是 Element Plus 1.x 的组件名，2.x 已经没有了
+               （之前靠全量注册也解析不到，标签输入框其实一直是空的）。
+               2.x 对应的是 el-input-tag。 -->
+          <el-input-tag v-model="postFormTags" placeholder="请输入标签，回车确认" />
         </el-form-item>
       </el-form>
 
@@ -364,6 +382,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { View, ChatDotRound, StarFilled } from '@element-plus/icons-vue'
 import { useUserStore } from '../stores/userStore'
 import { formatDate as formatDateTime, truncateText } from '../utils'
 import {

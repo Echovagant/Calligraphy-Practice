@@ -11,7 +11,7 @@
           <el-input
             v-model="loginForm.username"
             placeholder="请输入用户名"
-            prefix-icon="el-icon-user"
+            :prefix-icon="User"
             clearable
           />
         </el-form-item>
@@ -21,7 +21,7 @@
             v-model="loginForm.password"
             type="password"
             placeholder="请输入密码"
-            prefix-icon="el-icon-lock"
+            :prefix-icon="Lock"
             show-password
           />
         </el-form-item>
@@ -62,6 +62,7 @@
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
+import { User, Lock } from '@element-plus/icons-vue';
 import { useUserStore } from '../stores/userStore';
 import { setToken, setRefreshToken, setUserType } from '../utils/api';
 import { USER_TYPES, STORAGE_KEYS } from '../utils/constants';

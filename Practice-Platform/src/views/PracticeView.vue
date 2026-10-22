@@ -39,6 +39,7 @@
             <el-radio-group v-model="gridType" size="small">
               <el-radio-button label="none">无</el-radio-button>
               <el-radio-button label="square">方格</el-radio-button>
+              <el-radio-button label="cross">田字格</el-radio-button>
               <el-radio-button label="horizontal">横线</el-radio-button>
             </el-radio-group>
           </div>
@@ -47,9 +48,9 @@
         <div class="tool-section">
           <h3 class="tool-title">操作</h3>
           <div class="tool-buttons">
-            <el-button type="primary" @click="clearCanvas" icon="el-icon-delete">清空画布</el-button>
-            <el-button type="success" @click="undoLast" icon="el-icon-refresh-left">撤销</el-button>
-            <el-button type="warning" @click="saveImage" icon="el-icon-download" :loading="isSaving">保存作品</el-button>
+            <el-button type="primary" :icon="Delete" @click="clearCanvas">清空画布</el-button>
+            <el-button type="success" :icon="RefreshLeft" @click="undoLast">撤销</el-button>
+            <el-button type="warning" :icon="Download" :loading="isSaving" @click="saveImage">保存作品</el-button>
           </div>
         </div>
 
@@ -65,7 +66,16 @@
           <div v-else class="current-empty">尚未选择参考字帖，请先从下方推荐字帖中挑选</div>
 
           <div v-if="referenceChars.length > 0" class="reference-list">
-            <div class="reference-item" v-for="char in referenceChars" :key="char" @click="showReference(char)">
+            <div
+              class="reference-item"
+              v-for="char in referenceChars"
+              :key="char"
+              role="button"
+              tabindex="0"
+              @click="showReference(char)"
+              @keydown.enter="showReference(char)"
+              @keydown.space.prevent="showReference(char)"
+            >
               {{ char }}
             </div>
           </div>
@@ -89,7 +99,11 @@
               :key="book.id"
               class="recommendation-item"
               :class="{ active: currentCopybook && currentCopybook.id === book.id }"
+              role="button"
+              tabindex="0"
               @click="selectCopybook(book)"
+              @keydown.enter="selectCopybook(book)"
+              @keydown.space.prevent="selectCopybook(book)"
             >
               <span class="recommendation-title">{{ book.title }}</span>
               <span class="recommendation-desc">{{ book.description || '暂无简介' }}</span>
@@ -120,16 +134,23 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch, nextTick, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import * as fabric from 'fabric';
 import { ElMessage } from 'element-plus';
+import { Delete, RefreshLeft, Download } from '@element-plus/icons-vue';
 import { usePracticeStore } from '../stores/practiceStore';
 import { useUserStore } from '../stores/userStore';
 import { formatDifficulty } from '../utils/constants';
 import { downloadCanvasAsImage } from '../utils';
+import { getToken } from '../utils/api';
 
 // 引入状态管理
 const practiceStore = usePracticeStore();
 const userStore = useUserStore();
+const router = useRouter();
+
+// 是否已登录：store 状态 + 本地是否留有令牌（与 GalleryView 同一套判断）
+const isLoggedIn = computed(() => userStore.isLoggedIn || Boolean(getToken()));
 
 // 画布相关
 const canvasRef = ref(null);
@@ -287,7 +308,7 @@ const setupBrush = () => {
       data: { type: 'grid' }
     });
 
-    if (gridType.value === 'square' || gridType.value === 'horizontal') {
+    if (gridType.value === 'square' || gridType.value === 'horizontal' || gridType.value === 'cross') {
       // 绘制横线
       for (let i = 0; i <= canvasHeight / gridSize; i++) {
         const line = new fabric.Line([0, i * gridSize, canvasWidth, i * gridSize], {
@@ -300,7 +321,7 @@ const setupBrush = () => {
       }
     }
 
-    if (gridType.value === 'square') {
+    if (gridType.value === 'square' || gridType.value === 'cross') {
       // 绘制竖线
       for (let i = 0; i <= canvasWidth / gridSize; i++) {
         const line = new fabric.Line([i * gridSize, 0, i * gridSize, canvasHeight], {
@@ -310,6 +331,32 @@ const setupBrush = () => {
           evented: false
         });
         grid.add(line);
+      }
+    }
+
+    // 田字格：在方格基础上补两条对角线 —— 练字最常用的格子。
+    // 早前 store 的默认 gridType 是 'cross'，但这里没有对应分支，
+    // 结果是默认打开练习页时画布上一个格子都不画，格子样式的单选框
+    // 也一个都没选中（模型值不在选项集合里）。
+    if (gridType.value === 'cross') {
+      for (let row = 0; row < canvasHeight / gridSize; row++) {
+        for (let col = 0; col < canvasWidth / gridSize; col++) {
+          const x = col * gridSize;
+          const y = row * gridSize;
+          const diagonal = new fabric.Line([x, y, x + gridSize, y + gridSize], {
+            stroke: gridColor,
+            strokeWidth: 0.4,
+            selectable: false,
+            evented: false
+          });
+          const antiDiagonal = new fabric.Line([x, y + gridSize, x + gridSize, y], {
+            stroke: gridColor,
+            strokeWidth: 0.4,
+            selectable: false,
+            evented: false
+          });
+          grid.add(diagonal, antiDiagonal);
+        }
       }
     }
 
@@ -356,6 +403,13 @@ const clearCanvas = () => {
 // 保存图片
 const saveImage = async () => {
   if (!canvas) return;
+  // 未登录时不要直接 POST —— api.js 拿不到令牌会把用户整页踢去登录页，
+  // 用户莫名其妙被赶走。先给提示，再走路由内跳转。
+  if (!isLoggedIn.value) {
+    ElMessage.warning('请先登录后再保存作品');
+    router.push('/login');
+    return;
+  }
   isSaving.value = true;
   try {
     const dataURL = canvas.toDataURL({ format: 'png', quality: 1 });
@@ -589,8 +643,9 @@ onUnmounted(() => {
 
 .reference-item:hover {
   background-color: #f0f0f0;
-  border-color: #8B4513;
-  transform: scale(1.05);
+  border-color: var(--primary-color);
+  /* 只做 2px 位移，不再用 scale —— 缩放会让字块整块放大，读起来跳 */
+  transform: translateY(-2px);
 }
 
 /* 推荐字帖 */
@@ -660,6 +715,14 @@ onUnmounted(() => {
   justify-content: center;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   animation: fadeIn 0.3s ease;
+}
+
+/* 系统开启「减少动态效果」时，参考字直接落位，不再缩放淡入。
+   出现这个字本身是状态反馈，必须保留。 */
+@media (prefers-reduced-motion: reduce) {
+  .reference-display {
+    animation: none !important;
+  }
 }
 
 .reference-char {

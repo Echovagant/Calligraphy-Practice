@@ -386,7 +386,7 @@ onMounted(() => {
 }
 
 .feature-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(90, 60, 30, 0.12);
 }
 
@@ -459,7 +459,7 @@ onMounted(() => {
 }
 
 .work-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
@@ -486,8 +486,9 @@ onMounted(() => {
   font-size: 0.9rem;
 }
 
+/* 作品图不再跟着 hover 放大 —— 卡片本身的 2px 抬升就是唯一的动效 */
 .work-card:hover .work-image {
-  transform: scale(1.05);
+  transform: none;
 }
 
 .work-info {
@@ -529,7 +530,7 @@ onMounted(() => {
 }
 
 .copybook-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
