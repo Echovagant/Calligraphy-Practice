@@ -45,11 +45,29 @@ public interface AuthService {
 
     /**
      * 发送邮箱验证码：Redis 限流（同一邮箱 60 秒一次）+ 验证码保存 10 分钟 + 尝试发信。
-     * 发信失败只记日志，不影响调用方。
      *
-     * @return false 表示同一邮箱 60 秒内重复请求，调用方应返回 429
+     * <p>返回结果区分三种情况，调用方据此给出**如实**的提示：
+     * <ul>
+     *   <li>{@code RATE_LIMITED} —— 60 秒内重复申请，调用方返回 429。</li>
+     *   <li>{@code DELIVERED} —— 邮件已发出，调用方返回「请查收邮件」。</li>
+     *   <li>{@code MAIL_UNAVAILABLE} —— 邮件发不出去（未配置可用的 SMTP）。
+     *       验证码会**写入服务端日志**，调用方必须如实说明这一点，
+     *       绝不能回一句「验证码已发送」让用户去收一封永远不会来的邮件。</li>
+     * </ul>
      */
-    boolean sendVerificationCode(String email);
+    VerificationCodeResult sendVerificationCode(String email);
+
+    /**
+     * 发送邮箱验证码的结果。
+     */
+    enum VerificationCodeResult {
+        /** 60 秒内重复申请。 */
+        RATE_LIMITED,
+        /** 邮件已成功发出。 */
+        DELIVERED,
+        /** 邮件服务不可用，验证码已写入服务端日志。 */
+        MAIL_UNAVAILABLE
+    }
 }
 
 

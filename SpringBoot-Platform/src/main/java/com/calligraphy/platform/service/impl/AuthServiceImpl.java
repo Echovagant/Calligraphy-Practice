@@ -647,12 +647,14 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
     /**
-     * 发送邮箱验证码。同一邮箱 60 秒内只允许申请一次；发信失败只记日志。
+     * 发送邮箱验证码。同一邮箱 60 秒内只允许申请一次。
      *
-     * @return false 表示触发限流（60 秒内重复请求）
+     * <p>返回 {@link VerificationCodeResult}，让调用方能区分「被限流」与
+     * 「邮件没发出去」—— 以前这里一律返回 true，接口永远回「验证码已发送」，
+     * 而 SMTP 是占位配置，邮件根本发不出去。
      */
     @Override
-    public boolean sendVerificationCode(String email) {
+    public VerificationCodeResult sendVerificationCode(String email) {
         if (email == null || email.isBlank()) {
             throw new BusinessException("邮箱不能为空");
         }
@@ -663,13 +665,14 @@ public class AuthServiceImpl implements AuthService {
                 .setIfAbsent(VERIFICATION_LIMIT_PREFIX + target, "1", VERIFICATION_LIMIT_TTL);
         if (!Boolean.TRUE.equals(acquired)) {
             log.warn("验证码请求过于频繁: {}", target);
-            return false;
+            return VerificationCodeResult.RATE_LIMITED;
         }
 
         String code = generateVerificationCode();
         redisTemplate.opsForValue().set(VERIFICATION_CODE_PREFIX + target, code, VERIFICATION_CODE_TTL);
-        sendVerificationCodeMail(target, code);
-        return true;
+        return sendVerificationCodeMail(target, code)
+                ? VerificationCodeResult.DELIVERED
+                : VerificationCodeResult.MAIL_UNAVAILABLE;
     }
 
     /**
@@ -746,10 +749,13 @@ public class AuthServiceImpl implements AuthService {
     }
 
     /**
-     * 发送验证码邮件。当前环境 SMTP 是占位配置，发送失败属于预期情况：
-     * 只记日志，不向上抛，避免验证码接口返回 5xx。
+     * 发送验证码邮件，返回**是否真的发出去了**。
+     *
+     * <p>邮件发不出去时（当前环境 SMTP 是占位配置，属于预期情况），
+     * 把验证码写进服务端日志 —— 本地运行时这是唯一能拿到验证码的途径。
+     * 日志只在发信失败时写，配了真 SMTP 的环境不会把验证码落到日志里。
      */
-    private void sendVerificationCodeMail(String email, String code) {
+    private boolean sendVerificationCodeMail(String email, String code) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
@@ -757,9 +763,14 @@ public class AuthServiceImpl implements AuthService {
             message.setSubject("邮箱验证码");
             message.setText("您的验证码是 " + code + "，10 分钟内有效。如非本人操作请忽略本邮件。");
             mailSender.send(message);
-            log.info("验证码邮件发送成功");
+            log.info("验证码邮件发送成功: {}", email);
+            return true;
         } catch (Exception e) {
-            log.error("验证码邮件发送失败: {}", e.getMessage());
+            log.error("验证码邮件发送失败: {}（{}）", e.getMessage(), email);
+            // 发不出去时把验证码落到日志：本地环境没有可用的邮件服务，
+            // 这是唯一能取到验证码的途径。只记在服务端，不回传给请求方。
+            log.info("邮箱验证码（邮件不可达，10 分钟内有效）: {}  ->  {}", code, email);
+            return false;
         }
     }
 

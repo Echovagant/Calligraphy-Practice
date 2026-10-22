@@ -31,12 +31,16 @@ public class VerificationCodeController {
      *
      * <p>无论邮箱是否已注册都返回同样的 200 与 message，不泄露注册情况；
      * 触发限流时手工返回 429（基座的异常映射里没有 429 规则）。
+     *
+     * <p>邮件服务不可用时（本地环境没配 SMTP），**不能**回一句「已发送」——
+     * 那会让用户去收一封永远不会来的邮件。这时如实说明验证码写在了服务端日志里。
      */
     @PostMapping("/verification-code")
     public ResponseEntity<Map<String, String>> verificationCode(
             @Valid @RequestBody VerificationCodeRequestDto verificationCodeRequest) {
-        boolean sent = authService.sendVerificationCode(verificationCodeRequest.getEmail());
-        if (!sent) {
+        AuthService.VerificationCodeResult result =
+                authService.sendVerificationCode(verificationCodeRequest.getEmail());
+        if (result == AuthService.VerificationCodeResult.RATE_LIMITED) {
             Map<String, String> body = new LinkedHashMap<>();
             body.put("code", "TOO_MANY_REQUESTS");
             body.put("message", "请求过于频繁，请稍后再试");
@@ -44,7 +48,11 @@ public class VerificationCodeController {
         }
 
         Map<String, String> body = new LinkedHashMap<>();
-        body.put("message", "验证码已发送，请查收邮件");
+        if (result == AuthService.VerificationCodeResult.DELIVERED) {
+            body.put("message", "验证码已发送，请查收邮件");
+        } else {
+            body.put("message", "当前环境未配置可用的邮件服务，验证码已写入服务端日志（app.log），请从日志中获取");
+        }
         return ResponseEntity.ok(body);
     }
 }
