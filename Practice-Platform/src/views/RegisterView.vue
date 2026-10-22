@@ -213,8 +213,10 @@ const sendVerificationCode = async () => {
 
   sendingCode.value = true;
   try {
-    await authAPI.sendVerificationCode({ email });
-    ElMessage.success('验证码已发送至您的邮箱: ' + email);
+    // 用服务端返回的 message，不要自己编一句「已发送至您的邮箱」——
+    // 邮件服务不可用时服务端会如实说明验证码写在了日志里。
+    const response = await authAPI.sendVerificationCode({ email });
+    ElMessage.success(response?.message || '验证码已生成');
     startCountdown();
   } catch (error) {
     ElMessage.error(error?.message || '发送验证码失败，请稍后重试');

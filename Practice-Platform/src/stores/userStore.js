@@ -521,9 +521,10 @@ export const useUserStore = defineStore('user', {
       this.error = null;
 
       try {
-        // 实现发送验证码API调用
-        await authAPI.sendVerificationCode({ email });
-        ElMessage.success(`验证码已发送到 ${email}`);
+        // 用服务端返回的 message，不要自己编一句「验证码已发送到 xxx」——
+        // 邮件服务不可用时服务端会如实说明验证码写在了日志里。
+        const response = await authAPI.sendVerificationCode({ email });
+        ElMessage.success(response?.message || '验证码已生成');
         return true;
       } catch (err) {
         this.error = err.response?.data?.message || err.message || '发送验证码失败';

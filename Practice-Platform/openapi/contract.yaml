@@ -422,6 +422,29 @@ paths:
           schema:
             type: integer
             default: 20
+        - name: keyword
+          in: query
+          required: false
+          description: 按标题或描述模糊匹配
+          schema:
+            type: string
+        - name: sort
+          in: query
+          required: false
+          description: 排序方式。latest=最新发布，popular=最热（浏览量），commented=评论最多
+          schema:
+            type: string
+            enum:
+              - latest
+              - popular
+              - commented
+            default: latest
+        - name: category
+          in: query
+          required: false
+          description: 按作品分类精确匹配
+          schema:
+            type: string
       responses:
         '200':
           description: 分页后的作品列表
@@ -455,6 +478,23 @@ paths:
           schema:
             type: integer
             default: 20
+        - name: keyword
+          in: query
+          required: false
+          description: 按标题或描述模糊匹配
+          schema:
+            type: string
+        - name: sort
+          in: query
+          required: false
+          description: 排序方式。latest=最新发布，popular=最热（浏览量），commented=评论最多
+          schema:
+            type: string
+            enum:
+              - latest
+              - popular
+              - commented
+            default: latest
       responses:
         '200':
           description: 分页后的作品列表
@@ -579,9 +619,39 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
   /api/copybooks:
+    post:
+      operationId: copybookCreate
+      summary: 保存一份自建字帖
+      description: >
+        把「字帖生成」页生成的自定义字帖存进当前账号，跨设备可见。
+        没有这个端点时，生成结果只落在浏览器的 localStorage 里，
+        换浏览器或换设备就没了 —— 界面却表现得像是存下来了。
+        自建字帖不进入公开字帖列表（`GET /api/copybooks` 只返回精选字帖），
+        只在 `GET /api/copybooks/mine` 里返回。
+      tags:
+        - copybooks
+      x-frontend-call: copybookAPI.createCopybook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CopybookCreate'
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Copybook'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
     get:
       operationId: copybookList
       summary: 字帖列表
+      description: 只返回精选字帖，不含用户自建字帖。
       tags:
         - copybooks
       security: []
@@ -616,6 +686,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CopybookPage'
+  /api/copybooks/mine:
+    get:
+      operationId: copybookListMine
+      summary: 我保存的自建字帖
+      description: >
+        与 `GET /api/copybooks/{copybookId}` 同级；
+        Spring 字面量路径优先于模板路径，契约测试须断言二者互不吞掉。
+      tags:
+        - copybooks
+      x-frontend-call: copybookAPI.getMyCopybooks
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 分页后的自建字帖列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CopybookPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
   /api/copybooks/popular:
     get:
       operationId: copybookPopular
@@ -669,6 +771,32 @@ paths:
           schema:
             type: integer
             default: 20
+        - name: from
+          in: query
+          required: false
+          description: 练习日期下界（含），格式 yyyy-MM-dd
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: false
+          description: 练习日期上界（含），格式 yyyy-MM-dd
+          schema:
+            type: string
+            format: date
+        - name: category
+          in: query
+          required: false
+          description: 按字帖分类精确匹配
+          schema:
+            type: string
+        - name: keyword
+          in: query
+          required: false
+          description: 按字帖标题或练习内容模糊匹配
+          schema:
+            type: string
       responses:
         '200':
           description: 分页后的练习记录
@@ -1068,6 +1196,12 @@ paths:
           schema:
             type: integer
             default: 20
+        - name: keyword
+          in: query
+          required: false
+          description: 按作品标题或作者名模糊匹配
+          schema:
+            type: string
       responses:
         '200':
           description: 分页后的待审核作品
@@ -1754,6 +1888,12 @@ components:
         email:
           type: string
           format: email
+        preferences:
+          type: string
+          description: >
+            账号级偏好，JSON 字符串。账号表里本来就有 `users.preferences` 列
+            （TEXT），但一直只读不写 —— 个人资料页的「保存设置」只落在浏览器本地，
+            换设备就没了。传 null 或省略表示不改动。
         phone:
           type: string
         avatar:
@@ -2137,12 +2277,67 @@ components:
           type: integer
         isActive:
           type: boolean
+        isCustom:
+          type: boolean
+          description: 是否为用户自建字帖。精选字帖为 false，自建字帖为 true。
+        content:
+          type: string
+          description: 练习用的正文内容。自建字帖有，精选字帖为空。
+        font:
+          type: string
+        layout:
+          type: string
+        charactersPerPage:
+          type: integer
+        fontSize:
+          type: integer
+        paperColor:
+          type: string
+        gridColor:
+          type: string
         createdAt:
           type: string
           format: date-time
         updatedAt:
           type: string
           format: date-time
+    CopybookCreate:
+      type: object
+      description: 对应后端 `CopybookCreateRequestDto`。
+      required:
+        - title
+        - content
+      properties:
+        title:
+          type: string
+          description: 字帖标题
+        content:
+          type: string
+          description: 要练习的正文内容
+        description:
+          type: string
+        font:
+          type: string
+          description: 字体风格，如 kai / xing / li / zhuan / cao
+        layout:
+          type: string
+          description: 布局方式，如 grid / vertical / horizontal
+        charactersPerPage:
+          type: integer
+          description: 每页字数
+        fontSize:
+          type: integer
+          description: 单字字号（像素）
+        paperColor:
+          type: string
+          description: 纸张颜色
+        gridColor:
+          type: string
+          description: 格子颜色
+        category:
+          type: string
+        difficulty:
+          type: string
     CopybookPage:
       type: object
       required:
@@ -2640,6 +2835,12 @@ components:
           type: integer
         likeCount:
           type: integer
+        liked:
+          type: boolean
+          description: >
+            当前登录用户是否已点赞。未登录时为 false。
+            以前服务端不返回这个字段，前端的「已赞」高亮只在当前会话内有效，
+            一刷新就丢 —— 用户看不出哪条是自己赞过的。
         replyCount:
           type: integer
         isPinned:

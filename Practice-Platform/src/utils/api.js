@@ -257,7 +257,20 @@ const request = async (url, options = {}) => {
 
   try {
     console.log(`[API请求] ${options.method || 'GET'}: ${API_BASE_URL}${url}`);
-    const response = await fetch(`${API_BASE_URL}${url}`, config);
+
+    // 网络层错误单独处理：fetch 抛出的 TypeError 消息是浏览器的原文
+    // （Chrome 下是 "Failed to fetch"），直接透给用户就是一句英文。
+    // 这里换成可读的中文，并保留原始错误供排查。
+    let response;
+    try {
+      response = await fetch(`${API_BASE_URL}${url}`, config);
+    } catch (networkError) {
+      console.error('[网络错误]', networkError);
+      const error = new Error('无法连接服务器，请确认后端服务已启动后重试');
+      error.cause = networkError;
+      error.isNetworkError = true;
+      throw error;
+    }
 
     // 解析响应数据
     let data;
@@ -474,9 +487,11 @@ export const worksAPI = {
   createWork: (formData) => upload('/works', formData),
 
   // 获取作品列表
+  // 支持 keyword/sort/category 查询参数，由后端在库内筛选与排序
   getWorks: (params) => get('/works', params),
 
   // 获取用户作品列表
+  // 支持 keyword/sort 查询参数
   getUserWorks: (userId, params) => get(`/works/user/${String(userId)}` , params),
 
   // 获取作品详情
@@ -506,13 +521,21 @@ export const fileReviewsAPI = {
 // 管理端作品查询（管理员）
 export const adminAPI = {
   // 待审核队列：review_status 为 PENDING 或 NEEDS_REVISION
+  // 支持 keyword 查询参数（标题或作者名）
   getPendingWorks: (params) => get('/admin/works/pending', params),
 };
 
 // 字帖相关API
 export const copybookAPI = {
   // 获取字帖列表（返回分页信封 {content,page,size,total,totalPages}）
+  // 支持 keyword/sort/category 等查询参数，由后端在库内筛选
   getCopybooks: (params) => get('/copybooks', params),
+
+  // 保存一份自建字帖（跨设备可见）
+  createCopybook: (data) => post('/copybooks', data),
+
+  // 我保存的自建字帖（分页信封）
+  getMyCopybooks: (params) => get('/copybooks/mine', params),
 
   // 获取热门字帖
   getPopularCopybooks: (params) => get('/copybooks/popular', params),
@@ -524,6 +547,7 @@ export const copybookAPI = {
   recordPractice: (copybookId, practiceData) => post(`/copybooks/${copybookId}/practice`, practiceData),
 
   // 获取当前用户的练习历史（分页信封）
+  // 支持 from/to/category/keyword 查询参数，由后端在库内筛选
   getPracticeHistory: (params) => get('/copybooks/practice/history', params),
 
   // 获取用户练习统计
