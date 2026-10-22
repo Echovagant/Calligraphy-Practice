@@ -193,7 +193,7 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">难度：</span>
-          <span class="detail-value">{{ selectedPractice.difficulty || '—' }}</span>
+          <span class="detail-value">{{ formatDifficulty(selectedPractice.difficulty, '—') }}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">练习时长：</span>
@@ -237,6 +237,7 @@ import { ref, onMounted, computed, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useUserStore } from '../stores/userStore';
 import { copybookAPI } from '../utils/api';
+import { formatDifficulty } from '../utils/constants';
 import { downloadFile } from '../utils';
 
 // 状态管理

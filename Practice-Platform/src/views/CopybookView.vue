@@ -62,7 +62,7 @@
           <p class="copybook-desc">{{ book.description || '暂无简介' }}</p>
           <div class="copybook-meta">
             <el-tag size="small" type="info">{{ book.category || '未分类' }}</el-tag>
-            <el-tag size="small">{{ book.difficulty || '未标难度' }}</el-tag>
+            <el-tag size="small">{{ formatDifficulty(book.difficulty) }}</el-tag>
           </div>
           <div class="copybook-stat">
             字帖字数 {{ book.characterCount ?? 0 }} · 已被使用 {{ book.usageCount ?? 0 }} 次
@@ -145,7 +145,7 @@
           </div>
           <div class="detail-row">
             <span class="detail-label">难度：</span>
-            <span class="detail-value">{{ selectedCopybook.difficulty || '未标难度' }}</span>
+            <span class="detail-value">{{ formatDifficulty(selectedCopybook.difficulty) }}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">字帖字数：</span>
@@ -397,6 +397,7 @@
 import { ref, reactive, computed, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useCopybookStore } from '../stores/copybookStore';
+import { formatDifficulty } from '../utils/constants';
 import { downloadCanvasAsImage } from '../utils';
 
 // 状态管理

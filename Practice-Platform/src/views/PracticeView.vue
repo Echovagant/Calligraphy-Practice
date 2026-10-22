@@ -58,7 +58,7 @@
           <div v-if="currentCopybook" class="current-copybook">
             <div class="current-title">《{{ currentCopybook.title }}》</div>
             <div class="current-meta">
-              {{ currentCopybook.category || '未分类' }} · {{ currentCopybook.difficulty || '未标难度' }}
+              {{ currentCopybook.category || '未分类' }} · {{ formatDifficulty(currentCopybook.difficulty) }}
               · 字帖字数 {{ currentCopybook.characterCount ?? 0 }}
             </div>
           </div>
@@ -124,6 +124,7 @@ import * as fabric from 'fabric';
 import { ElMessage } from 'element-plus';
 import { usePracticeStore } from '../stores/practiceStore';
 import { useUserStore } from '../stores/userStore';
+import { formatDifficulty } from '../utils/constants';
 import { downloadCanvasAsImage } from '../utils';
 
 // 引入状态管理

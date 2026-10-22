@@ -150,7 +150,7 @@
               <h3 class="copybook-title">{{ book.title }}</h3>
               <p class="copybook-desc">{{ truncateText(book.description, 40) }}</p>
               <div class="copybook-meta">
-                <span class="meta-item">{{ book.difficulty || '难度未知' }}</span>
+                <span class="meta-item">{{ formatDifficulty(book.difficulty, '难度未知') }}</span>
                 <span class="meta-item">{{ book.characterCount || 0 }} 字</span>
                 <span class="meta-item">练习 {{ book.usageCount || 0 }} 次</span>
               </div>
@@ -167,6 +167,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { statsAPI, worksAPI, getToken } from '../utils/api';
+import { formatDifficulty } from '../utils/constants';
 import { useUserStore } from '../stores/userStore';
 
 const router = useRouter();

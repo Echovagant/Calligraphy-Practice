@@ -45,3 +45,20 @@ export const REVIEW_STATUS = {
   APPROVED: 'approved',
   REJECTED: 'rejected'
 };
+
+// 字帖难度：库里存的是英文枚举，展示时统一翻成中文，
+// 免得中文界面里夹着 beginner / intermediate / advanced。
+export const DIFFICULTY_LABELS = {
+  beginner: '入门',
+  intermediate: '进阶',
+  advanced: '高级'
+};
+
+/**
+ * 难度展示文案。
+ * @param {string|null} difficulty 原始难度值
+ * @param {string} fallback 空值时的兜底文案
+ * @returns {string} 未知难度原样返回 —— 练习记录的难度是用户自己填的，不一定是这三个。
+ */
+export const formatDifficulty = (difficulty, fallback = '未标难度') =>
+  DIFFICULTY_LABELS[difficulty] || difficulty || fallback;
