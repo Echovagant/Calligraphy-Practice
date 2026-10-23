@@ -108,7 +108,7 @@
                 </span>
                 <span
                   class="stat-item"
-                  :class="{ active: discussion.liked }"
+                  :class="{ active: isLiked(discussion) }"
                   role="button"
                   tabindex="0"
                   @click="handleLike(discussion)"
@@ -643,6 +643,10 @@ const loadMoreReplies = () => {
   loadReplies(false)
 }
 
+// 点赞态来自服务端：契约的 Discussion.liked 是「当前登录用户是否已赞」，
+// 未登录时为 false。**不要**在本地存一份 —— 刷新后靠列表接口返回的 liked 恢复。
+const isLiked = (discussion) => Boolean(discussion?.liked)
+
 // 点赞 / 取消点赞：POST /api/discussions/{id}/like
 const handleLike = async (discussion) => {
   if (!isLoggedIn.value) {
@@ -653,8 +657,14 @@ const handleLike = async (discussion) => {
 
   try {
     const result = await likeDiscussion(discussion.id)
+    // 用接口返回的 liked / likeCount 覆盖，本地不做任何持久化
     discussion.liked = Boolean(result?.liked)
     discussion.likeCount = result?.likeCount ?? discussion.likeCount ?? 0
+    // 详情弹窗里是打开时的那份快照，同步一下高亮与计数
+    if (detail.value && detail.value.id === discussion.id) {
+      detail.value.liked = discussion.liked
+      detail.value.likeCount = discussion.likeCount
+    }
     ElMessage.success(discussion.liked ? '点赞成功' : '已取消点赞')
   } catch (error) {
     ElMessage.error(error?.message || '点赞失败')

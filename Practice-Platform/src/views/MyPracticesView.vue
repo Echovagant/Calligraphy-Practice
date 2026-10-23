@@ -37,7 +37,10 @@
         range-separator="至"
         start-placeholder="开始日期"
         end-placeholder="结束日期"
+        value-format="YYYY-MM-DD"
+        :disabled="loading"
         class="date-picker"
+        @change="handleFilterChange"
       />
 
       <el-select
@@ -47,7 +50,9 @@
         filterable
         allow-create
         default-first-option
+        :disabled="loading"
         class="filter-select"
+        @change="handleFilterChange"
       >
         <el-option v-for="item in categoryOptions" :key="item" :label="item" :value="item" />
       </el-select>
@@ -56,14 +61,17 @@
         v-model="searchKeyword"
         placeholder="搜索标题 / 内容 / 笔记"
         clearable
+        :disabled="loading"
         class="filter-input"
+        @input="handleSearch"
+        @clear="handleSearch"
       />
 
       <el-button type="primary" :loading="loading" @click="refreshPractices">
         <el-icon><Refresh /></el-icon> 刷新数据
       </el-button>
     </div>
-    <p class="filter-hint">共 {{ recordsTotal }} 条练习记录<template v-if="recordsTotal > practices.length">，当前展示最近 {{ practices.length }} 条</template></p>
+    <p class="filter-hint">共 {{ recordsTotal }} 条练习记录，日期范围、分类与关键词都在服务端筛选。</p>
 
     <div class="practice-content">
       <!-- 练习记录与日历共用同一份数据，错误提示只报一次 -->
@@ -81,6 +89,7 @@
       <!-- 练习日历 -->
       <div class="calendar-section">
         <div class="section-title">练习日历</div>
+        <p class="filter-hint">日历按当前页的记录统计，翻页可看其他日期。</p>
         <div v-loading="loading" class="calendar-wrapper">
           <div class="calendar-heatmap">
             <div class="calendar-month" v-for="month in calendarMonths" :key="month.key">
@@ -104,7 +113,7 @@
         <div class="section-title">最近练习记录</div>
 
         <div v-loading="loading" class="table-wrapper">
-          <el-table :data="pagedPractices" style="width: 100%" border>
+          <el-table :data="practices" style="width: 100%" border>
             <el-table-column prop="title" label="标题" width="160" show-overflow-tooltip />
             <el-table-column prop="practiceDate" label="练习日期" width="150">
               <template #default="scope">
@@ -147,7 +156,7 @@
           </el-table>
 
           <el-empty
-            v-if="!loading && !loadError && pagedPractices.length === 0"
+            v-if="!loading && !loadError && practices.length === 0"
             :description="hasFilter ? '没有符合筛选条件的练习记录' : '暂无练习记录'"
           />
         </div>
@@ -159,7 +168,7 @@
             v-model:page-size="pageSize"
             :page-sizes="[10, 20, 50, 100]"
             layout="total, sizes, prev, pager, next, jumper"
-            :total="totalPractices"
+            :total="recordsTotal"
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
           />
@@ -233,32 +242,48 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { ElMessage } from 'element-plus';
 import { Refresh } from '@element-plus/icons-vue';
-import { useUserStore } from '../stores/userStore';
 import { copybookAPI } from '../utils/api';
 import { formatDifficulty } from '../utils/constants';
 import { downloadFile } from '../utils';
 
-// 状态管理
-const userStore = useUserStore();
-
-// 后端单页上限是 100 条，这里取最近 100 条做筛选 / 日历
-const HISTORY_WINDOW = 100;
-
-// 筛选条件
+// 筛选条件（日期是 yyyy-MM-dd 字符串，直接就是契约里 from / to 的格式）
 const dateRange = ref([]);
 const filterCategory = ref('');
 const searchKeyword = ref('');
 
-// 练习记录数据
+// 练习记录数据（当前页）
 const practices = ref([]);
 const recordsTotal = ref(0);
 const currentPage = ref(1);
 const pageSize = ref(10);
 const loading = ref(false);
 const loadError = ref('');
+
+// 分类的可选值：来自后端返回的记录，不在前端写死。
+// 分页之后每一页只带一部分记录，所以见过的分类累积起来，不随翻页丢掉。
+const knownCategories = ref([]);
+const categoryOptions = computed(() => knownCategories.value);
+
+const rememberCategories = (list) => {
+  const categories = new Set(knownCategories.value);
+  list.forEach((practice) => {
+    if (practice?.category) categories.add(practice.category);
+  });
+  knownCategories.value = [...categories];
+};
+
+const hasFilter = computed(
+  () =>
+    Boolean(searchKeyword.value?.trim()) ||
+    Boolean(filterCategory.value) ||
+    (Array.isArray(dateRange.value) && dateRange.value.length === 2)
+);
+
+// 总页数由服务端的 total 决定
+const totalPages = computed(() => Math.ceil(recordsTotal.value / pageSize.value));
 
 // 统计数据
 const statistics = ref(null);
@@ -277,70 +302,6 @@ const statCards = computed(() => {
     { key: 'characterCount', label: '累计练习字数', value: stats?.characterCount ?? 0 },
     { key: 'streakDays', label: '连续练习(天)', value: stats?.streakDays ?? 0 }
   ];
-});
-
-// 分类的可选值来自后端返回的记录，不在前端写死
-const categoryOptions = computed(() => {
-  const categories = new Set();
-  practices.value.forEach((practice) => {
-    if (practice.category) categories.add(practice.category);
-  });
-  return [...categories];
-});
-
-const hasFilter = computed(
-  () =>
-    Boolean(searchKeyword.value?.trim()) ||
-    Boolean(filterCategory.value) ||
-    (Array.isArray(dateRange.value) && dateRange.value.length === 2)
-);
-
-// 计算属性
-const filteredPractices = computed(() => {
-  let filtered = [...practices.value];
-
-  // 日期筛选
-  if (dateRange.value && dateRange.value.length === 2) {
-    const startDate = new Date(dateRange.value[0]);
-    startDate.setHours(0, 0, 0, 0);
-    const endDate = new Date(dateRange.value[1]);
-    endDate.setHours(23, 59, 59, 999);
-    filtered = filtered.filter(practice => {
-      const practiceDate = new Date(practice.practiceDate || practice.createdAt);
-      return practiceDate >= startDate && practiceDate <= endDate;
-    });
-  }
-
-  // 分类筛选
-  if (filterCategory.value) {
-    filtered = filtered.filter(practice => practice.category === filterCategory.value);
-  }
-
-  // 关键词筛选
-  const keyword = searchKeyword.value?.trim();
-  if (keyword) {
-    filtered = filtered.filter(
-      practice =>
-        (practice.title || '').includes(keyword) ||
-        (practice.content || '').includes(keyword) ||
-        (practice.notes || '').includes(keyword)
-    );
-  }
-
-  // 按练习日期排序（最新的在前）
-  filtered.sort(
-    (a, b) =>
-      new Date(b.practiceDate || b.createdAt) - new Date(a.practiceDate || a.createdAt)
-  );
-
-  return filtered;
-});
-
-const totalPractices = computed(() => filteredPractices.value.length);
-const totalPages = computed(() => Math.ceil(totalPractices.value / pageSize.value));
-const pagedPractices = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  return filteredPractices.value.slice(start, start + pageSize.value);
 });
 
 // 练习日历：按真实记录聚合每一天的练习次数 / 时长 / 字数
@@ -398,30 +359,65 @@ onMounted(() => {
   loadStatistics();
 });
 
-// 加载练习记录
+// 加载练习记录：GET /api/copybooks/practice/history
+// 分页与筛选都在服务端完成：from / to 是 yyyy-MM-dd（含当天）
 const loadPractices = async () => {
   loading.value = true;
   loadError.value = '';
   try {
-    if (typeof userStore.fetchPractices !== 'function') {
-      throw new Error('userStore 尚未提供 fetchPractices 动作');
+    const params = {
+      page: currentPage.value - 1,
+      size: pageSize.value
+    };
+
+    if (Array.isArray(dateRange.value) && dateRange.value.length === 2) {
+      params.from = dateRange.value[0];
+      params.to = dateRange.value[1];
     }
+    if (filterCategory.value) {
+      params.category = filterCategory.value;
+    }
+    const keyword = searchKeyword.value?.trim();
+    if (keyword) {
+      params.keyword = keyword;
+    }
+
     // 列表端点返回分页信封 {content,page,size,total,totalPages}
-    const payload = await userStore.fetchPractices({ page: 0, size: HISTORY_WINDOW });
+    const payload = await copybookAPI.getPracticeHistory(params);
     const list = Array.isArray(payload)
       ? payload
       : (Array.isArray(payload?.content) ? payload.content : []);
     practices.value = list;
     recordsTotal.value = typeof payload?.total === 'number' ? payload.total : list.length;
-    currentPage.value = 1;
+    rememberCategories(list);
+    if (typeof payload?.page === 'number' && payload.page + 1 !== currentPage.value) {
+      currentPage.value = payload.page + 1;
+    }
   } catch (error) {
     practices.value = [];
+    recordsTotal.value = 0;
     loadError.value = error?.message || '加载练习记录失败';
     ElMessage.error(loadError.value);
     console.error('加载练习记录失败:', error);
   } finally {
     loading.value = false;
   }
+};
+
+// 日期范围 / 分类变化：回到第一页重新拉
+const handleFilterChange = () => {
+  currentPage.value = 1;
+  loadPractices();
+};
+
+// 关键词输入防抖：避免每敲一个字就打一次接口
+let searchTimer = null;
+const handleSearch = () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    currentPage.value = 1;
+    loadPractices();
+  }, 400);
 };
 
 // 加载练习统计
@@ -491,16 +487,12 @@ const closeDialog = () => {
 // 分页处理
 const handleSizeChange = () => {
   currentPage.value = 1;
+  loadPractices();
 };
 
 const handleCurrentChange = () => {
   // 页码变化由 v-model:current-page 处理
 };
-
-// 筛选条件变化后回到第一页
-watch([dateRange, filterCategory, searchKeyword], () => {
-  currentPage.value = 1;
-});
 
 // 工具函数
 const formatDate = (dateStr) => {

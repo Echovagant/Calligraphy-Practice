@@ -112,10 +112,13 @@
             <div class="header-actions">
               <el-input
                 v-model="workSearchQuery"
-                placeholder="在当前页筛选作品"
+                placeholder="按标题或作者搜索"
                 :prefix-icon="Search"
                 clearable
+                :disabled="worksLoading"
                 style="width: 220px; margin-right: 10px;"
+                @input="handleWorkSearch"
+                @clear="handleWorkSearch"
               />
               <el-button type="primary" :loading="worksLoading" @click="fetchWorks">刷新</el-button>
             </div>
@@ -131,6 +134,7 @@
             <template v-else>
               这里列出已通过审核、正在画廊里公开展示的作品。
             </template>
+            搜索在这批作品里执行，翻页查看更多。
           </p>
 
           <el-alert
@@ -145,7 +149,7 @@
           </el-alert>
 
           <div v-loading="worksLoading" class="data-table">
-            <el-table :data="filteredWorks" style="width: 100%">
+            <el-table :data="works" style="width: 100%">
               <el-table-column prop="id" label="作品ID" width="80" />
               <el-table-column label="作品图片" width="96">
                 <template #default="scope">
@@ -204,7 +208,7 @@
             </el-table>
 
             <el-empty
-              v-if="!worksLoading && !worksError && filteredWorks.length === 0"
+              v-if="!worksLoading && !worksError && works.length === 0"
               description="暂无作品"
             />
           </div>
@@ -684,34 +688,24 @@ const workSearchQuery = ref('')
 // 作品列表的来源：待审队列（管理端端点）/ 已发布作品（公开画廊）
 const worksScope = ref('pending')
 
-// 当前页内的筛选（服务端只提供分页，没有按关键字查询作品的管理端点）
-const filteredWorks = computed(() => {
-  const keyword = workSearchQuery.value.trim().toLowerCase()
-  if (!keyword) {
-    return works.value
-  }
-  return works.value.filter(
-    (work) =>
-      String(work.title || '').toLowerCase().includes(keyword) ||
-      String(work.username || '').toLowerCase().includes(keyword) ||
-      String(work.id || '').toLowerCase().includes(keyword)
-  )
-})
-
 const fetchWorks = async () => {
   worksLoading.value = true
   worksError.value = ''
   try {
     // 待审队列走管理端端点，已发布作品走公开画廊 —— 公开画廊只含已发布且已审核通过的作品，
     // 拿它当待审队列的话，刚上传的作品永远不在列表里，审核功能等于废的。
+    // 搜索词（keyword）交给服务端，不再在前端对当前页做过滤。
+    const keyword = workSearchQuery.value.trim()
     const payload = worksScope.value === 'pending'
       ? await adminAPI.getPendingWorks({
         page: worksPage.value - 1,
-        size: worksPageSize.value
+        size: worksPageSize.value,
+        keyword: keyword || undefined
       })
       : await worksAPI.getWorks({
         page: worksPage.value - 1,
-        size: worksPageSize.value
+        size: worksPageSize.value,
+        keyword: keyword || undefined
       })
     works.value = Array.isArray(payload?.content) ? payload.content : []
     worksTotal.value = payload?.total ?? works.value.length
@@ -724,6 +718,16 @@ const fetchWorks = async () => {
   } finally {
     worksLoading.value = false
   }
+}
+
+// 搜索输入防抖：避免每敲一个字就打一次接口
+let workSearchTimer = null
+const handleWorkSearch = () => {
+  clearTimeout(workSearchTimer)
+  workSearchTimer = setTimeout(() => {
+    worksPage.value = 1
+    fetchWorks()
+  }, 400)
 }
 
 // 切换来源：回到第一页重新拉

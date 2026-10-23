@@ -13,19 +13,21 @@
           placeholder="搜索作品标题或作者"
           :prefix-icon="Search"
           clearable
+          :disabled="loading"
           @input="handleSearch"
+          @clear="handleSearch"
         />
       </div>
 
       <div class="filter-options">
-        <el-select v-model="sortBy" placeholder="排序" @change="handleSort">
+        <el-select v-model="sortBy" placeholder="排序" :disabled="loading" @change="handleSort">
           <el-option label="最新上传" value="latest" />
           <el-option label="最多点赞" value="popular" />
           <el-option label="最多评论" value="commented" />
         </el-select>
       </div>
     </div>
-    <p class="filter-hint">搜索与排序在当前页内生效，翻页可查看更多作品。</p>
+    <p class="filter-hint">搜索与排序在全部公开作品里执行，翻页查看更多。</p>
 
     <!-- 错误状态 -->
     <el-alert
@@ -45,7 +47,7 @@
     <div class="works-area" v-loading="loading">
       <div class="works-grid">
         <div
-          v-for="work in filteredWorks"
+          v-for="work in works"
           :key="work.id"
           class="work-card"
           role="button"
@@ -113,9 +115,9 @@
     </div>
 
     <!-- 空状态 -->
-    <div v-if="!loading && !errorMessage && filteredWorks.length === 0" class="empty-state">
-      <el-empty :description="works.length === 0 ? '暂无公开作品' : '暂无符合条件的作品'">
-        <el-button v-if="works.length > 0" type="primary" @click="resetFilters">重置筛选条件</el-button>
+    <div v-if="!loading && !errorMessage && works.length === 0" class="empty-state">
+      <el-empty :description="hasFilter ? '没有找到匹配的作品' : '暂无公开作品'">
+        <el-button v-if="hasFilter" type="primary" @click="resetFilters">重置搜索条件</el-button>
       </el-empty>
     </div>
 
@@ -332,13 +334,17 @@ const imagePreview = ref('');
 const uploading = ref(false);
 
 // 加载公开作品：GET /api/works —— 公开端点，返回分页信封
+// 搜索词与排序交给服务端处理（keyword / sort），不再在前端对当前页做过滤
 const loadWorks = async () => {
   loading.value = true;
   errorMessage.value = '';
   try {
+    const keyword = searchQuery.value.trim();
     const response = await worksAPI.getWorks({
       page: currentPage.value - 1,
       size: pageSize.value,
+      keyword: keyword || undefined,
+      sort: sortBy.value
     });
     works.value = Array.isArray(response?.content) ? response.content : [];
     totalItems.value = typeof response?.total === 'number' ? response.total : works.value.length;
@@ -355,45 +361,23 @@ const loadWorks = async () => {
   }
 };
 
-// 过滤后的作品（后端列表接口只支持分页，筛选与排序在当前页内进行）
-const filteredWorks = computed(() => {
-  let result = [...works.value];
+// 有没有在筛选：决定空状态文案
+const hasFilter = computed(() => Boolean(searchQuery.value.trim()));
 
-  if (searchQuery.value) {
-    const query = searchQuery.value.trim().toLowerCase();
-    if (query) {
-      result = result.filter((work) =>
-        (work.title || '').toLowerCase().includes(query) ||
-        (work.username || '').toLowerCase().includes(query) ||
-        (work.userNickname || '').toLowerCase().includes(query) ||
-        (work.description || '').toLowerCase().includes(query)
-      );
-    }
-  }
-
-  switch (sortBy.value) {
-    case 'popular':
-      result.sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0));
-      break;
-    case 'commented':
-      result.sort((a, b) => (b.commentCount || 0) - (a.commentCount || 0));
-      break;
-    default:
-      result.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-      break;
-  }
-
-  return result;
-});
-
-// 处理搜索
+// 搜索输入防抖：避免每敲一个字就打一次接口
+let searchTimer = null;
 const handleSearch = () => {
-  currentPage.value = 1;
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    currentPage.value = 1;
+    loadWorks();
+  }, 400);
 };
 
 // 处理排序
 const handleSort = () => {
   currentPage.value = 1;
+  loadWorks();
 };
 
 // 重置筛选条件
@@ -401,6 +385,7 @@ const resetFilters = () => {
   searchQuery.value = '';
   sortBy.value = 'latest';
   currentPage.value = 1;
+  loadWorks();
 };
 
 // 分页处理

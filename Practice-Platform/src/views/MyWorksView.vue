@@ -12,20 +12,22 @@
         :prefix-icon="Search"
         clearable
         class="search-input"
+        :disabled="loading"
         @input="handleSearch"
+        @clear="handleSearch"
       />
 
-      <el-select v-model="sortBy" placeholder="排序方式" class="filter-select" @change="handleSort">
-        <el-option label="最新上传" value="newest" />
-        <el-option label="最多点赞" value="likes" />
-        <el-option label="最多评论" value="comments" />
+      <el-select v-model="sortBy" placeholder="排序方式" class="filter-select" :disabled="loading" @change="handleSort">
+        <el-option label="最新上传" value="latest" />
+        <el-option label="最多点赞" value="popular" />
+        <el-option label="最多评论" value="commented" />
       </el-select>
 
       <el-button type="primary" :loading="loading" :icon="Refresh" @click="refreshWorks">
         刷新列表
       </el-button>
     </div>
-    <p class="filter-hint">搜索与排序在当前页内生效，翻页可查看更多作品。</p>
+    <p class="filter-hint">搜索与排序在我的全部作品里执行，翻页查看更多。</p>
 
     <!-- 错误状态 -->
     <el-alert
@@ -42,8 +44,8 @@
     </el-alert>
 
     <div class="works-area" v-loading="loading">
-      <div class="works-grid" v-if="filteredWorks.length > 0">
-        <div v-for="work in filteredWorks" :key="work.id" class="work-item">
+      <div class="works-grid" v-if="myWorks.length > 0">
+        <div v-for="work in myWorks" :key="work.id" class="work-item">
           <div class="work-image-wrapper">
             <img v-if="work.imageUrl" :src="work.imageUrl" :alt="work.title" class="work-image" />
             <div v-else class="work-image work-image-placeholder">暂无图片</div>
@@ -95,8 +97,8 @@
     </div>
 
     <!-- 空状态 -->
-    <div v-if="!loading && !errorMessage && filteredWorks.length === 0" class="empty-state">
-      <el-empty :description="myWorks.length === 0 ? '还没有上传过作品' : '暂无符合条件的作品'">
+    <div v-if="!loading && !errorMessage && myWorks.length === 0" class="empty-state">
+      <el-empty :description="hasFilter ? '没有找到匹配的作品' : '还没有上传过作品'">
         <el-button type="primary" @click="router.push('/gallery')">去作品展示</el-button>
       </el-empty>
     </div>
@@ -198,9 +200,9 @@ import { useUserStore } from '../stores/userStore';
 const router = useRouter();
 const userStore = useUserStore();
 
-// 搜索和排序
+// 搜索和排序（keyword / sort 交给服务端处理）
 const searchKeyword = ref('');
-const sortBy = ref('newest');
+const sortBy = ref('latest');
 
 // 分页（el-pagination 从 1 起，后端分页从 0 起）
 const currentPage = ref(1);
@@ -220,6 +222,7 @@ const editForm = ref({ id: null, title: '', description: '' });
 const saving = ref(false);
 
 // 加载我的作品：GET /api/works/user/{userId}，返回分页信封
+// 搜索词与排序由服务端执行（keyword / sort），不再在前端对当前页做过滤
 const loadMyWorks = async () => {
   loading.value = true;
   errorMessage.value = '';
@@ -228,9 +231,12 @@ const loadMyWorks = async () => {
       // store 的 fetchMyWorks 依赖 userInfo.id，这里先把资料拉回来
       await userStore.fetchUserProfile();
     }
+    const keyword = searchKeyword.value.trim();
     const response = await userStore.fetchMyWorks({
       page: currentPage.value - 1,
       size: pageSize.value,
+      keyword: keyword || undefined,
+      sort: sortBy.value
     });
     myWorks.value = Array.isArray(response?.content) ? response.content : [];
     totalItems.value = typeof response?.total === 'number' ? response.total : myWorks.value.length;
@@ -247,43 +253,23 @@ const loadMyWorks = async () => {
   }
 };
 
-// 过滤后的作品（后端列表接口只支持分页，筛选与排序在当前页内进行）
-const filteredWorks = computed(() => {
-  let filtered = [...myWorks.value];
+// 有没有在筛选：决定空状态文案
+const hasFilter = computed(() => Boolean(searchKeyword.value.trim()));
 
-  if (searchKeyword.value) {
-    const keyword = searchKeyword.value.trim().toLowerCase();
-    if (keyword) {
-      filtered = filtered.filter(
-        (work) =>
-          (work.title || '').toLowerCase().includes(keyword) ||
-          (work.description || '').toLowerCase().includes(keyword)
-      );
-    }
-  }
-
-  switch (sortBy.value) {
-    case 'likes':
-      filtered.sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0));
-      break;
-    case 'comments':
-      filtered.sort((a, b) => (b.commentCount || 0) - (a.commentCount || 0));
-      break;
-    default:
-      filtered.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-      break;
-  }
-
-  return filtered;
-});
-
-// 搜索与排序
+// 搜索输入防抖：避免每敲一个字就打一次接口
+let searchTimer = null;
 const handleSearch = () => {
-  currentPage.value = 1;
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    currentPage.value = 1;
+    loadMyWorks();
+  }, 400);
 };
 
+// 排序变化
 const handleSort = () => {
   currentPage.value = 1;
+  loadMyWorks();
 };
 
 // 刷新作品列表

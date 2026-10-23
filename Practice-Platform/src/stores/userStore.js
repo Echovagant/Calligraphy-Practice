@@ -80,6 +80,21 @@ export const useUserStore = defineStore('user', {
     // 判断是否是后端管理员
     isBackendUser: (state) => state.userType === USER_TYPES.BACKEND,
     
+    // 账号级偏好：users.preferences 是 **JSON 字符串**（契约的 FrontendUser.preferences）。
+    // 账号是真相源，这里只负责把它解成对象；没有就返回 null，让调用方走兜底默认值。
+    preferences: (state) => {
+      const raw = state.userInfo?.preferences
+      if (!raw) return null
+      if (typeof raw === 'object') return raw
+      try {
+        const parsed = JSON.parse(raw)
+        return parsed && typeof parsed === 'object' ? parsed : null
+      } catch (error) {
+        console.error('解析账号偏好失败:', error)
+        return null
+      }
+    },
+    
     // 检查会话是否超时（30分钟无活动）
     isSessionExpired: (state) => {
       const SESSION_TIMEOUT = 30 * 60 * 1000
@@ -304,6 +319,52 @@ export const useUserStore = defineStore('user', {
         return true;
       } catch (err) {
         this.error = err.response?.data?.message || err.message || '更新用户信息失败';
+        return false;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    // 保存账号级偏好：PUT /api/users/profile
+    //
+    // 契约的 FrontendUserUpdate.preferences 是 **字符串**（JSON），
+    // 不能把对象直接塞进请求体。nickname / email 是契约里的必填项，一并带上。
+    // profile 可传 { nickname, email } 覆盖 store 里的旧值。
+    async updatePreferences(preferences, profile = {}) {
+      this.loading = true;
+      this.error = null;
+
+      try {
+        if (!await this.checkAndRefreshToken()) {
+          throw new Error('会话已过期，请重新登录');
+        }
+
+        const payload = {
+          // nickname / email 是契约里的必填项，一并带上。
+          // 昵称为空时要回落用户名 —— 注册时昵称是选填的，留空的话
+          // 后端会按契约的 @NotBlank 拒掉整个请求（400「昵称不能为空」），
+          // 于是「保存偏好」对没设过昵称的账号永远失败，而提示还看不出原因。
+          nickname: (profile.nickname ?? this.userInfo?.nickname ?? '').trim()
+            || (profile.username ?? this.userInfo?.username ?? '').trim(),
+          email: profile.email ?? this.userInfo?.email ?? '',
+          preferences: JSON.stringify(preferences ?? {})
+        };
+
+        const response = await userAPI.updateProfile(payload);
+
+        // 契约：PUT /api/users/profile 返回更新后的用户对象
+        this.userInfo = { ...(this.userInfo || {}), ...(response || {}) };
+        this.updateActivityTime();
+
+        if (getStorage('authToken')) {
+          setStorage('userInfo', this.userInfo);
+        } else if (getSessionStorage('authToken')) {
+          setSessionStorage('userInfo', this.userInfo);
+        }
+
+        return true;
+      } catch (err) {
+        this.error = err.response?.data?.message || err.message || '保存偏好失败';
         return false;
       } finally {
         this.loading = false;

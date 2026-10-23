@@ -127,6 +127,69 @@
       </div>
     </div>
 
+    <!-- 我的字帖：数据来自 GET /api/copybooks/mine（存到账号的自建字帖） -->
+    <div class="mine-section">
+      <div class="section-header">
+        <h3 class="config-title">我的字帖</h3>
+        <el-button size="small" :loading="myCopybookLoading" :disabled="!isLoggedIn" @click="loadMyCopybooks">
+          刷新
+        </el-button>
+      </div>
+      <p class="filter-hint">生成字帖时会自动存到账号，换设备登录也能看到。</p>
+
+      <el-alert
+        v-if="!isLoggedIn"
+        type="info"
+        title="请先登录后再保存字帖"
+        show-icon
+        :closable="false"
+        class="state-alert"
+      />
+
+      <el-alert
+        v-if="myCopybookError"
+        type="error"
+        :title="myCopybookError"
+        show-icon
+        :closable="false"
+        class="state-alert"
+      >
+        <el-button size="small" type="primary" @click="loadMyCopybooks">重试</el-button>
+      </el-alert>
+
+      <div v-loading="myCopybookLoading" class="my-copybook-list">
+        <div v-for="book in myCopybooks" :key="book.id" class="my-copybook-item">
+          <div class="my-copybook-main">
+            <div class="my-copybook-title">{{ book.title }}</div>
+            <div class="my-copybook-meta">
+              {{ characterCountOf(book) }} 字 · 创建于 {{ formatDateTime(book.createdAt) }}
+            </div>
+          </div>
+          <el-button size="small" type="primary" @click="practiceWithCopybook(book)">
+            用这份字帖练习
+          </el-button>
+        </div>
+
+        <el-empty
+          v-if="!myCopybookLoading && !myCopybookError && isLoggedIn && myCopybooks.length === 0"
+          description="账号里还没有字帖，生成一份就会自动存进来"
+          :image-size="80"
+        />
+      </div>
+
+      <div v-if="myCopybookTotal > myCopybookPageSize" class="pagination-container">
+        <el-pagination
+          v-model:current-page="myCopybookPage"
+          v-model:page-size="myCopybookPageSize"
+          :page-sizes="[10, 20, 50]"
+          layout="total, prev, pager, next"
+          :total="myCopybookTotal"
+          @size-change="handleMyCopybookSizeChange"
+          @current-change="handleMyCopybookPageChange"
+        />
+      </div>
+    </div>
+
     <!-- 字帖详情：数据来自 GET /api/copybooks/{copybookId} -->
     <el-dialog v-model="detailVisible" title="字帖详情" width="480px">
       <div v-loading="detailLoading" class="detail-body">
@@ -399,14 +462,18 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue';
 import { useCopybookStore } from '../stores/copybookStore';
+import { useUserStore } from '../stores/userStore';
 import { formatDifficulty } from '../utils/constants';
 import { downloadCanvasAsImage } from '../utils';
 
 // 状态管理
 const copybookStore = useCopybookStore();
+const userStore = useUserStore();
+const router = useRouter();
 const configFormRef = ref(null);
 const paperRef = ref(null);
 const isGenerating = ref(false);
@@ -415,11 +482,15 @@ const currentPage = ref(1);
 const showHistory = ref(false);
 const showGenerated = ref(false);
 
+// 是否已登录：没登录时生成结果只落在本机，不写账号
+const isLoggedIn = computed(() => userStore.isLoggedIn);
+
 // 初始化
 onMounted(() => {
   copybookStore.initialize();
   loadCopybooks();
   loadPopularCopybooks();
+  loadMyCopybooks();
 });
 
 // ---------------------------------------------------------------- 字帖库（后端数据）
@@ -533,6 +604,71 @@ const loadPopularCopybooks = async () => {
   } finally {
     popularLoading.value = false;
   }
+};
+
+// ---------------------------------------------------------------- 我的字帖（账号里的自建字帖）
+
+const myCopybooks = ref([]);
+const myCopybookTotal = ref(0);
+const myCopybookPage = ref(1);
+const myCopybookPageSize = ref(10);
+const myCopybookLoading = ref(false);
+const myCopybookError = ref('');
+
+// 列表端点返回分页信封 {content,page,size,total,totalPages}
+const loadMyCopybooks = async () => {
+  if (!isLoggedIn.value) {
+    myCopybooks.value = [];
+    myCopybookTotal.value = 0;
+    myCopybookError.value = '';
+    return;
+  }
+
+  myCopybookLoading.value = true;
+  myCopybookError.value = '';
+  try {
+    const payload = await copybookStore.fetchMyCopybooks({
+      page: myCopybookPage.value - 1,
+      size: myCopybookPageSize.value
+    });
+    const page = readPage(payload, copybookStore.myCopybooks, copybookStore.myCopybookTotal);
+    myCopybooks.value = page.content;
+    myCopybookTotal.value = page.total;
+  } catch (error) {
+    myCopybooks.value = [];
+    myCopybookTotal.value = 0;
+    myCopybookError.value = error?.message || '获取我的字帖失败';
+    ElMessage.error(myCopybookError.value);
+    console.error('获取我的字帖失败:', error);
+  } finally {
+    myCopybookLoading.value = false;
+  }
+};
+
+const handleMyCopybookPageChange = () => {
+  loadMyCopybooks();
+};
+
+const handleMyCopybookSizeChange = () => {
+  myCopybookPage.value = 1;
+  loadMyCopybooks();
+};
+
+// 字数：后端给了 characterCount 就用它，没给就按正文长度算
+const characterCountOf = (book) => {
+  if (typeof book?.characterCount === 'number') {
+    return book.characterCount;
+  }
+  return book?.content?.length || 0;
+};
+
+// 用这份字帖去练习：带上字帖 id 跳到练习页
+const practiceWithCopybook = (book) => {
+  if (!book?.id) {
+    ElMessage.warning('这份字帖缺少 ID，无法直接练习');
+    return;
+  }
+  router.push({ path: '/practice', query: { copybookId: book.id } });
 };
 
 // ---------------------------------------------------------------- 字帖详情
@@ -718,8 +854,8 @@ const generateCopybook = async () => {
 
     isGenerating.value = true;
 
-    // 调用store的生成方法
-    await copybookStore.generateCopybook();
+    // 调用store的生成方法：本地生成 + 存到账号
+    const result = await copybookStore.generateCopybook();
 
     // 处理文本，去除空格和换行
     processedText.value = copybookStore.getSettings.content.replace(/\s+/g, '');
@@ -734,7 +870,14 @@ const generateCopybook = async () => {
     currentPage.value = 1;
     hasGenerated.value = true;
 
-    ElMessage.success('字帖生成成功！');
+    if (result.savedToAccount) {
+      ElMessage.success('字帖已保存到你的账号，可在「我的字帖」中查看');
+      await loadMyCopybooks();
+    } else if (result.reason === 'not-logged-in') {
+      ElMessage.info('字帖已生成（仅本机保存），登录后可存到账号');
+    } else {
+      ElMessage.warning(`字帖已生成，但没能存到账号：${result.error?.message || '请稍后重试'}`);
+    }
 
   } catch (error) {
     if (error !== false) {
@@ -972,6 +1115,55 @@ const nextPage = () => {
 .popular-count {
   color: #6b6259;
   font-size: 0.8rem;
+}
+
+/* 我的字帖 */
+.mine-section {
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.my-copybook-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 60px;
+}
+
+.my-copybook-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.6rem 0.8rem;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.my-copybook-main {
+  min-width: 0;
+}
+
+.my-copybook-title {
+  color: var(--text-color);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.my-copybook-meta {
+  color: var(--el-text-color-secondary);
+  font-size: 0.8rem;
+  margin-top: 0.2rem;
 }
 
 /* 字帖详情 */

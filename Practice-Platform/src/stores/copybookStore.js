@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { getStorage, setStorage } from '../utils/storage';
 import { copybookAPI } from '../utils/api';
+import { useUserStore } from './userStore';
 
 // 字帖生成状态管理
 export const useCopybookStore = defineStore('copybook', {
@@ -69,6 +70,12 @@ export const useCopybookStore = defineStore('copybook', {
     // 字帖总数（列表端点返回分页信封，total 在信封里）
     copybookTotal: 0,
     
+    // 我保存到账号的自建字帖（GET /api/copybooks/mine）
+    myCopybooks: [],
+
+    // 我的字帖总数
+    myCopybookTotal: 0,
+    
     // 热门字帖
     popularCopybooks: [],
     
@@ -83,6 +90,7 @@ export const useCopybookStore = defineStore('copybook', {
       copybooks: false,
       popular: false,
       statistics: false,
+      mine: false,
     },
 
     // 当前编辑的字帖
@@ -107,6 +115,9 @@ export const useCopybookStore = defineStore('copybook', {
 
     // 获取生成的字帖列表
     getGeneratedCopybooks: (state) => state.generatedCopybooks,
+
+    // 我保存到账号的字帖
+    getMyCopybooks: (state) => state.myCopybooks,
 
     // 获取当前编辑的字帖
     getCurrentCopybook: (state) => state.currentCopybook,
@@ -169,8 +180,13 @@ export const useCopybookStore = defineStore('copybook', {
       this.updateSettings({ paperColor: color });
     },
 
-    // 生成自定义字帖（本地）
-    generateCopybook() {
+    // 生成自定义字帖（本地生成 + 存到账号）
+    //
+    // 返回值说明：
+    //   savedToAccount: true  已经存进账号，可在「我的字帖」里看到
+    //   reason: 'not-logged-in' 没登录，字帖只落在本机（仍然可以下载）
+    //   reason: 'error'        账号保存失败（本地字帖照样能用）
+    async generateCopybook() {
       const content = this.settings.content || this.settings.sampleText;
 
       // 验证内容
@@ -205,7 +221,71 @@ export const useCopybookStore = defineStore('copybook', {
       // 设置为当前编辑的字帖
       this.currentCopybook = copybook;
 
-      return copybook;
+      // 额外存一份到账号：本地只是缓存，账号才是跨设备能看到的真相源
+      const saved = await this.saveCopybookToAccount(copybook);
+
+      return {
+        copybook,
+        savedToAccount: saved.saved,
+        reason: saved.reason,
+        error: saved.error
+      };
+    },
+
+    // 把字帖存到账号：POST /api/copybooks
+    //
+    // 入参按契约的 CopybookCreate 组装：title / content 是必填，
+    // font / layout / charactersPerPage / fontSize / paperColor / gridColor
+    // 用生成时的设置。
+    async saveCopybookToAccount(copybook) {
+      const userStore = useUserStore();
+
+      // 未登录就不调创建接口 —— 请求层拿不到令牌会整页跳登录页。
+      if (!userStore.isLoggedIn) {
+        return { saved: false, reason: 'not-logged-in' };
+      }
+
+      const settings = copybook?.settings || {};
+      try {
+        const created = await copybookAPI.createCopybook({
+          title: copybook.title,
+          content: copybook.content,
+          description: `自建字帖，共 ${copybook.content.length} 字`,
+          font: settings.font,
+          layout: settings.layout,
+          charactersPerPage: settings.charactersPerPage,
+          fontSize: settings.fontSize,
+          paperColor: settings.paperColor,
+          gridColor: settings.gridColor
+        });
+
+        // 新建的字帖放在最前面，列表不用重新拉
+        if (created && created.id) {
+          this.myCopybooks = [created, ...this.myCopybooks];
+          this.myCopybookTotal += 1;
+        }
+
+        return { saved: true, copybook: created };
+      } catch (error) {
+        console.error('保存字帖到账号失败:', error);
+        return { saved: false, reason: 'error', error };
+      }
+    },
+
+    // 我保存的自建字帖：GET /api/copybooks/mine —— 分页信封
+    async fetchMyCopybooks(params = {}) {
+      try {
+        this.loading.mine = true;
+        const response = await copybookAPI.getMyCopybooks(params);
+        this.myCopybooks = response?.content || [];
+        this.myCopybookTotal = response?.total ?? this.myCopybooks.length;
+        return this.myCopybooks;
+      } catch (error) {
+        console.error('获取我的字帖失败:', error);
+        throw error;
+      } finally {
+        this.loading.mine = false;
+      }
     },
     
     // 从后端获取字帖列表

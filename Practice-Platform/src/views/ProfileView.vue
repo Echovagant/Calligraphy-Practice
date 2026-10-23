@@ -174,7 +174,12 @@
               </el-form-item>
 
               <el-form-item>
-                <el-button type="primary" @click="handleSavePreferences">保存设置</el-button>
+                <el-button type="primary" :loading="preferencesSaving" @click="handleSavePreferences">
+                  保存设置
+                </el-button>
+                <span class="preferences-hint">
+                  偏好存在账号里，换设备登录也会同步。<template v-if="preferencesSource === 'local'">当前显示的是本机兜底值，保存后会写进账号。</template>
+                </span>
               </el-form-item>
             </el-form>
           </div>
@@ -201,6 +206,7 @@ const securityLoading = ref(false);
 const avatarLoading = ref(false);
 const profileLoading = ref(false);
 const profileError = ref('');
+const preferencesSaving = ref(false);
 
 // 表单引用
 const basicFormRef = ref(null);
@@ -217,6 +223,8 @@ const userInfo = reactive({
   phone: '',
   bio: '',
   status: '',
+  // 账号级偏好（JSON 字符串），存在 users.preferences 列里
+  preferences: '',
   workCount: 0,
   practiceCount: 0,
   commentCount: 0
@@ -231,8 +239,18 @@ const securityForm = reactive({
   confirmPassword: ''
 });
 
-// 偏好设置（存在浏览器本地，不走后端）
+// 偏好设置：账号是真相源，本地只留一份兜底默认值
 const preferences = reactive({
+  defaultCopybookStyle: 'regular',
+  enableReminder: false,
+  notifications: []
+});
+
+// 偏好当前来自哪里：account（账号）/ local（本地兜底）/ default（默认值）
+const preferencesSource = ref('default');
+
+// 偏好的默认值
+const defaultPreferences = () => ({
   defaultCopybookStyle: 'regular',
   enableReminder: false,
   notifications: []
@@ -325,17 +343,49 @@ const applyProfile = (profile) => {
   userInfo.phone = profile.phone || '';
   userInfo.bio = profile.bio || '';
   userInfo.status = profile.status || '';
+  userInfo.preferences = profile.preferences || '';
   userInfo.workCount = profile.workCount || 0;
   userInfo.practiceCount = profile.practiceCount || 0;
   userInfo.commentCount = profile.commentCount || 0;
+  // 账号里的偏好比本地那份新 —— 资料到手就以账号为准
+  loadPreferences();
+};
+
+// 把一份偏好（JSON 字符串或对象）写进表单，返回是否解析成功
+const applyPreferences = (raw) => {
+  let parsed = null;
+  if (raw && typeof raw === 'object') {
+    parsed = raw;
+  } else if (typeof raw === 'string' && raw.trim()) {
+    try {
+      parsed = JSON.parse(raw);
+    } catch (error) {
+      console.error('解析账号偏好失败:', error);
+      parsed = null;
+    }
+  }
+  if (!parsed || typeof parsed !== 'object') {
+    return false;
+  }
+  // 先回到默认值，避免上一份偏好里多出来的键残留
+  Object.assign(preferences, defaultPreferences(), parsed);
+  return true;
 };
 
 // 加载用户偏好设置
+// 账号里的偏好优先（换设备也能用），账号里没有才用本地兜底
 const loadPreferences = () => {
+  // 先用刚拉到的账号资料，没有再退回 store 里的账号信息
+  if (applyPreferences(userInfo.preferences) || applyPreferences(userStore.preferences)) {
+    preferencesSource.value = 'account';
+    return;
+  }
+
   const saved = localStorage.getItem('userPreferences');
   if (saved) {
     try {
-      Object.assign(preferences, JSON.parse(saved));
+      Object.assign(preferences, defaultPreferences(), JSON.parse(saved));
+      preferencesSource.value = 'local';
     } catch (error) {
       console.error('读取本地偏好设置失败:', error);
       localStorage.removeItem('userPreferences');
@@ -428,10 +478,31 @@ const handleChangePassword = async () => {
   }
 };
 
-// 保存偏好设置
-const handleSavePreferences = () => {
-  localStorage.setItem('userPreferences', JSON.stringify(preferences));
-  ElMessage.success('偏好设置已保存');
+// 保存偏好设置：PUT /api/users/profile（preferences 是 JSON 字符串）
+const handleSavePreferences = async () => {
+  preferencesSaving.value = true;
+  try {
+    const success = await userStore.updatePreferences(
+      {
+        defaultCopybookStyle: preferences.defaultCopybookStyle,
+        enableReminder: preferences.enableReminder,
+        notifications: [...preferences.notifications]
+      },
+      { nickname: userInfo.nickname, email: userInfo.email }
+    );
+
+    if (!success) {
+      ElMessage.error(userStore.error || '偏好保存失败，请稍后重试');
+      return;
+    }
+
+    // 本地留一份兜底（账号才是真相源）
+    localStorage.setItem('userPreferences', JSON.stringify(preferences));
+    preferencesSource.value = 'account';
+    ElMessage.success('偏好已保存到账号，换设备登录也会同步');
+  } finally {
+    preferencesSaving.value = false;
+  }
 };
 
 // 触发头像文件选择
@@ -541,6 +612,12 @@ const uploadAvatarRequest = async ({ file, onSuccess, onError }) => {
 
 .state-alert {
   margin-bottom: 1rem;
+}
+
+.preferences-hint {
+  margin-left: 0.8rem;
+  color: var(--el-text-color-secondary);
+  font-size: 0.85rem;
 }
 
 .profile-section {

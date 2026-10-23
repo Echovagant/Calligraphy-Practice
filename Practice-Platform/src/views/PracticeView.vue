@@ -134,7 +134,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch, nextTick, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import * as fabric from 'fabric';
 import { ElMessage } from 'element-plus';
 import { Delete, RefreshLeft, Download } from '@element-plus/icons-vue';
@@ -142,12 +142,13 @@ import { usePracticeStore } from '../stores/practiceStore';
 import { useUserStore } from '../stores/userStore';
 import { formatDifficulty } from '../utils/constants';
 import { downloadCanvasAsImage } from '../utils';
-import { getToken } from '../utils/api';
+import { getToken, copybookAPI } from '../utils/api';
 
 // 引入状态管理
 const practiceStore = usePracticeStore();
 const userStore = useUserStore();
 const router = useRouter();
+const route = useRoute();
 
 // 是否已登录：store 状态 + 本地是否留有令牌（与 GalleryView 同一套判断）
 const isLoggedIn = computed(() => userStore.isLoggedIn || Boolean(getToken()));
@@ -236,6 +237,23 @@ const loadRecommendations = async () => {
 const selectCopybook = (copybook) => {
   practiceStore.setCurrentCopybook(copybook);
   ElMessage.success(`已选择《${copybook.title || '未命名字帖'}》作为参考字帖`);
+};
+
+// 从「我的字帖」带过来的字帖：GET /api/copybooks/{copybookId}
+const loadCopybookFromQuery = async () => {
+  // 同一个参数出现多次时 query 里拿到的是数组，取第一个就行
+  const raw = route.query.copybookId
+  const copybookId = Array.isArray(raw) ? raw[0] : raw
+  if (!copybookId) return;
+  try {
+    const book = await copybookAPI.getCopybookDetail(copybookId);
+    if (book && book.id) {
+      practiceStore.setCurrentCopybook(book);
+    }
+  } catch (error) {
+    ElMessage.error(error?.message || '加载指定字帖失败，请稍后重试');
+    console.error('加载指定字帖失败:', error);
+  }
 };
 
 // 初始化画布
@@ -513,6 +531,8 @@ onMounted(() => {
     practiceStartTime.value = new Date();
     // 获取推荐练习内容
     loadRecommendations();
+    // 从「我的字帖」跳转过来时，直接选中那一份字帖
+    loadCopybookFromQuery();
   });
 });
 
