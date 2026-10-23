@@ -51,6 +51,12 @@ Thumbs.db
 # 开发流程文档（计划 / 设计存档，不入库）
 /docs/superpowers/
 
+# 字幕抽取产出的知识库数据（中间产物，由视频字幕抽取而来，不入库）
+/.local/
+
+# eslint 缓存
+.eslintcache
+
 # AI 工具生成的本机文档
 /.trae/
 

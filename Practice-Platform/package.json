@@ -12,6 +12,8 @@
     "build": "vite build",
     "contract:check": "node scripts/check-contract.mjs",
     "contract:check:strict": "node scripts/check-contract.mjs --strict",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "preview": "vite preview",
     "lint": "eslint . --fix --cache",
     "format": "prettier --write src/",
@@ -49,6 +51,7 @@
     "unplugin-vue-components": "^32.1.0",
     "vite": "^7.1.11",
     "vite-plugin-vue-devtools": "^8.0.3",
+    "vitest": "^5.0.5",
     "vue-tsc": "^2.2.0"
   }
 }

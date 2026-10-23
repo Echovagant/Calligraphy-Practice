@@ -22,6 +22,9 @@
             <label class="tool-label">笔刷硬度</label>
             <el-slider v-model="brushOpacity" :min="0.1" :max="1" :step="0.1" show-input />
           </div>
+          <p class="tool-hint">
+            {{ inputHint }}
+          </p>
         </div>
 
         <div class="tool-section">
@@ -49,9 +52,21 @@
           <h3 class="tool-title">操作</h3>
           <div class="tool-buttons">
             <el-button type="primary" :icon="Delete" @click="clearCanvas">清空画布</el-button>
-            <el-button type="success" :icon="RefreshLeft" @click="undoLast">撤销</el-button>
+            <el-button type="success" :icon="RefreshLeft" :disabled="!canUndo" @click="undoLast">撤销</el-button>
+            <el-button
+              type="success"
+              :icon="RefreshRight"
+              :disabled="!canRedo"
+              plain
+              @click="redoLast"
+            >
+              重做
+            </el-button>
             <el-button type="warning" :icon="Download" :loading="isSaving" @click="saveImage">保存作品</el-button>
           </div>
+          <p class="tool-hint">
+            共 {{ strokeCount }} 笔 · 撤销以「一笔」为单位（Ctrl / Cmd + Z，触摸端双指双击）
+          </p>
         </div>
 
         <div class="tool-section">
@@ -108,19 +123,19 @@
               <span class="recommendation-title">{{ book.title }}</span>
               <span class="recommendation-desc">{{ book.description || '暂无简介' }}</span>
             </div>
-            <el-empty
-              v-if="!recommendationsLoading && !recommendationsError && recommendations.length === 0"
-              description="暂无推荐字帖"
-              :image-size="60"
-            />
           </div>
+          <el-empty
+            v-if="!recommendationsLoading && !recommendationsError && recommendations.length === 0"
+            description="暂无推荐字帖"
+            :image-size="60"
+          />
         </div>
       </div>
 
       <!-- 画布区域 -->
       <div class="canvas-container">
-        <div class="canvas-wrapper">
-          <canvas ref="canvasRef" :width="canvasWidth" :height="canvasHeight"></canvas>
+        <div class="canvas-wrapper" ref="canvasWrapRef">
+          <canvas ref="canvasRef"></canvas>
         </div>
 
         <!-- 参考字符显示 -->
@@ -133,16 +148,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, nextTick, computed } from 'vue';
+import { ref, onMounted, onUnmounted, watch, computed, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import * as fabric from 'fabric';
 import { ElMessage } from 'element-plus';
-import { Delete, RefreshLeft, Download } from '@element-plus/icons-vue';
+import { Delete, RefreshLeft, RefreshRight, Download } from '@element-plus/icons-vue';
 import { usePracticeStore } from '../stores/practiceStore';
 import { useUserStore } from '../stores/userStore';
 import { formatDifficulty } from '../utils/constants';
 import { downloadCanvasAsImage } from '../utils';
 import { getToken, copybookAPI } from '../utils/api';
+import { useInkCanvas } from '../composables/useInkCanvas.js';
 
 // 引入状态管理
 const practiceStore = usePracticeStore();
@@ -155,9 +170,7 @@ const isLoggedIn = computed(() => userStore.isLoggedIn || Boolean(getToken()));
 
 // 画布相关
 const canvasRef = ref(null);
-let canvas = null;
-const canvasWidth = 800;
-const canvasHeight = 600;
+const canvasWrapRef = ref(null);
 
 // 笔刷设置
 const brushSize = computed({
@@ -193,19 +206,14 @@ const referenceChars = computed(() => {
   const book = currentCopybook.value;
   if (!book) return [];
   const source = [book.content, book.title, book.description].filter(Boolean).join('');
-  return [...new Set(source.replace(/[^\u4e00-\u9fa5]/g, ''))].slice(0, 24);
+  return [...new Set(source.replace(/[^一-龥]/g, ''))].slice(0, 24);
 });
 
 const currentReference = ref('');
 const showingReference = ref(false);
 
-// 历史记录（用于撤销功能）
-const history = ref([]);
-const historyIndex = ref(-1);
-
 // 练习统计
 const practiceStartTime = ref(null);
-const strokeCount = ref(0);
 // 本次练习展示过的参考字 —— 即「练习字数」
 const practicedChars = ref([]);
 const isSaving = ref(false);
@@ -214,6 +222,51 @@ const isSaving = ref(false);
 const recommendations = ref([]);
 const recommendationsLoading = ref(false);
 const recommendationsError = ref('');
+
+/**
+ * 笔输入层。
+ * 变宽笔画由「骨架 → 轮廓多边形」派生，撤销以一笔为单位，
+ * 草稿落 localStorage，切后台不丢笔迹。
+ */
+const {
+  canvas: inkCanvas,
+  capability,
+  strokeCount,
+  canUndo,
+  canRedo,
+  undo,
+  redo,
+  clear: clearInk,
+  setBackground,
+  drawGrid,
+  flushDraft
+} = useInkCanvas({
+  canvasRef,
+  containerRef: canvasWrapRef,
+  getBrushSize: () => brushSize.value,
+  getBrushColor: () => brushColor.value,
+  getBrushOpacity: () => brushOpacity.value,
+  getGridType: () => gridType.value,
+  getCharactersPerPage: () =>
+    currentCopybook.value?.charactersPerPage || currentCopybook.value?.characterCount || 0,
+  getDraftScope: () => ({
+    userId: userStore.user?.id ?? null,
+    copybookId: currentCopybook.value?.id ?? null
+  })
+});
+
+/** 输入设备提示：让用户知道当前这一笔是被当成什么写的 */
+const inputHint = computed(() => {
+  if (capability.value.pointerType === 'pen') {
+    return capability.value.hasPressure
+      ? '检测到压感笔，笔迹粗细随力度变化。'
+      : '检测到压感笔，但设备未上报压力，笔迹粗细按运笔速度变化。';
+  }
+  if (capability.value.pointerType === 'mouse') {
+    return '当前是鼠标输入，笔迹粗细按运笔速度变化（按住 Shift 可加粗）。';
+  }
+  return '未检测到笔或鼠标，可用手指书写。';
+});
 
 const loadRecommendations = async () => {
   recommendationsLoading.value = true;
@@ -234,9 +287,9 @@ const loadRecommendations = async () => {
   }
 };
 
-const selectCopybook = (copybook) => {
-  practiceStore.setCurrentCopybook(copybook);
-  ElMessage.success(`已选择《${copybook.title || '未命名字帖'}》作为参考字帖`);
+const selectCopybook = (book) => {
+  practiceStore.setCurrentCopybook(book);
+  ElMessage.success(`已选择《${book.title || '未命名字帖'}》作为参考字帖`);
 };
 
 // 从「我的字帖」带过来的字帖：GET /api/copybooks/{copybookId}
@@ -256,171 +309,29 @@ const loadCopybookFromQuery = async () => {
   }
 };
 
-// 初始化画布
-const initCanvas = () => {
-  if (!canvasRef.value) return;
-
-  // 从store加载设置
-  practiceStore.loadLocalSettings();
-
-  canvas = new fabric.Canvas(canvasRef.value, {
-    backgroundColor: paperColor.value,
-    width: canvasWidth,
-    height: canvasHeight,
-    preserveObjectStacking: true
-  });
-
-  // 设置笔刷
-  setupBrush();
-
-  // 绘制网格
-  drawGrid();
-
-  // 监听画布事件，记录历史
-  canvas.on('object:added', () => {
-    saveToHistory();
-  });
-};
-
-// 设置笔刷
-const setupBrush = () => {
-  // 创建自定义笔刷
-  const customBrush = new fabric.PencilBrush(canvas);
-  customBrush.width = brushSize.value;
-  customBrush.color = brushColor.value;
-  customBrush.opacity = brushOpacity.value;
-  customBrush.shadow = new fabric.Shadow({
-    blur: 1,
-    offsetX: 0,
-    offsetY: 0,
-    affectStroke: true
-  });
-
-  // 设置为当前笔刷
-  canvas.isDrawingMode = true;
-  canvas.freeDrawingBrush = customBrush;
-
-  // 监听绘图开始，增加笔画计数
-  canvas.on('path:created', () => {
-    strokeCount.value++;
-  });
-};
-
-// 绘制网格
-  const drawGrid = () => {
-    // 清除现有网格
-    canvas.getObjects().forEach(obj => {
-      if (obj.data && obj.data.type === 'grid') {
-        canvas.remove(obj);
-      }
-    });
-
-    if (gridType.value === 'none') return;
-
-    const gridColor = '#dddddd';
-    const gridSize = 50;
-
-    const grid = new fabric.Group([], {
-      selectable: false,
-      evented: false,
-      data: { type: 'grid' }
-    });
-
-    if (gridType.value === 'square' || gridType.value === 'horizontal' || gridType.value === 'cross') {
-      // 绘制横线
-      for (let i = 0; i <= canvasHeight / gridSize; i++) {
-        const line = new fabric.Line([0, i * gridSize, canvasWidth, i * gridSize], {
-          stroke: gridColor,
-          strokeWidth: 0.5,
-          selectable: false,
-          evented: false
-        });
-        grid.add(line);
-      }
-    }
-
-    if (gridType.value === 'square' || gridType.value === 'cross') {
-      // 绘制竖线
-      for (let i = 0; i <= canvasWidth / gridSize; i++) {
-        const line = new fabric.Line([i * gridSize, 0, i * gridSize, canvasHeight], {
-          stroke: gridColor,
-          strokeWidth: 0.5,
-          selectable: false,
-          evented: false
-        });
-        grid.add(line);
-      }
-    }
-
-    // 田字格：在方格基础上补两条对角线 —— 练字最常用的格子。
-    // 早前 store 的默认 gridType 是 'cross'，但这里没有对应分支，
-    // 结果是默认打开练习页时画布上一个格子都不画，格子样式的单选框
-    // 也一个都没选中（模型值不在选项集合里）。
-    if (gridType.value === 'cross') {
-      for (let row = 0; row < canvasHeight / gridSize; row++) {
-        for (let col = 0; col < canvasWidth / gridSize; col++) {
-          const x = col * gridSize;
-          const y = row * gridSize;
-          const diagonal = new fabric.Line([x, y, x + gridSize, y + gridSize], {
-            stroke: gridColor,
-            strokeWidth: 0.4,
-            selectable: false,
-            evented: false
-          });
-          const antiDiagonal = new fabric.Line([x, y + gridSize, x + gridSize, y], {
-            stroke: gridColor,
-            strokeWidth: 0.4,
-            selectable: false,
-            evented: false
-          });
-          grid.add(diagonal, antiDiagonal);
-        }
-      }
-    }
-
-    canvas.add(grid);
-    canvas.sendToBack && canvas.sendToBack(grid);
-  };
-
-// 保存到历史记录
-const saveToHistory = () => {
-  const json = canvas.toJSON();
-
-  // 如果在历史记录中间进行了新操作，删除后面的历史
-  if (historyIndex.value < history.value.length - 1) {
-    history.value = history.value.slice(0, historyIndex.value + 1);
-  }
-
-  history.value.push(json);
-  historyIndex.value = history.value.length - 1;
-};
-
-// 撤销操作
+// 撤销
 const undoLast = () => {
-  if (historyIndex.value > 0) {
-    historyIndex.value--;
-    canvas.loadFromJSON(history.value[historyIndex.value], () => {
-      canvas.renderAll();
-      setupBrush();
-    });
-    ElMessage.success('已撤销');
-  } else {
-    ElMessage.warning('没有可撤销的操作');
+  if (!undo()) {
+    ElMessage.warning('没有可撤销的笔画');
+  }
+};
+
+// 重做
+const redoLast = () => {
+  if (!redo()) {
+    ElMessage.warning('没有可重做的笔画');
   }
 };
 
 // 清空画布
 const clearCanvas = () => {
-  canvas.clear();
-  canvas.backgroundColor = paperColor.value;
-  drawGrid();
-  saveToHistory();
+  clearInk();
   ElMessage.success('画布已清空');
 };
 
 // 保存图片
 const saveImage = async () => {
-  if (!canvas) return;
+  if (!inkCanvas.value) return;
   // 未登录时不要直接 POST —— api.js 拿不到令牌会把用户整页踢去登录页，
   // 用户莫名其妙被赶走。先给提示，再走路由内跳转。
   if (!isLoggedIn.value) {
@@ -430,7 +341,7 @@ const saveImage = async () => {
   }
   isSaving.value = true;
   try {
-    const dataURL = canvas.toDataURL({ format: 'png', quality: 1 });
+    const dataURL = inkCanvas.value.toDataURL({ format: 'png', quality: 1 });
     const fileName = `书法作品_${new Date().getTime()}.png`;
 
     // 保存到store（store 读 imageDataUrl 里的 data URL 字符串）
@@ -443,11 +354,8 @@ const saveImage = async () => {
     });
 
     // 下载图片
-    downloadCanvasAsImage(canvas, fileName);
+    downloadCanvasAsImage(inkCanvas.value, fileName);
     ElMessage.success('作品已保存');
-
-    // 重置笔画计数
-    strokeCount.value = 0;
   } catch (error) {
     ElMessage.error('作品保存失败，请稍后重试');
     console.error('保存作品失败:', error);
@@ -473,16 +381,16 @@ const showReference = (char) => {
 };
 
 // 监听设置变化
-watch([brushSize, brushColor, brushOpacity], () => {
-  setupBrush();
-});
-
 watch(paperColor, (newColor) => {
-  canvas.backgroundColor = newColor;
-  canvas.renderAll();
+  setBackground(newColor);
 });
 
 watch(gridType, () => {
+  drawGrid();
+});
+
+watch(currentCopybook, () => {
+  // 换字帖 → 每行格子数变了，网格要重画
   drawGrid();
 });
 
@@ -520,13 +428,14 @@ const endPractice = async () => {
   }
 
   practiceStartTime.value = null;
-  strokeCount.value = 0;
   practicedChars.value = [];
 };
 
 onMounted(() => {
   nextTick(() => {
-    initCanvas();
+    // 从store加载设置
+    practiceStore.loadLocalSettings();
+    setBackground(paperColor.value);
     // 记录开始练习时间
     practiceStartTime.value = new Date();
     // 获取推荐练习内容
@@ -539,9 +448,8 @@ onMounted(() => {
 // 组件卸载时清理
 onUnmounted(() => {
   endPractice();
-  if (canvas) {
-    canvas.dispose();
-  }
+  // 草稿立刻落盘，别让切页面丢笔迹
+  flushDraft();
 });
 </script>
 
@@ -557,6 +465,7 @@ onUnmounted(() => {
 
 .section-title {
   font-size: 2rem;
+  font-weight: 600;
   margin-bottom: 0.5rem;
   color: #333;
   font-family: 'SimSun', serif;
@@ -571,6 +480,7 @@ onUnmounted(() => {
   gap: 2rem;
   justify-content: center;
   flex-wrap: wrap;
+  align-items: flex-start;
 }
 
 /* 工具面板样式 */
@@ -588,6 +498,7 @@ onUnmounted(() => {
 
 .tool-title {
   font-size: 1.1rem;
+  font-weight: 600;
   margin-bottom: 1rem;
   color: #333;
   border-bottom: 1px solid #eee;
@@ -609,6 +520,13 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
+}
+
+.tool-hint {
+  margin-top: 0.75rem;
+  font-size: 0.78rem;
+  color: #6b6259;
+  line-height: 1.6;
 }
 
 .tool-alert {
@@ -657,7 +575,7 @@ onUnmounted(() => {
   border-radius: 4px;
   cursor: pointer;
   font-size: 1.2rem;
-  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, color 0.3s;
   font-family: 'SimSun', serif;
 }
 
@@ -682,7 +600,7 @@ onUnmounted(() => {
   border: 1px solid #eee;
   border-radius: 4px;
   cursor: pointer;
-  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, color 0.3s;
 }
 
 .recommendation-item:hover,
@@ -693,8 +611,8 @@ onUnmounted(() => {
 
 .recommendation-title {
   display: block;
-  font-size: 0.9rem;
   font-weight: 600;
+  font-size: 0.9rem;
 }
 
 .recommendation-desc {
@@ -710,6 +628,9 @@ onUnmounted(() => {
 /* 画布区域样式 */
 .canvas-container {
   position: relative;
+  flex: 1 1 520px;
+  min-width: 320px;
+  max-width: 900px;
 }
 
 .canvas-wrapper {
@@ -717,6 +638,14 @@ onUnmounted(() => {
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  /* 画布跟随设备尺寸，不再固定 800×600 */
+  width: 100%;
+  height: min(72vh, 720px);
+  /* 触摸滚动只在这里关掉：工具条与弹窗仍然要能滚。
+     touch-action: none 同时让 iOS 不把书写当成滚动手势。 */
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 /* 参考字符显示 */
@@ -735,6 +664,7 @@ onUnmounted(() => {
   justify-content: center;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   animation: fadeIn 0.3s ease;
+  pointer-events: none;
 }
 
 /* 系统开启「减少动态效果」时，参考字直接落位，不再缩放淡入。
@@ -762,6 +692,25 @@ onUnmounted(() => {
   }
 }
 
+/* 粗指针设备（触屏 / 数位板）：
+   关掉 hover 位移效果，按钮与可点区域抬到 44×44 —— 手指点得中。 */
+@media (pointer: coarse) {
+  .reference-item:hover {
+    transform: none;
+    background-color: #f9f9f9;
+  }
+
+  .recommendation-item:hover {
+    border-color: #eee;
+    color: inherit;
+  }
+
+  .reference-item,
+  .recommendation-item {
+    min-height: 44px;
+  }
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .practice-layout {
@@ -774,9 +723,13 @@ onUnmounted(() => {
     max-width: 400px;
   }
 
-  .canvas-wrapper {
+  .canvas-container {
     max-width: 100%;
-    overflow-x: auto;
+  }
+
+  /* 手机端只读，不给书写入口 */
+  .canvas-wrapper {
+    height: min(58vh, 480px);
   }
 }
 </style>
