@@ -25,6 +25,7 @@ import {
 } from '../utils/ink/strokeGeometry.js';
 import { createStrokeStore } from '../utils/ink/strokeStore.js';
 import { createDraftStore, draftKey } from '../utils/ink/draftStore.js';
+import { classifyStroke } from '../utils/ink/strokeClassifier.js';
 
 /** 采样点抽稀阈值：距离 ≥1px 或间隔 ≥8ms 才留 */
 const MIN_SAMPLE_DISTANCE = 1;
@@ -63,6 +64,8 @@ export function useInkCanvas(options = {}) {
   // 直接 computed(() => store.size > 0) 永远不会重算，按钮会一直停在初始的禁用态。
   const canUndo = ref(false);
   const canRedo = ref(false);
+  /** 刚写完那一笔的走向判别结果（横/竖/撇/捺/点），供练习页给出动作提示 */
+  const lastStroke = ref(null);
 
   const store = createStrokeStore();
   let draft = null;
@@ -399,6 +402,13 @@ export function useInkCanvas(options = {}) {
     if (gridObject) instance.sendObjectToBack(gridObject);
     instance.requestRenderAll();
 
+    const classification = classifyStroke(stroke.points);
+    lastStroke.value = {
+      kind: classification.kind,
+      confidence: classification.confidence,
+      reason: classification.reason
+    };
+
     syncStoreState();
     persistDraft();
     if (onStrokeCommitted) onStrokeCommitted(stroke);
@@ -582,6 +592,7 @@ export function useInkCanvas(options = {}) {
     strokeCount,
     canUndo,
     canRedo,
+    lastStroke,
     init,
     destroy,
     undo,

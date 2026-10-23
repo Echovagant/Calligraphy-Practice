@@ -28,6 +28,38 @@
         </div>
 
         <div class="tool-section">
+          <h3 class="tool-title">笔画提示</h3>
+          <el-select
+            v-model="manualStroke"
+            placeholder="选择笔画查看规范写法"
+            size="small"
+            class="stroke-select"
+            clearable
+          >
+            <el-option v-for="name in strokeNames" :key="name" :label="name" :value="name" />
+          </el-select>
+
+          <div v-if="strokeHint" class="stroke-hint">
+            <div class="stroke-hint-head">
+              <span class="stroke-hint-title">{{ strokeHint.name }}</span>
+              <span class="stroke-hint-source">{{ strokeHint.source }}</span>
+            </div>
+            <ol class="stroke-hint-steps">
+              <li v-for="action in strokeHint.actions" :key="action.id">
+                <span class="stroke-hint-stage">{{ action.segment }}</span>
+                <span class="stroke-hint-text">{{ action.action }}</span>
+                <span v-if="action.measurable && action.measurable.stop_points && action.measurable.stop_points.length" class="stroke-hint-stops">
+                  顿点：{{ action.measurable.stop_points.join('、') }}
+                </span>
+              </li>
+            </ol>
+          </div>
+          <p v-else class="tool-hint">
+            在画布上写一笔，这里会给出该笔画的规范写法：起笔、行笔、收笔分别怎么做、顿点落在哪。
+          </p>
+        </div>
+
+        <div class="tool-section">
           <h3 class="tool-title">背景设置</h3>
           <div class="tool-group">
             <label class="tool-label">宣纸颜色</label>
@@ -158,6 +190,7 @@ import { formatDifficulty } from '../utils/constants';
 import { downloadCanvasAsImage } from '../utils';
 import { getToken, copybookAPI } from '../utils/api';
 import { useInkCanvas } from '../composables/useInkCanvas.js';
+import { STROKE_DICTIONARY, findStroke } from '../data/index.js';
 
 // 引入状态管理
 const practiceStore = usePracticeStore();
@@ -234,6 +267,7 @@ const {
   strokeCount,
   canUndo,
   canRedo,
+  lastStroke,
   undo,
   redo,
   clear: clearInk,
@@ -256,8 +290,7 @@ const {
 });
 
 /** 输入设备提示：让用户知道当前这一笔是被当成什么写的 */
-const inputHint = computed(() => {
-  if (capability.value.pointerType === 'pen') {
+const inputHint = computed(() => {  if (capability.value.pointerType === 'pen') {
     return capability.value.hasPressure
       ? '检测到压感笔，笔迹粗细随力度变化。'
       : '检测到压感笔，但设备未上报压力，笔迹粗细按运笔速度变化。';
@@ -266,6 +299,33 @@ const inputHint = computed(() => {
     return '当前是鼠标输入，笔迹粗细按运笔速度变化（按住 Shift 可加粗）。';
   }
   return '未检测到笔或鼠标，可用手指书写。';
+});
+
+/** 字典里有的笔画名（用于下拉选择） */
+const strokeNames = STROKE_DICTIONARY.strokes
+  .map((stroke) => stroke.name)
+  .filter((name, index, list) => name && list.indexOf(name) === index)
+  .sort((a, b) => a.localeCompare(b, 'zh-Hans-CN'));
+
+/** 手动选择的笔画（没写笔时也能查） */
+const manualStroke = ref('');
+
+/**
+ * 笔画提示：优先用「刚写完那一笔」的走向判别结果，没有就用手选的。
+ * 提示内容全部来自字幕抽取，附出处（分P + 时间码），原话可回查。
+ */
+const strokeHint = computed(() => {
+  const kind = lastStroke.value?.kind || manualStroke.value;
+  if (!kind) return null;
+  const stroke = findStroke(kind);
+  if (!stroke || !stroke.actions.length) return null;
+  const source = stroke.source || {};
+  const origin = source.title ? `${source.title}${source.t ? ' · ' + source.t : ''}` : '出处未记录';
+  return {
+    name: stroke.name,
+    actions: stroke.actions,
+    source: origin
+  };
 });
 
 const loadRecommendations = async () => {
@@ -531,6 +591,69 @@ onUnmounted(() => {
 
 .tool-alert {
   margin-bottom: 0.8rem;
+}
+
+/* 笔画提示 */
+.stroke-select {
+  width: 100%;
+  margin-bottom: 0.75rem;
+}
+
+.stroke-hint {
+  border-left: 3px solid var(--primary-color);
+  padding: 0.5rem 0 0.5rem 0.75rem;
+  background: rgba(139, 69, 19, 0.04);
+}
+
+.stroke-hint-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.stroke-hint-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  font-family: 'SimSun', serif;
+}
+
+.stroke-hint-source {
+  font-size: 0.7rem;
+  color: #6b6259;
+  text-align: right;
+}
+
+.stroke-hint-steps {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.8rem;
+  line-height: 1.7;
+  color: #444;
+}
+
+.stroke-hint-stage {
+  display: inline-block;
+  min-width: 2.6em;
+  margin-right: 0.4em;
+  padding: 0 0.3em;
+  font-size: 0.72rem;
+  color: #fff;
+  background: var(--primary-color);
+  border-radius: 2px;
+  text-align: center;
+}
+
+.stroke-hint-text {
+  display: block;
+}
+
+.stroke-hint-stops {
+  display: block;
+  font-size: 0.74rem;
+  color: #8f6524;
 }
 
 /* 当前参考字帖 */
