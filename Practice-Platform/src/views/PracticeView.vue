@@ -190,7 +190,7 @@ import { formatDifficulty } from '../utils/constants';
 import { downloadCanvasAsImage } from '../utils';
 import { getToken, copybookAPI } from '../utils/api';
 import { useInkCanvas } from '../composables/useInkCanvas.js';
-import { STROKE_DICTIONARY, findStroke } from '../data/index.js';
+import { STROKE_DICTIONARY, findStroke } from '../data/strokeDictionary.js';
 
 // 引入状态管理
 const practiceStore = usePracticeStore();
