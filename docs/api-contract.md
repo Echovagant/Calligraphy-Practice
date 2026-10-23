@@ -96,7 +96,7 @@
 `BackendUserService` 更是**连实现类都没有**。本期一律不碰；
 将来若要合并，是一次独立的重构。
 
-## 2. 端点清单（54 个）
+## 2. 端点清单（56 个）
 
 | Method | Path | operationId | 说明 | 鉴权 | 前端调用 |
 |---|---|---|---|---|---|
@@ -121,10 +121,12 @@
 | PUT | `/api/works/{workId}` | `workUpdate` | 更新作品 | 需登录 | `worksAPI.updateWork` |
 | DELETE | `/api/works/{workId}` | `workDelete` | 删除作品 | 需登录 | `worksAPI.deleteWork` |
 | POST | `/api/works/{workId}/image` | `workUpdateImage` | 更新作品图片 | 需登录 | `worksAPI.updateWorkImage` |
-| GET | `/api/copybooks` | `copybookList` | 字帖列表 | 公开 | `copybookAPI.getCopybooks` |
+| GET | `/api/copybooks` | `copybookList` | 字帖列表（只含精选字帖） | 公开 | `copybookAPI.getCopybooks` |
+| POST | `/api/copybooks` | `copybookCreate` | 保存一份自建字帖 | 需登录 | `copybookAPI.createCopybook` |
+| GET | `/api/copybooks/mine` | `copybookListMine` | 我保存的自建字帖 | 需登录 | `copybookAPI.getMyCopybooks` |
 | GET | `/api/copybooks/popular` | `copybookPopular` | 热门字帖 | 公开 | `copybookAPI.getPopularCopybooks` |
 | GET | `/api/copybooks/statistics/user` | `copybookUserStatistics` | 当前用户的练习统计 | 需登录 | `copybookAPI.getUserStatistics` |
-| GET | `/api/copybooks/practice/history` | `copybookPracticeHistory` | 当前用户的练习历史 | 需登录 | `copybookAPI.getPracticeHistory` ⚠ |
+| GET | `/api/copybooks/practice/history` | `copybookPracticeHistory` | 当前用户的练习历史 | 需登录 | `copybookAPI.getPracticeHistory` |
 | GET | `/api/copybooks/{copybookId}` | `copybookGetById` | 字帖详情 | 公开 | `copybookAPI.getCopybookDetail` |
 | POST | `/api/copybooks/{copybookId}/practice` | `copybookRecordPractice` | 记录一次练习 | 需登录 | `copybookAPI.recordPractice` |
 | POST | `/api/community/comments` | `commentCreate` | 发表评论 | 需登录 | `communityAPI.createComment` |
@@ -153,9 +155,9 @@
 | POST | `/api/discussions/{discussionId}/replies` | `discussionReplyCreate` | 回复讨论 | 需登录 | `replyToDiscussion` |
 | PUT | `/api/discussions/replies/{replyId}` | `discussionReplyUpdate` | 编辑回复 | 需登录 | `updateDiscussionReply` |
 | DELETE | `/api/discussions/replies/{replyId}` | `discussionReplyDelete` | 删除回复 | 需登录 | `deleteDiscussionReply` |
-| GET | `/api/stats/overview` | `statsOverview` | 首页概览统计 | 公开 | `statsAPI.getOverview` ⚠ |
+| GET | `/api/stats/overview` | `statsOverview` | 首页概览统计 | 公开 | `statsAPI.getOverview` |
 
-⚠ = 该端点**前端目前没有可用的调用入口**，P5 必须补上（见 §4）。
+以上端点全部有前端调用入口，无待接线项。
 
 ## 3. 已知陷阱
 
@@ -325,9 +327,9 @@ P1 提取时挖出来的真实缺陷，以及 P6 施工中新发现的问题，�
 `npm run contract:check` 当前输出：
 
 ```
-contract  : 54 operation(s)
-frontend  : 54 call site(s)
-backend   : 54 controller route(s)
+contract  : 56 operation(s)
+frontend  : 56 call site(s)
+backend   : 56 controller route(s)
 violations: 0
 gaps      : 0
 warnings  : 0
@@ -337,7 +339,7 @@ warnings  : 0
 P6 接完线之后已经清零，现在它只起「回归基线」的作用：
 
 - **违规 0** —— 契约与现有代码没有矛盾。
-- **缺口 0** —— 契约里的 54 个端点，前端 54 个调用点一个不差地对上了。
+- **缺口 0** —— 契约里的 56 个端点，前端 56 个调用点一个不差地对上了。
 - **警告 0** —— 没有「前端有调用但后端无路由」，也没有「后端有路由但契约里没有」。
 
 `--strict` 模式同样零差异，**这条命令是 CI 的门禁**：任何一边单方面改动都会被拦下。
@@ -345,8 +347,9 @@ P6 接完线之后已经清零，现在它只起「回归基线」的作用：
 **已完成的域**：P2 auth（端点 1–10）、P3 user + works + stats（端点 11–21、53）、
 P4 copybooks + practice（端点 22–27）、
 P5 comments + discussions + file-reviews（端点 28–52）、
-P8 补待审队列（端点 54）——
-后端路由数从 0 变成 **54**，**54 个端点全部实现完毕**。
+P8 补待审队列（端点 54）、
+P10 补云端字帖（端点 55、56）——
+后端路由数从 0 变成 **56**，**56 个端点全部实现完毕**。
 
 ## 6. 阶段划分与验收
 
@@ -472,4 +475,29 @@ P8 补待审队列（端点 54）——
     契约 `--strict` 仍 54/54/54 零差异；eslint 零问题；活体复核分页 / 浏览量落库 /
     登出 401 / 换图 403 / 令牌类型 403 / 敏感字段脱敏 / 验证码校验全部通过。
   - **契约增量**：`workUpdateImage` 的 responses 增加 `'403'`（复用已有 `components/responses/Forbidden`）。
+- 2026-10-23 P10（**把半实现的功能补成真功能**）。P9 审计出四类「界面有、后端只做了一半」的能力，
+  本轮全部补齐，端点数 54 → 56：
+  - **云端字帖**（新增端点 55 `POST /api/copybooks`、端点 56 `GET /api/copybooks/mine`）。
+    以前「字帖生成」的结果只落在浏览器 localStorage，换设备就没了，界面却像存下来了。
+    `copybooks` 表补自建字帖所需字段（`db/07-copybook-custom-columns.sql`，新增列全部可空
+    或带默认值，老库启动不受影响）；公开字帖列表与热门榜**排除自建字帖**，
+    自建字帖只出现在「我的字帖」里。
+  - **点赞态**。`Discussion` 增加 `liked`，服务端按当前登录用户填充 —— 以前服务端不返回这个字段，
+    前端「已赞」高亮只在当前会话内有效，一刷新就丢。填充时**批量查** `discussion_likes`
+    一次取齐当前页（逐条查等于又造一个 N+1）。
+  - **账号级偏好**。`FrontendUserUpdate` 增加 `preferences`（JSON 字符串）。`users.preferences` 列
+    本来就存在、也一直被返回，但**从来没有写入路径** —— 个人资料页的「保存设置」只落在浏览器本地。
+    现在写入并加 `@ValidJson` 校验（非法 JSON 直接 400）。
+  - **服务端搜索 / 排序 / 筛选**。`GET /api/works`（keyword / sort / category）、
+    `GET /api/works/user/{userId}`（keyword / sort）、`GET /api/admin/works/pending`（keyword）、
+    `GET /api/copybooks/practice/history`（from / to / category / keyword）。
+    以前这四处都是在前端对当前页数据做过滤，搜不到不在当前页的作品。
+    筛选与排序全部**在数据库层**完成；排序都带 `id` 作次级键以保证翻页顺序稳定。
+  - **回归**：后端测试 173 → **229 项全绿**（新增 4 个契约测试类），并逐条做过变异验证
+    （故意改坏实现，对应用例转红，还原后转绿）；契约 `--strict` **56/56/56 零差异**；
+    eslint 零问题；浏览器真机复验：云端字帖入库、偏好落账号并刷新回读、
+    点赞态跨刷新保留、画廊搜索带 `keyword` 且结果由服务端筛选。
+  - **顺带修掉的真缺陷**：保存偏好时若昵称为空，会被后端按契约的 `@NotBlank` 拒掉整个请求
+    （400「昵称不能为空」）—— 于是**没设过昵称的账号永远存不了偏好**，而提示看不出原因。
+    改为昵称为空时回落用户名。
 
