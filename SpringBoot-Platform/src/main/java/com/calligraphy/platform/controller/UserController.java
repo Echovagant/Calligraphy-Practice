@@ -128,6 +128,7 @@ public class UserController {
                 .phone(request.getPhone())
                 .avatar(request.getAvatar())
                 .bio(request.getBio())
+                .preferences(request.getPreferences())
                 .build();
     }
 

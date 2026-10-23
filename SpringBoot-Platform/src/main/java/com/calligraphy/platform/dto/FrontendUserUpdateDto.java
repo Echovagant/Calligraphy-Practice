@@ -37,16 +37,20 @@ public class FrontendUserUpdateDto {
     @Schema(description = "个人简介", example = "这是一个用户简介")
     private String bio;
 
+    @Schema(description = "账号级偏好，JSON 字符串。null 表示不改动")
+    private String preferences;
+
     @Schema(description = "状态", example = "active")
     private String status;
 
     // 无参构造器
     public FrontendUserUpdateDto() {
     }
-    
+
     // 全参构造器
-    public FrontendUserUpdateDto(Long userId, String nickname, String email, String phone, String avatar, 
-                                String gender, java.time.LocalDate birthday, String bio, String status) {
+    public FrontendUserUpdateDto(Long userId, String nickname, String email, String phone, String avatar,
+                                String gender, java.time.LocalDate birthday, String bio, String status,
+                                String preferences) {
         this.userId = userId;
         this.nickname = nickname;
         this.email = email;
@@ -56,6 +60,7 @@ public class FrontendUserUpdateDto {
         this.birthday = birthday;
         this.bio = bio;
         this.status = status;
+        this.preferences = preferences;
     }
     
     // Getter 和 Setter 方法
@@ -130,6 +135,14 @@ public class FrontendUserUpdateDto {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public String getPreferences() {
+        return preferences;
+    }
+
+    public void setPreferences(String preferences) {
+        this.preferences = preferences;
+    }
     
     // Builder 类
     public static class Builder {
@@ -142,6 +155,7 @@ public class FrontendUserUpdateDto {
     private java.time.LocalDate birthday;
     private String bio;
     private String status;
+    private String preferences;
 
     public Builder userId(Long userId) {
         this.userId = userId;
@@ -188,8 +202,14 @@ public class FrontendUserUpdateDto {
         return this;
     }
 
+    public Builder preferences(String preferences) {
+        this.preferences = preferences;
+        return this;
+    }
+
     public FrontendUserUpdateDto build() {
-        return new FrontendUserUpdateDto(userId, nickname, email, phone, avatar, gender, birthday, bio, status);
+        return new FrontendUserUpdateDto(userId, nickname, email, phone, avatar, gender, birthday, bio, status,
+                preferences);
     }
 
     }

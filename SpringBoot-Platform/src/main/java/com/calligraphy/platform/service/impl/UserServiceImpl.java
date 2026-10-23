@@ -117,6 +117,12 @@ public class UserServiceImpl implements UserService {
             user.setBio(updateRequest.getBio());
         }
 
+        // 账号级偏好（users.preferences，JSON 字符串）。
+        // null 表示「不改动」—— 别把已有的偏好覆盖成 null。
+        if (updateRequest.getPreferences() != null) {
+            user.setPreferences(updateRequest.getPreferences());
+        }
+
         if (updateRequest.getStatus() != null) {
             try {
                 user.setStatus(User.UserStatus.valueOf(updateRequest.getStatus().toUpperCase()));

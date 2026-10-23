@@ -53,6 +53,52 @@ public class Copybook {
     @Column(name = "is_active")
     private Boolean isActive;
 
+    /**
+     * 是否为用户自建字帖。精选字帖 false，自建字帖 true。
+     *
+     * <p>列可空：ddl-auto=update 给已有库补列时不会给默认值，
+     * 补一个 NOT NULL 且无默认值的列会让老数据启动即失败。
+     * 所以这里允许 NULL，读的时候按「不是 true 就是精选字帖」处理。
+     */
+    @Column(name = "is_custom")
+    private Boolean isCustom;
+
+    /**
+     * 练习用的正文内容（自建字帖有，精选字帖为空）。
+     *
+     * <p>用 TEXT 而不是 VARCHAR(255)：一份自建字帖的正文可能有好几千字。
+     */
+    @Column(name = "content", columnDefinition = "TEXT")
+    private String content;
+
+    /** 字体风格（kai / xing / li / zhuan / cao）。 */
+    @Column(name = "font", length = 20)
+    private String font;
+
+    /** 布局方式（grid / vertical / horizontal）。 */
+    @Column(name = "layout", length = 20)
+    private String layout;
+
+    /** 每页字数。 */
+    @Column(name = "characters_per_page")
+    private Integer charactersPerPage;
+
+    /** 单字字号（像素）。 */
+    @Column(name = "font_size")
+    private Integer fontSize;
+
+    /** 纸张颜色。 */
+    @Column(name = "paper_color", length = 20)
+    private String paperColor;
+
+    /** 格子颜色。 */
+    @Column(name = "grid_color", length = 20)
+    private String gridColor;
+
+    /** 自建字帖的归属用户（users.id）。精选字帖为空。 */
+    @Column(name = "user_id", length = 36)
+    private String userId;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -66,6 +112,7 @@ public class Copybook {
             id = UUID.randomUUID().toString();
         }
         if (isActive == null) isActive = true;
+        if (isCustom == null) isCustom = false;
         if (characterCount == null) characterCount = 0;
         if (usageCount == null) usageCount = 0;
         createdAt = LocalDateTime.now();

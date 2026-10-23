@@ -46,7 +46,16 @@ public interface WorkService {
     List<WorkDto> getAllWorks();
     
     Page<WorkDto> getWorksByUserId(String userId, Pageable pageable);
-    
+
+    /**
+     * 某个用户的作品 + 关键词（库内筛选）。
+     *
+     * @param userId  作者 id
+     * @param pageable 分页与排序
+     * @param keyword 标题 / 描述模糊匹配，null 或空白表示不过滤
+     */
+    Page<WorkDto> getWorksByUserId(String userId, Pageable pageable, String keyword);
+
     List<WorkDto> getWorksByUserId(String userId);
     
     Page<WorkDto> getWorksByStatus(Work.WorkStatus status, Pageable pageable);
@@ -58,7 +67,15 @@ public interface WorkService {
     List<WorkDto> getWorksByReviewStatus(Work.ReviewStatus reviewStatus);
     
     Page<WorkDto> getPublicWorks(Pageable pageable);
-    
+
+    /**
+     * 公开画廊的作品 + 关键词（库内筛选）。
+     *
+     * @param pageable 分页与排序（排序方式由 Pageable 的 Sort 决定）
+     * @param keyword  标题 / 描述模糊匹配，null 或空白表示不过滤
+     */
+    Page<WorkDto> getPublicWorks(Pageable pageable, String keyword);
+
     List<WorkDto> getPublicWorks();
     
     Page<WorkDto> getFeaturedWorks(Pageable pageable);
@@ -119,6 +136,16 @@ public interface WorkService {
      * **必须**有这个查询 —— 少了它审核功能等于废的。
      */
     Page<WorkDto> getPendingReviewWorks(Pageable pageable);
+
+    /**
+     * 待审核作品 + 关键词（库内筛选）。
+     *
+     * <p>关键词匹配**作品标题或作者名**。
+     *
+     * @param pageable 分页参数
+     * @param keyword  标题 / 作者名模糊匹配，null 或空白表示不过滤
+     */
+    Page<WorkDto> getPendingReviewWorks(Pageable pageable, String keyword);
 
     List<WorkDto> getWorksByReviewerId(String reviewerId);
     

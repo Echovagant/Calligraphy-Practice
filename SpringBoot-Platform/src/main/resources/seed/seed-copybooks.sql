@@ -8,17 +8,22 @@
 --
 -- 幂等：先删后插，重复执行不会重复插入。
 -- 字段与 dev 库的表结构对应：id / title / description / image_url /
--- difficulty / category / character_count / usage_count / is_active / created_at / updated_at。
+-- difficulty / category / character_count / usage_count / is_active / is_custom /
+-- created_at / updated_at。
+--
+-- is_custom 显式写 0：这三行是**精选**字帖（不是用户自建）。
+-- copybooks.is_custom 是 ddl-auto=update 补出来的可空列，不写就是 NULL，
+-- 而公开字帖列表要靠这一列把用户自建字帖排除掉。
 
 DELETE FROM copybooks;
 
 INSERT INTO copybooks
     (id, title, description, image_url, difficulty, category,
-     character_count, usage_count, is_active, created_at, updated_at)
+     character_count, usage_count, is_active, is_custom, created_at, updated_at)
 VALUES
     ('21b54586-7033-45a5-a91a-92da735c5ec9', '草书鉴赏与练习', '高级草书练习，学习名家草书风格',
-     '/sample/copybook-3.png', 'advanced', '草书', 60, 3, 1, NOW(), NOW()),
+     '/sample/copybook-3.png', 'advanced', '草书', 60, 3, 1, 0, NOW(), NOW()),
     ('d54f8675-1aed-413a-bd54-7754514955c8', '楷书基础练习', '适合初学者的楷书基础练习字帖，包含常用汉字',
-     '/sample/copybook-1.png', 'beginner', '楷书', 100, 3, 1, NOW(), NOW()),
+     '/sample/copybook-1.png', 'beginner', '楷书', 100, 3, 1, 0, NOW(), NOW()),
     ('d620c321-6717-4b25-906a-1071a8e06959', '行书技法', '行书书写技巧练习，提高书写流畅度',
-     '/sample/copybook-2.png', 'intermediate', '行书', 80, 2, 1, NOW(), NOW());
+     '/sample/copybook-2.png', 'intermediate', '行书', 80, 2, 1, 0, NOW(), NOW());

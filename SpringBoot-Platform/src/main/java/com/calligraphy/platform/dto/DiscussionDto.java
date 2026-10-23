@@ -48,6 +48,16 @@ public class DiscussionDto {
     private Integer likeCount;
     private Integer replyCount;
 
+    /**
+     * 当前登录用户是否已点赞。未登录时为 false。
+     *
+     * <p>以前服务端不返回这个字段，前端的「已赞」高亮只在当前会话内有效，
+     * 一刷新就丢 —— 用户看不出哪条是自己赞过的。
+     *
+     * <p>用包装类型 Boolean：未登录时也要明确给 false，不能是 null。
+     */
+    private Boolean liked;
+
     /** 置顶。用包装类型 Boolean，Jackson 属性名才是 isPinned。 */
     private Boolean isPinned;
 

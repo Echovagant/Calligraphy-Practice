@@ -31,5 +31,7 @@ public interface DiscussionMapper {
     @Mapping(target = "isPinned", source = "isPinned")
     @Mapping(target = "isFeatured", source = "isFeatured")
     @Mapping(target = "replies", ignore = true)
+    // liked 是「当前用户有没有赞过」，与讨论实体无关，由服务层按当前登录用户填。
+    @Mapping(target = "liked", ignore = true)
     DiscussionDto toDto(Discussion discussion);
 }

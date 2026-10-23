@@ -1,5 +1,6 @@
 package com.calligraphy.platform.dto;
 
+import com.calligraphy.platform.validation.ValidJson;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -24,6 +25,18 @@ public class UserProfileUpdateRequestDto {
     @Email(message = "邮箱格式不正确")
     @Size(max = 100, message = "邮箱长度不能超过100个字符")
     private String email;
+
+    /**
+     * 账号级偏好，JSON 字符串。
+     *
+     * <p>accounts 表里本来就有 {@code users.preferences} 这一列（TEXT），
+     * 但一直只读不写 —— 个人资料页的「保存设置」只落在浏览器本地，换设备就没了。
+     *
+     * <p>传 null 或省略表示**不改动**：null 不是「清空」。
+     * 内容必须是合法 JSON，否则入参校验直接 400（{@link ValidJson}）。
+     */
+    @ValidJson(message = "preferences 必须是合法的 JSON")
+    private String preferences;
 
     @Size(max = 20, message = "手机号长度不能超过20个字符")
     private String phone;

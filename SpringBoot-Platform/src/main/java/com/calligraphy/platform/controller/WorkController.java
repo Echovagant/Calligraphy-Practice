@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -62,7 +63,6 @@ public class WorkController {
 
     private final WorkService workService;
     private final FileUploadService fileUploadService;
-
     /**
      * POST /api/works —— 201 裸 Work
      *
@@ -103,24 +103,42 @@ public class WorkController {
      * <p>公开画廊：只展示已发布且已审核通过的作品（草稿不会外泄）。
      * 新上传的作品是 DRAFT + PENDING，先出现在作者的作品列表里；
      * 审核通过后才进公开画廊（审核闭环属于 file-reviews 域）。
+     *
+     * <p>筛选与排序**都在数据库层做**：
+     * <ul>
+     *   <li>{@code keyword}：标题或描述模糊匹配（大小写不敏感）；</li>
+     *   <li>{@code sort}：latest（默认）/ popular（浏览量）/ commented（评论数）；
+     *       每种排序都带 id 次级键，翻页才稳定；</li>
+     *   <li>{@code category}：**当前不生效** —— works 表里没有 category 列，
+     *       实体上也没有这个字段（{@code WorkCreateRequestDto.category} 收了但没落库）。
+     *       参数保留在契约里是为了以后加列时不用改契约，这里显式忽略而不是假装生效。</li>
+     * </ul>
      */
     @GetMapping
     public ResponseEntity<Map<String, Object>> listWorks(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        Page<WorkDto> works = workService.getPublicWorks(pageable(page, size));
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String category) {
+        // category 目前无列可筛（见 javadoc），接住但不用。
+        Page<WorkDto> works = workService.getPublicWorks(pageable(page, size, sort), keyword);
         return ResponseEntity.ok(toPageEnvelope(works));
     }
 
     /**
      * GET /api/works/user/{userId} —— 200 分页信封
+     *
+     * <p>同样支持 keyword（标题 / 描述模糊匹配）与 sort（latest / popular / commented）。
      */
     @GetMapping("/user/{userId}")
     public ResponseEntity<Map<String, Object>> listUserWorks(
             @PathVariable String userId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        Page<WorkDto> works = workService.getWorksByUserId(userId, pageable(page, size));
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String sort) {
+        Page<WorkDto> works = workService.getWorksByUserId(userId, pageable(page, size, sort), keyword);
         return ResponseEntity.ok(toPageEnvelope(works));
     }
 
@@ -198,6 +216,31 @@ public class WorkController {
     private Pageable pageable(int page, int size) {
         int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
         return PageRequest.of(Math.max(page, 0), safeSize, DEFAULT_SORT);
+    }
+
+    /**
+     * 带 sort 参数的分页：latest（默认）/ popular / commented。
+     *
+     * <p>每种排序都补一个 id 次级键 —— 主排序键相同的作品（同一秒发布、浏览量一样）
+     * 在翻页时顺序不能飘，否则同一页会重复或漏掉。
+     *
+     * <p>sort 是自由字符串，认不出来的一律按 latest 处理。
+     */
+    private Pageable pageable(int page, int size, String sort) {
+        int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
+        return PageRequest.of(Math.max(page, 0), safeSize, resolveSort(sort));
+    }
+
+    private Sort resolveSort(String sort) {
+        String key = sort == null ? "" : sort.trim().toLowerCase(Locale.ROOT);
+        switch (key) {
+            case "popular":
+                return Sort.by(Sort.Direction.DESC, "viewCount").and(Sort.by(Sort.Direction.DESC, "id"));
+            case "commented":
+                return Sort.by(Sort.Direction.DESC, "commentCount").and(Sort.by(Sort.Direction.DESC, "id"));
+            default:
+                return DEFAULT_SORT;
+        }
     }
 
     /** 统一分页信封 {content,page,size,total,totalPages}。 */

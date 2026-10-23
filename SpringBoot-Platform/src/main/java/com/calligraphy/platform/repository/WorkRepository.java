@@ -136,6 +136,28 @@ public interface WorkRepository extends JpaRepository<Work, Long> {
                                      org.springframework.data.domain.Pageable pageable);
 
     /**
+     * 待审核作品 + 关键词（分页、库内筛选）。
+     *
+     * <p>关键词匹配**作品标题或作者名**（username / nickname）。
+     * 作者名走 users 表 —— 用 EXISTS 子查询，不 JOIN users：
+     * 一来避免与 @EntityGraph 的 users 关联重复连接，
+     * 二来免得每条作品再查一次作者（N+1）。
+     *
+     * <p>{@code keyword} 为 null 时不把条件加进 where。
+     */
+    @EntityGraph(attributePaths = {"user"})
+    @Query("SELECT w FROM Work w WHERE (w.reviewStatus = :pending OR w.reviewStatus = :needsRevision) "
+            + "AND (:keyword IS NULL OR LOWER(w.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+            + "OR EXISTS (SELECT u FROM User u WHERE u.id = w.userId "
+            + "AND (LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+            + "OR LOWER(u.nickname) LIKE LOWER(CONCAT('%', :keyword, '%'))))) "
+            + "ORDER BY w.createdAt ASC")
+    Page<Work> findWorksNeedingReviewByKeyword(@Param("pending") Work.ReviewStatus pending,
+                                                @Param("needsRevision") Work.ReviewStatus needsRevision,
+                                                @Param("keyword") String keyword,
+                                                org.springframework.data.domain.Pageable pageable);
+
+    /**
      * 公开画廊的作品（分页）。
      *
      * <p>{@code user} 走 JOIN 一次取齐：一页 20 条作品原本会再发 20 次 users 查询。
@@ -143,6 +165,37 @@ public interface WorkRepository extends JpaRepository<Work, Long> {
     @EntityGraph(attributePaths = {"user"})
     @Query("SELECT w FROM Work w WHERE w.status = :status AND w.reviewStatus = :reviewStatus")
     Page<Work> findByStatusAndReviewStatus(@Param("status") Work.WorkStatus status, @Param("reviewStatus") Work.ReviewStatus reviewStatus, org.springframework.data.domain.Pageable pageable);
+
+    /**
+     * 公开画廊的作品 + 关键词（分页、库内筛选）。
+     *
+     * <p>关键词匹配标题或描述，**大小写不敏感**。
+     * {@code keyword} 为 null 时不把条件加进 where —— 否则一条都查不到。
+     *
+     * <p>排序由 {@link Pageable} 里的 Sort 决定（latest / popular / commented），
+     * 这样一条查询就能切排序，不用为每种排序再写一个方法。
+     */
+    @EntityGraph(attributePaths = {"user"})
+    @Query("SELECT w FROM Work w WHERE w.status = :status AND w.reviewStatus = :reviewStatus "
+            + "AND (:keyword IS NULL OR LOWER(w.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+            + "OR LOWER(w.description) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<Work> findPublicWorks(@Param("status") Work.WorkStatus status,
+                               @Param("reviewStatus") Work.ReviewStatus reviewStatus,
+                               @Param("keyword") String keyword,
+                               org.springframework.data.domain.Pageable pageable);
+
+    /**
+     * 某个用户的作品 + 关键词（分页、库内筛选）。
+     *
+     * <p>关键词匹配标题或描述，大小写不敏感；null 表示不过滤。
+     */
+    @EntityGraph(attributePaths = {"user"})
+    @Query("SELECT w FROM Work w WHERE w.userId = :userId "
+            + "AND (:keyword IS NULL OR LOWER(w.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+            + "OR LOWER(w.description) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<Work> findByUserIdAndKeyword(@Param("userId") String userId,
+                                       @Param("keyword") String keyword,
+                                       org.springframework.data.domain.Pageable pageable);
     
     // 热门作品查询
     @Query("SELECT w FROM Work w WHERE w.status = :published AND w.reviewStatus = :approved ORDER BY w.likeCount DESC")

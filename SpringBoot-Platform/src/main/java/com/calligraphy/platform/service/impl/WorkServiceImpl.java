@@ -69,6 +69,15 @@ public class WorkServiceImpl implements WorkService {
         throw new AccessDeniedException("没有权限操作此作品");
     }
 
+    /** null 或空白串一律当「没传这个筛选条件」。 */
+    private String trimToNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
     @Transactional
     public WorkDto createWork(WorkCreateRequestDto createRequest, String username) {
         log.info("创建新作品: {} by {}", createRequest.getTitle(), username);
@@ -219,10 +228,15 @@ public class WorkServiceImpl implements WorkService {
     }
     @Override
     public Page<WorkDto> getPublicWorks(Pageable pageable) {
+        return getPublicWorks(pageable, null);
+    }
+    @Override
+    public Page<WorkDto> getPublicWorks(Pageable pageable, String keyword) {
         log.info("获取公开作品列表, 页码: {}, 每页数量: {}", pageable.getPageNumber(), pageable.getPageSize());
 
-        Page<Work> works = workRepository.findByStatusAndReviewStatus(
-                Work.WorkStatus.PUBLISHED, Work.ReviewStatus.APPROVED, pageable);
+        // 关键词在数据库层过滤 + 排序在 SQL 里 —— 不是查全量再在内存里筛。
+        Page<Work> works = workRepository.findPublicWorks(
+                Work.WorkStatus.PUBLISHED, Work.ReviewStatus.APPROVED, trimToNull(keyword), pageable);
         return works.map(workMapper::toDto);
     }
     @Override
@@ -259,6 +273,11 @@ public class WorkServiceImpl implements WorkService {
         // 必须让数据库分页：以前是查出全量再塞进 PageImpl，
         // content 里装的是全部作品，而 size/totalPages 又按 pageable 算 —— 信封自相矛盾。
         return workRepository.findByUserId(userId, pageable).map(workMapper::toDto);
+    }
+    @Override
+    public Page<WorkDto> getWorksByUserId(String userId, Pageable pageable, String keyword) {
+        // 关键词在数据库层过滤 —— 不是查全量再在内存里筛。
+        return workRepository.findByUserIdAndKeyword(userId, trimToNull(keyword), pageable).map(workMapper::toDto);
     }
     @Override
     public List<WorkDto> getWorksByUserId(String userId) {
@@ -591,8 +610,14 @@ public class WorkServiceImpl implements WorkService {
 
     @Override
     public Page<WorkDto> getPendingReviewWorks(Pageable pageable) {
+        return getPendingReviewWorks(pageable, null);
+    }
+    @Override
+    public Page<WorkDto> getPendingReviewWorks(Pageable pageable, String keyword) {
+        // 关键词（标题 / 作者名）在数据库层过滤 —— 作者名走 users 表的 EXISTS 子查询。
         return workRepository
-                .findWorksNeedingReview(Work.ReviewStatus.PENDING, Work.ReviewStatus.NEEDS_REVISION, pageable)
+                .findWorksNeedingReviewByKeyword(Work.ReviewStatus.PENDING, Work.ReviewStatus.NEEDS_REVISION,
+                        trimToNull(keyword), pageable)
                 .map(workMapper::toDto);
     }
     @Override

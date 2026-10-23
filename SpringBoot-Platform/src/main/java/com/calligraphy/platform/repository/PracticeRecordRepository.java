@@ -35,6 +35,37 @@ public interface PracticeRecordRepository extends JpaRepository<PracticeRecord, 
     @EntityGraph(attributePaths = {"user"})
     Page<PracticeRecord> findByUserIdOrderByPracticeDateDesc(String userId, Pageable pageable);
 
+    /**
+     * 某用户的练习历史 + 筛选（分页，**全部在库内做**）。
+     *
+     * <p>筛选条件：
+     * <ul>
+     *   <li>练习日期区间：{@code from} 含当天 00:00:00，{@code toExclusive} 是
+     *       「上界当天 + 1 天」的 00:00:00 —— 所以 to 那天的全部时刻都算在内
+     *       （把 to 当成当天 00:00:00 会白白丢掉一整天）。</li>
+     *   <li>{@code category}：分类精确匹配。</li>
+     *   <li>{@code keyword}：标题 / 内容 / 备注模糊匹配，大小写不敏感。</li>
+     * </ul>
+     *
+     * <p>空条件不写进 where：{@code category} / {@code keyword} 为 null 时直接跳过；
+     * 日期区间用「足够宽的上下界」代替 null（下界 1000-01-01、上界 9999-12-31），
+     * 效果与不过滤一致，但不会因为参数为 null 而让比较表达式失去类型。
+     */
+    @EntityGraph(attributePaths = {"user"})
+    @Query("SELECT p FROM PracticeRecord p WHERE p.userId = :userId "
+            + "AND p.practiceDate >= :from AND p.practiceDate < :toExclusive "
+            + "AND (:category IS NULL OR p.category = :category) "
+            + "AND (:keyword IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+            + "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+            + "OR LOWER(p.notes) LIKE LOWER(CONCAT('%', :keyword, '%'))) "
+            + "ORDER BY p.practiceDate DESC")
+    Page<PracticeRecord> findHistory(@Param("userId") String userId,
+                                     @Param("from") LocalDateTime from,
+                                     @Param("toExclusive") LocalDateTime toExclusive,
+                                     @Param("category") String category,
+                                     @Param("keyword") String keyword,
+                                     Pageable pageable);
+
     long countByUserId(String userId);
 
     @Query("SELECT COALESCE(SUM(p.duration), 0) FROM PracticeRecord p WHERE p.userId = :userId")

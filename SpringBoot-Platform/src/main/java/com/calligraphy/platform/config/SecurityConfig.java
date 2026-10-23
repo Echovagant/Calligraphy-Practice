@@ -82,9 +82,15 @@ public class SecurityConfig {
                         // 公开画廊与首页概览不需要令牌（契约里这两个是 security: []）
                         .requestMatchers(HttpMethod.GET, "/api/works").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/stats/overview").permitAll()
-                        // 字帖浏览也是公开的（契约里 security: []）：列表、热门、详情。
+                        // 字帖浏览同样是公开的（契约里 security: []）：列表、热门、详情。
                         // 注意 /{copybookId} 只匹配一段，所以 /statistics/user 与 /practice/history
                         // 这两个「当前用户」端点仍然需要令牌。
+                        //
+                        // 「我的字帖」必须显式拦成 authenticated，而且要排在下面这条放行规则**之前**：
+                        // 路径模板 /api/copybooks/{copybookId} 能填进任意一段，
+                        // 若放行规则先生效，/api/copybooks/mine 就会被当成公开的字帖详情放行。
+                        .requestMatchers(HttpMethod.GET, "/api/copybooks/mine").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/copybooks").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/copybooks",
                                 "/api/copybooks/popular", "/api/copybooks/{copybookId}").permitAll()
                         // 讨论浏览同样是公开的（契约里 security: []）：列表、热门、精华、置顶、

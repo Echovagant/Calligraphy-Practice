@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,6 +35,18 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class PracticeRecordServiceImpl implements PracticeRecordService {
+
+    /**
+     * 日期区间下界兜底值：MySQL DATETIME 的最小值。
+     * 用它代替「没有下界」，效果与不过滤一致。
+     */
+    private static final LocalDateTime DATE_FLOOR = LocalDateTime.of(1000, 1, 1, 0, 0);
+
+    /**
+     * 日期区间上界兜底值：MySQL DATETIME 的最大值。
+     * 用它代替「没有上界」，效果与不过滤一致。
+     */
+    private static final LocalDateTime DATE_CEILING = LocalDateTime.of(9999, 12, 31, 23, 59, 59);
 
     private final PracticeRecordRepository practiceRecordRepository;
     private final CopybookRepository copybookRepository;
@@ -79,17 +92,45 @@ public class PracticeRecordServiceImpl implements PracticeRecordService {
 
     @Override
     public Page<PracticeRecordDto> getPracticeHistory(String username, Pageable pageable) {
+        return getPracticeHistory(username, pageable, null, null, null, null);
+    }
+
+    @Override
+    public Page<PracticeRecordDto> getPracticeHistory(String username, Pageable pageable,
+                                                       LocalDate from, LocalDate to,
+                                                       String category, String keyword) {
         User user = requireUser(username);
         // 统计只算一次（在分页映射之外），再逐条填进 DTO。
         // 列表用的统计只含 DTO 里那 4 个字段 —— 少算两个用不上的聚合查询。
         PracticeStatisticsDto stats = buildListStatistics(user.getId());
         return practiceRecordRepository
-                .findByUserIdOrderByPracticeDateDesc(user.getId(), pageable)
+                .findHistory(user.getId(), toFromBound(from), toToBound(to),
+                        trimToNull(category), trimToNull(keyword), pageable)
                 .map(record -> {
                     PracticeRecordDto dto = toDto(record);
                     applyStatistics(dto, stats);
                     return dto;
                 });
+    }
+
+    /**
+     * 日期区间下界（含）。
+     *
+     * <p>没给 from 时用一个「足够早」的下界代替 null —— 效果与不过滤一样，
+     * 但比较表达式两边都是确定的时间戳，不用在 SQL 里判 null。
+     */
+    private LocalDateTime toFromBound(LocalDate from) {
+        return from == null ? DATE_FLOOR : from.atStartOfDay();
+    }
+
+    /**
+     * 日期区间上界（**不含**）。
+     *
+     * <p>to 是「含边界」的日期语义，所以真正要排除的是 to 的**第二天** 00:00:00。
+     * 直接拿 to 当上界会把 to 当天的练习全部丢掉（一整天）。
+     */
+    private LocalDateTime toToBound(LocalDate to) {
+        return to == null ? DATE_CEILING : to.plusDays(1).atStartOfDay();
     }
 
     @Override
@@ -112,6 +153,15 @@ public class PracticeRecordServiceImpl implements PracticeRecordService {
     private User requireUser(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("用户未找到: " + username));
+    }
+
+    /** null 或空白串一律当「没传这个筛选条件」。 */
+    private String trimToNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 
     /**

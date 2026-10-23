@@ -1,5 +1,6 @@
 package com.calligraphy.platform.controller;
 
+import com.calligraphy.platform.dto.CopybookCreateRequestDto;
 import com.calligraphy.platform.dto.CopybookDto;
 import com.calligraphy.platform.dto.PracticeRecordCreateDto;
 import com.calligraphy.platform.dto.PracticeRecordDto;
@@ -7,11 +8,13 @@ import com.calligraphy.platform.dto.PracticeStatisticsDto;
 import com.calligraphy.platform.exception.AuthenticationException;
 import com.calligraphy.platform.service.CopybookService;
 import com.calligraphy.platform.service.PracticeRecordService;
+import com.calligraphy.platform.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -24,18 +27,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
  * 字帖与练习接口，对应契约的 copybookList / copybookPopular / copybookUserStatistics /
- * copybookPracticeHistory / copybookGetById / copybookRecordPractice 六个 operation。
+ * copybookPracticeHistory / copybookGetById / copybookRecordPractice 六个 operation，
+ * 外加新增的 copybookCreate / copybookListMine 两个。
  *
  * <p>成功响应：单资源是裸对象；列表是 {@code {content,page,size,total,totalPages}}。
  * 失败响应由 exception.GlobalExceptionHandler 统一转成 {code, message}。
  *
- * <p>注意路径优先级：{@code /popular} 是字面量路径，Spring 会让它优先于
- * {@code /{copybookId}} 模板路径 —— 契约测试必须断言这两条互不吞掉。
+ * <p>注意路径优先级：{@code /popular} 与 {@code /mine} 是字面量路径，Spring 会让它们
+ * 优先于 {@code /{copybookId}} 模板路径 —— 契约测试必须断言这两组互不吞掉。
  */
 @RestController
 @RequestMapping("/api/copybooks")
@@ -46,6 +51,37 @@ public class CopybookController {
 
     private final CopybookService copybookService;
     private final PracticeRecordService practiceRecordService;
+    private final UserService userService;
+
+    /**
+     * POST /api/copybooks —— 201 裸字帖
+     *
+     * <p>需要登录：自建字帖归属当前用户。
+     *
+     * <p>以前「字帖生成」页的结果只落在浏览器 localStorage 里，换设备就没了，
+     * 界面却像存下来了。这个端点把它存进账号。
+     */
+    @PostMapping
+    public ResponseEntity<CopybookDto> createCopybook(@Valid @RequestBody CopybookCreateRequestDto request) {
+        CopybookDto created = copybookService.createCopybook(request, currentUsername());
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    /**
+     * GET /api/copybooks/mine —— 200 分页信封
+     *
+     * <p>需要登录：返回「当前用户」保存的自建字帖。
+     *
+     * <p>与 {@code GET /api/copybooks/{copybookId}} 同级：Spring 的字面量路径优先于
+     * 模板路径，所以 /mine 不会被 /{copybookId} 吞掉 —— 契约测试要显式断言这一点。
+     */
+    @GetMapping("/mine")
+    public ResponseEntity<Map<String, Object>> myCopybooks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Page<CopybookDto> mine = copybookService.getMyCopybooks(currentUserId(), pageable(page, size));
+        return ResponseEntity.ok(toPageEnvelope(mine));
+    }
 
     /**
      * GET /api/copybooks —— 200 分页信封
@@ -89,13 +125,28 @@ public class CopybookController {
      * GET /api/copybooks/practice/history —— 200 分页信封
      *
      * <p>需要登录：练习历史是「当前用户」的数据。
+     *
+     * <p>筛选参数全部在数据库层做（不是查全量再在内存里过滤）：
+     * <ul>
+     *   <li>{@code from} / {@code to}：练习日期区间，**含边界**，格式 yyyy-MM-dd。
+     *       {@code to} 包含当天 00:00:00 到 23:59:59 的全部时刻。</li>
+     *   <li>{@code category}：分类精确匹配。</li>
+     *   <li>{@code keyword}：标题 / 内容 / 备注模糊匹配。</li>
+     * </ul>
+     *
+     * <p>日期格式不对时由 Spring 的类型转换报 MethodArgumentTypeMismatchException，
+     * GlobalExceptionHandler 把它转成 400 —— 不是 500。
      */
     @GetMapping("/practice/history")
     public ResponseEntity<Map<String, Object>> getPracticeHistory(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String keyword) {
         Page<PracticeRecordDto> history =
-                practiceRecordService.getPracticeHistory(currentUsername(), pageable(page, size));
+                practiceRecordService.getPracticeHistory(currentUsername(), pageable(page, size), from, to, category, keyword);
         return ResponseEntity.ok(toPageEnvelope(history));
     }
 
@@ -132,6 +183,11 @@ public class CopybookController {
             throw new AuthenticationException("未认证或令牌无效");
         }
         return authentication.getName();
+    }
+
+    /** 当前登录用户 id。 */
+    private String currentUserId() {
+        return userService.findByUsername(currentUsername()).getId();
     }
 
     private Pageable pageable(int page, int size) {

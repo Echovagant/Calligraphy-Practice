@@ -42,12 +42,16 @@ public class AdminWorkController {
      * GET /api/admin/works/pending —— 200 分页信封
      *
      * <p>待审核作品：review_status 为 PENDING 或 NEEDS_REVISION。
+     *
+     * <p>{@code keyword} 按**作品标题或作者名**模糊匹配，在数据库层过滤
+     * （作者名走 users 表的 EXISTS 子查询，不逐条查作者）。
      */
     @GetMapping("/pending")
     public ResponseEntity<Map<String, Object>> pendingWorks(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        Page<WorkDto> works = workService.getPendingReviewWorks(pageable(page, size));
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String keyword) {
+        Page<WorkDto> works = workService.getPendingReviewWorks(pageable(page, size), keyword);
         return ResponseEntity.ok(toPageEnvelope(works));
     }
 

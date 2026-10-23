@@ -27,12 +27,18 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 讨论域的服务实现，对应契约的 14 个 operation。
@@ -141,6 +147,8 @@ public class DiscussionServiceImpl implements DiscussionService {
 
         DiscussionDto dto = discussionMapper.toDto(saved);
         dto.setReplies(List.of());
+        // 刚建出来的讨论没人赞过（包括作者自己），不用去查点赞表。
+        dto.setLiked(Boolean.FALSE);
         return dto;
     }
 
@@ -169,6 +177,7 @@ public class DiscussionServiceImpl implements DiscussionService {
 
         DiscussionDto dto = discussionMapper.toDto(saved);
         dto.setReplies(List.of());
+        dto.setLiked(loadLikedFlags(List.of(saved)).getOrDefault(saved.getId(), Boolean.FALSE));
         return dto;
     }
 
@@ -297,6 +306,7 @@ public class DiscussionServiceImpl implements DiscussionService {
                         PageRequest.of(0, DETAIL_REPLY_LIMIT))
                 .getContent();
         dto.setReplies(discussionReplyMapper.toDtoList(replies));
+        dto.setLiked(loadLikedFlags(List.of(discussion)).getOrDefault(discussion.getId(), Boolean.FALSE));
         return dto;
     }
 
@@ -312,13 +322,72 @@ public class DiscussionServiceImpl implements DiscussionService {
 
     // ------------------------------------------------------------------ 内部工具
 
-    /** 列表里的讨论不内联回复（否则每条都要再查一次回复）。 */
+    /**
+     * 列表里的讨论不内联回复（否则每条都要再查一次回复）。
+     *
+     * <p>同时把 {@code liked} 填上：当前登录用户赞过哪些讨论。
+     */
     private Page<DiscussionDto> toDtoPage(Page<Discussion> page) {
+        Map<Long, Boolean> likedFlags = loadLikedFlags(page.getContent());
         return page.map(discussion -> {
             DiscussionDto dto = discussionMapper.toDto(discussion);
             dto.setReplies(List.of());
+            dto.setLiked(likedFlags.getOrDefault(discussion.getId(), Boolean.FALSE));
             return dto;
         });
+    }
+
+    /**
+     * 查「当前用户赞过当前这批讨论里的哪些」。
+     *
+     * <p><b>必须批量查</b>：先把当前页的讨论 id 收集起来，
+     * 一次 {@code findByDiscussionIdInAndUserId} 查完，再在内存里配对。
+     * 逐条查的话，一页 20 条就是 20 条 SQL —— 那等于又造一个 N+1。
+     *
+     * <p>未登录（匿名访问）时直接返回空 Map：没人赞过，{@code liked} 全是 false。
+     */
+    private Map<Long, Boolean> loadLikedFlags(List<Discussion> discussions) {
+        if (discussions == null || discussions.isEmpty()) {
+            return Map.of();
+        }
+        String username = currentUsernameOrNull();
+        if (username == null) {
+            return Map.of();
+        }
+        User currentUser = userService.findByUsername(username);
+        List<Long> discussionIds = discussions.stream()
+                .map(Discussion::getId)
+                .filter(java.util.Objects::nonNull)
+                .toList();
+        if (discussionIds.isEmpty()) {
+            return Map.of();
+        }
+        Set<Long> likedIds = discussionLikeRepository
+                .findByDiscussionIdInAndUserId(discussionIds, currentUser.getId())
+                .stream()
+                .map(DiscussionLike::getDiscussionId)
+                .collect(Collectors.toSet());
+        return discussionIds.stream()
+                .collect(Collectors.toMap(id -> id, likedIds::contains));
+    }
+
+    /**
+     * 当前登录用户名；没登录（匿名访问）返回 null。
+     *
+     * <p>匿名请求里 SecurityContext 里放的是 AnonymousAuthenticationToken，
+     * 它的 name 是 "anonymousUser" —— 不能拿它去查 users（查不到会抛异常），
+     * 所以这里显式把它当成「没登录」。
+     */
+    private String currentUsernameOrNull() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+        if (authentication instanceof AnonymousAuthenticationToken) {
+            return null;
+        }
+        String name = authentication.getName();
+        return (name == null || name.isBlank()) ? null : name;
     }
 
     /** 排序：sort 参数是自由字符串，认不出来的按 latest（最新）处理。 */
