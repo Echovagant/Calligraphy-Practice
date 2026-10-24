@@ -8,9 +8,10 @@ export const INK_TERMS = {
   "terms": [
     {
       "term": "藏锋",
+      "font": "楷书",
       "original": "藏风 / 藏封 / 藏风险 / 藏锋",
       "in_whitelist": true,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 1,
@@ -19,9 +20,10 @@ export const INK_TERMS = {
     },
     {
       "term": "露锋",
+      "font": "楷书",
       "original": "漏风 / 漏锋 / 落风",
       "in_whitelist": true,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 1,
@@ -30,6 +32,7 @@ export const INK_TERMS = {
     },
     {
       "term": "回锋",
+      "font": "楷书",
       "original": "回风 / 回封 / 回分",
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -41,6 +44,7 @@ export const INK_TERMS = {
     },
     {
       "term": "逆锋",
+      "font": "楷书",
       "original": "逆风 / 逆入",
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -52,6 +56,7 @@ export const INK_TERMS = {
     },
     {
       "term": "侧锋",
+      "font": "楷书",
       "original": "侧封 / 册封 / 侧抹",
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -63,6 +68,7 @@ export const INK_TERMS = {
     },
     {
       "term": "中锋",
+      "font": "楷书",
       "original": "中分／装风",
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -74,9 +80,10 @@ export const INK_TERMS = {
     },
     {
       "term": "提按",
+      "font": "楷书",
       "original": "提案 / 提压",
       "in_whitelist": true,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 1,
@@ -85,9 +92,10 @@ export const INK_TERMS = {
     },
     {
       "term": "顿笔",
+      "font": "楷书",
       "original": "下顿 / 顿住",
       "in_whitelist": true,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 1,
@@ -95,10 +103,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "色行",
-      "original": null,
+      "term": "涩行",
+      "font": "楷书",
+      "original": "色形 / 色情 / 色型",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 1,
@@ -106,10 +115,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "飓风",
-      "original": null,
+      "term": "聚锋",
+      "font": "楷书",
+      "original": "飓风",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 1,
@@ -117,10 +127,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "扑风",
+      "term": "铺锋",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 1,
@@ -129,9 +140,10 @@ export const INK_TERMS = {
     },
     {
       "term": "慈悲重法度",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 1,
@@ -139,10 +151,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "藏头护尾",
+      "term": "颜勤礼",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 1,
@@ -151,9 +164,10 @@ export const INK_TERMS = {
     },
     {
       "term": "横细竖粗",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 1,
@@ -161,10 +175,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "转轴笔法",
+      "term": "转轴",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 1,
@@ -173,9 +188,10 @@ export const INK_TERMS = {
     },
     {
       "term": "左肩横",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 1,
@@ -184,9 +200,10 @@ export const INK_TERMS = {
     },
     {
       "term": "圆笔",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 1,
@@ -195,6 +212,7 @@ export const INK_TERMS = {
     },
     {
       "term": "外拓",
+      "font": "楷书",
       "original": "外拓",
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -206,9 +224,10 @@ export const INK_TERMS = {
     },
     {
       "term": "自然书写",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 1,
@@ -217,9 +236,10 @@ export const INK_TERMS = {
     },
     {
       "term": "点绛唇",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 1,
@@ -228,9 +248,10 @@ export const INK_TERMS = {
     },
     {
       "term": "颜勤礼碑",
+      "font": "楷书",
       "original": "延钦礼碑 / 颜卿李贝 / 延庆礼碑 / 言情礼碑 / 延期理",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 1,
@@ -239,6 +260,7 @@ export const INK_TERMS = {
     },
     {
       "term": "出风",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -250,6 +272,7 @@ export const INK_TERMS = {
     },
     {
       "term": "提风",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -261,6 +284,7 @@ export const INK_TERMS = {
     },
     {
       "term": "铺风",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -271,10 +295,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "调峰",
-      "original": "调峰、调分、调风",
+      "term": "调锋",
+      "font": "楷书",
+      "original": "调峰",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "unknown",
       "source": {
         "part": 2,
@@ -283,6 +308,7 @@ export const INK_TERMS = {
     },
     {
       "term": "提案",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -294,6 +320,7 @@ export const INK_TERMS = {
     },
     {
       "term": "塞进",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -305,6 +332,7 @@ export const INK_TERMS = {
     },
     {
       "term": "注笔",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -315,10 +343,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "纳角",
-      "original": null,
+      "term": "捺角",
+      "font": "楷书",
+      "original": "纳角／纳脚／钠角",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "unknown",
       "source": {
         "part": 2,
@@ -327,6 +356,7 @@ export const INK_TERMS = {
     },
     {
       "term": "纳脚",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -338,6 +368,7 @@ export const INK_TERMS = {
     },
     {
       "term": "顿作点状",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -349,6 +380,7 @@ export const INK_TERMS = {
     },
     {
       "term": "立送笔尖",
+      "font": "楷书",
       "original": "立送比肩",
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -360,9 +392,10 @@ export const INK_TERMS = {
     },
     {
       "term": "勒紧",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 2,
@@ -371,6 +404,7 @@ export const INK_TERMS = {
     },
     {
       "term": "绕动",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -382,6 +416,7 @@ export const INK_TERMS = {
     },
     {
       "term": "笔断意连",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -393,6 +428,7 @@ export const INK_TERMS = {
     },
     {
       "term": "沉着痛快",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -404,6 +440,7 @@ export const INK_TERMS = {
     },
     {
       "term": "连带关系",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -415,6 +452,7 @@ export const INK_TERMS = {
     },
     {
       "term": "绕洞入笔",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -426,6 +464,7 @@ export const INK_TERMS = {
     },
     {
       "term": "以头抢调",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -437,6 +476,7 @@ export const INK_TERMS = {
     },
     {
       "term": "鼻翼关系",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -448,9 +488,10 @@ export const INK_TERMS = {
     },
     {
       "term": "竖撇",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 3,
@@ -459,7 +500,8 @@ export const INK_TERMS = {
     },
     {
       "term": "平捺",
-      "original": "平纳",
+      "font": "楷书",
+      "original": null,
       "in_whitelist": true,
       "terminology_uncertain": false,
       "certainty": "verbatim",
@@ -470,20 +512,10 @@ export const INK_TERMS = {
     },
     {
       "term": "势态",
+      "font": "楷书",
       "original": "事态",
       "in_whitelist": true,
-      "terminology_uncertain": true,
-      "certainty": "verbatim",
-      "source": {
-        "part": 3,
-        "title": "第3节 基础笔画撇捺"
-      }
-    },
-    {
-      "term": "捺角",
-      "original": "纳角／纳脚／钠角",
-      "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 3,
@@ -492,9 +524,10 @@ export const INK_TERMS = {
     },
     {
       "term": "驻笔",
+      "font": "楷书",
       "original": "注笔／锯笔／铸笔",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 3,
@@ -503,9 +536,10 @@ export const INK_TERMS = {
     },
     {
       "term": "角锋",
+      "font": "楷书",
       "original": "角峰／角疯",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 3,
@@ -514,9 +548,10 @@ export const INK_TERMS = {
     },
     {
       "term": "虚接",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 3,
@@ -525,9 +560,10 @@ export const INK_TERMS = {
     },
     {
       "term": "点画",
+      "font": "楷书",
       "original": "点化／点话",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 3,
@@ -536,6 +572,7 @@ export const INK_TERMS = {
     },
     {
       "term": "间架结构",
+      "font": "楷书",
       "original": "肩架",
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -547,9 +584,10 @@ export const INK_TERMS = {
     },
     {
       "term": "临摹",
+      "font": "楷书",
       "original": "鳞和膜／零和膜／魔术",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 3,
@@ -558,6 +596,7 @@ export const INK_TERMS = {
     },
     {
       "term": "呼应",
+      "font": "楷书",
       "original": null,
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -569,9 +608,10 @@ export const INK_TERMS = {
     },
     {
       "term": "米字格",
+      "font": "楷书",
       "original": "树叶比格",
       "in_whitelist": true,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 3,
@@ -580,6 +620,7 @@ export const INK_TERMS = {
     },
     {
       "term": "田字格",
+      "font": "楷书",
       "original": null,
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -591,6 +632,7 @@ export const INK_TERMS = {
     },
     {
       "term": "提画",
+      "font": "楷书",
       "original": "题画",
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -602,6 +644,7 @@ export const INK_TERMS = {
     },
     {
       "term": "竖提",
+      "font": "楷书",
       "original": "数题",
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -613,18 +656,8 @@ export const INK_TERMS = {
     },
     {
       "term": "笔肚",
+      "font": "楷书",
       "original": "比度 / 比肚 / 比do",
-      "in_whitelist": false,
-      "terminology_uncertain": true,
-      "certainty": "inferred",
-      "source": {
-        "part": 4,
-        "title": "第4节 基础笔画点提"
-      }
-    },
-    {
-      "term": "涩行",
-      "original": "色形 / 色情 / 色型",
       "in_whitelist": false,
       "terminology_uncertain": false,
       "certainty": "inferred",
@@ -635,6 +668,7 @@ export const INK_TERMS = {
     },
     {
       "term": "浮滑",
+      "font": "楷书",
       "original": "浮华",
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -645,10 +679,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "内撷",
+      "term": "内擫",
+      "font": "楷书",
       "original": "内页",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 4,
@@ -657,6 +692,7 @@ export const INK_TERMS = {
     },
     {
       "term": "空提",
+      "font": "楷书",
       "original": "空题",
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -667,21 +703,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "调锋",
-      "original": "调峰",
-      "in_whitelist": false,
-      "terminology_uncertain": true,
-      "certainty": "inferred",
-      "source": {
-        "part": 4,
-        "title": "第4节 基础笔画点提"
-      }
-    },
-    {
       "term": "捺",
+      "font": "楷书",
       "original": "掩体 / 辣椒 / 盐心里的钠",
       "in_whitelist": true,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 4,
@@ -690,6 +716,7 @@ export const INK_TERMS = {
     },
     {
       "term": "撇折",
+      "font": "楷书",
       "original": null,
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -701,6 +728,7 @@ export const INK_TERMS = {
     },
     {
       "term": "竖折",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -712,6 +740,7 @@ export const INK_TERMS = {
     },
     {
       "term": "横折",
+      "font": "楷书",
       "original": null,
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -723,9 +752,10 @@ export const INK_TERMS = {
     },
     {
       "term": "立柱",
+      "font": "楷书",
       "original": "立柱",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 5,
@@ -734,9 +764,10 @@ export const INK_TERMS = {
     },
     {
       "term": "聚笔",
+      "font": "楷书",
       "original": "聚分",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "unknown",
       "source": {
         "part": 5,
@@ -745,9 +776,10 @@ export const INK_TERMS = {
     },
     {
       "term": "暗转",
+      "font": "楷书",
       "original": "暗转",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 5,
@@ -755,10 +787,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "内页",
+      "term": "内撷",
+      "font": "楷书",
       "original": "嫩叶",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 5,
@@ -767,6 +800,7 @@ export const INK_TERMS = {
     },
     {
       "term": "多宝塔",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -778,6 +812,7 @@ export const INK_TERMS = {
     },
     {
       "term": "向背",
+      "font": "楷书",
       "original": "香背",
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -789,9 +824,10 @@ export const INK_TERMS = {
     },
     {
       "term": "颜真卿",
+      "font": "楷书",
       "original": "颜清理、严老爷子、颜老爷子",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 6,
@@ -800,9 +836,10 @@ export const INK_TERMS = {
     },
     {
       "term": "颜体",
+      "font": "楷书",
       "original": "掩体、颜卿",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 6,
@@ -810,21 +847,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "换封面",
+      "term": "换面",
+      "font": "楷书",
       "original": "换封面、立笔换封面儿",
       "in_whitelist": false,
-      "terminology_uncertain": true,
-      "certainty": "unknown",
-      "source": {
-        "part": 6,
-        "title": "第6节 基础笔画钩"
-      }
-    },
-    {
-      "term": "比度",
-      "original": "比度、比分",
-      "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "unknown",
       "source": {
         "part": 6,
@@ -833,6 +860,7 @@ export const INK_TERMS = {
     },
     {
       "term": "出锋方向",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -844,6 +872,7 @@ export const INK_TERMS = {
     },
     {
       "term": "钩",
+      "font": "楷书",
       "original": "勾",
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -854,10 +883,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "封面",
+      "term": "面",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 7,
@@ -865,43 +895,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "聚锋",
-      "original": "飓风",
-      "in_whitelist": false,
-      "terminology_uncertain": true,
-      "certainty": "inferred",
-      "source": {
-        "part": 8,
-        "title": "第8节 基础笔画钩3"
-      }
-    },
-    {
-      "term": "偃体",
-      "original": "掩体",
-      "in_whitelist": false,
-      "terminology_uncertain": true,
-      "certainty": "unknown",
-      "source": {
-        "part": 8,
-        "title": "第8节 基础笔画钩3"
-      }
-    },
-    {
-      "term": "内掖",
-      "original": "内页",
-      "in_whitelist": false,
-      "terminology_uncertain": true,
-      "certainty": "unknown",
-      "source": {
-        "part": 8,
-        "title": "第8节 基础笔画钩3"
-      }
-    },
-    {
       "term": "内白",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 8,
@@ -910,9 +908,10 @@ export const INK_TERMS = {
     },
     {
       "term": "收放",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 8,
@@ -921,9 +920,10 @@ export const INK_TERMS = {
     },
     {
       "term": "残破",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 8,
@@ -931,10 +931,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "横折斜钩",
+      "term": "横折背钩",
+      "font": "楷书",
       "original": "横折背钩、横折弯钩、飞钩",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 8,
@@ -943,6 +944,7 @@ export const INK_TERMS = {
     },
     {
       "term": "逆锋（逆入）",
+      "font": "楷书",
       "original": "逆风／逆入",
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -954,6 +956,7 @@ export const INK_TERMS = {
     },
     {
       "term": "飞钩",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -965,9 +968,10 @@ export const INK_TERMS = {
     },
     {
       "term": "长款",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 9,
@@ -976,9 +980,10 @@ export const INK_TERMS = {
     },
     {
       "term": "穷款",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 9,
@@ -986,21 +991,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "单款（与双款相对）",
+      "term": "单款",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
-      "certainty": "verbatim",
-      "source": {
-        "part": 9,
-        "title": "第9节 笔画总汇"
-      }
-    },
-    {
-      "term": "虚势",
-      "original": null,
-      "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 9,
@@ -1009,9 +1004,10 @@ export const INK_TERMS = {
     },
     {
       "term": "撑住",
+      "font": "楷书",
       "original": "称主",
       "in_whitelist": true,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 10,
@@ -1020,9 +1016,10 @@ export const INK_TERMS = {
     },
     {
       "term": "意连",
+      "font": "楷书",
       "original": "一连 / 义连",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 10,
@@ -1030,10 +1027,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "偃仰",
+      "term": "俯仰",
+      "font": "楷书",
       "original": "眼养 / 岩养 / 眼仰",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 10,
@@ -1042,9 +1040,10 @@ export const INK_TERMS = {
     },
     {
       "term": "题笔阵图后",
+      "font": "楷书",
       "original": "提笔阵图后",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 10,
@@ -1052,10 +1051,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "笔锋",
+      "term": "出锋",
+      "font": "楷书",
       "original": "出风",
       "in_whitelist": true,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 10,
@@ -1064,9 +1064,10 @@ export const INK_TERMS = {
     },
     {
       "term": "撇宝盖",
+      "font": "楷书",
       "original": "凸宝盖 / 凸板盖",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 10,
@@ -1075,9 +1076,10 @@ export const INK_TERMS = {
     },
     {
       "term": "横钩",
+      "font": "楷书",
       "original": "横沟",
       "in_whitelist": true,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 10,
@@ -1086,9 +1088,10 @@ export const INK_TERMS = {
     },
     {
       "term": "结字法",
+      "font": "楷书",
       "original": "节字法",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 10,
@@ -1097,6 +1100,7 @@ export const INK_TERMS = {
     },
     {
       "term": "宝盖",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -1108,6 +1112,7 @@ export const INK_TERMS = {
     },
     {
       "term": "心字底",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -1118,10 +1123,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "斜视",
+      "term": "斜势",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 10,
@@ -1130,6 +1136,7 @@ export const INK_TERMS = {
     },
     {
       "term": "顶梁柱",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -1141,6 +1148,7 @@ export const INK_TERMS = {
     },
     {
       "term": "逆时针",
+      "font": "楷书",
       "original": "逆时针",
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -1151,10 +1159,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "宁",
+      "term": "宁字底",
+      "font": "楷书",
       "original": "名字 / 胡静 / 首瑜 / 新字底",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 10,
@@ -1163,9 +1172,10 @@ export const INK_TERMS = {
     },
     {
       "term": "周",
+      "font": "楷书",
       "original": "川 / 粥 / 周子",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 10,
@@ -1174,6 +1184,7 @@ export const INK_TERMS = {
     },
     {
       "term": "补空",
+      "font": "楷书",
       "original": null,
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1185,6 +1196,7 @@ export const INK_TERMS = {
     },
     {
       "term": "四满方正",
+      "font": "楷书",
       "original": "四满方阵",
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1196,9 +1208,10 @@ export const INK_TERMS = {
     },
     {
       "term": "虚实",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 11,
@@ -1207,7 +1220,8 @@ export const INK_TERMS = {
     },
     {
       "term": "反捺",
-      "original": "反纳/反呐",
+      "font": "楷书",
+      "original": null,
       "in_whitelist": true,
       "terminology_uncertain": false,
       "certainty": "verbatim",
@@ -1218,6 +1232,7 @@ export const INK_TERMS = {
     },
     {
       "term": "趋平",
+      "font": "楷书",
       "original": null,
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1229,6 +1244,7 @@ export const INK_TERMS = {
     },
     {
       "term": "曲平",
+      "font": "楷书",
       "original": "屈平",
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -1240,9 +1256,10 @@ export const INK_TERMS = {
     },
     {
       "term": "悬针竖",
+      "font": "楷书",
       "original": "悬针数",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 11,
@@ -1251,9 +1268,10 @@ export const INK_TERMS = {
     },
     {
       "term": "牵丝",
+      "font": "楷书",
       "original": "铅丝／千丝",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 11,
@@ -1262,9 +1280,10 @@ export const INK_TERMS = {
     },
     {
       "term": "彡",
+      "font": "楷书",
       "original": "山",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 11,
@@ -1273,9 +1292,10 @@ export const INK_TERMS = {
     },
     {
       "term": "坑岩本",
+      "font": "楷书",
       "original": "坑严挞／坑研本",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 11,
@@ -1284,9 +1304,10 @@ export const INK_TERMS = {
     },
     {
       "term": "初拓本",
+      "font": "楷书",
       "original": "出踏本",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 11,
@@ -1295,6 +1316,7 @@ export const INK_TERMS = {
     },
     {
       "term": "相迭",
+      "font": "楷书",
       "original": "相叠",
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1306,9 +1328,10 @@ export const INK_TERMS = {
     },
     {
       "term": "排叠",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 12,
@@ -1317,6 +1340,7 @@ export const INK_TERMS = {
     },
     {
       "term": "顶戴",
+      "font": "楷书",
       "original": "顶带",
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1328,9 +1352,10 @@ export const INK_TERMS = {
     },
     {
       "term": "田字框",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 12,
@@ -1339,9 +1364,10 @@ export const INK_TERMS = {
     },
     {
       "term": "狮子头",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 12,
@@ -1349,21 +1375,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "截字法",
-      "original": null,
-      "in_whitelist": false,
-      "terminology_uncertain": true,
-      "certainty": "unknown",
-      "source": {
-        "part": 12,
-        "title": "第12节 结构规律相迭"
-      }
-    },
-    {
       "term": "中宫",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 12,
@@ -1372,6 +1388,7 @@ export const INK_TERMS = {
     },
     {
       "term": "穿插",
+      "font": "楷书",
       "original": null,
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1383,6 +1400,7 @@ export const INK_TERMS = {
     },
     {
       "term": "覆盖",
+      "font": "楷书",
       "original": null,
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1394,6 +1412,7 @@ export const INK_TERMS = {
     },
     {
       "term": "回抱",
+      "font": "楷书",
       "original": "回报",
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1405,9 +1424,10 @@ export const INK_TERMS = {
     },
     {
       "term": "点需正画须圆明不宜相助上长下短",
+      "font": "楷书",
       "original": "点需正画须圆明不宜相助上长下短",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 13,
@@ -1416,6 +1436,7 @@ export const INK_TERMS = {
     },
     {
       "term": "意在笔前",
+      "font": "楷书",
       "original": null,
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1426,7 +1447,8 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "绞丝（旁）",
+      "term": "绞丝旁",
+      "font": "楷书",
       "original": "角色／角丝／小角丝",
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -1438,6 +1460,7 @@ export const INK_TERMS = {
     },
     {
       "term": "三足鼎立",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -1449,6 +1472,7 @@ export const INK_TERMS = {
     },
     {
       "term": "竹字头",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -1460,9 +1484,10 @@ export const INK_TERMS = {
     },
     {
       "term": "秃宝盖",
+      "font": "楷书",
       "original": "凸宝盖／狼秃宝盖",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 14,
@@ -1471,9 +1496,10 @@ export const INK_TERMS = {
     },
     {
       "term": "相悖",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 15,
@@ -1482,9 +1508,10 @@ export const INK_TERMS = {
     },
     {
       "term": "相向",
+      "font": "楷书",
       "original": "相像",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 15,
@@ -1493,9 +1520,10 @@ export const INK_TERMS = {
     },
     {
       "term": "八面出锋",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 15,
@@ -1504,9 +1532,10 @@ export const INK_TERMS = {
     },
     {
       "term": "中山兔毫",
+      "font": "楷书",
       "original": "中山土豪",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 15,
@@ -1515,6 +1544,7 @@ export const INK_TERMS = {
     },
     {
       "term": "相让",
+      "font": "楷书",
       "original": null,
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1526,6 +1556,7 @@ export const INK_TERMS = {
     },
     {
       "term": "竖弯钩",
+      "font": "楷书",
       "original": null,
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1537,6 +1568,7 @@ export const INK_TERMS = {
     },
     {
       "term": "倚侧",
+      "font": "楷书",
       "original": "乙测",
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1548,9 +1580,10 @@ export const INK_TERMS = {
     },
     {
       "term": "偏侧",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 16,
@@ -1559,9 +1592,10 @@ export const INK_TERMS = {
     },
     {
       "term": "欹侧",
+      "font": "楷书",
       "original": "其侧",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "unknown",
       "source": {
         "part": 16,
@@ -1570,6 +1604,7 @@ export const INK_TERMS = {
     },
     {
       "term": "中侧锋转换",
+      "font": "楷书",
       "original": "中侧转换",
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1581,9 +1616,10 @@ export const INK_TERMS = {
     },
     {
       "term": "扛肩",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 16,
@@ -1592,6 +1628,7 @@ export const INK_TERMS = {
     },
     {
       "term": "会意",
+      "font": "楷书",
       "original": "会议",
       "in_whitelist": false,
       "terminology_uncertain": false,
@@ -1603,9 +1640,10 @@ export const INK_TERMS = {
     },
     {
       "term": "内敛",
+      "font": "楷书",
       "original": "内页",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "unknown",
       "source": {
         "part": 16,
@@ -1614,6 +1652,7 @@ export const INK_TERMS = {
     },
     {
       "term": "附离",
+      "font": "楷书",
       "original": "复离、妇离",
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1624,10 +1663,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "以小付大以少付多",
+      "term": "以小附大，以少附多",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 17,
@@ -1636,9 +1676,10 @@ export const INK_TERMS = {
     },
     {
       "term": "虚尖",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 17,
@@ -1647,9 +1688,10 @@ export const INK_TERMS = {
     },
     {
       "term": "反文旁",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 17,
@@ -1658,9 +1700,10 @@ export const INK_TERMS = {
     },
     {
       "term": "勒马",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 17,
@@ -1669,9 +1712,10 @@ export const INK_TERMS = {
     },
     {
       "term": "断联",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 17,
@@ -1679,10 +1723,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "受硬",
+      "term": "受限",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 17,
@@ -1691,6 +1736,7 @@ export const INK_TERMS = {
     },
     {
       "term": "避就",
+      "font": "楷书",
       "original": "必就／必救／避救",
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1702,6 +1748,7 @@ export const INK_TERMS = {
     },
     {
       "term": "避让",
+      "font": "楷书",
       "original": null,
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1712,18 +1759,8 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "铅丝",
-      "original": null,
-      "in_whitelist": false,
-      "terminology_uncertain": true,
-      "certainty": "unknown",
-      "source": {
-        "part": 18,
-        "title": "第18节 结构规律避就"
-      }
-    },
-    {
       "term": "提",
+      "font": "楷书",
       "original": "题",
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1735,6 +1772,7 @@ export const INK_TERMS = {
     },
     {
       "term": "竖",
+      "font": "楷书",
       "original": "数",
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1745,54 +1783,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "侧抹",
+      "term": "傅山",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
-      "certainty": "verbatim",
-      "source": {
-        "part": 19,
-        "title": "第19节 结构规律回抱"
-      }
-    },
-    {
-      "term": "转轴",
-      "original": null,
-      "in_whitelist": false,
-      "terminology_uncertain": true,
-      "certainty": "verbatim",
-      "source": {
-        "part": 19,
-        "title": "第19节 结构规律回抱"
-      }
-    },
-    {
-      "term": "囚禁",
-      "original": null,
-      "in_whitelist": false,
-      "terminology_uncertain": true,
-      "certainty": "verbatim",
-      "source": {
-        "part": 19,
-        "title": "第19节 结构规律回抱"
-      }
-    },
-    {
-      "term": "富山",
-      "original": null,
-      "in_whitelist": false,
-      "terminology_uncertain": true,
-      "certainty": "verbatim",
-      "source": {
-        "part": 19,
-        "title": "第19节 结构规律回抱"
-      }
-    },
-    {
-      "term": "言情里",
-      "original": null,
-      "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 19,
@@ -1801,9 +1796,10 @@ export const INK_TERMS = {
     },
     {
       "term": "羊",
+      "font": "楷书",
       "original": "洋",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 19,
@@ -1811,10 +1807,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "浊气",
+      "term": "拙气",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 19,
@@ -1823,6 +1820,7 @@ export const INK_TERMS = {
     },
     {
       "term": "包裹",
+      "font": "楷书",
       "original": null,
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1834,6 +1832,7 @@ export const INK_TERMS = {
     },
     {
       "term": "竖画",
+      "font": "楷书",
       "original": "竖化",
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1845,9 +1844,10 @@ export const INK_TERMS = {
     },
     {
       "term": "削肩暗转",
+      "font": "楷书",
       "original": "削肩按转",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "inferred",
       "source": {
         "part": 20,
@@ -1856,9 +1856,10 @@ export const INK_TERMS = {
     },
     {
       "term": "独体字",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 20,
@@ -1867,6 +1868,7 @@ export const INK_TERMS = {
     },
     {
       "term": "朝揖",
+      "font": "楷书",
       "original": "朝一 / 潮一 / 潮衣",
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1878,9 +1880,10 @@ export const INK_TERMS = {
     },
     {
       "term": "因字赋形",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 21,
@@ -1889,9 +1892,10 @@ export const INK_TERMS = {
     },
     {
       "term": "内挺",
+      "font": "楷书",
       "original": "穴内挺",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 21,
@@ -1900,6 +1904,7 @@ export const INK_TERMS = {
     },
     {
       "term": "相背",
+      "font": "楷书",
       "original": null,
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1911,6 +1916,7 @@ export const INK_TERMS = {
     },
     {
       "term": "重心",
+      "font": "楷书",
       "original": null,
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1922,6 +1928,7 @@ export const INK_TERMS = {
     },
     {
       "term": "三角",
+      "font": "楷书",
       "original": null,
       "in_whitelist": true,
       "terminology_uncertain": false,
@@ -1933,9 +1940,10 @@ export const INK_TERMS = {
     },
     {
       "term": "集字",
+      "font": "楷书",
       "original": null,
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "verbatim",
       "source": {
         "part": 21,

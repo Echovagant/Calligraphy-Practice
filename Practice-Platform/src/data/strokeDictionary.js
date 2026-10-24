@@ -7,22 +7,33 @@
  * 按笔画名查笔画条目。
  * 支持精确名、复合名的基名（「撇（斜撇、小短撇）」→ 撇）、以及包含匹配。
  * 包含匹配时取**最短**的名字：查「竖」应命中「竖」而不是「垂露竖」「竖钩」。
+ *
+ * 按书体过滤：不同书体的同名笔画不是同一条（硬笔没有锋与提按，隶书是蚕头雁尾）。
+ * 默认查楷书 —— 本项目的毛笔练习用的是这一套。
  */
-export function findStroke(name) {
+export function findStroke(name, font = '楷书') {
   if (!name) return null;
   const target = String(name).trim();
-  const exact = STROKE_DICTIONARY.strokes.find((s) => s.name === target);
+  const pool = STROKE_DICTIONARY.strokes.filter((s) => s.font === font);
+  const exact = pool.find((s) => s.name === target);
   if (exact) return exact;
-  const byBase = STROKE_DICTIONARY.strokes.find((s) => s.name.split('（')[0].trim() === target);
+  const byBase = pool.find((s) => s.name.split('（')[0].trim() === target);
   if (byBase) return byBase;
-  const partial = STROKE_DICTIONARY.strokes.filter((s) => s.name.includes(target));
+  const partial = pool.filter((s) => s.name.includes(target));
   if (!partial.length) return null;
   return partial.reduce((best, s) => (s.name.length < best.name.length ? s : best));
 }
 
+/** 某个书体下有哪些笔画 */
+export function strokesByFont(font) {
+  return STROKE_DICTIONARY.strokes.filter((s) => s.font === font);
+}
+
 export const STROKE_DICTIONARY = {
   "version": "1.0",
-  "font": "楷书",
+  "fonts": [
+    "楷书"
+  ],
   "source": "软笔楷书全套教程 BV1A9sbzTEUT",
   "parts": [
     1,
@@ -51,6 +62,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:垂露竖",
       "name": "垂露竖",
+      "font": "楷书",
       "category": "竖画类",
       "tags": [
         "垂露竖",
@@ -135,6 +147,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:点",
       "name": "点",
+      "font": "楷书",
       "category": "点画类",
       "tags": [
         "点",
@@ -240,6 +253,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:点画",
       "name": "点画（点）",
+      "font": "楷书",
       "category": "点画类",
       "tags": [
         "B档"
@@ -317,6 +331,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:点画（当小横写）",
       "name": "点画（当小横写）",
+      "font": "楷书",
       "category": null,
       "tags": [],
       "certainty": "verbatim",
@@ -352,6 +367,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:短撇",
       "name": "短撇（小平撇）",
+      "font": "楷书",
       "category": "撇画类",
       "tags": [
         "B档"
@@ -385,6 +401,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:钩",
       "name": "钩",
+      "font": "楷书",
       "category": "钩画类",
       "tags": [
         "笔画名",
@@ -427,6 +444,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:横",
       "name": "横",
+      "font": "楷书",
       "category": "横画类",
       "tags": [
         "横",
@@ -558,6 +576,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:横（宽底横）",
       "name": "横（宽底横）",
+      "font": "楷书",
       "category": null,
       "tags": [],
       "certainty": "verbatim",
@@ -595,6 +614,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:横钩",
       "name": "横钩",
+      "font": "楷书",
       "category": "钩画类",
       "tags": [
         "钩",
@@ -724,6 +744,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:横撇",
       "name": "横撇",
+      "font": "楷书",
       "category": "撇画类",
       "tags": [
         "横撇",
@@ -764,6 +785,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:横折",
       "name": "横折",
+      "font": "楷书",
       "category": "折笔类",
       "tags": [
         "B档"
@@ -780,6 +802,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:横折（庚字·折笔略方）",
       "name": "横折（庚字·折笔略方）",
+      "font": "楷书",
       "category": "折画类",
       "tags": [
         "折笔",
@@ -879,6 +902,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:横折（首字·暗转圆转）",
       "name": "横折（首字·暗转圆转）",
+      "font": "楷书",
       "category": "折画类",
       "tags": [
         "折笔",
@@ -983,6 +1007,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:横折钩",
       "name": "横折钩",
+      "font": "楷书",
       "category": "钩画类",
       "tags": [
         "钩",
@@ -1068,6 +1093,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:横折弯钩",
       "name": "横折弯钩",
+      "font": "楷书",
       "category": "折笔类",
       "tags": [
         "B档"
@@ -1098,6 +1124,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:横折斜钩",
       "name": "横折斜钩",
+      "font": "楷书",
       "category": "钩画类",
       "tags": [
         "横折斜钩",
@@ -1249,6 +1276,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:捺",
       "name": "捺（斜捺）",
+      "font": "楷书",
       "category": "捺画类",
       "tags": [
         "捺",
@@ -1353,6 +1381,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:撇",
       "name": "撇（斜撇、小短撇）",
+      "font": "楷书",
       "category": "撇画类",
       "tags": [
         "撇",
@@ -1456,6 +1485,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:撇画",
       "name": "撇画",
+      "font": "楷书",
       "category": null,
       "tags": [],
       "certainty": "inferred",
@@ -1491,6 +1521,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:撇折",
       "name": "撇折",
+      "font": "楷书",
       "category": "折画类",
       "tags": [
         "折笔",
@@ -1595,6 +1626,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:平捺",
       "name": "平捺",
+      "font": "楷书",
       "category": "捺画类",
       "tags": [
         "B档"
@@ -1691,6 +1723,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:三点水",
       "name": "三点水",
+      "font": "楷书",
       "category": "点画类",
       "tags": [
         "基础笔画",
@@ -1708,6 +1741,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:三点水第二点",
       "name": "三点水第二点",
+      "font": "楷书",
       "category": null,
       "tags": [],
       "certainty": "inferred",
@@ -1768,6 +1802,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:三点水第三点",
       "name": "三点水第三点",
+      "font": "楷书",
       "category": null,
       "tags": [],
       "certainty": "inferred",
@@ -1806,6 +1841,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:三点水第一点",
       "name": "三点水第一点",
+      "font": "楷书",
       "category": null,
       "tags": [],
       "certainty": "inferred",
@@ -1865,6 +1901,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:竖",
       "name": "竖",
+      "font": "楷书",
       "category": "竖画类",
       "tags": [
         "横细竖粗",
@@ -1904,6 +1941,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:竖钩",
       "name": "竖钩",
+      "font": "楷书",
       "category": "钩画类",
       "tags": [
         "笔画名",
@@ -2031,6 +2069,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:竖撇",
       "name": "竖撇",
+      "font": "楷书",
       "category": "撇画类",
       "tags": [
         "B档"
@@ -2132,6 +2171,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:竖提",
       "name": "竖提",
+      "font": "楷书",
       "category": "提画类",
       "tags": [
         "基础笔画",
@@ -2236,6 +2276,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:竖弯钩",
       "name": "竖弯钩",
+      "font": "楷书",
       "category": "钩画类",
       "tags": [
         "竖弯钩",
@@ -2390,6 +2431,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:竖折",
       "name": "竖折",
+      "font": "楷书",
       "category": "折画类",
       "tags": [
         "折笔",
@@ -2494,6 +2536,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:提",
       "name": "提",
+      "font": "楷书",
       "category": "提画类",
       "tags": [
         "基础笔画",
@@ -2618,6 +2661,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:弯钩",
       "name": "弯钩",
+      "font": "楷书",
       "category": "钩画类",
       "tags": [
         "笔画名",
@@ -2765,6 +2809,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:卧钩",
       "name": "卧钩",
+      "font": "楷书",
       "category": "钩画类",
       "tags": [
         "钩",
@@ -2897,6 +2942,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:小短撇",
       "name": "小短撇",
+      "font": "楷书",
       "category": "撇画类",
       "tags": [
         "A档-基础笔画",
@@ -3020,6 +3066,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:小横",
       "name": "小横",
+      "font": "楷书",
       "category": "横画类",
       "tags": [
         "小横",
@@ -3126,6 +3173,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:斜钩",
       "name": "斜钩",
+      "font": "楷书",
       "category": "钩画类",
       "tags": [
         "斜钩",
@@ -3260,6 +3308,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:斜捺",
       "name": "斜捺",
+      "font": "楷书",
       "category": "捺画类",
       "tags": [
         "A档-基础笔画",
@@ -3389,6 +3438,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:斜撇",
       "name": "斜撇",
+      "font": "楷书",
       "category": "撇画类",
       "tags": [
         "A档-基础笔画",
@@ -3513,6 +3563,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:悬针竖",
       "name": "悬针竖",
+      "font": "楷书",
       "category": "竖画类",
       "tags": [
         "悬针竖",
@@ -3597,6 +3648,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:右点",
       "name": "右点",
+      "font": "楷书",
       "category": "点画类",
       "tags": [
         "基础笔画"
@@ -3680,6 +3732,7 @@ export const STROKE_DICTIONARY = {
     {
       "id": "stroke:长横",
       "name": "长横",
+      "font": "楷书",
       "category": "横画类",
       "tags": [
         "长横",

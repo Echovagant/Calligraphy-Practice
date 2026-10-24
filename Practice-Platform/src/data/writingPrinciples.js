@@ -9,6 +9,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:掌握技法并加深理解",
       "title": "本阶段目标：掌握基本技法，加深对楷书技法的理解",
+      "font": "楷书",
       "detail": "导学环节给出本期学习目标：先掌握基本技法，再加强对楷书技法的理解；老师强调理解比记忆更重要——「这些特点你随便一背都能记下来，但重点是要去理解它」。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -26,6 +27,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:技法要活学活用",
       "title": "技法要活学活用，不能机械套用老师的方法",
+      "font": "楷书",
       "detail": "老师指出学了方法之后很多人机械地拿方法去写字，意识不到自己「没有自己的思想没有自己的思考」；学习任何门类艺术都要加入自己的理解，才能活学活用、走得更远。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -43,6 +45,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:学书没有捷径",
       "title": "学书的道路上没有捷径可走",
+      "font": "楷书",
       "detail": "老师在课程介绍页上写下的最后一句话，作为对学员的祝福。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -60,6 +63,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:临摹不脱离字帖",
       "title": "临摹时不要脱离手边的字帖",
+      "font": "楷书",
       "detail": "写三字时老师专门打断：临摹不要忽略手边的字帖，不要写着写着就开始自己创作；不看帖就写不像。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -77,6 +81,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:临摹终极目标是还原原帖形态并模仿其动作",
       "title": "临摹的终极目标：做出原帖的形态，并模仿其中的动作",
+      "font": "楷书",
       "detail": "每一笔的起笔都不相同，老师要求先通过靠近形态去模仿形态，再去模仿其中的动作。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -94,6 +99,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:两种起笔用笔方式没有对错之分",
       "title": "起笔的两种用笔方式没有对错之分，只是熟练度问题",
+      "font": "楷书",
       "detail": "「逆入后立住调锋再铺锋」与「捏住直接落下就往右走」两种起笔方式都对；前者更稳，初学阶段先练前者。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -111,6 +117,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:基础阶段先练更严谨的基本动作",
       "title": "基础阶段先练更基础、更严谨的动作，自然的高级用笔以后再练",
+      "font": "楷书",
       "detail": "抹下来直接铺锋这类动作容易出侧锋，老师建议基础阶段（颜勤礼碑前几节笔画课）先练逆入、落下、聚锋、再压下这套严谨动作，熟练后再接触。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -128,6 +135,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:笔画越简单的字越不好写",
       "title": "笔画越少的字越难写",
+      "font": "楷书",
       "detail": "老师在本节结尾总结：笔画越简单的字越不好写，一是要掌握用笔动作，二是要在起收笔时找到「绕动」的感觉。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -145,6 +153,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:行笔要有摩擦感不能轻飘",
       "title": "行笔要有摩擦力，不能轻飘飘地划过去",
+      "font": "楷书",
       "detail": "PPT 行笔要领里的「涩行」「中锋勒紧」被老师展开解释：行笔过程中必须感觉到毛笔压住纸面的摩擦力，轻飘飘划过去就是「描出来的字儿」。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -162,6 +171,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:同一字内重复笔画不要写得雷同",
       "title": "同一个字里重复出现的笔画不要写成一个样子",
+      "font": "楷书",
       "detail": "写三字的第二个横时提醒：要和第一个横在用笔上表现出区别，否则两个一样的横会显得非常均匀、雷同；同样的道理也适用于别的字。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -179,6 +189,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:笔断意连",
       "title": "楷书要当行书写：笔断意连",
+      "font": "楷书",
       "detail": "写字时要表现笔画之间的连带关系（笔断意连）。单个笔画的起行收在纸面上是断开的，但背后要有连贯的动作衔接；古人执笔矮、写字快，不会一笔一画地刻板书写，后人学字时容易从一板一眼的教条式笔法入手，反而丢掉这种连贯。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -197,6 +208,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:沉着痛快",
       "title": "沉着痛快：书法之妙道",
+      "font": "楷书",
       "detail": "「书之妙道也，沉着痛快」。沉着而不痛快则肥浊而蕴不足（笔画肉、臃肿、没有韵味神韵）；痛快而不沉着则潦草而法度荡然（只求爽快，笔法荡然无存）。两点偏向任何一边都会出问题，要把两者融合、融会贯通，作品才能称得上妙品。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -215,6 +227,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:学楷书就是学法度",
       "title": "学楷书就是在学法度",
+      "font": "楷书",
       "detail": "江湖体一类只求痛快的写法没有笔法、沉着不下来，结果潦草且没有法度；唐朝尚法，学楷书的严谨笔法就是在学法度。写字时应该经常自问有没有注意到这些用笔动作、沉着性与痛快。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -232,6 +245,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:落笔形态优先于逆入方向",
       "title": "逆入的方向不重要，重要的是落下这一笔的形态",
+      "font": "楷书",
       "detail": "同一个笔画可以有很多种逆入方式：可以往上去提，也可以直接按下去。逆入方向只是个小细节，写多了就知道它并不重要；真正关键的是把落下这一笔的角度搞清楚，把形态做饱满、做厚重。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -249,6 +263,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:按笔画形态反推动作",
       "title": "看笔画形态，反推该用什么动作",
+      "font": "楷书",
       "detail": "同一个笔画的写法不是一成不变，可以有数十种办法写出来。应该根据看到的笔画形态去判断它该用什么动作，而不是先固定一个动作再去找字。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -266,6 +281,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:学书要全方面研究",
       "title": "只抓一个特点会写偏，要全方面研究",
+      "font": "楷书",
       "detail": "很多人喜欢颜真卿，但只抓住他一个特点（比如肥美），写着写着就油滑、偏颇了。学一件作品要全方面去研究。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -283,6 +299,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:手感靠数量练出来",
       "title": "手感是靠数量和时间堆出来的",
+      "font": "楷书",
       "detail": "老师示范的速度很慢，只是为了让人看清笔尖动作，不要求严格照搬速度。动作熟练之后会自然缩小，手感要靠多写、靠时间。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -300,6 +317,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:速度与力度配合",
       "title": "由重到轻则由慢到快；快而不轻浮，慢而不自重",
+      "font": "楷书",
       "detail": "撇画由粗到细，力度由重到轻；重的地方自然要慢，轻（细）的地方自然要稍快。整体原则是运笔速度可快可慢，但要快而不轻浮、慢而不自重。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -318,6 +336,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:临帖取法不照搬示意图",
       "title": "看字帖要灵活，不能照搬教材示意图",
+      "font": "楷书",
       "detail": "教材会把笔画内部的运笔方向画得特别清楚，但这种图示偏于死板，它只是提示怎么运笔、有哪些方向。看这些东西时一定要灵活思考，不能看到什么就直接拿来用，否则摆脱不了固有思维。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -336,6 +355,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:学书是漫长的过程，要中庸",
       "title": "学书是漫长的过程，不可急躁",
+      "font": "楷书",
       "detail": "想把沉着与痛快都做到并不容易，觉得难很正常；只学到一点皮毛要靠长期深入才能对古人所追求的东西形成自己的见解。书法与哲学及其它艺术理论完全脱不开关系，学习过程要中庸。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -353,6 +373,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:不要给自己定太高的要求",
       "title": "不要给自己定太高的要求",
+      "font": "楷书",
       "detail": "眼力提升之后手跟不上是必然阶段（眼高手低），不要拿老师的标准要求自己，也不要强求写得和字帖一模一样；定得太高容易挫败、太累，应当在力所能及的目标上尽量靠近",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -369,6 +390,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:重在理解不要刻意模仿",
       "title": "重在理解，不要刻意模仿",
+      "font": "楷书",
       "detail": "笔画细节拆开看很繁杂，但实际书写靠自然姿态感、手势与连贯性；刻意去追求某一点反而做不出来，也不要把老师的个人理解当教条；书法无法墨守成规，必须掺入自由的理解",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -385,6 +407,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:临摹要临摹结合",
       "title": "临与摹要结合着用",
+      "font": "楷书",
       "detail": "临是看着字帖写，摹是双钩填墨/描红；单用描红容易照本宣科、呆板，要临摹结合才能既学得笔意又写得准；摹是最笨但最简单的方法；技术到一定程度无法再精进，是因为理论不足，要回去看书，两边触类旁通，最终从形似过渡到神似",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -399,6 +422,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:要学会欣赏自己的字",
       "title": "一定要学会欣赏自己的字",
+      "font": "楷书",
       "detail": "每天写毛笔字，如果只觉得自己写得丑，会愁得慌、没有动力；要有成就感，要看到自己笔画写得真不错才能继续写下去",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -415,6 +439,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:不要过度依赖捻管等外界技巧",
       "title": "不要过度依赖捻管等外界技巧",
+      "font": "楷书",
       "detail": "捺角处用捻管写起来更容易，但依赖多了反而会感觉控制不了毛笔、控制不了笔锋的弹性；还是要靠自身的手腕动作",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -429,6 +454,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:手腕要动不能只靠手指",
       "title": "手腕要动，不能只用手指",
+      "font": "楷书",
       "detail": "写弧度、角锋这类转折时不能靠手指去带，否则要么侧锋要么写错；手腕要跟着往左、往下走，甚至会有一点翻的感觉；不光是手指在动，手腕一定要配合，所以要悬腕",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -443,6 +469,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:提按是首要动作",
       "title": "提按是写字的首要动作",
+      "font": "楷书",
       "detail": "老师把提按列为写字的首要动作：笔画粗细的变化靠笔锋的提起与按下实现，点画要先把笔尖摁下去再一边提一边往下走。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -460,6 +487,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:力度来自全身",
       "title": "力度来自全身而不是某一个部位",
+      "font": "楷书",
       "detail": "引董其昌《画禅室随笔》「乃如大力人通身之力」：写一笔的力度要从全身汇聚起来——站着写字时从脚底、腿、身子、肩、臂、肘、腕一直到手指，把劲输送到毛笔上，不能只靠某一个地方发力。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -477,6 +505,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:求劲靠巧不靠蛮力",
       "title": "求劲靠巧劲，不靠蛮力",
+      "font": "楷书",
       "detail": "引董其昌《画禅室随笔》「盖用笔之难，难在求劲」（字幕 ASR 作「求尽」「囚禁」）：总觉得使劲写就行的想法是错的，求劲绝对不能只靠蛮力，它需要的是巧劲儿；求劲的难处正在于全身力量的汇聚。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -494,6 +523,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:发笔处要提得起笔",
       "title": "发笔处要提得起笔，笔不能瘫卧在纸上",
+      "font": "楷书",
       "detail": "引董其昌「发笔处便要提得笔起，不使其字软弱，乃千古不传语」（字幕 ASR 作「不使其字眼乃是千古不传语」）：写字全程要完全控制住毛笔并把它提起来，让笔毫能随意识上下左右自如运行；不能像仰卧瘫坐在纸上那样，手指使了大力、笔毫却一点劲都没有。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -512,6 +542,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:涩行靠力度与速度配合",
       "title": "涩行靠力度与速度的配合，不能用蛮力",
+      "font": "楷书",
       "detail": "涩行呈现的沙沙颗粒感来自笔毫与纸面的摩擦，必须靠力度配合速度走出来；力度过猛成了蛮力，线条就会变得非常僵硬、非常肿。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -529,6 +560,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:拿笔不能僵硬",
       "title": "拿笔不能僵硬，笔杆方向本来就会变",
+      "font": "楷书",
       "detail": "毛笔不可能永远保持一个直度不倾斜，笔杆方向随手势的长短与方向不断变化；所以拿笔不要太僵硬，也不要过分竖直，稍微自然地侧一点就行，笔头过度倾斜一下笔就是侧锋。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -546,6 +578,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:练字贵在眼力事不过三",
       "title": "练字贵在眼力，不必死磕次数",
+      "font": "楷书",
       "detail": "老师说自己用过「事不过三」的方法：一个字写了三遍还像，那就别写了，因为再写也不会像；要写的注意点始终就那么几个，捡了这个丢了那个，所以更多的是培养眼力。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -563,6 +596,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:临摹要看细字帖",
       "title": "临摹要看得够细，不是一味模仿",
+      "font": "楷书",
       "detail": "写字不准往往不是不会写，而是看字帖看得不够细；抠细节的目的不是死记硬背地模仿，而是去理解颜真卿写字时用了什么方法、对结构是怎么理解的。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -580,6 +614,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:练眼睛比练手更要紧",
       "title": "细微变化是观察对象：先练眼睛，再练手",
+      "font": "楷书",
       "detail": "老师把「笔画细微变化」定性为经验之谈，落点在观察能力而非手上功夫：写不出来没关系，能看出来就行；他反复强调写字与欣赏作品时观察都是必备的。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -597,6 +632,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:写字过程要连贯不要逐笔停顿确认",
       "title": "「不要看一笔写一笔」的真实含义：写完一笔就停下来核对会让书写变硬",
+      "font": "楷书",
       "detail": "老师澄清了「不要看一笔写一笔」：那是指写完一笔停下来再看、再写下一笔；这样写出来的过程很硬、没有任何连贯性，只是单纯在描写一个笔画。他并不要求初学者一次看住整字，先做到看一笔写一笔即可。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -614,6 +650,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:临帖时字帖要放近",
       "title": "临帖效率：字帖放近，眼睛不用来回跑",
+      "font": "楷书",
       "detail": "老师给出自己的临帖习惯：把字帖直接放在手边挨着写，眼睛左右转动随时看随时写；放远的话眼睛要来回拉，既慢又影响观察。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -630,6 +667,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:临摹要认真不可随意",
       "title": "临摹的态度：认真临，不要随意临",
+      "font": "楷书",
       "detail": "老师在讲庚字时插入一句态度上的话：不要说随意临，临摹的时候要认真；并强调自己讲的都是自己实践过的经验总结。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -647,6 +685,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:背离帖要严格自查",
       "title": "背离（背帖）是快速进步的方法，但必须严格检查、死改",
+      "font": "楷书",
       "detail": "老师提出「背离」也是快速进步的方法，但前提是对自己严格：背完之后必须检查，不像的地方接着死改、硬改，必须抠像才行；他同时说明这是最直接的方法。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -663,6 +702,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:攻克最难的一关其余自通",
       "title": "书体相通：把最难的跨过，其余的都会变简单",
+      "font": "楷书",
       "detail": "老师认为本节的字（竖折示范字）是相对难写的，但他解释写字难的原因在于结构难而非笔画本身；并由此得出：把最难的跨过，后面的书体都会觉得变简单，楷书、隶书、行书之间道理相通，楷书行书练扎实了，楷书隶书会水涨船高。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -680,6 +720,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:用笔动作要在行进中完成",
       "title": "所有用笔动作都要边行进边做，不能停在原地硬调",
+      "font": "楷书",
       "detail": "老师在讲调锋时给出一条贯穿性的原则：调锋等动作必须边行进边去做，停在那里反复调会出很多问题；转折处尤其不能停住硬调。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -697,6 +738,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:势态是力量趋向",
       "title": "势是力量的趋向，势态出现就不能随便停住",
+      "font": "楷书",
       "detail": "老师给「势」下的定义：它就是一个力量趋向，字里所有方向感都是力量的趋向；引蔡邕的话「势来不可止，势去不可遏」——势态一旦出现就不能随便停住，为迁就格子收势，字形会很奇怪、势态放在那里就不合理。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -714,6 +756,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:势态要做足",
       "title": "有了势态就给它做足，不要为了格子收势",
+      "font": "楷书",
       "detail": "笔画该出格就出格，把势态做足、送到位；为格子把笔画收回去，会破坏字形的合理性。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -730,6 +773,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:万变不离其宗",
       "title": "动作就那么几个，靠力度、方向、形态的不同配合",
+      "font": "楷书",
       "detail": "钩画的动作来回就是提按、转锋、绕动那几个，只是配不同的力度、方向、形态；每一种勾的用笔动作都不一样，有意识地丰富动作，用笔才会丰富，不能千篇一律地只写一种。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -747,6 +791,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:写字要动脑",
       "title": "每一小段都要问自己做了什么、为什么做",
+      "font": "楷书",
       "detail": "写字的过程很需要动脑子：每一小段动作都要理解它做了什么、为什么这么做，再结合自己实践的体验；光硬练是「分不透、看不透」，写多少遍都没有感觉、没有进步。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -763,6 +808,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:不要学老师的字",
       "title": "不要去学一个老师的字，要从古人身上找东西",
+      "font": "楷书",
       "detail": "用笔是很个人的东西；老师转述吴老师的话「你不要学我的字」。学现代书法家只是学了人家已经吸收过的东西，会学得不伦不类；有名书法家都是经过正统路子出来的。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -779,6 +825,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:外拓是边缘张力往外胀开",
       "title": "外拓不是在外面画弧线，是边缘张力往外胀开",
+      "font": "楷书",
       "detail": "老师反复讲外拓的含义：线条的张力是往外撑、往外胀开、打出来的，不是在外面画一条弧线；反过来就是收紧。漏锋起笔的提按动作会把线条上缘收进去、形成凹陷，颜体几乎不用这种线。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -796,6 +843,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:辅助格只是辅助",
       "title": "辅助格只是辅助，字是主体",
+      "font": "楷书",
       "detail": "田字格、米字格只是帮助定位的，不是限定；某一笔没占准格位就不要管它，要回头看写完的字形，把笔画之间的比例关系做准，不能被辅助线支配。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -812,6 +860,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:笔画的多样性",
       "title": "每个字都不一样，所以耐看",
+      "font": "楷书",
       "detail": "老师解释颜真卿的字为什么耐看：因为他每个字都不一样；要做到这一点就得有意识地丰富每个笔画的用笔动作，而不是无意识地重复一种写法。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -828,6 +877,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:调锋动作是为后续行笔做准备",
       "title": "调锋动作是为后续行笔做的准备，每个动作都有目的",
+      "font": "楷书",
       "detail": "老师把调锋（字幕 ASR 作「调峰」）定位为「铺垫和准备」：动作看起来多不是毛病，每个动作都有目的性；不理解动作的含义，就会把调锋写成一个多余的动作。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -845,6 +895,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:调锋幅度不必大能顺承势态即可",
       "title": "调锋幅度不必做大，能把势态顺承过来就行",
+      "font": "楷书",
       "detail": "老师明确说调锋不必追求动作幅度：绕一圈再往下走是演示时的夸张，实际书写只要能把动作从正常运行的势态里顺承过来就可以；这套「压—提—再压」是经验上的总结，不是什么标准动作。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -862,6 +913,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:中锋为主侧锋为辅",
       "title": "落笔用中锋为主，侧锋只作辅助",
+      "font": "楷书",
       "detail": "老师反对用侧锋偏抹过去写线条：应当是「中稍微有一点侧」的形态去向下去走，走出扎实的线条；侧锋落笔容易出现偏锋，但偏锋本身不是错，关键在质量，不能让下侧面整块虚空。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -880,6 +932,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:分段只是观察方法书写必须顺承",
       "title": "分段只是观察方法，真正写的时候必须一气顺承",
+      "font": "楷书",
       "detail": "讲长笔画（卧钩、竖撇）时老师把笔画分段讲，方便理解弧度和粗细；但明确警告：分段只是观察方法，真正写的时候不能停一下再停一下，分段之间必须顺承起来，否则完全违背正常书写状态。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -898,6 +951,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:先有块面意识再分解字形",
       "title": "理解结构要先有块面意识，再把字分解开看",
+      "font": "楷书",
       "detail": "老师给出的结构学习法：先培养「块面意识」和结构上的平面感，再把字分解成一块一块去看；这种接近几何图形的分析方式对理解结构很简单。学习方式不必太较真，只要对你有益、又不违背基本原则就可以用。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -915,6 +969,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:临摹要严谨并还原自己的书写状态",
       "title": "临摹要严谨，尽量还原自己真实的书写状态",
+      "font": "楷书",
       "detail": "老师讲卧钩时放慢速度、逐段还原自己的书写状态，理由是「临摹必须得去严谨一点」；同时提出一开始对自己严格一点（虽然有点吹毛求疵），否则时间久了细节就被忽略，最后连眼力也退化。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -932,6 +987,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:笔法有无限生发的可能",
       "title": "笔法没有尽头，它有无限的生发可能",
+      "font": "楷书",
       "detail": "老师用颜真卿碑文里同一个字四个点各不相同、王羲之《兰亭序》里二十一个「之」字写法完全不一样来说明：这些不是可以背下来的「技巧」，而是自然表现出来的笔法状态，达到「人手合一」的境界；正因如此，书写才有无限种可能，你不知道未来会写成什么样子。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -949,6 +1005,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:临摹要选吸收什么并保留自己的作品",
       "title": "临摹要明确选什么吸收，并保留自己的旧作",
+      "font": "楷书",
       "detail": "写字时老师反复提醒：不要把字帖里所有的弧度都搬过来（有的横带弧、有的不带，才形成一比九的反差），要有选择地吸收；同时建议学书法的人保留自己的旧作品——可以看进步在哪，也常有「写得不错」的惊喜，不要嫌丑全扔掉。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -966,6 +1023,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:字越复杂不一定越难写",
       "title": "字越复杂不一定越难写，难的是外框的弧度",
+      "font": "楷书",
       "detail": "学得越久越会发现字越复杂反而好写；本节三个钩画所在的字（仙、成、風）之所以觉得难，不是因为笔画多，而是風字外框的弧度不好把握。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -983,6 +1041,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:钩画简单在提按直白",
       "title": "钩画之所以简单，是因为提按动作直白",
+      "font": "楷书",
       "detail": "出钩不要往外画圈，也不要往回走再包上去转圈；提按就是上下的动作，直接上下提就可以了。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -1001,6 +1060,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:用笔与结构是两条训练线",
       "title": "用笔与结构是两条不同的训练线：一个靠感受，一个靠空间几何思维",
+      "font": "楷书",
       "detail": "用笔好的人可以自学而成，结构好的人仔细观察就能照搬；两者都要训练，结构属于几何图形的思维，需要专门练。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1019,6 +1079,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:空间意识靠长时间训练",
       "title": "内白与空间的意识写的时候看不见，只能靠长时间训练",
+      "font": "楷书",
       "detail": "空间就是这些地方的大小处理；临帖时照着写出来就行，但写的过程中视线一定被笔画带走，写完之后再看才能发现一点；没有这个意识就根本发现不了。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1038,6 +1099,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:视觉会欺骗人",
       "title": "眼睛会骗人：不要把感觉到的夸张幅度写进字里",
+      "font": "楷书",
       "detail": "范字上小尖没有延长、视觉上第二个横好像长一点、弯钩的腿好像很长——这些多来自残破造成的错觉；不要把主观感觉到的夸张表现出来，眼睛有时候会蒙蔽你。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1056,6 +1118,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:收放关系不只在撇捺",
       "title": "收放关系不只在撇捺，弯钩类笔画同样在用",
+      "font": "楷书",
       "detail": "汉字里不光是撇捺有伸展关系、收放关系；仙字里弯钩类的笔画也用：左边一个收、右边一个放，收放让弯钩显得饱满厚重，张力从弧度里出来。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1074,6 +1137,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:弧度的张力来自细",
       "title": "弧度要有张力，像一根被掰弯的钢筋",
+      "font": "楷书",
       "detail": "弧度要挺健，像被掰弯的钢筋；钢筋太粗就掰不动，细一点的那才有张力，张力慢慢在往外胀开、往外顶出去。这种弧度一定要诠释出来。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1092,6 +1156,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:多角度看字",
       "title": "看字要多换角度：正着看、斜着看、离远看、离近看",
+      "font": "楷书",
       "detail": "同一个字换个角度就能看出横画的长短与斜度关系；离远看更容易发现比例问题。写完一页后放远一点、换一个角度再看。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -1109,6 +1174,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:写字不能分心",
       "title": "写字不能分心",
+      "font": "楷书",
       "detail": "写字不能分心，一分心就容易失误。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -1126,6 +1192,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:握笔要放松笔杆不能太低",
       "title": "握笔要放松，拿笔的高度不要太低",
+      "font": "楷书",
       "detail": "手上的劲正常状态应该是放松的；握太紧写久了大拇指疼。拿毛笔的高低不要太低，稍微高一点可以，但高度也得把握好，不能高得太厉害。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1144,6 +1211,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:下沉是为了平衡",
       "title": "斜钩的下沉是为了平衡，不能往右偏",
+      "font": "楷书",
       "detail": "所有斜钩都有下沉的感觉，为了保证平衡性一定得往下去走；往右边一偏整个字就飞上去了，所以还是以正为主。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -1162,6 +1230,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:跟固有思维抗争",
       "title": "要跟自己的固有思维抗争：下沉的时候看左半边",
+      "font": "楷书",
       "detail": "斜钩下半段的下沉容易被惯性带偏、沉不下去；要跟自己的固有思维抗争，往下沉的时候看左半边，看与斜钩直接相连的那块空间。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1180,6 +1249,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:落款与正文气息贯通",
       "title": "落款与正文气息贯通",
+      "font": "楷书",
       "detail": "落款不是独立的一块。八大山人、王铎的作品里，落款在空间、笔法、气息上都与正文契合，看过去完全分不开它是单独成立的。初学写落款之所以产生强烈的「分离感」，是因为字形写法与整张章法都还没处理好，缺少章法上的统一性。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1198,6 +1268,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:长款穷款由作品形式决定",
       "title": "落款形式（长款／穷款）由作品形式决定",
+      "font": "楷书",
       "detail": "落款内容分长款与穷款两种。长款包含正文内容的出处、赠送对象、创作缘由、创作的时间、姓名字号等；穷款最省，可以只落自己的名字。用哪一种由作品形式决定——作品写得大、留白多，就得用长款把空间填起来。初学用穷款就完全足够。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1215,6 +1286,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:落款内容自由但不可写错",
       "title": "落款内容形式自由，但年份等规定内容不可写错",
+      "font": "楷书",
       "detail": "落款的要求和形式都非常自由，没有特别严格的要求；唯一的底线是不把年份或一些规定的内容写错。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -1232,6 +1304,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:落款用小一号笔",
       "title": "初练落款用小一号笔，避免失控",
+      "font": "楷书",
       "detail": "开始练落款的时候，正文和落款要用两个笔写：落款用小一号的小楷笔，这样不会让自己失控、把落款写得特别老大个儿。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -1250,6 +1323,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:落款位置不可高于或齐平正文",
       "title": "落款位置：不可高于正文，也不可与正文齐平",
+      "font": "楷书",
       "detail": "落款的位置不要高于正文的字，太高不好看；与正文齐平也不是特别好看。实在不行就顶到头、站到底。两行落款时卡在中间写比较合适。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1268,6 +1342,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:印章宜小且位置宜近",
       "title": "印章宜小，且不宜离字句太远、不宜过低",
+      "font": "楷书",
       "detail": "落款最后盖自己的一方印章，印章要盖小一点的；盖章时离字句不宜过远，也不宜落得太低。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1286,6 +1361,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:作品书写要控制字的大小",
       "title": "整张作品书写要控制字的大小与章法完整",
+      "font": "楷书",
       "detail": "单个练字时注意不到字的大小处理，写整张作品时必须控制字的大小，协调好章法上的完整性。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1303,6 +1379,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:书写是半创作状态须灵活调整",
       "title": "整张书写是半创作状态，要灵活、及时调整",
+      "font": "楷书",
       "detail": "写整张作品时如果发现两个字没找准重心点，或者出现小失误，一定要及时调整；因为是半创作状态，就不要写死，一定要灵活。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1320,6 +1397,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:复杂笔画字不扩头而加重笔画",
       "title": "与复杂笔画字搭配：不扩头，重笔画，左右求对称",
+      "font": "楷书",
       "detail": "像「正」这样笔画简单的字，与「风」这类复杂笔画的字搭配时，不要扩大它的个头，而要通过加重笔画的粗细来突出，左右去找对称关系。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1338,6 +1416,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:不会行书就把落款当楷书写",
       "title": "不会写行书，就把落款当楷书写：先写正字形结构，再逐步加用笔",
+      "font": "楷书",
       "detail": "写落款时先做正——把一串名字连起来写正，不要写得歪扭七八。先一笔一画写楷书，不必顾虑笔法，先把字形结构写出来，再一步步加用笔。整体只要求把作品的完整性表达出来，不要求太高。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1356,6 +1435,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:落款繁简随正文",
       "title": "落款的繁简须与正文一致",
+      "font": "楷书",
       "detail": "正文内容用繁体，落款就接着用繁体，不能落简体。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -1373,6 +1453,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:每个字不同要表现丰富用笔",
       "title": "同一个笔画在不同字里形态不同，要表现出更丰富的用笔",
+      "font": "楷书",
       "detail": "每个字的形态都不一样，尽量表现出更丰富的用笔，而不是套用同一套动作。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -1390,6 +1471,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:不要为角锋刻意",
       "title": "不要刻意追求角锋",
+      "font": "楷书",
       "detail": "笔锋自然顺下来会出现一些角锋的状态，但不要为了追求角锋去搅动笔锋，那太刻意、浪费时间；要慢慢感受自己能否控制住笔锋。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1408,6 +1490,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:笔画粗细变化不可过分",
       "title": "笔画粗细变化不可过分，否则失掉清瘦形态",
+      "font": "楷书",
       "detail": "笔画中间的提按变化不要做得过分，一旦做成圆包的体态，这根笔画就没有了原本清瘦的形态。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1426,6 +1509,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:意在笔前",
       "title": "意在笔前：动笔前先把字安排好",
+      "font": "楷书",
       "detail": "本节理论核心。王羲之《题笔阵图后》那句话被老师提炼为「意在笔前」：写任何一个字之前都要先把字形、位置、大小、方向考虑安排好，然后让气息贯通、一气呵成。老师明说这是「最重要的」，任何写书法的人都离不开它。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -1446,6 +1530,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:写字前先想好再动笔",
       "title": "写字之前必须先想好：慢下来，让意志走在前面",
+      "font": "楷书",
       "detail": "写快写慢都不是好坏标准，判断标准是动笔前有没有思考过程。写得太快说明眼睛和脑子跟不上手，手只是惯性；「慢下来」就是先让意志在前头考虑好了再写字，这对掌握用笔和结构都有帮助。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -1463,6 +1548,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:凝神静思预想字形",
       "title": "凝神静思：动笔前预想字形的俯仰、曲直与方向",
+      "font": "楷书",
       "detail": "老师逐句翻译《题笔阵图后》：先干研墨，然后凝神静思去考虑字形。字形的「大小、偃仰」说的是俯仰这种姿态感；「平直、振动」说的是具体到笔画和字上的曲直、方向这类变化；然后令筋脉相连、意在笔前，然后作字。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -1480,6 +1566,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:结构与用笔分两遍练",
       "title": "先练结构、后加用笔：两遍法",
+      "font": "楷书",
       "detail": "老师给的方法：第一遍重点放在结构上，写不准就一遍遍找错、一遍遍改；结构在心里过关了，第二遍再加用笔——加笔画形态、加粗细变化。方向在结构阶段就得先扣准。可以拿尺子量一量、比划比划，先把结构写准。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -1497,6 +1584,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:谋篇布局",
       "title": "笔阵图如排兵布阵：写前先谋篇布局",
+      "font": "楷书",
       "detail": "老师把王羲之《笔阵图》的思路解释为排兵打仗：把写下的字当作排兵布阵一样安排，要有谋略。以后写结构，一定要提前安排好谋篇布局。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -1514,6 +1602,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:临摹保持敬畏之心",
       "title": "临摹保持敬畏之心",
+      "font": "楷书",
       "detail": "结构比笔画难，容易松懈；老师认为一直对临摹保持敬畏之心，学习会更认真、关注的点也会更细。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -1531,6 +1620,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:练提按要找参照物",
       "title": "练提按要找参照物：拿字练、去临帖",
+      "font": "楷书",
       "detail": "自己拿张纸空练「提起来压下去」没有参照物，不知道练到了什么程度。老师建议多找粗细变化多的字来练（比如周字这类笔画粗、点画要用笔尖去走的字），最有效的仍然是去临帖——练着练着会烦、也会找不着方向。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -1548,6 +1638,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:先结构后用笔",
       "title": "先结构后用笔",
+      "font": "楷书",
       "detail": "讲解与练习的固定顺序：先把字的结构分析清楚、记清楚、知道它为什么这样安排，然后才把用笔加上去。老师明说这一节的顺序和上节课一样。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1566,6 +1657,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:落笔后用压力铺开不甩笔",
       "title": "落下后用压力铺开锋毫，不是甩笔甩出尖头",
+      "font": "楷书",
       "detail": "想要由粗到细的线条，靠的是落笔之后用压力把笔锋铺开，再借纸的渗墨把墨融进纸里；不是靠甩笔、也不是刻意凹出弧度去走。理解时不必把每一步都做到位，那样太琐碎，只要尖能出来就可以。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1580,6 +1672,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:点画必须藏锋起笔",
       "title": "点画要藏锋起笔，提按动作藏在里头",
+      "font": "楷书",
       "detail": "点画要藏锋去走，否则写不出由粗到细的变化。点很小，所有提按动作都聚在这个点上，所以笔锋状态不可能全部聚在一起、也不可能全部歪在一起，没有那么绝对；要求把动作藏在里头，往外出去才干净利落、不少余。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1594,6 +1687,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:毛刺来自动作不到位",
       "title": "笔画出毛刺不是压得不够重，是动作没做到位",
+      "font": "楷书",
       "detail": "笔画末端出现毛刺、像有个「屁股」，是用笔动作不到位造成的：不是压得多重的问题，而是要把动作做到位、压得沉稳；关键在笔肚要转过来带着笔走，只转笔的前头一点就很容易出毛刺。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1608,6 +1702,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:推笔走不是拖笔走",
       "title": "推着毛笔走，不是手在后头拖着走",
+      "font": "楷书",
       "detail": "写字时要同时感受到压力和自己是在推着毛笔走；手在后头拖着笔走，线容易出各种问题、压不住。不用使多大力，平着走过去、利用顶过去的力就可以轻松写出厚线条；写横线也一样要找到往上顶的感觉。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1622,6 +1717,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:写碑要结合墨迹看",
       "title": "写碑容易写呆，是因为照着字帖描",
+      "font": "楷书",
       "detail": "碑刻的东西都很硬，用毛笔写一定有灵活的地方。写碑之所以容易写呆，是因为照着字帖木木呆呆地描下来；要结合着墨迹去看。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1636,6 +1732,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:多看不同拓本多比较",
       "title": "多看不同拓本、多做比较",
+      "font": "楷书",
       "detail": "同一块碑有不同拓本，整体是一个模子、细节上略有不同；老师建议多看看其他不同种类的拓本，多去比较。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -1650,6 +1747,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:排叠要均匀但不平均雷同",
       "title": "横画多的字：排叠要均匀，但不能排得平均雷同、呆板",
+      "font": "楷书",
       "detail": "老师对「相叠／排叠」的要求是双面的：横与横之间要排列平均均匀、不可过宽过窄；但写出来不能太平均雷同、呆板。均匀是相对的，不是绝对的。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -1668,6 +1766,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:结构优先于用笔",
       "title": "这类字先抓结构，用笔细节放其次",
+      "font": "楷书",
       "detail": "老师两次说明：这类横画密集的字用笔要求更高，但本节课的重点不是用笔，而是先把结构掌握好；横线上的粗细变化或长短做清楚即可。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -1685,6 +1784,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:注意力放在字身上而不是辅助线",
       "title": "不用田字格时，注意力要放在字本身，不能跟着辅助线走",
+      "font": "楷书",
       "detail": "老师指出很多同学在田字格里写得歪歪扭扭，是因为一会儿跟自己的字形走、一会儿又跟辅助线走，注意力被分散、两边冲突。不用格子时更要主动观察。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -1702,6 +1802,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:以对比和冲突为准",
       "title": "书法与国画的术语相通，核心都是对比与冲突",
+      "font": "楷书",
       "detail": "讲留白时老师指出：这与国画画山画水的大面积留白、虚实对比是同一套方法，专业术语基本相通，含义都是一个——以对比、以冲突为准。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -1720,6 +1821,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:练字是练脑子",
       "title": "写长写扁都是因为手在前、脑子在后头",
+      "font": "楷书",
       "detail": "老师对「结构上的问题」的定位是练脑子而非练手：写长写扁都是因为手在前头、脑子在后头，把脑子提前即可；结构琐碎细碎，自己写时注意不到，需要集中注意力。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -1737,6 +1839,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:该快该慢练节奏感",
       "title": "速度不是全部加快，而是该快则快、该慢则慢，练的是节奏感",
+      "font": "楷书",
       "detail": "调锋动作已经熟练之后可以提速，不用每个动作都慢慢确认；行笔可稍快。每个字写起来都有节奏感：横、转折、勾、顿、提、甩，各有快慢。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -1754,6 +1857,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:放松才写得开",
       "title": "收笔自然圆收来自放松，不来自小心翼翼",
+      "font": "楷书",
       "detail": "写多了以后横画收笔变得很简单：自然一停，笔一动就出现圆收，不必刻意顿；有的同学每次都小心翼翼，怕写不好，要放松。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -1771,6 +1875,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:胆子大于手上功夫",
       "title": "粗细对比极其强烈的一路，练的是胆子不是手上功夫",
+      "font": "楷书",
       "detail": "讲第二个字的斜势与强烈粗细对比时老师直言：练的是胆子的，不是练字、也不是练手上功夫；小时候敢不敢这样写，老师一眼就能看出来。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -1788,6 +1893,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:一个字可适用多种规律",
       "title": "一个字可以同时适用多种结字规律",
+      "font": "楷书",
       "detail": "讲「等」字下部寸的竖钩时老师指出，它与前面写过的某种作用相同，并总结：一个字它可以适用多种的规律。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -1804,6 +1910,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:残破处有理有据即可",
       "title": "字帖残破处允许不同理解，只要有理有据、不破坏大结构",
+      "font": "楷书",
       "detail": "对残破、磨损导致的「连没连」问题，老师的态度是开放的：可以理解成破损，也可以理解成本来就没有；两种都行，喜欢哪种就选哪种，只要整体大结构不被破坏、把边框结构卡准。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -1822,6 +1929,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:势态即力量的趋向",
       "title": "势态 = 力量的趋向",
+      "font": "楷书",
       "detail": "老师把「势态」解释成「力量的趋向」，是一种有方向的力；写字时每一部分（撇、捺、竖钩的走向）都要体现这种趋向，最后靠两股力量交叉汇合来平衡。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -1842,6 +1950,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:结构分析四思路",
       "title": "分析一个字结构的四个思路",
+      "font": "楷书",
       "detail": "老师给出四个固定的分析角度：①从内往外（外形）；②看内部（内白／内结构）；③横向上看（把所有横画放在一起看）；④纵向上看（把所有纵向笔画放在一起看）。自学时也应按这四步走。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -1860,6 +1969,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:毛笔字是空间与几何",
       "title": "毛笔字说到底是空间与几何",
+      "font": "楷书",
       "detail": "老师把结构问题归结到空间与几何：学过美术的人对结构（空间、长短、形体）的把握明显更快；毛笔字本身也是一些空间关系，学书法的过程就是建立这种空间意识。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -1878,6 +1988,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:动静结合",
       "title": "字要有生动点：动静结合",
+      "font": "楷书",
       "detail": "老师以「安」为例讲动静结合：撇捺的开合角度是动，宝盖头和长横是静；方向的变化给字带来动态感与生动感。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -1896,6 +2007,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:动作到位再加速",
       "title": "先把动作做到位，再加速",
+      "font": "楷书",
       "detail": "老师写慢有两个原因：一是让大家看清用笔动作；二是让大家知道最开始要把动作做到位，然后再去加速。写得快但笔画没到位，是一种「比较的不到位的状态」。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -1913,6 +2025,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:分清快慢的性质",
       "title": "快慢要看性质：是没做到位，还是做到位之后才快",
+      "font": "楷书",
       "detail": "老师强调要分清两种「快」：一种是因为笔画没做到位，一种是在笔画做到位之后再快——性质不同。至于跟老师节奏还是自己的节奏，答案是按自己的，但前提是把动作做到位；老师的慢只是演示目的。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -1930,6 +2043,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:读帖是重要的学习手段",
       "title": "读帖是重要的学习手段",
+      "font": "楷书",
       "detail": "老师讲为什么人说要多读帖：你读的东西比你写到的还要多；看字时能在脑海里演示作者的笔法轨迹；只要能想象出来就能做出来。写着写烦了可以多去看看。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -1947,6 +2061,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:找参照点定角度",
       "title": "判断角度要靠参照点",
+      "font": "楷书",
       "detail": "把握不好某个笔画的方向感或角度时不要凭感觉，要去找参照点：横向的笔画把一个字里所有的横摆在一块儿看；纵向的看最明显的竖画（弦字左边的竖），把它当作捺画角度的参照点。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -1965,6 +2080,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:临摹要专一",
       "title": "临摹不能全面开花",
+      "font": "楷书",
       "detail": "课程的设置是让你领略各书体的风格、了解基本笔法，然后挑自己喜欢的；不能全面开花，容易乱。把一个帖的临摹功夫做扎实，每个帖练上几个月就能上手。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -1982,6 +2098,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:临摹的目的是交心",
       "title": "临摹的目的是和古人「交心」",
+      "font": "楷书",
       "detail": "老师说自己教学的重点是放在「怎么样去把这个结构以及用笔处理的更到位」「更像字帖一点儿」，理由是临摹的目的就是去交心——去和颜真卿交心。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -1999,6 +2116,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:对字帖要有敬畏心",
       "title": "对字帖要有敬畏心",
+      "font": "楷书",
       "detail": "临任何字帖都要有一点敬畏心——不要太过，但得有；对字帖有敬畏心，才会对它产生更深刻的一种理解。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2016,6 +2134,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:心手双畅",
       "title": "传世名品多是「心手双畅」",
+      "font": "楷书",
       "detail": "一般情况下我们看到的作品，更多是心手双畅的表现——心理状态和手合二为一，随手一挥就成一幅作品；这样的作品大多被流传为经典。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2033,6 +2152,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:笔画多的字反而好写",
       "title": "笔画多的字反倒比较好写",
+      "font": "楷书",
       "detail": "老师对同学说「笔画越多的字反倒比较好写，只要看好结构注意就行」；写多了之后能慢慢感觉到最基本的结构特点。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -2050,6 +2170,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:复杂字形不能急躁",
       "title": "复杂字形最忌急躁",
+      "font": "楷书",
       "detail": "处理复杂笔画时不能急躁，耐不下心来就容易乱——不光思维乱，写出来的状态也是乱的。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -2067,6 +2188,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:结构与用笔的难点要分开看",
       "title": "本节的难处在用笔，不在结构",
+      "font": "楷书",
       "detail": "观众普遍说「难」，老师拆开讲：难在笔画多、用笔不好掌握；但对于「单个结构上的特点」其实还是能够把握得到的。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -2084,6 +2206,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:交作业是为了让老师看到问题",
       "title": "交作业的目的是让老师看到问题",
+      "font": "楷书",
       "detail": "老师明确说明：交作业不是为了让老师看到你写得多好，而是更多应该让老师看到你的问题在哪里。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2101,6 +2224,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:人书俱老",
       "title": "人书俱老：书法跟着人一起长",
+      "font": "楷书",
       "detail": "观众问「人书俱老」是什么意思，老师答：书法一定是跟着人一起在增长、在进步的。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2117,6 +2241,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:写字要放松",
       "title": "写字要放松，先放开心绪再动笔",
+      "font": "楷书",
       "detail": "写字前先把心绪放开，不要带着情绪、心事、忧虑或不自信的状态去写；带着压力应付事去写，即便用最顶级的笔与纸也写不好。本节课把它当作主要目的反复叮嘱。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2134,6 +2259,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:笔画之间是力量传递与配合",
       "title": "把字当作笔画之间的力量传递与相互配合",
+      "font": "楷书",
       "detail": "不要把字当成一个个孤立笔画去写，而要把它看作笔画之间力量的传递与配合；这样写好字就不会有额外压力。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -2152,6 +2278,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:核心是外形与结构",
       "title": "写字的核心是外形与结构，不是单笔的漂亮",
+      "font": "楷书",
       "detail": "老师反复说贯穿始终的是外形或者说结构；只要把结构里的趣味事态感觉到，写起来就不会觉得压力太大。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -2170,6 +2297,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:临摹要主动找方法对比",
       "title": "临摹要主动找方法与原帖对比",
+      "font": "楷书",
       "detail": "写完不要只凭手感判断，要主动找方法对比：把原帖和自己写的各打印一张挂到墙上，离远一点看，差距会非常清楚。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2188,6 +2316,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:书法水平与逻辑思维相关",
       "title": "书法好的人逻辑思维一定强",
+      "font": "楷书",
       "detail": "写毛笔字好的人，其逻辑思维一定强，对空间、块面、黑白关系的理解能力很高；感性性情之外还含非常严密、缜密的逻辑思维。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2206,6 +2335,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:全神贯注与随手挥各有利弊",
       "title": "全神贯注与随手挥各有利弊",
+      "font": "楷书",
       "detail": "全神贯注写出来的字线条与用笔更严谨，但容易因提心吊胆而状态僵；随手挥自然感好，但有的地方经不起推敲。两者状态不同、各有优缺点。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2224,6 +2354,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:写字姿势要坐正",
       "title": "写字姿势必须坐正、坐直、坐高",
+      "font": "楷书",
       "detail": "弓腰驼背会伤眼，而且离得越近越看不清字的全貌；坐直、坐高一点，视线能俯视字帖，观察到的字才最准确。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2242,6 +2373,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:笔顺没有对错",
       "title": "笔顺没有对错，只有习惯与临摹需要",
+      "font": "楷书",
       "detail": "同一个字（门）可以先写外框再写里边的小笔画，也可以先写里边再往上写；笔顺本身没有对错。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -2259,6 +2391,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:结构先立框架感",
       "title": "写字先立框架感",
+      "font": "楷书",
       "detail": "每节课开头都要强调「框架感」：先把字的外框撑开（框内匀称、框架方整），再谈笔画内部的取势。字形拆分出来的单个部件同样要有框架感。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -2276,6 +2409,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:写黑的同时也在写白",
       "title": "写黑的同时也在写白",
+      "font": "楷书",
       "detail": "空间意识训练：笔画之外被留出来的「白」同样是写出来的，练字要练「白」的形状——比如列字撇画与中线夹出的那块三角白，就是需要专门去看、去量的一块空间。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -2293,6 +2427,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:横纵两向对照观察法",
       "title": "横向纵向两向对照着看",
+      "font": "楷书",
       "detail": "观察结构的两套办法：纵向比高度（谁高谁矮、差多少），横向比关系（谁长谁短、谁让谁）。横向没有现成横线时，就人为造一条参考线（把若干笔画的停点连起来当横线看）。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -2310,6 +2445,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:欧体与颜体的结构差异",
       "title": "欧体上下拉长内敛，颜体外拓中宫宽绰",
+      "font": "楷书",
       "detail": "老师临末对比两种书体的结构取向：欧体的特点是上下拉长（内部内敛，字幕作「内页」）；颜体的特点是外拓、中宫，处理得比较宽绰。本节所讲的倚侧取势正建立在颜体这种宽绰、外拓的框架上。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -2329,6 +2465,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:先理解结构再动手练",
       "title": "先在纸上把结构想明白，再动手写",
+      "font": "楷书",
       "detail": "老师反复用「画结构」的方式讲：先在纸上画出外框与笔画走向，把位置关系定死，再去落实用笔；并且认为先理解结构之后，写起来会明显变轻松。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -2346,6 +2483,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:不要妄自菲薄",
       "title": "写字别老否定自己",
+      "font": "楷书",
       "detail": "写字观层面的心态话：永远别把「我不行」挂在嘴上，那会毁掉自信与动力；多肯定自己，或者让同伴来夸你，动力比挨批评来得更让人开心。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2363,6 +2501,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:结构理性用笔感性",
       "title": "结构偏理性，用笔偏感性",
+      "font": "楷书",
       "detail": "结构偏理性一些，用笔偏感性一些；书法要抒情，就得把这两类东西融合起来，只靠感性撑不起结构。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2381,6 +2520,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:不要跟毛笔较劲",
       "title": "不要跟毛笔较劲，要跟自己较劲",
+      "font": "楷书",
       "detail": "多数人练不下去，是因为在跟手中的毛笔较劲；真正要较劲的对象是自己。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2399,6 +2539,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:先巩固方法再求数量",
       "title": "先巩固方法，再求数量",
+      "font": "楷书",
       "detail": "不要急躁求「多写」：先把课上学的技巧、字形练对，几行字写像了再去加量；急着求快反而会一直重复同样的错误。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2417,6 +2558,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:字形和笔画先练好一个",
       "title": "字形和笔画先练好一个，再细抠另一个",
+      "font": "楷书",
       "detail": "字形与笔画不必同时细抠，先把其中一个练好，另一个随后再来；也可以在字里头练——字写不好，但眼睛（眼力）是可以的。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2434,6 +2576,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:写完哪里疼就是哪里用劲过了",
       "title": "写完字哪里疼，说明那里用劲过了",
+      "font": "楷书",
       "detail": "写完字之后手指、手腕或身子明显酸痛（排除不习惯的因素），说明那个部位的劲使过了；大拇指疼就是捏得太狠。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2452,6 +2595,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:不必笔笔藏锋",
       "title": "不必笔笔都藏锋",
+      "font": "楷书",
       "detail": "横和竖的起笔不是每一笔都必须藏锋；笔画越细越不必做完整的藏锋动作，否则动作过于繁杂、容易失控。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -2469,6 +2613,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:书法靠心口相传",
       "title": "书法的传承靠心口相传",
+      "font": "楷书",
       "detail": "书法的传承除了自己磨，还有「心口相传」；古人常有不外传之规，因此这门艺术传承上带有很强的私密性。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2486,6 +2631,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:临摹要细但不能钻牛角尖",
       "title": "临摹要细、要研究每一笔，但不要分析过度",
+      "font": "楷书",
       "detail": "老师反复说要认真临摹、要研究每一个笔画的基本点；但同时提醒「有些时候可能会分析的过度」，容易陷进牛角尖，要靠老师的方法去体会自己的状态。他把尺度给了两条参照：艺术类院校的临摹课要求「和原帖一模一样」「盖上去直接就是影印件」，但普通人没必要做到那么夸张，重点是享受写字。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2504,6 +2650,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:写字前先预想字形",
       "title": "写字前先预想字形大小与宽高",
+      "font": "楷书",
       "detail": "落笔之前先在心里「默默地回想」或者多看几眼字帖，预想字形大小与宽高；老师说自己「又要重复说这句话了」，因为预想对临摹太有用。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2522,6 +2669,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:分析字形要有立体思维",
       "title": "分析字形要有立体思维，像解数学题",
+      "font": "楷书",
       "detail": "查字形不能只看一个方向：既从纵向上看（上下高低、笔画错落），也从底端横向看（像看坐标轴一样看横画有没有长出去），多角度交叉验证，老师形容为「像在解这个数学题一样」。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2540,6 +2688,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:不要被格子绑住",
       "title": "不要被格子绑住，也不要为了迁就格子改笔画",
+      "font": "楷书",
       "detail": "格子只是参照，不是约束：不要为了把格子站准而故意把某个笔画缩短，也不要被米字格/田字格框住字形的内在关系，先把字里笔画的提示关系表达清楚。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2558,6 +2707,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:心态写在笔画里",
       "title": "当下心态会直接写进笔画，作业一眼能看出来",
+      "font": "楷书",
       "detail": "点评作业时老师说：从写出来的作业就能看出你当下是犹豫、害怕，还是肯定果断自信；心态上的转变很重要，用笔果不果断与结构放不开是连在一起的。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2576,6 +2726,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:练习量终有回报",
       "title": "不要忽略练习量，用功写总会有回报",
+      "font": "楷书",
       "detail": "老师用几位同学三到四节课的作业对比说明进步来自练习量：只要用功去写，总有一天会给你回报；他还提到写字会遇到「压不下去」的尴尬期，跨过心里那道坎就好了。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2594,6 +2745,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:写完要自省并记住问题",
       "title": "写完要自省，把问题记在心里慢慢改",
+      "font": "楷书",
       "detail": "老师把「审视自己写出的字」当成和写字同等重要的能力：写完要检查问题出在哪个笔画上，记在心里，改的过程中不要「想着想着忘掉了」，过两天会发现不知不觉改掉了。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2612,6 +2764,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:学书法要以鼓励为主",
       "title": "学书法要以鼓励为主，不要只盯着缺点",
+      "font": "楷书",
       "detail": "老师自述自己「被鼓励才会更有动力」，一直被批评会慢慢打击自信；因此学书法要「以鼓励为主」，否则很影响心情。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2630,6 +2783,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:横纵两线分析法",
       "title": "横看竖看：把所有笔画按横向、纵向归位",
+      "font": "楷书",
       "detail": "分析结构时把一个字的笔画拆成横向一组、纵向一组来分别看，先横向再纵向；弧线多、短笔画交叉多的时候尤其要靠这个方法化繁为简。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -2647,6 +2801,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:用笔与结构并重",
       "title": "用笔与结构是一边大的",
+      "font": "楷书",
       "detail": "写不好往往不是哪一边的问题：有人偏向用笔难，有人偏向结构难，那只是个人对哪一边更敏感的差别；两边都要硬。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -2664,6 +2819,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:楷书结构要准",
       "title": "楷书有规范，结构要尽量准",
+      "font": "楷书",
       "detail": "结构不准则只能靠近大风格或用笔面貌，像不像就无从谈起；楷书对结构的要求是「尽量准」。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -2682,6 +2838,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:拙胜于巧",
       "title": "拙与巧：自然的东西模仿不出来",
+      "font": "楷书",
       "detail": "老师引书家之说，讲「巧」是刻意修饰出来的美感；写颜真卿若一味精雕细琢反而违和。自然的状态只能靠悟，慢慢领会。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -2699,6 +2856,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:结构如排兵布阵",
       "title": "写字如打仗：结构就是排兵布阵",
+      "font": "楷书",
       "detail": "老师引前人把写字比作打仗：纸是战场，笔墨纸砚与手都是兵器与城池，安排结构就像排兵布阵、像处理粮草；真正统领全局的是写字人的心意。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -2717,6 +2875,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:学书要研究前人",
       "title": "临摹与创作都要先研究前人",
+      "font": "楷书",
       "detail": "不管是临摹还是创作，都要仔仔细细地研究：先分析前人的东西，吸收经验之后再自己用上。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -2734,6 +2893,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:不要把简单笔画想复杂",
       "title": "简单的事别往深里钻",
+      "font": "楷书",
       "detail": "越想越深、越想越难就会钻牛角尖；像「藏一下再圆过来」这类动作，不要理解成太复杂的地方。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -2751,6 +2911,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:横纵双向找秩序性",
       "title": "字内笔画多时，从横向、纵向双向找秩序性",
+      "font": "楷书",
       "detail": "处理一个笔画多的字（如「国」），先不急着动笔，用惯用的办法从横向和纵向两个方向去观察，找一个秩序性；内部笔画的空间是否匀称，就是这个秩序性的检验标准。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -2769,6 +2930,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:用粗细变化替代弧度",
       "title": "弧度不直接画出来，靠粗细变化去表现",
+      "font": "楷书",
       "detail": "外框线、撇、捺上的弧度如果直接画出来会非常夸张，弧度本身也就失去意义。正确做法是用粗细的变化把弧线强调出来，而不是把弯度画出来；同一个字里也不要把所有线条都带出弧度。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -2786,6 +2948,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:加粗挤压内白",
       "title": "用外框的粗细对比把内白挤回来",
+      "font": "楷书",
       "detail": "外框画得大而细时，内部空间会显得更大、字形变扁；必须加上粗细变化，在有粗细的基础上挤压这些内白。国字只要把外框的粗细对比做出来，就算成功了一半。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -2803,6 +2966,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:顶住纸面借笔锋弹性",
       "title": "写粗线条先顶住纸面，再借笔锋的弹性",
+      "font": "楷书",
       "detail": "写比较粗的线条根本不需要用太大的力气，关键是先顶住纸面、形成摩擦力，再利用笔锋的弹性往下走。下压时笔杆会往脸的方向倾侧，这是正常的，不会往右倾侧。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -2820,6 +2984,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:搭接要把关节卡住",
       "title": "笔画搭接处要把关节卡住",
+      "font": "楷书",
       "detail": "处理横与竖接笔搭接的地方，一定要把搭接的关节卡住。外框直接全部露锋、保持通透；框内小口的地方可断可连，断连关系与虚实关系由自己把握，老师批作业时才会针对处理不好的地方单独说。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -2838,6 +3003,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:横竖间距一样重要",
       "title": "框内横间距与竖间距一样重要",
+      "font": "楷书",
       "detail": "框内处理横画不是重点，重点是竖画：不光要注意横间距，还得注意竖的间距。竖间距可以数着看：中间两处相对大一点，外侧两处相对紧一点。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -2855,6 +3021,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:转折外圆内方削肩",
       "title": "转折取外圆内方，肩要削掉",
+      "font": "楷书",
       "detail": "转折是外圆内方的一个转。老师说学多宝塔时碰到过很多这样的笔画，有个词叫「削肩暗转」，形容的正是颜真卿的转折：把肩膀削掉——就像人溜肩的姿态，否则转折处就会顶出「大骨头」。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -2873,6 +3040,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:临摹先还原再带自己的想法",
       "title": "临摹先还原字帖，再带出自己的想法",
+      "font": "楷书",
       "detail": "老师把临摹的难点定义成两步：先得把字帖还原出来，然后再带出自己的想法。写的时候下意识就会融入自己的想法——所以先还原、再发挥，顺序不能反。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2890,6 +3058,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:写字配温温柔柔的音乐",
       "title": "写字要配温温柔柔的音乐",
+      "font": "楷书",
       "detail": "写字配这样的音乐，得温温柔柔的，不能轻易去尝试太吵的。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -2907,6 +3076,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:朝揖即关联联系",
       "title": "朝揖就是让各部分相互关联",
+      "font": "楷书",
       "detail": "老师给「朝揖」下的定义：字里各部分不是各管各的，要互相迎让、避就、穿插、迁就，形成关联与联系；词源取自古人的作揖礼——鞠躬时双手举到头前，也像太极拳一拳打出去、一拳收回来，你来我往。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -2925,6 +3095,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:三部分宽度均等高度收放对比",
       "title": "左中右三部分宽度均等，高度上做强收放对比",
+      "font": "楷书",
       "detail": "左中右（三分）结构里，最左边、中间、右边三部分的宽度要排得比较平均，因为它们要互相配合；哪一块写得太大，整个字形就会非常散乱。宽度平均的同时，高度上保留很强的收放对比——横向一块一块地平均，纵向做高低错落。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -2943,6 +3114,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:因字赋形",
       "title": "因字赋形：横向排的压扁纵向上，上下结构反过来",
+      "font": "楷书",
       "detail": "汉字里横向排列的偏多，左中右三个部分横向收紧、纵向舒展；上下结构叠起来则相反：把纵向压扁、把横向抽长。写字容易走极端时，要逼着自己别夸张。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -2960,6 +3132,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:先有结构意识再自然书写",
       "title": "心里先有结构意识，落到纸上再找自然的书写状态",
+      "font": "楷书",
       "detail": "不要为了迁就结构而故意把空留得太大，那样在处理结构时会有一点刻意；心里先有这么一个结构的意识，然后写字的过程中慢慢去归位。",
       "certainty": "verbatim",
       "font_scope": "楷书",
@@ -2977,6 +3150,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:笔画之间不要做得太直白",
       "title": "弧线不要做得太直白，否则没有内涵",
+      "font": "楷书",
       "detail": "老师反复纠正的一个观念：所有的弧线都不要做得太直白，那样一点内涵都没有；像竖钩这种笔画，上半截先把脖子弯一弯，下半截保持挺直。",
       "certainty": "inferred",
       "font_scope": "楷书",
@@ -2994,6 +3168,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:集字创作起步",
       "title": "第一次创作从集字开始",
+      "font": "楷书",
       "detail": "写春联这类创作的起点是集字创作：先用字帖里的现成字拼成作品，等字形与用笔烂熟于心之后，再去做自己的创作。",
       "certainty": "verbatim",
       "font_scope": "通用",
@@ -3011,6 +3186,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:练字先练大不练小",
       "title": "一开始别练太小的字，也不要拘着自己的个性",
+      "font": "楷书",
       "detail": "平常练字一开始不要用太小的格子、不要练小气的字，容易越写越局促，胆子会越来越小；先把基础和欣赏能力打牢，再去接触赵体、瘦金体一类的风格。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -3028,6 +3204,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:先打开内心再改字",
       "title": "字写不开，先从心理状态上打开自己",
+      "font": "楷书",
       "detail": "老师自述：他从小很内向，写字就小气打不开，花了三四年才改掉；办法是先把自己的心、情绪和正视自己的态度打开，之后再改字就非常快。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -3045,6 +3222,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:写作品要有整体章法意识",
       "title": "写对联要敞开写、看着上边的字写",
+      "font": "楷书",
       "detail": "桌子够大就要敞开了写，不要挡一个写一个，否则永远没有整体意识；每写一个字都要往上看上面的字，别写歪，一旦写歪后面全得歪；上下联与横批都要从右往左写。",
       "certainty": "inferred",
       "font_scope": "通用",
@@ -3062,6 +3240,7 @@ export const WRITING_PRINCIPLES = {
     {
       "id": "principle:作品要写得厚重",
       "title": "贴在门上的字要厚重",
+      "font": "楷书",
       "detail": "春联是贴在门上的，字太细了人都看不见，所以写对联一定要做到厚重；但也不要写得太燥，太燥反而容易败坏好感，落笔时更要沉得下心。",
       "certainty": "inferred",
       "font_scope": "通用",
