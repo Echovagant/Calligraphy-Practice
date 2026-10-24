@@ -60,6 +60,61 @@
         </div>
 
         <div class="tool-section">
+          <h3 class="tool-title">笔顺引导</h3>
+          <div v-if="guideStatus === 'ready'" class="guide-panel">
+            <div class="guide-head">
+              <span class="guide-char">{{ guideChar }}</span>
+              <span class="guide-progress">
+                {{ guideIndex < guideTotal ? `第 ${guideIndex + 1} 笔 / 共 ${guideTotal} 笔` : `已完成 ${guideTotal} 笔` }}
+              </span>
+            </div>
+            <svg class="guide-preview" viewBox="0 0 1024 1024">
+              <path
+                v-for="(s, i) in guideStrokes"
+                :key="i"
+                :d="strokePath(s.points)"
+                :class="['guide-stroke', { done: i < guideIndex, active: i === guideIndex }]"
+              />
+              <circle
+                v-if="guideCurrent"
+                :cx="guideCurrent.points[0][0]"
+                :cy="guideCurrent.points[0][1]"
+                r="26"
+                class="guide-start"
+              />
+            </svg>
+            <p v-if="guideCurrent && guideCurrent.type" class="guide-type">
+              这一笔是「{{ guideCurrent.type }}」
+              <span v-if="guideCategoryName" class="guide-category">{{ guideCategoryName }}</span>
+            </p>
+            <p v-if="guideResult" :class="['guide-result', guideResult.ok ? 'ok' : 'bad']">
+              {{ guideResult.reason }}
+            </p>
+            <div class="guide-buttons">
+              <el-button size="small" @click="guideBack">上一笔</el-button>
+              <el-button size="small" @click="guideReset">重写</el-button>
+              <el-button size="small" type="primary" @click="stopGuide">结束引导</el-button>
+            </div>
+          </div>
+          <div v-else>
+            <el-select
+              v-model="guideTarget"
+              placeholder="选一个字开始笔顺引导"
+              size="small"
+              class="stroke-select"
+              filterable
+              @change="startGuide"
+            >
+              <el-option v-for="ch in guideCandidates" :key="ch" :label="ch" :value="ch" />
+            </el-select>
+            <p v-if="guideStatus === 'error'" class="tool-hint guide-error">{{ guideError }}</p>
+            <p v-else class="tool-hint">
+              开启后画布中央会显示这个字的笔顺：红点是这一笔的落笔位置，照着淡色轨迹写，写完一笔自动判下一笔。
+            </p>
+          </div>
+        </div>
+
+        <div class="tool-section">
           <h3 class="tool-title">背景设置</h3>
           <div class="tool-group">
             <label class="tool-label">宣纸颜色</label>
@@ -165,9 +220,32 @@
       </div>
 
       <!-- 画布区域 -->
-      <div class="canvas-container">
+      <div class="canvas-area">
         <div class="canvas-wrapper" ref="canvasWrapRef">
           <canvas ref="canvasRef"></canvas>
+          <!-- 笔顺引导的轨迹层：Teleport 进 fabric 自己的容器，
+               与画布同父同滚，不会因为容器被滚动而错位 -->
+          <Teleport :to="overlayHost" :disabled="!overlayHost">
+            <svg
+              v-if="guideStatus === 'ready'"
+              class="guide-overlay"
+              :viewBox="`0 0 ${size.width} ${size.height}`"
+            >
+              <path
+                v-for="(s, i) in guideStrokes"
+                :key="i"
+                :d="strokePath(guidePath(s.points))"
+                :class="['overlay-stroke', { done: i < guideIndex, active: i === guideIndex }]"
+              />
+              <circle
+                v-if="guideCurrent"
+                :cx="guidePath(guideCurrent.points)[0][0]"
+                :cy="guidePath(guideCurrent.points)[0][1]"
+                r="22"
+                class="overlay-start"
+              />
+            </svg>
+          </Teleport>
         </div>
 
         <!-- 参考字符显示 -->
@@ -191,6 +269,11 @@ import { downloadCanvasAsImage } from '../utils';
 import { getToken, copybookAPI } from '../utils/api';
 import { useInkCanvas } from '../composables/useInkCanvas.js';
 import { STROKE_DICTIONARY, findStroke } from '../data/strokeDictionary.js';
+import { useStrokeOrder } from '../composables/useStrokeOrder.js';
+import { strokeCount as strokeCountOf } from '../data/strokeOrderIndex.js';
+import { STROKE_TYPES } from '../data/strokeTypes.js';
+import { strokeTypeCategory } from '../data/strokeTypeMap.js';
+import { transformStroke } from '../utils/ink/strokeMatch.js';
 
 // 引入状态管理
 const practiceStore = usePracticeStore();
@@ -264,6 +347,7 @@ const recommendationsError = ref('');
 const {
   canvas: inkCanvas,
   capability,
+  size,
   strokeCount,
   canUndo,
   canRedo,
@@ -286,8 +370,134 @@ const {
   getDraftScope: () => ({
     userId: userStore.user?.id ?? null,
     copybookId: currentCopybook.value?.id ?? null
-  })
+  }),
+  onStrokeCommitted: (stroke) => handleStrokeCommitted(stroke)
 });
+
+/**
+ * 笔顺引导：画布中央显示规范轨迹，用户照着写，写完一笔自动判定并跳下一笔。
+ * 轨迹来自 1024×1024 的字形画布，这里换算到画布中央的一个方格。
+ */
+const {
+  char: guideChar,
+  strokes: guideStrokes,
+  index: guideIndex,
+  total: guideTotal,
+  current: guideCurrent,
+  status: guideStatus,
+  error: guideError,
+  result: guideResult,
+  load: loadGuide,
+  check: checkGuide,
+  advance: advanceGuide,
+  back: guideBack,
+  reset: guideReset
+} = useStrokeOrder();
+
+/** 可引导的字：参考字帖里的字 + 已人工校核过笔画类型的高频字 */
+const guideCandidates = computed(() => {
+  const set = new Set(referenceChars.value);
+  for (const ch of Object.keys(STROKE_TYPES)) set.add(ch);
+  return [...set].filter((ch) => strokeCountOf(ch) > 0);
+});
+
+/**
+ * 引导用的方格：画布中央，占短边的 72%。
+ *
+ * 全程用 **fabric 逻辑坐标**（= size，与笔迹 points 同一坐标系），不做任何 DOM 测量：
+ * 轨迹层是盖在容器上的绝对定位 SVG，容器一旦被滚动（选下拉时浏览器会 scrollIntoView）
+ * 就会和画布错位。逻辑坐标 + SVG viewBox 与容器等大，两边永远同步。
+ */
+const guideFrame = computed(() => {
+  const w = size.value.width || 1024;
+  const h = size.value.height || 1024;
+  const s = Math.max(120, Math.min(w, h) * 0.72);
+  return { x: (w - s) / 2, y: (h - s) / 2, size: s };
+});
+
+/** 轨迹点（1024 字形坐标）→ 画布逻辑坐标 */
+const guidePath = (points) => transformStroke(points, guideFrame.value);
+
+/** 轨迹层的挂载点：fabric 自己建的容器（与画布同父同滚） */
+const overlayHost = ref(null);
+watch(
+  () => inkCanvas.value,
+  (inst) => {
+    overlayHost.value = inst?.wrapperEl || null;
+  },
+  { immediate: true }
+);
+
+/** 轨迹点 → SVG path */
+const strokePath = (pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${p[0]} ${p[1]}`).join(' ');
+
+/** 当前笔的类型归到字典的哪一类，并把该类的笔画变体一并列出 */
+const guideCategoryName = computed(() => {
+  const type = guideCurrent.value?.type;
+  if (!type) return '';
+  const category = strokeTypeCategory(type);
+  if (!category) return '';
+  const names = STROKE_DICTIONARY.strokes
+    .filter((s) => s.category === category)
+    .map((s) => s.name)
+    .filter((name, i, list) => list.indexOf(name) === i);
+  return names.length ? names.join(' / ') : '';
+});
+
+const guideTarget = ref('');
+
+/** 开始引导一个字的笔顺 */
+const startGuide = async (ch) => {
+  const ok = await loadGuide(ch);
+  if (!ok) {
+    ElMessage.warning(guideError.value || '这个字没有笔顺数据');
+    return;
+  }
+  // 打开/关闭下拉时浏览器会 scrollIntoView（关闭时 focus 归还输入框），
+  // 会把整页滚走、把练习区顶出视口（实测整页上移 467px）。
+  // 画布容器已是 overflow:clip（自身不可滚），所以这里要把**页面**滚回来。
+  // 滚动发生在下拉关闭之后，因此要延迟补偿两次。
+  await nextTick();
+  const wrap = canvasWrapRef.value;
+  if (!wrap) return;
+  wrap.scrollTop = 0;
+  wrap.scrollLeft = 0;
+  const restore = () => {
+    const rect = wrap.getBoundingClientRect();
+    if (rect.top < 0 || rect.bottom > window.innerHeight) {
+      window.scrollBy({
+        top: rect.top - (window.innerHeight - rect.height) / 2,
+        behavior: 'auto'
+      });
+    }
+  };
+  setTimeout(restore, 120);
+  setTimeout(restore, 450);
+};
+
+/** 结束引导 */
+const stopGuide = () => {
+  guideReset();
+  loadGuide('');
+  guideTarget.value = '';
+};
+
+/**
+ * 一笔写完 → 与规范轨迹比对。
+ * 通过则推进到下一笔；不通过则保留当前笔，用户可以重写。
+ */
+function handleStrokeCommitted(stroke) {
+  if (guideStatus.value !== 'ready' || !guideCurrent.value) return;
+  const written = (stroke.points || []).map((p) => [p.x, p.y]);
+  if (written.length < 2) return;
+  const result = checkGuide(written, { frame: guideFrame.value });
+  if (result.ok) {
+    advanceGuide();
+    if (guideIndex.value >= guideTotal.value) {
+      ElMessage.success(`「${guideChar.value}」的 ${guideTotal.value} 笔都写对了`);
+    }
+  }
+}
 
 /** 输入设备提示：让用户知道当前这一笔是被当成什么写的 */
 const inputHint = computed(() => {  if (capability.value.pointerType === 'pen') {
@@ -748,8 +958,87 @@ onUnmounted(() => {
   white-space: nowrap;
 }
 
+/* 笔顺引导 */
+.guide-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.guide-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.guide-char {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+}
+.guide-progress {
+  font-size: 12px;
+  color: #666;
+}
+.guide-preview {
+  width: 100%;
+  max-width: 148px;
+  align-self: center;
+  background: #fdfcf7;
+  border: 1px solid #e0ddd4;
+  border-radius: 4px;
+}
+.guide-stroke {
+  fill: none;
+  stroke: #cdc8bc;
+  stroke-width: 26;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.guide-stroke.done { stroke: #7d9c7d; }
+.guide-stroke.active { stroke: #d6483c; }
+.guide-start { fill: #d6483c; }
+.guide-type {
+  font-size: 13px;
+  margin: 0;
+}
+.guide-category {
+  color: #888;
+  font-size: 12px;
+  margin-left: 6px;
+}
+.guide-result {
+  font-size: 13px;
+  margin: 0;
+}
+.guide-result.ok { color: #2f7d43; }
+.guide-result.bad { color: #c0392b; }
+.guide-buttons {
+  display: flex;
+  gap: 6px;
+}
+.guide-error { color: #c0392b; }
+
+/* 画布上的笔顺轨迹层：绝对定位，不接收指针事件，不进画布对象列表 */
+.guide-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.overlay-stroke {
+  fill: none;
+  stroke: rgba(122, 118, 106, 0.26);
+  stroke-width: 30;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.overlay-stroke.done { stroke: rgba(96, 132, 96, 0.4); }
+.overlay-stroke.active { stroke: rgba(214, 72, 60, 0.55); }
+.overlay-start { fill: rgba(214, 72, 60, 0.78); }
+
 /* 画布区域样式 */
-.canvas-container {
+.canvas-area {
   position: relative;
   flex: 1 1 520px;
   min-width: 320px;
@@ -757,10 +1046,14 @@ onUnmounted(() => {
 }
 
 .canvas-wrapper {
+  position: relative;
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  /* overflow: clip 而不是 hidden —— hidden 会建立可滚动容器，
+     浏览器 scrollIntoView（下拉定位）能把画布内容整体滚出容器（实测上移 467px）；
+     clip 保留圆角裁切但不可滚动。 */
+  overflow: clip;
   /* 画布跟随设备尺寸，不再固定 800×600 */
   width: 100%;
   height: min(72vh, 720px);
@@ -846,7 +1139,7 @@ onUnmounted(() => {
     max-width: 400px;
   }
 
-  .canvas-container {
+  .canvas-area {
     max-width: 100%;
   }
 
