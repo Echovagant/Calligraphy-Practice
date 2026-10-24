@@ -32,31 +32,107 @@ export function strokesByFont(font) {
 export const STROKE_DICTIONARY = {
   "version": "1.0",
   "fonts": [
-    "楷书"
+    "楷书",
+    "隶书",
+    "硬笔"
   ],
   "source": "软笔楷书全套教程 BV1A9sbzTEUT",
   "parts": [
     1,
+    1,
+    1,
+    1,
+    1,
+    2,
+    2,
+    2,
+    2,
     2,
     3,
+    3,
+    3,
+    3,
+    3,
+    4,
+    4,
+    4,
+    4,
     4,
     5,
+    5,
+    5,
+    5,
+    5,
+    6,
+    6,
+    6,
+    6,
     6,
     7,
+    7,
+    7,
+    7,
+    7,
+    8,
+    8,
+    8,
+    8,
     8,
     9,
+    9,
+    9,
+    9,
+    9,
+    10,
+    10,
+    10,
+    10,
     10,
     11,
+    11,
+    11,
+    11,
+    11,
+    12,
+    12,
+    12,
+    12,
     12,
     13,
+    13,
+    13,
+    13,
+    14,
+    14,
+    14,
     14,
     15,
+    15,
+    15,
+    15,
+    16,
+    16,
+    16,
     16,
     17,
+    17,
+    17,
+    18,
+    18,
     18,
     19,
+    19,
+    19,
     20,
-    21
+    20,
+    20,
+    21,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26
   ],
   "strokes": [
     {
@@ -797,7 +873,65 @@ export const STROKE_DICTIONARY = {
         "t": "00:19:37",
         "evidence_count": 6
       },
-      "actions": []
+      "actions": [
+        {
+          "id": "stroke:横折:起笔",
+          "segment": "起笔",
+          "action": "横折的起笔与横相同：先把笔锋藏住、逆着送进去，再落下来；横折就是先写这个小横，然后才转下去。",
+          "measurable": {
+            "direction": "左→右",
+            "entry": "藏锋逆入后落下",
+            "exit": null,
+            "pressure_profile": "轻入，落下后铺锋",
+            "speed_hint": "起笔慢",
+            "stop_points": []
+          },
+          "certainty": "inferred",
+          "source": {
+            "part": 9,
+            "title": "第9节 笔画总汇",
+            "t": "00:02:03",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:横折:行笔",
+          "segment": "行笔",
+          "action": "横画写得细挺即可，笔尖慢慢往上提，再往右下一顿；横与竖之间不宜有特别大的粗细变化，右边这个竖不要出现往回包的外拓，要保持直挺",
+          "measurable": {
+            "pressure_profile": "细挺，粗细变化不宜过大"
+          },
+          "certainty": "inferred",
+          "source": {
+            "part": 9,
+            "title": "第9节 笔画总汇",
+            "t": "00:19:53",
+            "evidence_count": 7
+          }
+        },
+        {
+          "id": "stroke:横折:转折",
+          "segment": "转折",
+          "action": "小横过来之后笔尖慢慢往下去走，但一定要跟着它压下去再转下来；渐渐压住，略微带一点圆转，往下去铺开笔锋",
+          "measurable": {
+            "direction": "横→转向下",
+            "stop_points": [
+              "折角重压处"
+            ],
+            "entry": null,
+            "exit": "出小钩",
+            "pressure_profile": "转角加重→再变细",
+            "speed_hint": "转角处加压"
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 9,
+            "title": "第9节 笔画总汇",
+            "t": "00:20:50",
+            "evidence_count": 14
+          }
+        }
+      ]
     },
     {
       "id": "stroke:横折（庚字·折笔略方）",
@@ -839,18 +973,23 @@ export const STROKE_DICTIONARY = {
           }
         },
         {
-          "id": "stroke:横折:行笔",
+          "id": "stroke:横折（庚字·折笔略方）:行笔",
           "segment": "行笔",
-          "action": "横画写得细挺即可，笔尖慢慢往上提，再往右下一顿；横与竖之间不宜有特别大的粗细变化，右边这个竖不要出现往回包的外拓，要保持直挺",
+          "action": "横画圆过来后向上略平直地过渡一段，再往右下方走；这一段对整个横画来说是略平整的，最下方位置慢慢变粗并有一个顿笔。",
           "measurable": {
-            "pressure_profile": "细挺，粗细变化不宜过大"
+            "direction": "向右（略上平 → 右下）",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "略平直 → 渐粗 → 顿笔",
+            "speed_hint": "过渡段匀速",
+            "stop_points": []
           },
           "certainty": "inferred",
           "source": {
-            "part": 9,
-            "title": "第9节 笔画总汇",
-            "t": "00:19:53",
-            "evidence_count": 11
+            "part": 5,
+            "title": "第5节 基础笔画折",
+            "t": "00:29:19",
+            "evidence_count": 4
           }
         },
         {
@@ -876,25 +1015,25 @@ export const STROKE_DICTIONARY = {
           }
         },
         {
-          "id": "stroke:横折:转折",
+          "id": "stroke:横折（庚字·折笔略方）:转折",
           "segment": "转折",
-          "action": "小横过来之后笔尖慢慢往下去走，但一定要跟着它压下去再转下来；渐渐压住，略微带一点圆转，往下去铺开笔锋",
+          "action": "横画到折角处提起来、落下、立住，把笔的方向转过来（这一处折笔略方）；一定要往下去走，不能停在这里调锋，停住笔尖就会刺上去；调锋时要把方向转过来，笔锋保持中锋。",
           "measurable": {
-            "direction": "横→转向下",
+            "direction": "向右 → 向下（正下方）",
+            "entry": "提笔 → 落下 → 立住笔锋",
+            "exit": "把方向转成正下方，边走边压",
+            "pressure_profile": "折角处顿住最重，随后渐细",
+            "speed_hint": "落下后立刻往下走，不停笔",
             "stop_points": [
-              "折角重压处"
-            ],
-            "entry": null,
-            "exit": "出小钩",
-            "pressure_profile": "转角加重→再变细",
-            "speed_hint": "转角处加压"
+              "折角顿点：横与竖相接的折角处，落下后下顿，不要顿大"
+            ]
           },
-          "certainty": "verbatim",
+          "certainty": "inferred",
           "source": {
-            "part": 9,
-            "title": "第9节 笔画总汇",
-            "t": "00:20:50",
-            "evidence_count": 18
+            "part": 5,
+            "title": "第5节 基础笔画折",
+            "t": "00:56:40",
+            "evidence_count": 4
           }
         }
       ]
@@ -1736,7 +1875,75 @@ export const STROKE_DICTIONARY = {
         "t": "00:23:23",
         "evidence_count": 4
       },
-      "actions": []
+      "actions": [
+        {
+          "id": "stroke:三点水:起笔",
+          "segment": "起笔",
+          "action": "三点水的起笔就是第一个点：方切。顺着斜向的手势去落，起笔处比较方，甚至有一点回望的方向；落下后只落一个点，随即立柱往下走。",
+          "measurable": {
+            "direction": "斜向左上—右下取势（方切）",
+            "entry": "方切落笔，顺着斜势走，起笔处略带回望",
+            "exit": null,
+            "pressure_profile": "落笔即压",
+            "speed_hint": "落笔果断",
+            "stop_points": [
+              "方切落笔处（第一个点的起点）"
+            ]
+          },
+          "certainty": "inferred",
+          "source": {
+            "part": 4,
+            "title": "第4节 基础笔画点提",
+            "t": "00:22:59",
+            "evidence_count": 6
+          }
+        },
+        {
+          "id": "stroke:三点水:行笔",
+          "segment": "行笔",
+          "action": "三点水是一笔连着写的：第一点立柱往下走，要找「刷」的感觉，边走边把宽度铺开；第二点顺着刚写完那个点的最自然笔锋露锋落下，慢慢压到笔肚、带一点转；第三点落下往右切，立柱向右上方带出弧度。",
+          "measurable": {
+            "direction": "第一点下行 → 第二点右下 → 第三点右上挑出",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "落下压实 → 边走边提铺开 → 压到笔肚",
+            "speed_hint": "每点落下稍快，行笔不停顿",
+            "stop_points": [
+              "第二点压到笔肚处（顿住收的位置）"
+            ]
+          },
+          "certainty": "inferred",
+          "source": {
+            "part": 4,
+            "title": "第4节 基础笔画点提",
+            "t": "00:24:03",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:三点水:收笔",
+          "segment": "收笔",
+          "action": "整个三点水的收笔落在第三点：落下后往右切，顿一下（这个位置需要停一下），利用手上的惯性往上一提、立起来，把尖送出去；尖不能甩出去，也不能虚。",
+          "measurable": {
+            "direction": "右下→右上（送出尖锋）",
+            "entry": null,
+            "exit": "顿一下后往上一提，带弧度送出尖锋",
+            "pressure_profile": "切 → 一顿 → 提送出",
+            "speed_hint": "一顿即走，不甩",
+            "stop_points": [
+              "第三点顿下的位置",
+              "送出尖锋处"
+            ]
+          },
+          "certainty": "inferred",
+          "source": {
+            "part": 4,
+            "title": "第4节 基础笔画点提",
+            "t": "00:24:44",
+            "evidence_count": 5
+          }
+        }
+      ]
     },
     {
       "id": "stroke:三点水第二点",
@@ -3832,6 +4039,6282 @@ export const STROKE_DICTIONARY = {
             "title": "第1节 基础笔画横竖",
             "t": "00:50:22",
             "evidence_count": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:点",
+      "name": "点",
+      "font": "隶书",
+      "category": "点画类",
+      "tags": [
+        "用笔",
+        "隶书",
+        "点画",
+        "【解析】"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 13,
+        "title": "第5节 情有独钟",
+        "t": "00:30:07",
+        "evidence_count": 12
+      },
+      "actions": [
+        {
+          "id": "stroke:点:起笔",
+          "segment": "起笔",
+          "action": "逆锋起笔。点画很小，整个动作全部用笔尖完成——写法和竖画的起笔一样，只是方向不同。",
+          "measurable": {
+            "entry": "逆锋起笔后圆转",
+            "direction": "上→下",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 13,
+            "title": "第5节 情有独钟",
+            "t": "00:30:07",
+            "evidence_count": 8
+          }
+        },
+        {
+          "id": "stroke:点:行笔",
+          "segment": "行笔",
+          "action": "用笔尖写，按下来；动作一定要做到位，不能把点压成一团。",
+          "measurable": {
+            "pressure_profile": "轻→重（慢慢压笔）",
+            "direction": "向下",
+            "entry": null,
+            "exit": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 13,
+            "title": "第5节 情有独钟",
+            "t": "00:51:46",
+            "evidence_count": 9
+          }
+        },
+        {
+          "id": "stroke:点:收笔",
+          "segment": "收笔",
+          "action": "把笔慢慢提起来。",
+          "measurable": {
+            "exit": "用笔尖稍微向上回个笔",
+            "direction": null,
+            "entry": null,
+            "pressure_profile": null,
+            "speed_hint": "慢慢",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 13,
+            "title": "第5节 情有独钟",
+            "t": "00:52:19",
+            "evidence_count": 9
+          }
+        },
+        {
+          "id": "stroke:点:整笔",
+          "segment": "整笔",
+          "action": "整笔形态：点画很小，形态像小犄角/三角形；爱字草字头上的两个小点不要写太大。",
+          "measurable": {
+            "direction": "点画方向略带斜势"
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 13,
+            "title": "第5节 情有独钟",
+            "t": "00:58:58",
+            "evidence_count": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:点画",
+      "name": "点画",
+      "font": "隶书",
+      "category": "点画类",
+      "tags": [
+        "隶书",
+        "点画",
+        "本节新授",
+        "点画类"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 15,
+        "title": "第15节 中国书法基础知识-基本用笔特点",
+        "t": "00:02:34",
+        "evidence_count": 11
+      },
+      "actions": [
+        {
+          "id": "stroke:点画:起笔",
+          "segment": "起笔",
+          "action": "逆入起笔。",
+          "measurable": {
+            "direction": "左下 → 右上",
+            "entry": "向左下轻压毛笔，笔尖圆转",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": "动作要慢一点不要着急",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 15,
+            "title": "第15节 中国书法基础知识-基本用笔特点",
+            "t": "00:02:46",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:点画:行笔",
+          "segment": "行笔",
+          "action": "用笔尖把点画送出去：底下是圆润的，上面出尖（像倒过来的小瓜子、像小冰淇淋）。",
+          "measurable": {
+            "direction": "右上",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "下圆上尖",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 12,
+            "title": "第4节 群英荟萃",
+            "t": "01:02:10",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:点画:收笔",
+          "segment": "收笔",
+          "action": "平出收笔，由重到轻。",
+          "measurable": {
+            "direction": "方向随字变化",
+            "entry": null,
+            "exit": "平出",
+            "pressure_profile": "由重→轻",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "inferred",
+          "source": {
+            "part": 15,
+            "title": "第15节 中国书法基础知识-基本用笔特点",
+            "t": "00:02:46",
+            "evidence_count": 1
+          }
+        },
+        {
+          "id": "stroke:点画:整笔",
+          "segment": "整笔",
+          "action": "《曹全碑》的点画多变化、笔笔尽见而不含糊；用笔逆入平出、由重到轻；方向的变化非常丰富。",
+          "measurable": {
+            "direction": "右上／向下／向左（三个点各不相同）",
+            "entry": "逆锋起笔，笔尖圆转",
+            "exit": "向上出尖",
+            "pressure_profile": "下圆上尖",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 15,
+            "title": "第15节 中国书法基础知识-基本用笔特点",
+            "t": "00:02:41",
+            "evidence_count": 10
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:短横",
+      "name": "短横",
+      "font": "隶书",
+      "category": "隶书横画类",
+      "tags": [
+        "隶书",
+        "藏锋起笔",
+        "短横",
+        "圆头起笔",
+        "【解析】",
+        "横画",
+        "字头"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 9,
+        "title": "第1节 蚕头雁尾，弓弩直立",
+        "t": "00:13:31",
+        "evidence_count": 14
+      },
+      "actions": [
+        {
+          "id": "stroke:短横:起笔",
+          "segment": "起笔",
+          "action": "逆锋（藏锋）起笔：先用笔尖向左轻轻压一下毛笔，再圆转过来作调锋动作，把笔毛调到笔画正中间，然后中锋向右行笔。",
+          "measurable": {
+            "direction": "左→右",
+            "entry": "在竖画内逆锋起笔（藏锋），起笔不犹豫",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": "起笔不犹豫，一气接行笔",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 9,
+            "title": "第1节 蚕头雁尾，弓弩直立",
+            "t": "00:13:12",
+            "evidence_count": 11
+          }
+        },
+        {
+          "id": "stroke:短横:行笔",
+          "segment": "行笔",
+          "action": "圆转过来后中锋向右慢慢书写，动作一定要慢，不能快。",
+          "measurable": {
+            "direction": "左→右，略下弧",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "粗→细",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 9,
+            "title": "第1节 蚕头雁尾，弓弩直立",
+            "t": "00:17:19",
+            "evidence_count": 14
+          }
+        },
+        {
+          "id": "stroke:短横:收笔",
+          "segment": "收笔",
+          "action": "收尾时慢慢把笔尖提起来，自然形成一个小尖；这个尖不尖锐，是毛笔自然抬起来的形态。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "封口横画由粗到细收住，只略过竖画一点点",
+            "pressure_profile": "粗→细",
+            "speed_hint": null,
+            "stop_points": [
+              "封口交接处（不能出现十字交叉口）"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 9,
+            "title": "第1节 蚕头雁尾，弓弩直立",
+            "t": "00:17:36",
+            "evidence_count": 11
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:短撇",
+      "name": "短撇（小撇画）",
+      "font": "隶书",
+      "category": "撇画类",
+      "tags": [
+        "【解析】",
+        "撇画",
+        "隶书"
+      ],
+      "certainty": "corrected",
+      "source": {
+        "part": 14,
+        "title": "第6节 头头是道",
+        "t": "00:51:34",
+        "evidence_count": 4
+      },
+      "actions": [
+        {
+          "id": "stroke:短撇:起笔",
+          "segment": "起笔",
+          "action": "小撇画（小竖撇）逆锋起笔后向左撇出去；这种小撇比同字里的竖画要小很多。",
+          "measurable": {
+            "direction": "向左撇出",
+            "entry": "逆锋起笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "corrected",
+          "source": {
+            "part": 14,
+            "title": "第6节 头头是道",
+            "t": "00:51:34",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:短撇:行笔",
+          "segment": "行笔",
+          "action": "短撇由粗到细，带一个小弧度；这类小撇画很短（成字左边的撇是最短的一笔）。",
+          "measurable": {
+            "direction": "向左",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "由粗到细",
+            "speed_hint": "带小弧度",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 14,
+            "title": "第6节 头头是道",
+            "t": "01:02:29",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:短撇:收笔",
+          "segment": "收笔",
+          "action": "这种小撇是尖收笔（不是圆收笔）：慢慢把笔尖送出去；尖收时一定要控制住毛笔，不能让笔飞出去。",
+          "measurable": {
+            "direction": "笔尖向左送出",
+            "entry": null,
+            "exit": "尖收笔（送到位、停住，不要飞出去）",
+            "pressure_profile": "由粗到细至尖",
+            "speed_hint": "送到位即停",
+            "stop_points": []
+          },
+          "certainty": "corrected",
+          "source": {
+            "part": 14,
+            "title": "第6节 头头是道",
+            "t": "01:00:58",
+            "evidence_count": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:短竖画",
+      "name": "短竖画（向内收）",
+      "font": "隶书",
+      "category": "隶书竖画类",
+      "tags": [
+        "隶书",
+        "向内收"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 9,
+        "title": "第1节 蚕头雁尾，弓弩直立",
+        "t": "01:03:39",
+        "evidence_count": 3
+      },
+      "actions": [
+        {
+          "id": "stroke:短竖画:起笔",
+          "segment": "起笔",
+          "action": "字内向内收的小竖画起笔：先向上顶一下毛笔，再用笔尖把笔圆转过来，调整笔锋后按向内收的方向写；圆转一律用笔尖完成，不能把笔毛按得太深。",
+          "measurable": {
+            "direction": "先向上 → 圆转 → 向内收",
+            "entry": "逆锋轻入，向上顶后用笔尖圆转",
+            "exit": null,
+            "pressure_profile": "轻 → 渐重（不可按得太深）",
+            "speed_hint": "慢、温柔",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 9,
+            "title": "第1节 蚕头雁尾，弓弩直立",
+            "t": "00:59:52",
+            "evidence_count": 5
+          }
+        },
+        {
+          "id": "stroke:短竖画:行笔",
+          "segment": "行笔",
+          "action": "沿内收方向行笔，由粗到细（由重到轻），不是竖直竖直的竖。",
+          "measurable": {
+            "direction": "向内收",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "由粗到细（由重到轻）",
+            "speed_hint": "慢",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 9,
+            "title": "第1节 蚕头雁尾，弓弩直立",
+            "t": "01:02:15",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:短竖画:收笔",
+          "segment": "收笔",
+          "action": "慢慢把毛笔提起来，自然变细、出尖，笔画末端由重到轻。",
+          "measurable": {
+            "direction": "向内收",
+            "entry": null,
+            "exit": "自然提笔变细出尖",
+            "pressure_profile": "渐提渐轻",
+            "speed_hint": "慢",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 9,
+            "title": "第1节 蚕头雁尾，弓弩直立",
+            "t": "01:02:36",
+            "evidence_count": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:横",
+      "name": "横",
+      "font": "隶书",
+      "category": "横画类",
+      "tags": [
+        "楷书",
+        "多宝塔",
+        "横画",
+        "隶书",
+        "横画类",
+        "短横",
+        "复习",
+        "用笔",
+        "燕尾"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 20,
+        "title": "第20节-中国书法基础知识-基本章法",
+        "t": "00:01:53",
+        "evidence_count": 16
+      },
+      "actions": [
+        {
+          "id": "stroke:横:起笔",
+          "segment": "起笔",
+          "action": "起笔时毛笔尖锋向左入笔，向右下切笔后调锋（字幕原词作「调整封面」），随即斜向右上方行笔。",
+          "measurable": {
+            "direction": "左→右",
+            "entry": "逆锋起笔（笔尖左压后圆转调锋）",
+            "exit": null,
+            "pressure_profile": "起笔轻",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 20,
+            "title": "第20节-中国书法基础知识-基本章法",
+            "t": "00:02:03",
+            "evidence_count": 10
+          }
+        },
+        {
+          "id": "stroke:横:行笔",
+          "segment": "行笔",
+          "action": "行笔斜向右上方；行笔中段保持毛笔中锋。",
+          "measurable": {
+            "direction": "左→右",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "中间渐细，末段渐顿变重",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 20,
+            "title": "第20节-中国书法基础知识-基本章法",
+            "t": "00:02:07",
+            "evidence_count": 8
+          }
+        },
+        {
+          "id": "stroke:横:收笔",
+          "segment": "收笔",
+          "action": "收笔处笔尖轻提随之向右下，按笔（该词未确证，疑为「顿笔」）之后向左上方顶住笔尖逆收，最后将笔尖调至中锋状态抬笔即可。",
+          "measurable": {
+            "direction": "轻提后向右下 → 向左上方顶住笔尖逆收",
+            "entry": null,
+            "exit": "轻压后从下边缘线把笔抽出/提起，非顿笔",
+            "pressure_profile": "轻压，只有一点点变粗",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 20,
+            "title": "第20节-中国书法基础知识-基本章法",
+            "t": "00:02:07",
+            "evidence_count": 13
+          }
+        },
+        {
+          "id": "stroke:横:整笔",
+          "segment": "整笔",
+          "action": "以楷书《多宝塔》中的横画为例，演示笔法和中锋的具体运用（起笔、行笔、收笔三段见本节其余条目）。",
+          "measurable": {
+            "direction": "横向",
+            "entry": null,
+            "exit": "轻燕尾：燕尾处不厚重但要写得出",
+            "pressure_profile": "燕尾处轻",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 20,
+            "title": "第20节-中国书法基础知识-基本章法",
+            "t": "00:01:53",
+            "evidence_count": 9
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:横画",
+      "name": "横画（篆书）",
+      "font": "隶书",
+      "category": "横画类",
+      "tags": [
+        "【解析】",
+        "篆书",
+        "横画",
+        "横画类",
+        "笔画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 1,
+        "title": "第1节 千里之行始于足下",
+        "t": "00:15:23",
+        "evidence_count": 18
+      },
+      "actions": [
+        {
+          "id": "stroke:横画:起笔",
+          "segment": "起笔",
+          "action": "横画起笔：一上一下把笔毫错开铺开（笔尖由收拢到完全打开），落笔时先往上带一个小动作、再往下错开摊平，写成向上拱的小弧。起笔形状随写随定——圆头、方头都可以，但不要刻意做成圆的。",
+          "measurable": {
+            "direction": "自左向右",
+            "entry": "切入顿住后把笔锋打开（打开后不再变）",
+            "pressure_profile": "起笔顿住（稍重）",
+            "stop_points": [
+              "错笔打开后的落笔处"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 1,
+            "title": "第1节 千里之行始于足下",
+            "t": "00:15:23",
+            "evidence_count": 12
+          }
+        },
+        {
+          "id": "stroke:横画:行笔",
+          "segment": "行笔",
+          "action": "横画行笔：笔毫保持完全铺开、不再保持中锋；行笔过程中保持粗细均匀，不要越写越粗或越写越细；笔画整体微微向上拱成小弧线，不能写成完全平直的一条。",
+          "measurable": {
+            "direction": "横向，自左向右",
+            "pressure_profile": "中间略有粗细变化",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 1,
+            "title": "第1节 千里之行始于足下",
+            "t": "00:19:02",
+            "evidence_count": 13
+          }
+        },
+        {
+          "id": "stroke:横画:收笔",
+          "segment": "收笔",
+          "action": "横画收笔：三种方式——沿毛笔上边缘线收笔、沿下边缘线收笔、沿中间收笔（收出来类似悬针竖的感觉）；案例里也常见直接急停、停住不收。收出来的形状不必强求方圆，出来什么形状算什么形状，也不要刻意写成圆的。",
+          "measurable": {
+            "exit": "燕尾收笔，或随意收笔、枯笔直接抬笔",
+            "pressure_profile": "收笔时逐渐抬笔、笔尖离纸",
+            "stop_points": [
+              "收笔处的上／下边缘线或中间线"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 1,
+            "title": "第1节 千里之行始于足下",
+            "t": "00:16:24",
+            "evidence_count": 14
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:横画（宝盖头）",
+      "name": "横画（宝盖头）",
+      "font": "隶书",
+      "category": "隶书横画类",
+      "tags": [
+        "【解析】",
+        "隶书",
+        "横画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 16,
+        "title": "第8节 头头是道3",
+        "t": "00:11:31",
+        "evidence_count": 5
+      },
+      "actions": [
+        {
+          "id": "stroke:横画（宝盖头）:行笔",
+          "segment": "行笔",
+          "action": "宝盖头的横画比较平直，行笔中有一个由粗到细的细节变化。",
+          "measurable": {
+            "direction": "左 → 右",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "由粗到细",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 16,
+            "title": "第8节 头头是道3",
+            "t": "00:11:31",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:横画（宝盖头）:整笔",
+          "segment": "整笔",
+          "action": "守字宝盖头的横画更粗重、方向向左斜过来，仍保持平直；整个宝盖头要写得非常宽，像大檐宽檐帽那样盖住下面，不能缩成棒球帽。",
+          "measurable": {
+            "direction": "向左斜过来",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "更粗重",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 16,
+            "title": "第8节 头头是道3",
+            "t": "00:37:05",
+            "evidence_count": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:横画（雨字头）",
+      "name": "横画（雨字头）",
+      "font": "隶书",
+      "category": null,
+      "tags": [],
+      "certainty": "verbatim",
+      "source": {
+        "part": null,
+        "title": null,
+        "t": null,
+        "evidence_count": 0
+      },
+      "actions": [
+        {
+          "id": "stroke:横画（雨字头）:起笔",
+          "segment": "起笔",
+          "action": "雨字头第一个横画逆锋起笔、由粗到细；下面那个横画的起笔与第一个横画的起笔基本在一条竖线上。",
+          "measurable": {
+            "direction": "左 → 右",
+            "entry": "逆锋起笔",
+            "exit": null,
+            "pressure_profile": "由粗到细",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 16,
+            "title": "第8节 头头是道3",
+            "t": "00:45:59",
+            "evidence_count": 6
+          }
+        },
+        {
+          "id": "stroke:横画（雨字头）:行笔",
+          "segment": "行笔",
+          "action": "雨字头下面那个横画比较平直；横竖对比要写出来，折过来的竖画稍微向内收、带一点小弧度。",
+          "measurable": {
+            "direction": "左 → 右",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "与竖画形成粗细对比",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 16,
+            "title": "第8节 头头是道3",
+            "t": "00:54:30",
+            "evidence_count": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:横折",
+      "name": "横折",
+      "font": "隶书",
+      "category": "隶书折画类",
+      "tags": [
+        "隶书",
+        "折画",
+        "折画类",
+        "横折",
+        "复习",
+        "用笔",
+        "【解析】",
+        "字头"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 11,
+        "title": "第3节 宛转矩折",
+        "t": "00:00:35",
+        "evidence_count": 20
+      },
+      "actions": [
+        {
+          "id": "stroke:横折:起笔",
+          "segment": "起笔",
+          "action": "横折＝短横＋短竖。起笔按短横来：先向左逆锋起笔，再向右写短横（短横本身由粗到细），到横画收笔处把笔提起来。",
+          "measurable": {
+            "direction": "向右下带弧度",
+            "entry": "逆锋起笔（短横同法）",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 11,
+            "title": "第3节 宛转矩折",
+            "t": "00:11:08",
+            "evidence_count": 8
+          }
+        },
+        {
+          "id": "stroke:横折:行笔",
+          "segment": "行笔",
+          "action": "折下来写的竖画要向内收，上边稍微留一点圆润的感觉。",
+          "measurable": {
+            "direction": "左→右",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "粗→细",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 13,
+            "title": "第5节 情有独钟",
+            "t": "00:16:36",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:横折:收笔",
+          "segment": "收笔",
+          "action": "折过来的竖画向内收；横竖搭得非常紧实时，上面会露出一个小圆脑袋；也可以上下断开写（短横收笔把笔提起来，在不远处逆锋起笔写竖）。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "圆润转折，不作楷书式顿笔直写",
+            "pressure_profile": null,
+            "speed_hint": "圆润过渡",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 12,
+            "title": "第4节 群英荟萃",
+            "t": "00:03:44",
+            "evidence_count": 9
+          }
+        },
+        {
+          "id": "stroke:横折:转折",
+          "segment": "转折",
+          "action": "在横画收笔往下的那个位置向上逆锋起笔，再圆转下来向内收写小竖画；接在刚碰到横画的位置就转下来，整体外轮廓才是圆的。",
+          "measurable": {
+            "direction": "向下（转折后向内收）",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "与横画相接的转折处（要圆润）"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 11,
+            "title": "第3节 宛转矩折",
+            "t": "00:11:34",
+            "evidence_count": 22
+          }
+        },
+        {
+          "id": "stroke:横折:整笔",
+          "segment": "整笔",
+          "action": "横折的外轮廓是圆润的（隶书），跟楷书横折「直接右上—切笔—向下」的方整形形成明显对比；短横部分略微向上弧，由粗到细，折过来的小竖画向内收。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "横粗竖细对比明显",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 11,
+            "title": "第3节 宛转矩折",
+            "t": "00:10:57",
+            "evidence_count": 8
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:横折断开",
+      "name": "横折·断开",
+      "font": "隶书",
+      "category": "隶书折画类",
+      "tags": [
+        "隶书",
+        "折画",
+        "断开"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 11,
+        "title": "第3节 宛转矩折",
+        "t": "00:01:00",
+        "evidence_count": 3
+      },
+      "actions": [
+        {
+          "id": "stroke:横折断开:转折",
+          "segment": "转折",
+          "action": "短横写完收笔后，在收笔方向上往外空出一点点小距离，再在这个位置向上逆锋起笔、向下写短竖——上下不相连，这叫断开；白字的上端小圆头比中字小得多。",
+          "measurable": {
+            "direction": "短横向右收笔 → 往外空一点 → 向上逆锋起笔 → 向下",
+            "entry": "在空出一点距离的位置向上逆锋起笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": "位置不要太高",
+            "stop_points": [
+              "短横收笔外侧的空档位置（老师用红点标出）"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 11,
+            "title": "第3节 宛转矩折",
+            "t": "00:43:32",
+            "evidence_count": 8
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:横折实接",
+      "name": "横折·实接",
+      "font": "隶书",
+      "category": "隶书折画类",
+      "tags": [
+        "隶书",
+        "折画",
+        "实接"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 11,
+        "title": "第3节 宛转矩折",
+        "t": "00:00:54",
+        "evidence_count": 4
+      },
+      "actions": [
+        {
+          "id": "stroke:横折实接:转折",
+          "segment": "转折",
+          "action": "横画收笔时把毛笔提起来，在收笔的位置向上逆锋起笔、旋转向下写竖画：两笔完全挨在一起，横画上面还会露出一个小圆脑袋——这种搭接叫「实接」。",
+          "measurable": {
+            "direction": "向上逆锋起笔 → 旋转 → 向下",
+            "entry": "在短横收笔的位置向上逆锋起笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": "动作要肯定，不能停顿",
+            "stop_points": [
+              "短横收笔处（露出小圆脑袋的位置）"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 11,
+            "title": "第3节 宛转矩折",
+            "t": "00:28:19",
+            "evidence_count": 10
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:横折虚接",
+      "name": "横折·虚接",
+      "font": "隶书",
+      "category": "隶书折画类",
+      "tags": [
+        "隶书",
+        "折画",
+        "虚接"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 11,
+        "title": "第3节 宛转矩折",
+        "t": "00:00:43",
+        "evidence_count": 3
+      },
+      "actions": [
+        {
+          "id": "stroke:横折虚接:转折",
+          "segment": "转折",
+          "action": "横画收笔后向上逆锋起笔、圆转下来向内收写小竖画，但两笔只是轻轻碰上（中间有极小的空隙），不挨实——这种搭接叫「虚接」。",
+          "measurable": {
+            "direction": "向上起笔 → 圆转 → 向下向内收",
+            "entry": "逆锋向上起笔",
+            "exit": "向内收的小竖画",
+            "pressure_profile": null,
+            "speed_hint": "轻轻碰上，动作要肯定",
+            "stop_points": [
+              "横画收笔处（轻轻碰上的位置）"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 11,
+            "title": "第3节 宛转矩折",
+            "t": "00:13:44",
+            "evidence_count": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:弧线",
+      "name": "弧线",
+      "font": "隶书",
+      "category": "弧线类（括号形笔画）",
+      "tags": [
+        "【解析】",
+        "篆书",
+        "笔画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 4,
+        "title": "第4节 积水成渊蛟龙生焉",
+        "t": "01:11:17",
+        "evidence_count": 7
+      },
+      "actions": [
+        {
+          "id": "stroke:弧线:起笔",
+          "segment": "起笔",
+          "action": "弧线起笔：切入顿住，随后走一条长弧线；写子字下部的弧线时要先往下、再往上顶一下，斜着走长弧线。",
+          "measurable": {
+            "direction": "由下往上",
+            "entry": "停顿后抬笔成弧",
+            "stop_points": [
+              "起笔停顿点"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 4,
+            "title": "第4节 积水成渊蛟龙生焉",
+            "t": "01:21:44",
+            "evidence_count": 6
+          }
+        },
+        {
+          "id": "stroke:弧线:行笔",
+          "segment": "行笔",
+          "action": "弧线行笔：一条弧线走到底，可以一笔完成，也可以分两笔写（案例上有一处是后补的接口）；弧度可大可小。",
+          "measurable": {
+            "direction": "由下往上成弧",
+            "pressure_profile": "基本中锋，可有轻微粗细变动"
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 4,
+            "title": "第4节 积水成渊蛟龙生焉",
+            "t": "01:11:50",
+            "evidence_count": 11
+          }
+        },
+        {
+          "id": "stroke:弧线:收笔",
+          "segment": "收笔",
+          "action": "弧线收笔：多沿上边缘线收笔；起笔与收笔的形状刻意做出差别，切不可写成完全对称。",
+          "measurable": {
+            "exit": "沿上边缘线收笔"
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 4,
+            "title": "第4节 积水成渊蛟龙生焉",
+            "t": "01:17:16",
+            "evidence_count": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:两头粗横画",
+      "name": "两头粗中间细横画",
+      "font": "隶书",
+      "category": "横画类",
+      "tags": [
+        "【解析】",
+        "横画",
+        "隶书"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 14,
+        "title": "第6节 头头是道",
+        "t": "00:31:08",
+        "evidence_count": 5
+      },
+      "actions": [
+        {
+          "id": "stroke:两头粗横画:起笔",
+          "segment": "起笔",
+          "action": "方头起笔：先向左轻压毛笔，再竖过来压一下把这个形态描出来（竖压不能太大，大了就回不来），然后马上调整笔锋、把笔锋调正，继续向右写。",
+          "measurable": {
+            "direction": "向左轻压 → 向下竖压 → 调正笔锋 → 向右",
+            "entry": "方头：向左轻压后竖过来压一下",
+            "exit": null,
+            "pressure_profile": "起笔压一下（轻），不能压太大",
+            "speed_hint": "动作要快而准",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 14,
+            "title": "第6节 头头是道",
+            "t": "00:38:10",
+            "evidence_count": 5
+          }
+        },
+        {
+          "id": "stroke:两头粗横画:行笔",
+          "segment": "行笔",
+          "action": "中段慢慢变细，后段边写边压笔让线条变粗，形成两头粗、中间细的横画（子字中间这一横，老师称作「蝴蝶结」）。",
+          "measurable": {
+            "direction": "向右",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "中段细 → 后段压笔变粗（两头粗中间细）",
+            "speed_hint": "中段慢、后段压笔再收",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 14,
+            "title": "第6节 头头是道",
+            "t": "00:38:58",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:两头粗横画:收笔",
+          "segment": "收笔",
+          "action": "收笔时把笔从下边（笔画底部）抽出来，笔尖从下面出来，自然形成两头粗、中间细的形态。",
+          "measurable": {
+            "direction": "从笔画下方向外抽出",
+            "entry": null,
+            "exit": "从下边把笔抽出来（笔尖从底下出来）",
+            "pressure_profile": "压笔后逐渐抽离",
+            "speed_hint": "慢慢抽离",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 14,
+            "title": "第6节 头头是道",
+            "t": "00:39:09",
+            "evidence_count": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:捺",
+      "name": "捺",
+      "font": "隶书",
+      "category": "捺画类",
+      "tags": [
+        "用笔",
+        "隶书",
+        "捺画",
+        "【解析】",
+        "字头"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 13,
+        "title": "第5节 情有独钟",
+        "t": "00:32:16",
+        "evidence_count": 13
+      },
+      "actions": [
+        {
+          "id": "stroke:捺:起笔",
+          "segment": "起笔",
+          "action": "逆锋起笔。令字人字头的捺画起笔比撇画起笔低一点点，露一个小头。",
+          "measurable": {
+            "direction": "左上→右下",
+            "entry": "在竖画右侧一点起笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 13,
+            "title": "第5节 情有独钟",
+            "t": "00:32:16",
+            "evidence_count": 9
+          }
+        },
+        {
+          "id": "stroke:捺:行笔",
+          "segment": "行笔",
+          "action": "向右行笔，慢慢顿笔；捺画比较直，撇高捺低有一个高度差；撇捺画之间粗细变化不明显。",
+          "measurable": {
+            "direction": "右下",
+            "pressure_profile": "细→粗",
+            "entry": null,
+            "exit": null,
+            "speed_hint": "慢慢",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 13,
+            "title": "第5节 情有独钟",
+            "t": "00:35:52",
+            "evidence_count": 9
+          }
+        },
+        {
+          "id": "stroke:捺:收笔",
+          "segment": "收笔",
+          "action": "顿笔后慢慢出锋。",
+          "measurable": {
+            "exit": "慢慢顿笔出锋",
+            "direction": null,
+            "entry": null,
+            "pressure_profile": "细→粗后出锋",
+            "speed_hint": "慢慢",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 13,
+            "title": "第5节 情有独钟",
+            "t": "00:23:43",
+            "evidence_count": 11
+          }
+        },
+        {
+          "id": "stroke:捺:整笔",
+          "segment": "整笔",
+          "action": "整笔形态：捺画比较直、比较长，撇高捺低有高度差，撇捺粗细基本一致。",
+          "measurable": {
+            "direction": "向右下",
+            "pressure_profile": "基本一样粗细"
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 13,
+            "title": "第5节 情有独钟",
+            "t": "01:14:41",
+            "evidence_count": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:捺画",
+      "name": "捺画",
+      "font": "隶书",
+      "category": "捺画类",
+      "tags": [
+        "隶书",
+        "一波三折",
+        "捺画",
+        "本节新授",
+        "【解析】"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 15,
+        "title": "第15节 中国书法基础知识-基本用笔特点",
+        "t": "00:01:44",
+        "evidence_count": 20
+      },
+      "actions": [
+        {
+          "id": "stroke:捺画:起笔",
+          "segment": "起笔",
+          "action": "上端藏锋起笔。",
+          "measurable": {
+            "direction": "逆锋起笔 → 向下向右",
+            "entry": "逆锋起笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 15,
+            "title": "第15节 中国书法基础知识-基本用笔特点",
+            "t": "00:02:00",
+            "evidence_count": 11
+          }
+        },
+        {
+          "id": "stroke:捺画:行笔",
+          "segment": "行笔",
+          "action": "从左上方向右下方书写，是斜势笔画（斜捺与平捺两种）；有倾斜角度和波折的小弧度、弯曲变化；注意由轻到重的变化。",
+          "measurable": {
+            "direction": "向右下",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "边走边顿；是全字最粗的部分",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 15,
+            "title": "第15节 中国书法基础知识-基本用笔特点",
+            "t": "00:01:48",
+            "evidence_count": 23
+          }
+        },
+        {
+          "id": "stroke:捺画:收笔",
+          "segment": "收笔",
+          "action": "末端向右上方提笔出锋完成。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "顿笔后慢慢出锋",
+            "pressure_profile": null,
+            "speed_hint": "慢",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 15,
+            "title": "第15节 中国书法基础知识-基本用笔特点",
+            "t": "00:02:03",
+            "evidence_count": 15
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:撇",
+      "name": "撇",
+      "font": "隶书",
+      "category": "隶书撇画类",
+      "tags": [
+        "隶书",
+        "撇画类",
+        "小撇",
+        "用笔",
+        "燕尾",
+        "撇画",
+        "【解析】",
+        "字头"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 12,
+        "title": "第4节 群英荟萃",
+        "t": "00:38:35",
+        "evidence_count": 16
+      },
+      "actions": [
+        {
+          "id": "stroke:撇:起笔",
+          "segment": "起笔",
+          "action": "小撇不用藏锋，直接向下漏锋入笔。",
+          "measurable": {
+            "direction": "右→左下",
+            "entry": "逆锋起笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "横画下方、竖画左侧一点（撇）",
+              "横画下方、竖画右侧一点（捺）"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 12,
+            "title": "第4节 群英荟萃",
+            "t": "00:38:35",
+            "evidence_count": 12
+          }
+        },
+        {
+          "id": "stroke:撇:行笔",
+          "segment": "行笔",
+          "action": "向左慢慢推出去，撇画非常小；不能超过该字第二个横画。",
+          "measurable": {
+            "direction": "左下（保持较平）",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "细→粗（逐渐加力）",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 12,
+            "title": "第4节 群英荟萃",
+            "t": "01:37:54",
+            "evidence_count": 15
+          }
+        },
+        {
+          "id": "stroke:撇:收笔",
+          "segment": "收笔",
+          "action": "用笔尖向上回一下笔。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "用笔尖向上回个笔（回锋），收笔圆或斜过来",
+            "pressure_profile": "保持变粗",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 12,
+            "title": "第4节 群英荟萃",
+            "t": "00:38:43",
+            "evidence_count": 14
+          }
+        },
+        {
+          "id": "stroke:撇:整笔",
+          "segment": "整笔",
+          "action": "整笔形态：收笔处像「反过来的一个燕尾」；撇画要带弧度、比捺画短；不能写成一个比较立的状态。",
+          "measurable": {
+            "exit": "反过来的燕尾",
+            "pressure_profile": "由细到粗"
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 13,
+            "title": "第5节 情有独钟",
+            "t": "00:15:52",
+            "evidence_count": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:撇画",
+      "name": "撇画",
+      "font": "隶书",
+      "category": "撇画类",
+      "tags": [
+        "隶书",
+        "撇画",
+        "本节重点"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 15,
+        "title": "第15节 中国书法基础知识-基本用笔特点",
+        "t": "00:01:16",
+        "evidence_count": 13
+      },
+      "actions": [
+        {
+          "id": "stroke:撇画:起笔",
+          "segment": "起笔",
+          "action": "藏锋逆锋切入。",
+          "measurable": {
+            "direction": "向上逆锋起笔 → 圆转 → 向下或向右下撇",
+            "entry": "逆锋轻入",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 15,
+            "title": "第15节 中国书法基础知识-基本用笔特点",
+            "t": "00:01:21",
+            "evidence_count": 9
+          }
+        },
+        {
+          "id": "stroke:撇画:行笔",
+          "segment": "行笔",
+          "action": "先向上再向左下行笔；写的时候注意转折处的轻重变化。",
+          "measurable": {
+            "direction": "向下 → 过横中线 → 向左撇出",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "拐弯处轻压毛笔",
+            "speed_hint": null,
+            "stop_points": [
+              "横中线位置（撇出点）"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 15,
+            "title": "第15节 中国书法基础知识-基本用笔特点",
+            "t": "00:01:21",
+            "evidence_count": 13
+          }
+        },
+        {
+          "id": "stroke:撇画:收笔",
+          "segment": "收笔",
+          "action": "笔画末端笔锋稍钝，向上收笔；收笔可出锋，也可回锋。",
+          "measurable": {
+            "direction": "向左撇出后向上收笔",
+            "entry": null,
+            "exit": "向上收笔（回笔）",
+            "pressure_profile": "渐提",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 15,
+            "title": "第15节 中国书法基础知识-基本用笔特点",
+            "t": "00:01:21",
+            "evidence_count": 9
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:撇折",
+      "name": "撇折",
+      "font": "隶书",
+      "category": "隶书折画类",
+      "tags": [
+        "【解析】",
+        "隶书",
+        "折画",
+        "楷隶之别"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 16,
+        "title": "第8节 头头是道3",
+        "t": "00:56:38",
+        "evidence_count": 4
+      },
+      "actions": [
+        {
+          "id": "stroke:撇折:起笔",
+          "segment": "起笔",
+          "action": "云字下部的撇折：在上面这个横画大约 1/3 处逆锋起笔，向左下写撇，注意不要写得太长。",
+          "measurable": {
+            "direction": "向左下",
+            "entry": "在横画 1/3 处逆锋起笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 16,
+            "title": "第8节 头头是道3",
+            "t": "00:56:38",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:撇折:行笔",
+          "segment": "行笔",
+          "action": "撇的部分比较直，但有粗细变化；折回来的那一段有一点弧度，而且是右上斜上去的。",
+          "measurable": {
+            "direction": "撇：向左下；折回：向右上",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "撇有粗细变化",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 16,
+            "title": "第8节 头头是道3",
+            "t": "00:59:55",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:撇折:转折",
+          "segment": "转折",
+          "action": "撇折折回来时要圆转过来、向右上斜上去并带一点弧度；绝不能直接顿笔就折上去，那是楷书写法，隶书要圆头。",
+          "measurable": {
+            "direction": "向左下 → 圆转 → 向右上",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 16,
+            "title": "第8节 头头是道3",
+            "t": "00:56:57",
+            "evidence_count": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:平撇",
+      "name": "平撇",
+      "font": "隶书",
+      "category": "隶书撇画类",
+      "tags": [
+        "隶书",
+        "撇画",
+        "文字"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 10,
+        "title": "第2节 点石成金，张弛有度",
+        "t": "00:49:07",
+        "evidence_count": 3
+      },
+      "actions": [
+        {
+          "id": "stroke:平撇:起笔",
+          "segment": "起笔",
+          "action": "文字的平撇起笔：逆锋起笔后作调锋（把笔尖提起来但不离开纸面），直接向左撇出去——没有月字小竖撇上面那一段竖，是比较平向的撇。",
+          "measurable": {
+            "direction": "调锋后直接向左平出",
+            "entry": "逆锋起笔 + 调锋",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 10,
+            "title": "第2节 点石成金，张弛有度",
+            "t": "00:49:12",
+            "evidence_count": 5
+          }
+        },
+        {
+          "id": "stroke:平撇:行笔",
+          "segment": "行笔",
+          "action": "平撇行笔：向左平推出去，把毛笔送到位置，撇画是比较平的一个，不能撇成立着的形状。",
+          "measurable": {
+            "direction": "向左平推",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 10,
+            "title": "第2节 点石成金，张弛有度",
+            "t": "00:52:25",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:平撇:收笔",
+          "segment": "收笔",
+          "action": "平撇收笔：撇出去以后向上用笔尖回一下笔，与后一个笔画形成笔势上的承接。",
+          "measurable": {
+            "direction": "向上回笔",
+            "entry": null,
+            "exit": "用笔尖向上回笔",
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 10,
+            "title": "第2节 点石成金，张弛有度",
+            "t": "00:52:25",
+            "evidence_count": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:竖",
+      "name": "竖",
+      "font": "隶书",
+      "category": "竖画类",
+      "tags": [
+        "用笔",
+        "隶书",
+        "向内收",
+        "竖画",
+        "【解析】",
+        "字头"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 13,
+        "title": "第5节 情有独钟",
+        "t": "00:11:41",
+        "evidence_count": 11
+      },
+      "actions": [
+        {
+          "id": "stroke:竖:起笔",
+          "segment": "起笔",
+          "action": "逆锋起笔后按向内收的方向写。草字头里的两个竖画起笔就要写得厚、粗；土字头的竖画起笔后由粗到细。",
+          "measurable": {
+            "direction": "上→下，向内收",
+            "entry": "逆锋起笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 13,
+            "title": "第5节 情有独钟",
+            "t": "00:20:47",
+            "evidence_count": 9
+          }
+        },
+        {
+          "id": "stroke:竖:行笔",
+          "segment": "行笔",
+          "action": "竖画由粗到细地向下写；土字头的竖画只露一点点小头，不能写长。",
+          "measurable": {
+            "direction": "向内收",
+            "pressure_profile": "粗→细",
+            "entry": null,
+            "exit": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 13,
+            "title": "第5节 情有独钟",
+            "t": "00:53:58",
+            "evidence_count": 11
+          }
+        },
+        {
+          "id": "stroke:竖:收笔",
+          "segment": "收笔",
+          "action": "收笔时用笔尖轻轻回一下就可以了。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "由粗到细收住",
+            "pressure_profile": "粗→细",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 14,
+            "title": "第6节 头头是道",
+            "t": "00:14:25",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:竖:转折",
+          "segment": "转折",
+          "action": "遇到横画就转过来向下书写，转折处要圆润，转过来以后仍是向内收。",
+          "measurable": {
+            "direction": "向下（转折后向内收）",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "转折处（要圆润）"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 15,
+            "title": "第7节 头头是道2",
+            "t": "00:26:00",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:竖:整笔",
+          "segment": "整笔",
+          "action": "整笔形态：草字头的两个竖画向内收，写得较胖较粗；土字头的竖画由粗到细、只露一点小头。",
+          "measurable": {
+            "direction": "向内收",
+            "pressure_profile": "粗→细"
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 13,
+            "title": "第5节 情有独钟",
+            "t": "00:11:41",
+            "evidence_count": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:竖点",
+      "name": "竖点",
+      "font": "隶书",
+      "category": "隶书点画类",
+      "tags": [
+        "隶书",
+        "点画",
+        "竖点",
+        "【解析】"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 10,
+        "title": "第2节 点石成金，张弛有度",
+        "t": "00:13:07",
+        "evidence_count": 7
+      },
+      "actions": [
+        {
+          "id": "stroke:竖点:起笔",
+          "segment": "起笔",
+          "action": "竖点（上面那个小点）起笔与竖画起笔相同：逆入藏锋起笔，先向上有一个动作，用毛笔顶上去，再圆转过来向下。",
+          "measurable": {
+            "direction": "向上起笔 → 圆转 → 向下",
+            "entry": "向上逆锋起笔，圆转过来",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": "慢一点",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 10,
+            "title": "第2节 点石成金，张弛有度",
+            "t": "00:12:44",
+            "evidence_count": 11
+          }
+        },
+        {
+          "id": "stroke:竖点:行笔",
+          "segment": "行笔",
+          "action": "竖点行笔：圆转过来以后用笔尖把它写下来，中途不要压着笔不动，要有一个稍微提笔的动作。",
+          "measurable": {
+            "direction": "向下",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "落笔后稍提笔",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 10,
+            "title": "第2节 点石成金，张弛有度",
+            "t": "00:14:14",
+            "evidence_count": 2
+          }
+        },
+        {
+          "id": "stroke:竖点:收笔",
+          "segment": "收笔",
+          "action": "竖点收笔要圆润：先向上顶一下毛笔再圆转下行，不能在落笔处压着不动，否则会像之前那样出现一个「大脑袋」。",
+          "measurable": {
+            "direction": "向下 → 慢慢提笔",
+            "entry": null,
+            "exit": "慢慢把笔尖提起来，出锋呈尖状",
+            "pressure_profile": null,
+            "speed_hint": "慢一点",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 10,
+            "title": "第2节 点石成金，张弛有度",
+            "t": "00:14:09",
+            "evidence_count": 7
+          }
+        },
+        {
+          "id": "stroke:竖点:整笔",
+          "segment": "整笔",
+          "action": "守字（字幕作「手／首／守」）宝盖头点画的变体：方向向左倒过来，比完字的长一点，像一个小短竖，底下带小回笔；整体更粗重。",
+          "measurable": {
+            "direction": "向左斜过来",
+            "entry": "逆锋起笔",
+            "exit": "底下带一个小回笔",
+            "pressure_profile": "更粗重",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 16,
+            "title": "第8节 头头是道3",
+            "t": "00:32:39",
+            "evidence_count": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:竖钩",
+      "name": "竖钩",
+      "font": "隶书",
+      "category": "钩画类",
+      "tags": [
+        "隶书",
+        "钩画类",
+        "竖钩",
+        "曹全碑特征",
+        "用笔",
+        "【解析】"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 15,
+        "title": "第15节 中国书法基础知识-基本用笔特点",
+        "t": "00:03:05",
+        "evidence_count": 15
+      },
+      "actions": [
+        {
+          "id": "stroke:竖钩:起笔",
+          "segment": "起笔",
+          "action": "藏锋逆锋切入。",
+          "measurable": {
+            "direction": "先向右下",
+            "entry": "逆锋起笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 15,
+            "title": "第15节 中国书法基础知识-基本用笔特点",
+            "t": "00:03:05",
+            "evidence_count": 8
+          }
+        },
+        {
+          "id": "stroke:竖钩:行笔",
+          "segment": "行笔",
+          "action": "先竖，再后向左送。",
+          "measurable": {
+            "direction": "右下 → 向下（很短）→ 向左推出去（较长）",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "转弯处最粗",
+            "speed_hint": "圆润转弯，慢慢弯转过来",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 15,
+            "title": "第15节 中国书法基础知识-基本用笔特点",
+            "t": "00:03:11",
+            "evidence_count": 10
+          }
+        },
+        {
+          "id": "stroke:竖钩:收笔",
+          "segment": "收笔",
+          "action": "收笔处回锋，或出锋。",
+          "measurable": {
+            "direction": "向左",
+            "entry": null,
+            "exit": "回锋或出锋",
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "inferred",
+          "source": {
+            "part": 15,
+            "title": "第15节 中国书法基础知识-基本用笔特点",
+            "t": "00:03:11",
+            "evidence_count": 1
+          }
+        },
+        {
+          "id": "stroke:竖钩:转折",
+          "segment": "转折",
+          "action": "竖画底部用笔尖圆转过来（像写撇画一样转），转弯处是整笔最重、最粗的地方。",
+          "measurable": {
+            "direction": "下 → 左",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "转弯处最重",
+            "speed_hint": "慢",
+            "stop_points": [
+              "转弯处"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 12,
+            "title": "第4节 群英荟萃",
+            "t": "00:17:10",
+            "evidence_count": 6
+          }
+        },
+        {
+          "id": "stroke:竖钩:钩",
+          "segment": "钩",
+          "action": "像写撇画一样，用无名指把毛笔慢慢向左送出去，慢慢出一个小尖儿；不能直接挑出去，也不能飞扫出去。",
+          "measurable": {
+            "direction": "向左推出后回锋",
+            "entry": null,
+            "exit": "用笔尖回一下锋，收笔圆润（去掉碑上残破的尖儿）",
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 12,
+            "title": "第4节 群英荟萃",
+            "t": "00:13:07",
+            "evidence_count": 12
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:竖钩（守字）",
+      "name": "竖钩（守字）",
+      "font": "隶书",
+      "category": "隶书钩画类",
+      "tags": [
+        "【解析】",
+        "隶书",
+        "钩画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 16,
+        "title": "第8节 头头是道3",
+        "t": "00:38:02",
+        "evidence_count": 4
+      },
+      "actions": [
+        {
+          "id": "stroke:竖钩（守字）:起笔",
+          "segment": "起笔",
+          "action": "守字下面的竖钩：先写一个小短横，然后逆锋起笔。",
+          "measurable": {
+            "direction": "向下",
+            "entry": "逆锋起笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 16,
+            "title": "第8节 头头是道3",
+            "t": "00:38:02",
+            "evidence_count": 2
+          }
+        },
+        {
+          "id": "stroke:竖钩（守字）:收笔",
+          "segment": "收笔",
+          "action": "圆转过来之后用笔尖直接写出圆润的弧度，慢慢把笔提起来，全程不压笔；形态像雨伞把。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "用笔尖直接推出圆润的弧度，慢慢提笔",
+            "pressure_profile": "不压笔",
+            "speed_hint": "慢",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 16,
+            "title": "第8节 头头是道3",
+            "t": "00:39:33",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:竖钩（守字）:转折",
+          "segment": "转折",
+          "action": "竖钩在转折处圆转过来之后直接提笔，不压笔，所以会边写越写越细——跟之前学的竖钩（在转折处压笔）稍有不同。",
+          "measurable": {
+            "direction": "向下 → 圆转",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "不压笔，边写越写越细",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 16,
+            "title": "第8节 头头是道3",
+            "t": "00:38:53",
+            "evidence_count": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:竖画",
+      "name": "竖画",
+      "font": "隶书",
+      "category": "竖画类",
+      "tags": [
+        "隶书",
+        "弓弩直立",
+        "【解析】",
+        "篆书",
+        "竖画",
+        "笔画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 15,
+        "title": "第15节 中国书法基础知识-基本用笔特点",
+        "t": "00:00:48",
+        "evidence_count": 30
+      },
+      "actions": [
+        {
+          "id": "stroke:竖画:起笔",
+          "segment": "起笔",
+          "action": "起笔逆锋切入。",
+          "measurable": {
+            "direction": "向上圆转后向下",
+            "entry": "逆锋起笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 15,
+            "title": "第15节 中国书法基础知识-基本用笔特点",
+            "t": "00:00:52",
+            "evidence_count": 17
+          }
+        },
+        {
+          "id": "stroke:竖画:行笔",
+          "segment": "行笔",
+          "action": "铺毫下行，下行过程中用力要均匀。",
+          "measurable": {
+            "direction": "向下，略向左偏",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 15,
+            "title": "第15节 中国书法基础知识-基本用笔特点",
+            "t": "00:00:56",
+            "evidence_count": 21
+          }
+        },
+        {
+          "id": "stroke:竖画:收笔",
+          "segment": "收笔",
+          "action": "收笔时笔锋慢提，在空中虚势；收锋线的形态呈锥状。",
+          "measurable": {
+            "direction": "上→下",
+            "entry": null,
+            "exit": "提笔后用笔尖回锋一下出尖",
+            "pressure_profile": "渐提渐轻",
+            "speed_hint": "慢",
+            "stop_points": [
+              "笔尖回锋处"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 15,
+            "title": "第15节 中国书法基础知识-基本用笔特点",
+            "t": "00:01:01",
+            "evidence_count": 16
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:竖提",
+      "name": "竖提",
+      "font": "隶书",
+      "category": "隶书提画类",
+      "tags": [
+        "隶书",
+        "提画类",
+        "竖提"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 12,
+        "title": "第4节 群英荟萃",
+        "t": "01:18:57",
+        "evidence_count": 3
+      },
+      "actions": [
+        {
+          "id": "stroke:竖提:起笔",
+          "segment": "起笔",
+          "action": "先逆锋起笔写一个小竖画，向下轻轻压毛笔，笔画自然由细变粗。",
+          "measurable": {
+            "direction": "上 → 下",
+            "entry": "逆锋起笔，向下轻压毛笔",
+            "exit": null,
+            "pressure_profile": "由细到粗",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 12,
+            "title": "第4节 群英荟萃",
+            "t": "01:20:25",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:竖提:行笔",
+          "segment": "行笔",
+          "action": "竖画由细到粗（慢慢把毛笔按下去就变粗），竖画略微向左斜。",
+          "measurable": {
+            "direction": "上 → 下",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "由细到粗",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 12,
+            "title": "第4节 群英荟萃",
+            "t": "01:20:43",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:竖提:收笔",
+          "segment": "收笔",
+          "action": "圆转过来后向右上把毛笔送出去出锋，出尖的地方离横中线非常近。",
+          "measurable": {
+            "direction": "右上",
+            "entry": null,
+            "exit": "向右上送出去出尖",
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "出尖处（近横中线）"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 12,
+            "title": "第4节 群英荟萃",
+            "t": "01:19:54",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:竖提:转折",
+          "segment": "转折",
+          "action": "在竖画收笔的位置向左轻压毛笔，然后逆锋起笔、圆转过来；动作要缓慢，不能一下子猛按再猛抬。",
+          "measurable": {
+            "direction": "下 → 左 → 右上",
+            "entry": "向左轻压毛笔后逆锋起笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": "缓慢一点",
+            "stop_points": [
+              "竖画收笔处"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 12,
+            "title": "第4节 群英荟萃",
+            "t": "01:19:19",
+            "evidence_count": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:竖弯",
+      "name": "竖弯（字幕作「竖环」）",
+      "font": "隶书",
+      "category": "竖类",
+      "tags": [
+        "竖类",
+        "篆书"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 2,
+        "title": "第2节 不积跬步无以至千里",
+        "t": "00:16:11",
+        "evidence_count": 3
+      },
+      "actions": [
+        {
+          "id": "stroke:竖弯:起笔",
+          "segment": "起笔",
+          "action": "竖弯起笔：斜着把笔锋打开（斜切切入），使笔毫铺开，笔画起始处最粗。",
+          "measurable": {
+            "entry": "斜切切入，斜着把笔锋打开，笔毫铺开",
+            "pressure_profile": "起笔处最粗"
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 2,
+            "title": "第2节 不积跬步无以至千里",
+            "t": "00:56:52",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:竖弯:行笔",
+          "segment": "行笔",
+          "action": "竖弯行笔：自上而下带轻微弧度地写出，笔画由粗到细；弧度一定要写出来，不能拉成一条直线。",
+          "measurable": {
+            "direction": "自上而下，带轻微弧度",
+            "pressure_profile": "由粗到细（起笔粗、向下渐细）"
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 2,
+            "title": "第2节 不积跬步无以至千里",
+            "t": "00:18:06",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:竖弯:收笔",
+          "segment": "收笔",
+          "action": "竖弯收笔：沿上边缘线收笔，下缘形成一道斜切口；最后慢慢抬笔，把尖儿抬出来（写的时候很快，不必完全照搬这个斜度）。",
+          "measurable": {
+            "exit": "沿上边缘线收笔，下缘呈斜切口",
+            "pressure_profile": "收笔时笔尖逐渐提起",
+            "stop_points": [
+              "收笔处的上边缘线"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 2,
+            "title": "第2节 不积跬步无以至千里",
+            "t": "00:42:33",
+            "evidence_count": 5
+          }
+        },
+        {
+          "id": "stroke:竖弯:转折",
+          "segment": "转折",
+          "action": "竖弯的转折处：写到弯处先停顿一下再接第二笔，接口明显、略不对称即可，不必收得完全均匀；要能感觉到这个拐点的位置。",
+          "measurable": {
+            "direction": "转折处由竖直方向转向横向",
+            "exit": "停顿后接第二笔",
+            "stop_points": [
+              "转折停顿处（接口）"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 2,
+            "title": "第2节 不积跬步无以至千里",
+            "t": "00:12:18",
+            "evidence_count": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:竖弯钩",
+      "name": "竖弯钩",
+      "font": "隶书",
+      "category": "隶书钩画类",
+      "tags": [
+        "隶书",
+        "钩画类",
+        "竖弯钩",
+        "轻燕尾",
+        "【解析】",
+        "钩画",
+        "呼应"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 12,
+        "title": "第4节 群英荟萃",
+        "t": "00:39:12",
+        "evidence_count": 8
+      },
+      "actions": [
+        {
+          "id": "stroke:竖弯钩:起笔",
+          "segment": "起笔",
+          "action": "先逆锋起笔写一个小竖画。",
+          "measurable": {
+            "direction": "起笔后向右下",
+            "entry": "逆锋起笔，先写一个小竖",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 12,
+            "title": "第4节 群英荟萃",
+            "t": "00:40:07",
+            "evidence_count": 6
+          }
+        },
+        {
+          "id": "stroke:竖弯钩:行笔",
+          "segment": "行笔",
+          "action": "向右下写捺画，边走边顿，和写捺画的写法一样。",
+          "measurable": {
+            "direction": "向右下",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "边走边顿",
+            "speed_hint": "慢",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 12,
+            "title": "第4节 群英荟萃",
+            "t": "00:41:20",
+            "evidence_count": 6
+          }
+        },
+        {
+          "id": "stroke:竖弯钩:收笔",
+          "segment": "收笔",
+          "action": "顿笔后慢慢出锋，收尾微微向右上扬；这种燕尾的顿笔不如捺画明显，叫轻燕尾。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "顿笔后慢慢出锋",
+            "pressure_profile": null,
+            "speed_hint": "慢",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 12,
+            "title": "第4节 群英荟萃",
+            "t": "00:39:26",
+            "evidence_count": 9
+          }
+        },
+        {
+          "id": "stroke:竖弯钩:转折",
+          "segment": "转折",
+          "action": "写完小竖画后把毛笔慢慢提起来——这个提笔过程就是调锋，毛笔不离开纸面，方便向右下转过去。",
+          "measurable": {
+            "direction": "下 → 右下",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "提笔变细",
+            "speed_hint": "慢",
+            "stop_points": [
+              "竖画收笔处提笔调锋"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 12,
+            "title": "第4节 群英荟萃",
+            "t": "00:43:30",
+            "evidence_count": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:竖折",
+      "name": "竖折",
+      "font": "隶书",
+      "category": "折类",
+      "tags": [
+        "折类",
+        "篆书",
+        "隶书",
+        "折画",
+        "折画类",
+        "竖折",
+        "复习"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 2,
+        "title": "第2节 不积跬步无以至千里",
+        "t": "00:12:10",
+        "evidence_count": 11
+      },
+      "actions": [
+        {
+          "id": "stroke:竖折:起笔",
+          "segment": "起笔",
+          "action": "竖折的竖画起笔：逆锋起笔，向下写竖（隶书竖画一般带一点点弧度）。",
+          "measurable": {
+            "direction": "上 → 下",
+            "entry": "逆锋起笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 11,
+            "title": "第3节 宛转矩折",
+            "t": "01:05:32",
+            "evidence_count": 5
+          }
+        },
+        {
+          "id": "stroke:竖折:行笔",
+          "segment": "行笔",
+          "action": "竖折写法：先写竖，顿住后在折角处稍微停顿一下，再折出第二笔（横）；接口明显、可以略不对称。",
+          "measurable": {
+            "direction": "先竖后横",
+            "exit": "折角停顿后接横",
+            "stop_points": [
+              "折角处"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 2,
+            "title": "第2节 不积跬步无以至千里",
+            "t": "00:12:18",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:竖折:收笔",
+          "segment": "收笔",
+          "action": "竖折收笔：折出的横按横画的要求写（微微上拱），最后把口收住；收尾方圆皆可。",
+          "measurable": {
+            "exit": "方圆皆可，不强求圆润"
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 2,
+            "title": "第2节 不积跬步无以至千里",
+            "t": "00:12:10",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:竖折:转折",
+          "segment": "转折",
+          "action": "竖折的横画在竖画之内起笔：竖写完后，在竖画中间的位置逆锋起笔，向右写横画；这样横画的下缘与竖画外轮廓连成一个圆润的形状。",
+          "measurable": {
+            "direction": "下 → 右",
+            "entry": "在竖画内逆锋起笔",
+            "exit": null,
+            "pressure_profile": "圆转处逐渐压笔",
+            "speed_hint": null,
+            "stop_points": [
+              "竖画内起横处"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 11,
+            "title": "第3节 宛转矩折",
+            "t": "01:05:46",
+            "evidence_count": 10
+          }
+        },
+        {
+          "id": "stroke:竖折:整笔",
+          "segment": "整笔",
+          "action": "隶书的竖折和横折都是搭接写出来的、都分两笔写（口诀「逢折必断」）；一笔连着写会出现楷书那种方正感，隶书的造型就没了。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": "分两笔写",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 11,
+            "title": "第3节 宛转矩折",
+            "t": "01:08:26",
+            "evidence_count": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:提画",
+      "name": "提画",
+      "font": "隶书",
+      "category": "提画类",
+      "tags": [
+        "隶书"
+      ],
+      "certainty": "inferred",
+      "source": {
+        "part": 15,
+        "title": "第15节 中国书法基础知识-基本用笔特点",
+        "t": "00:02:54",
+        "evidence_count": 3
+      },
+      "actions": [
+        {
+          "id": "stroke:提画:行笔",
+          "segment": "行笔",
+          "action": "从左下向右上挑起，用力由重而轻。",
+          "measurable": {
+            "direction": "左下→右上",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "由重→轻",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 15,
+            "title": "第15节 中国书法基础知识-基本用笔特点",
+            "t": "00:02:59",
+            "evidence_count": 1
+          }
+        },
+        {
+          "id": "stroke:提画:整笔",
+          "segment": "整笔",
+          "action": "提画是从左下向右上挑起的笔画，用力由重而轻；倾斜度略有不同。（字幕同句作「立贯始终」，未确证，保留原词。）",
+          "measurable": {
+            "direction": "左下→右上",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "由重→轻",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "inferred",
+          "source": {
+            "part": 15,
+            "title": "第15节 中国书法基础知识-基本用笔特点",
+            "t": "00:02:59",
+            "evidence_count": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:卧钩",
+      "name": "卧钩",
+      "font": "隶书",
+      "category": "隶书钩画类",
+      "tags": [
+        "隶书",
+        "钩画类",
+        "卧钩"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 12,
+        "title": "第4节 群英荟萃",
+        "t": "00:57:19",
+        "evidence_count": 3
+      },
+      "actions": [
+        {
+          "id": "stroke:卧钩:起笔",
+          "segment": "起笔",
+          "action": "在左斜线下方一点点逆锋起笔（起笔动作与其它笔画一致，只是方向不同）。",
+          "measurable": {
+            "direction": "右下",
+            "entry": "逆锋起笔（左斜线下）",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "左斜线下起笔处"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 12,
+            "title": "第4节 群英荟萃",
+            "t": "00:57:38",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:卧钩:行笔",
+          "segment": "行笔",
+          "action": "中间有一段变细，斜着向中心点的位置写下来；到中心点后边走边顿，慢慢变平。",
+          "measurable": {
+            "direction": "右下 → 转平",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "中段变细，后段变粗",
+            "speed_hint": null,
+            "stop_points": [
+              "中心点处"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 12,
+            "title": "第4节 群英荟萃",
+            "t": "00:57:47",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:卧钩:收笔",
+          "segment": "收笔",
+          "action": "慢慢把毛笔平着送出去（出锋），收尾落在横中线下方；整体平缓，但不能写成横。",
+          "measurable": {
+            "direction": "平向右",
+            "entry": null,
+            "exit": "平向出锋",
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "横中线下收尾处"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 12,
+            "title": "第4节 群英荟萃",
+            "t": "00:58:03",
+            "evidence_count": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:向内收的竖画",
+      "name": "向内收的竖画",
+      "font": "隶书",
+      "category": "隶书竖画类",
+      "tags": [
+        "【解析】",
+        "隶书",
+        "竖画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 16,
+        "title": "第8节 头头是道3",
+        "t": "00:46:10",
+        "evidence_count": 4
+      },
+      "actions": [
+        {
+          "id": "stroke:向内收的竖画:起笔",
+          "segment": "起笔",
+          "action": "竖画逆锋起笔，向内收着写。",
+          "measurable": {
+            "direction": "向内收",
+            "entry": "逆锋起笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 16,
+            "title": "第8节 头头是道3",
+            "t": "00:46:10",
+            "evidence_count": 2
+          }
+        },
+        {
+          "id": "stroke:向内收的竖画:行笔",
+          "segment": "行笔",
+          "action": "两竖略向内斜、带一点小弧度；九字头两边的竖画也必须向内收。",
+          "measurable": {
+            "direction": "略向内斜",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 16,
+            "title": "第8节 头头是道3",
+            "t": "00:45:09",
+            "evidence_count": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:小短横（雨字头四点）",
+      "name": "小短横（雨字头四点）",
+      "font": "隶书",
+      "category": "隶书点画类",
+      "tags": [
+        "【解析】",
+        "隶书",
+        "点画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 16,
+        "title": "第8节 头头是道3",
+        "t": "00:51:28",
+        "evidence_count": 5
+      },
+      "actions": [
+        {
+          "id": "stroke:小短横（雨字头四点）:起笔",
+          "segment": "起笔",
+          "action": "雨字头四个点画用笔尖写，不要用力压毛笔；起笔要有藏锋的动作，越是细小的笔画越要做精致一点。",
+          "measurable": {
+            "direction": null,
+            "entry": "用笔尖起笔，藏锋",
+            "exit": null,
+            "pressure_profile": "轻，不要压笔",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 16,
+            "title": "第8节 头头是道3",
+            "t": "00:51:32",
+            "evidence_count": 5
+          }
+        },
+        {
+          "id": "stroke:小短横（雨字头四点）:行笔",
+          "segment": "行笔",
+          "action": "四个点画写得很随意，粗细、长短各不相同，不必把下面几笔照着上面一笔比量成一样。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "粗细不一",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 16,
+            "title": "第8节 头头是道3",
+            "t": "00:51:54",
+            "evidence_count": 6
+          }
+        },
+        {
+          "id": "stroke:小短横（雨字头四点）:整笔",
+          "segment": "整笔",
+          "action": "四个点画要控制好长短：与左边小竖画之间留出小距离，上下的间距也要匀称，空间排布整体要整。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "与左边小竖画之间留出小距离"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 16,
+            "title": "第8节 头头是道3",
+            "t": "00:55:13",
+            "evidence_count": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:小撇画",
+      "name": "小撇画",
+      "font": "隶书",
+      "category": "隶书撇画类",
+      "tags": [
+        "【解析】",
+        "隶书",
+        "撇画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 16,
+        "title": "第8节 头头是道3",
+        "t": "00:14:35",
+        "evidence_count": 5
+      },
+      "actions": [
+        {
+          "id": "stroke:小撇画:起笔",
+          "segment": "起笔",
+          "action": "小撇画在短横画大约 1/3 的位置起笔。",
+          "measurable": {
+            "direction": null,
+            "entry": "在短横画 1/3 处起笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 16,
+            "title": "第8节 头头是道3",
+            "t": "00:14:35",
+            "evidence_count": 2
+          }
+        },
+        {
+          "id": "stroke:小撇画:行笔",
+          "segment": "行笔",
+          "action": "小撇画比较直，由细到粗地写。",
+          "measurable": {
+            "direction": "向左下",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "由细到粗",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 16,
+            "title": "第8节 头头是道3",
+            "t": "00:03:55",
+            "evidence_count": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:小竖撇",
+      "name": "小竖撇",
+      "font": "隶书",
+      "category": "隶书撇画类",
+      "tags": [
+        "隶书",
+        "撇画",
+        "月字"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 10,
+        "title": "第2节 点石成金，张弛有度",
+        "t": "00:30:24",
+        "evidence_count": 3
+      },
+      "actions": [
+        {
+          "id": "stroke:小竖撇:起笔",
+          "segment": "起笔",
+          "action": "月字的小竖撇起笔：逆锋起笔，先向上走，这小竖撇上边一节的写法跟竖画完全一样。",
+          "measurable": {
+            "direction": "先向上（竖的一段）",
+            "entry": "逆锋起笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 10,
+            "title": "第2节 点石成金，张弛有度",
+            "t": "00:30:39",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:小竖撇:行笔",
+          "segment": "行笔",
+          "action": "小竖撇中段有一个调锋动作：把笔稍微提起来，笔画出现一点变细；然后才向左撇出去，否则笔毛会散。撇出时用手指（无名指顶住毛笔）把毛笔向左平推送出去，是平向的撇，不是斜撇。",
+          "measurable": {
+            "direction": "竖向一段 → 向左平推",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "中段稍微变细（提笔调锋）",
+            "speed_hint": null,
+            "stop_points": [
+              "调锋处"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 10,
+            "title": "第2节 点石成金，张弛有度",
+            "t": "00:33:04",
+            "evidence_count": 7
+          }
+        },
+        {
+          "id": "stroke:小竖撇:收笔",
+          "segment": "收笔",
+          "action": "小竖撇收笔：向左撇出去后停住，把笔稍微提起来用笔尖向上回一下笔。向上回是为了跟下一个横画有笔势承接——隶书笔画笔笔断、笔笔连。",
+          "measurable": {
+            "direction": "向左撇出后向上回笔",
+            "entry": null,
+            "exit": "停住后提笔，用笔尖向上回笔",
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "撇出后的停笔处"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 10,
+            "title": "第2节 点石成金，张弛有度",
+            "t": "00:34:09",
+            "evidence_count": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:斜钩",
+      "name": "斜钩",
+      "font": "隶书",
+      "category": "隶书钩画类",
+      "tags": [
+        "隶书",
+        "钩画类",
+        "斜钩"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 12,
+        "title": "第4节 群英荟萃",
+        "t": "01:13:54",
+        "evidence_count": 3
+      },
+      "actions": [
+        {
+          "id": "stroke:斜钩:起笔",
+          "segment": "起笔",
+          "action": "逆锋起笔，往右下倾斜；写法跟之前学过的捺画基本一样。",
+          "measurable": {
+            "direction": "右下",
+            "entry": "逆锋起笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 12,
+            "title": "第4节 群英荟萃",
+            "t": "01:13:54",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:斜钩:行笔",
+          "segment": "行笔",
+          "action": "往右下写，中间有一段变细的过程。",
+          "measurable": {
+            "direction": "右下",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "中间变细",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 12,
+            "title": "第4节 群英荟萃",
+            "t": "01:15:11",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:斜钩:收笔",
+          "segment": "收笔",
+          "action": "逐渐顿笔，再慢慢用笔尖出锋；顿笔的位置挨着左斜线。",
+          "measurable": {
+            "direction": "右下 → 出锋",
+            "entry": null,
+            "exit": "顿笔出锋",
+            "pressure_profile": "顿后提笔",
+            "speed_hint": null,
+            "stop_points": [
+              "顿笔处（挨左斜线）"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 12,
+            "title": "第4节 群英荟萃",
+            "t": "01:15:14",
+            "evidence_count": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:右向点",
+      "name": "右向点",
+      "font": "隶书",
+      "category": "隶书点画类",
+      "tags": [
+        "隶书",
+        "点画",
+        "右向点"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 10,
+        "title": "第2节 点石成金，张弛有度",
+        "t": "00:17:46",
+        "evidence_count": 2
+      },
+      "actions": [
+        {
+          "id": "stroke:右向点:起笔",
+          "segment": "起笔",
+          "action": "右向点（六字右下那一点）起笔：同样逆锋起笔，只是方向上有一个小变化，圆转过来向右下写。",
+          "measurable": {
+            "direction": "圆转后向右下",
+            "entry": "逆锋起笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 10,
+            "title": "第2节 点石成金，张弛有度",
+            "t": "00:17:58",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:右向点:行笔",
+          "segment": "行笔",
+          "action": "右向点行笔：圆转过来向右下，边往下写边慢慢把笔提起来（渐行渐提），写出小尖。",
+          "measurable": {
+            "direction": "向右下",
+            "entry": null,
+            "exit": "出一个小尖",
+            "pressure_profile": "渐行渐提",
+            "speed_hint": "慢慢把笔提起来",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 10,
+            "title": "第2节 点石成金，张弛有度",
+            "t": "00:18:12",
+            "evidence_count": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:长横",
+      "name": "长横",
+      "font": "隶书",
+      "category": "横画类",
+      "tags": [
+        "隶书",
+        "蚕头燕尾",
+        "一波三折",
+        "复习",
+        "长横"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 15,
+        "title": "第15节 中国书法基础知识-基本用笔特点",
+        "t": "00:00:29",
+        "evidence_count": 17
+      },
+      "actions": [
+        {
+          "id": "stroke:长横:起笔",
+          "segment": "起笔",
+          "action": "起笔向左下逆锋切入，然后向行笔方向过渡。",
+          "measurable": {
+            "direction": "左→右",
+            "entry": "逆锋起笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 15,
+            "title": "第15节 中国书法基础知识-基本用笔特点",
+            "t": "00:00:37",
+            "evidence_count": 22
+          }
+        },
+        {
+          "id": "stroke:长横:行笔",
+          "segment": "行笔",
+          "action": "行笔过程中轻重变化较为明显，整体呈现两头重、中间轻的形态。",
+          "measurable": {
+            "direction": "左→右（写平时保持平直，不作右上斜）",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 15,
+            "title": "第15节 中国书法基础知识-基本用笔特点",
+            "t": "00:00:37",
+            "evidence_count": 27
+          }
+        },
+        {
+          "id": "stroke:长横:收笔",
+          "segment": "收笔",
+          "action": "渐顿下来作「原地右下顿」（边走边按、逐渐变重），再慢慢把笔锋抬起来平出成尖；顿笔最重处与起笔处在同一条水平线上。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "慢慢顿笔出锋",
+            "pressure_profile": null,
+            "speed_hint": "慢慢",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 9,
+            "title": "第1节 蚕头雁尾，弓弩直立",
+            "t": "00:27:33",
+            "evidence_count": 25
+          }
+        },
+        {
+          "id": "stroke:长横:整笔",
+          "segment": "整笔",
+          "action": "整体形态具备蚕头燕尾、一波三折的特点，是《曹全碑》中最具代表性的笔画。",
+          "measurable": {
+            "direction": "左→右",
+            "entry": "逆锋，向左下",
+            "exit": null,
+            "pressure_profile": "两头重→中间轻",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "inferred",
+          "source": {
+            "part": 15,
+            "title": "第15节 中国书法基础知识-基本用笔特点",
+            "t": "00:00:29",
+            "evidence_count": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:长横低头起笔",
+      "name": "长横·梯形低头起笔",
+      "font": "隶书",
+      "category": "隶书横画类",
+      "tags": [
+        "隶书",
+        "梯形低头起笔"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 9,
+        "title": "第1节 蚕头雁尾，弓弩直立",
+        "t": "00:48:05",
+        "evidence_count": 2
+      },
+      "actions": [
+        {
+          "id": "stroke:长横低头起笔:起笔",
+          "segment": "起笔",
+          "action": "梯形低头起笔（王字的长横）：先向左轻压毛笔，再向左前方压一下笔，转过来调锋后向右写，形成「低头」的感觉；起笔向左前方倾斜。",
+          "measurable": {
+            "direction": "先向左 → 向左前方压笔 → 转锋向右",
+            "entry": "逆锋轻入后向左前方压笔",
+            "exit": null,
+            "pressure_profile": "轻压 → 压笔成梯形 → 匀称",
+            "speed_hint": "慢",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 9,
+            "title": "第1节 蚕头雁尾，弓弩直立",
+            "t": "00:48:42",
+            "evidence_count": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:长横方头起笔",
+      "name": "长横·方头起笔",
+      "font": "隶书",
+      "category": "隶书横画类",
+      "tags": [
+        "隶书",
+        "方头起笔"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 9,
+        "title": "第1节 蚕头雁尾，弓弩直立",
+        "t": "00:31:31",
+        "evidence_count": 3
+      },
+      "actions": [
+        {
+          "id": "stroke:长横方头起笔:起笔",
+          "segment": "起笔",
+          "action": "方头起笔（三字长横）：先向左轻压毛笔，把毛笔竖过来向下压笔，把方头的形态描绘出来，然后向下压住、把笔锋调过来，中锋运笔向右写，最后顿笔出锋。",
+          "measurable": {
+            "direction": "先向左 → 向下竖压（成方头）→ 调锋向右",
+            "entry": "逆锋轻入后向左轻压，把笔竖过来向下压出方头",
+            "exit": null,
+            "pressure_profile": "轻压 → 向下压笔 → 调锋后中锋匀称",
+            "speed_hint": "慢",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 9,
+            "title": "第1节 蚕头雁尾，弓弩直立",
+            "t": "00:31:31",
+            "evidence_count": 9
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:长横圆头起笔",
+      "name": "长横·圆头起笔",
+      "font": "隶书",
+      "category": "隶书横画类",
+      "tags": [
+        "隶书",
+        "圆头起笔"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 9,
+        "title": "第1节 蚕头雁尾，弓弩直立",
+        "t": "00:39:58",
+        "evidence_count": 3
+      },
+      "actions": [
+        {
+          "id": "stroke:长横圆头起笔:起笔",
+          "segment": "起笔",
+          "action": "圆头起笔（干字的长横）：与短横起笔动作相同，先向左轻压毛笔，圆转过来向右写，中间有变细过程，最后顿笔出锋。",
+          "measurable": {
+            "direction": "先向左 → 圆转 → 向右",
+            "entry": "逆锋轻入，向左轻压后圆转",
+            "exit": null,
+            "pressure_profile": "渐提变细",
+            "speed_hint": "慢",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 9,
+            "title": "第1节 蚕头雁尾，弓弩直立",
+            "t": "00:39:58",
+            "evidence_count": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:折",
+      "name": "折（折角）",
+      "font": "隶书",
+      "category": "转折类",
+      "tags": [
+        "转折",
+        "篆书",
+        "【解析】"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 2,
+        "title": "第2节 不积跬步无以至千里",
+        "t": "01:00:54",
+        "evidence_count": 8
+      },
+      "actions": [
+        {
+          "id": "stroke:折:起笔",
+          "segment": "起笔",
+          "action": "折的起笔：先往下顿住（切笔），把笔顿好再往下写。",
+          "measurable": {
+            "direction": "自上而下",
+            "entry": "顿住切入",
+            "pressure_profile": "顿笔处稍重"
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 4,
+            "title": "第4节 积水成渊蛟龙生焉",
+            "t": "00:13:15",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:折:收笔",
+          "segment": "收笔",
+          "action": "折画收笔同样可以做成燕尾；老师示范时折后往上收，收笔形状与起笔形状不必相同。",
+          "measurable": {
+            "exit": "燕尾收笔"
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 4,
+            "title": "第4节 积水成渊蛟龙生焉",
+            "t": "00:23:28",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:折:转折",
+          "segment": "转折",
+          "action": "折：第一笔写完先停顿（顿住）再折出第二笔；折角处方向骤变，可写得方硬、稍作转折，接口处允许留一点破口，不必对称。",
+          "measurable": {
+            "direction": "自上而下走弧线后折转，转折处稍向上",
+            "exit": "折后打开笔继续写",
+            "stop_points": [
+              "折角停顿处"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 2,
+            "title": "第2节 不积跬步无以至千里",
+            "t": "01:00:54",
+            "evidence_count": 9
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:折画",
+      "name": "折画",
+      "font": "隶书",
+      "category": "折画类",
+      "tags": [
+        "隶书"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 15,
+        "title": "第15节 中国书法基础知识-基本用笔特点",
+        "t": "00:02:11",
+        "evidence_count": 3
+      },
+      "actions": [
+        {
+          "id": "stroke:折画:转折",
+          "segment": "转折",
+          "action": "横折是由横转向竖的方折笔画：先写横，然后顺势向下转折；写这类折画时手腕翻转要活，衔接宜自然。",
+          "measurable": {
+            "direction": "先向右写横，再顺势向下转折",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 15,
+            "title": "第15节 中国书法基础知识-基本用笔特点",
+            "t": "00:02:20",
+            "evidence_count": 2
+          }
+        },
+        {
+          "id": "stroke:折画:整笔",
+          "segment": "整笔",
+          "action": "折画婉转曲折，种类很多，本节展示的是横折。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 15,
+            "title": "第15节 中国书法基础知识-基本用笔特点",
+            "t": "00:02:11",
+            "evidence_count": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:转",
+      "name": "转（圆转）",
+      "font": "隶书",
+      "category": "转折类",
+      "tags": [
+        "转折",
+        "篆书"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 2,
+        "title": "第2节 不积跬步无以至千里",
+        "t": "01:01:02",
+        "evidence_count": 4
+      },
+      "actions": [
+        {
+          "id": "stroke:转:转折",
+          "segment": "转折",
+          "action": "转：不提笔、不换面，笔尖保持铺开直接写下去，由一向的笔势圆弧过渡到另一方向，中间没有停顿点。",
+          "measurable": {
+            "direction": "由一向的笔势转入另一方向，圆弧过渡",
+            "exit": "不提笔、不换面，直接抹入下一方向",
+            "pressure_profile": "笔尖保持铺开（打开）状态"
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 2,
+            "title": "第2节 不积跬步无以至千里",
+            "t": "01:01:02",
+            "evidence_count": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:左向点",
+      "name": "左向点",
+      "font": "隶书",
+      "category": "隶书点画类",
+      "tags": [
+        "隶书",
+        "点画",
+        "左向点"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 10,
+        "title": "第2节 点石成金，张弛有度",
+        "t": "00:14:37",
+        "evidence_count": 3
+      },
+      "actions": [
+        {
+          "id": "stroke:左向点:起笔",
+          "segment": "起笔",
+          "action": "左向点（六字左下那一点）起笔：逆锋起笔，先向右上有一个动作，再圆转回来向左下撇出去。",
+          "measurable": {
+            "direction": "先向右上 → 圆转 → 向左下",
+            "entry": "逆锋起笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 10,
+            "title": "第2节 点石成金，张弛有度",
+            "t": "00:14:48",
+            "evidence_count": 2
+          }
+        },
+        {
+          "id": "stroke:左向点:行笔",
+          "segment": "行笔",
+          "action": "左向点行笔：逆锋起笔后圆转过来向下，出尖；出尖的小动作不要快，否则笔会飞出去。",
+          "measurable": {
+            "direction": "向左下",
+            "entry": null,
+            "exit": "出小尖",
+            "pressure_profile": "渐行渐提",
+            "speed_hint": "出尖动作不要太快",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 10,
+            "title": "第2节 点石成金，张弛有度",
+            "t": "00:15:24",
+            "evidence_count": 2
+          }
+        },
+        {
+          "id": "stroke:左向点:收笔",
+          "segment": "收笔",
+          "action": "左向点收笔：把毛笔向下、向左下送到位再收，出一个小尖；这个尖看着不扎人，仍是圆润的状态。提笔要渐进，不能一下子把笔提起来。",
+          "measurable": {
+            "direction": "向左下",
+            "entry": null,
+            "exit": "送到位后出小尖（圆润不扎人）",
+            "pressure_profile": "逐渐提笔渐细出尖",
+            "speed_hint": "送到位，慢慢提笔",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 10,
+            "title": "第2节 点石成金，张弛有度",
+            "t": "00:15:44",
+            "evidence_count": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:垂露竖",
+      "name": "垂露竖",
+      "font": "硬笔",
+      "category": "竖画类",
+      "tags": [
+        "硬笔",
+        "竖画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 3,
+        "title": "第3节 竖画训练",
+        "t": "00:03:05",
+        "evidence_count": 9
+      },
+      "actions": [
+        {
+          "id": "stroke:垂露竖:起笔",
+          "segment": "起笔",
+          "action": "笔尖落纸先向右下做一个顿笔，顿完不能直接往右下方走，要向左上回锋回到笔画中间，再从中间竖直下行。顿笔只要轻轻一顿，顿大了会出现大疙瘩。",
+          "measurable": {
+            "direction": "向右下顿笔，向左上回锋后向下行笔",
+            "entry": "右下顿笔，顿后向左上回锋到中间",
+            "exit": null,
+            "pressure_profile": "轻顿（顿笔过大就会出现大疙瘩）",
+            "speed_hint": "顿笔后回锋再下行，动作放慢",
+            "stop_points": [
+              "起笔处的右下顿点"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 3,
+            "title": "第3节 竖画训练",
+            "t": "00:03:25",
+            "evidence_count": 10
+          }
+        },
+        {
+          "id": "stroke:垂露竖:行笔",
+          "segment": "行笔",
+          "action": "找准方向后放心大胆地往下行笔，整个行笔必须一气呵成、自然顺畅，不能断断续续、也不能犹豫。写斜了、写方了都没关系，初学阶段先把行笔完整地展现出来，不要既想写正又想展现姿态。",
+          "measurable": {
+            "direction": "竖向下行",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "匀速下行，不忽轻忽重",
+            "speed_hint": "一气呵成、顺畅；可以慢一点走，但不能犹豫",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 3,
+            "title": "第3节 竖画训练",
+            "t": "00:07:29",
+            "evidence_count": 12
+          }
+        },
+        {
+          "id": "stroke:垂露竖:收笔",
+          "segment": "收笔",
+          "action": "行笔下来之后先往左走，再转右，转右之后稍顿，回锋收笔。收完的形态像一滴露水垂在笔画下端，所以叫垂露竖。",
+          "measurable": {
+            "direction": "下行后先向左，再转右",
+            "entry": null,
+            "exit": "回锋收笔（收处圆润饱满如垂露）",
+            "pressure_profile": "转右后稍顿，再回锋",
+            "speed_hint": null,
+            "stop_points": [
+              "收笔处的顿点"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 3,
+            "title": "第3节 竖画训练",
+            "t": "00:10:42",
+            "evidence_count": 7
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:点",
+      "name": "点",
+      "font": "硬笔",
+      "category": null,
+      "tags": [],
+      "certainty": "verbatim",
+      "source": {
+        "part": null,
+        "title": null,
+        "t": null,
+        "evidence_count": 0
+      },
+      "actions": [
+        {
+          "id": "stroke:点:起笔",
+          "segment": "起笔",
+          "action": "点画由轻到重地落笔，稍微写长一点",
+          "measurable": {
+            "direction": null,
+            "entry": "笔尖由轻落纸，转为重按",
+            "exit": null,
+            "pressure_profile": "轻→重（点的起笔要见动作）",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 9,
+            "title": "第9节 左偏旁及书写规律1",
+            "t": "00:05:11",
+            "evidence_count": 2
+          }
+        },
+        {
+          "id": "stroke:点:收笔",
+          "segment": "收笔",
+          "action": "点要「进去」写，回锋收笔，收住",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "回锋收笔",
+            "pressure_profile": "重收（收笔处见厚度）",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 9,
+            "title": "第9节 左偏旁及书写规律1",
+            "t": "00:04:24",
+            "evidence_count": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:短横",
+      "name": "短横",
+      "font": "硬笔",
+      "category": "横画类",
+      "tags": [
+        "硬笔",
+        "横画"
+      ],
+      "certainty": "inferred",
+      "source": {
+        "part": 2,
+        "title": "第2节 横画练习",
+        "t": "00:21:36",
+        "evidence_count": 4
+      },
+      "actions": [
+        {
+          "id": "stroke:短横:起笔",
+          "segment": "起笔",
+          "action": "起笔动作与长横完全一样，同样先做一个右下顿笔，再转向右上。短横与长横的差别不在起笔，而在长度与弧度。",
+          "measurable": {
+            "direction": "右下顿笔后向右上行笔",
+            "entry": "右下顿笔",
+            "exit": null,
+            "pressure_profile": "起笔重（顿笔）",
+            "speed_hint": "起笔顿住再转笔",
+            "stop_points": [
+              "起笔处的右下顿点"
+            ]
+          },
+          "certainty": "inferred",
+          "source": {
+            "part": 2,
+            "title": "第2节 横画练习",
+            "t": "00:21:36",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:短横:行笔",
+          "segment": "行笔",
+          "action": "同样往右上倾斜并带弧度，但短横的弧度展现很少、线条干脆。短横与长横同时出现在一个字里时，短横要写得略直一点，否则两笔都带弧度会显得「肉」。",
+          "measurable": {
+            "direction": "左→右上斜（较缓）",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "重起→轻行→重收",
+            "speed_hint": "行笔干脆、短促",
+            "stop_points": [
+              "起笔顿点"
+            ]
+          },
+          "certainty": "inferred",
+          "source": {
+            "part": 2,
+            "title": "第2节 横画练习",
+            "t": "00:21:41",
+            "evidence_count": 5
+          }
+        },
+        {
+          "id": "stroke:短横:收笔",
+          "segment": "收笔",
+          "action": "收笔动作与长横完全相同：末端右下顿笔，再回锋收笔。三种横的收笔都一样。",
+          "measurable": {
+            "direction": "行笔末端向右下顿笔，笔尖回勾",
+            "entry": null,
+            "exit": "回锋收笔",
+            "pressure_profile": "收笔重",
+            "speed_hint": "顿笔后回勾再提起",
+            "stop_points": [
+              "行笔末端的右下顿点"
+            ]
+          },
+          "certainty": "inferred",
+          "source": {
+            "part": 2,
+            "title": "第2节 横画练习",
+            "t": "00:22:21",
+            "evidence_count": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:短撇",
+      "name": "短撇",
+      "font": "硬笔",
+      "category": "撇画类",
+      "tags": [
+        "硬笔",
+        "撇画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 4,
+        "title": "第4节 撇画与提画训练",
+        "t": "00:16:37",
+        "evidence_count": 10
+      },
+      "actions": [
+        {
+          "id": "stroke:短撇:起笔",
+          "segment": "起笔",
+          "action": "右下顿笔起笔（与长撇一致）。",
+          "measurable": {
+            "direction": "顿笔后转向左下",
+            "entry": "右下顿笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "起笔处的右下顿点"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 4,
+            "title": "第4节 撇画与提画训练",
+            "t": "00:16:47",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:短撇:行笔",
+          "segment": "行笔",
+          "action": "行笔过程中要把笔锋转换过来往左走，走左下行笔；整体形态略微呈现直。",
+          "measurable": {
+            "direction": "由右下转向左下",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 4,
+            "title": "第4节 撇画与提画训练",
+            "t": "00:17:17",
+            "evidence_count": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:反点",
+      "name": "反点",
+      "font": "硬笔",
+      "category": "点画类",
+      "tags": [
+        "硬笔",
+        "点画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 4,
+        "title": "第4节 撇画与提画训练",
+        "t": "00:51:59",
+        "evidence_count": 10
+      },
+      "actions": [
+        {
+          "id": "stroke:反点:起笔",
+          "segment": "起笔",
+          "action": "轻起笔进去，行笔由轻到重。",
+          "measurable": {
+            "direction": null,
+            "entry": "轻起笔",
+            "exit": null,
+            "pressure_profile": "轻→重",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 4,
+            "title": "第4节 撇画与提画训练",
+            "t": "01:00:34",
+            "evidence_count": 2
+          }
+        },
+        {
+          "id": "stroke:反点:收笔",
+          "segment": "收笔",
+          "action": "回锋收笔，收笔要重一点，笔头自然留出一个小钝头；作用是把整个字的重心拽回来、把中线以下补厚。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "回锋收笔，重收笔，留小钝头",
+            "pressure_profile": "由轻到重，收笔最重",
+            "speed_hint": "沉得住，坠下来",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 4,
+            "title": "第4节 撇画与提画训练",
+            "t": "00:51:59",
+            "evidence_count": 8
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:反捺",
+      "name": "反捺",
+      "font": "硬笔",
+      "category": "捺画类",
+      "tags": [
+        "硬笔",
+        "捺画",
+        "反捺"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 5,
+        "title": "第5节 捺画训练",
+        "t": "00:02:26",
+        "evidence_count": 7
+      },
+      "actions": [
+        {
+          "id": "stroke:反捺:起笔",
+          "segment": "起笔",
+          "action": "反捺凌空入笔（露锋落笔），落笔后笔尖回锋；它其实就是把右点加长而已。",
+          "measurable": {
+            "direction": null,
+            "entry": "凌空入笔，笔尖回锋",
+            "exit": null,
+            "pressure_profile": "由轻到重",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 5,
+            "title": "第5节 捺画训练",
+            "t": "00:23:49",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:反捺:行笔",
+          "segment": "行笔",
+          "action": "行笔是由轻到重的渐重过程：凌空入笔之后逐渐加重，到最后最重的地方还要再往回锋一点，让笔画重合。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "由轻到重（渐重），末段最重",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 5,
+            "title": "第5节 捺画训练",
+            "t": "00:24:50",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:反捺:收笔",
+          "segment": "收笔",
+          "action": "收笔一定要重：回锋收笔，笔画重叠之后厚度才更加牢固，才能压得住整个字。收笔轻了，字就跟着放飞、不沉稳；字往右上倾斜时，下面全靠这个反捺压回来。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "回锋收笔，笔画重叠加厚",
+            "pressure_profile": "末段最重（收笔一定要重）",
+            "speed_hint": null,
+            "stop_points": [
+              "收笔处（最重处）"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 5,
+            "title": "第5节 捺画训练",
+            "t": "00:25:07",
+            "evidence_count": 7
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:横",
+      "name": "横",
+      "font": "硬笔",
+      "category": null,
+      "tags": [],
+      "certainty": "verbatim",
+      "source": {
+        "part": null,
+        "title": null,
+        "t": null,
+        "evidence_count": 0
+      },
+      "actions": [
+        {
+          "id": "stroke:横:起笔",
+          "segment": "起笔",
+          "action": "横画顿笔起笔",
+          "measurable": {
+            "direction": "向右",
+            "entry": "顿笔",
+            "exit": null,
+            "pressure_profile": "顿笔起",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 9,
+            "title": "第9节 左偏旁及书写规律1",
+            "t": "00:44:32",
+            "evidence_count": 2
+          }
+        },
+        {
+          "id": "stroke:横:收笔",
+          "segment": "收笔",
+          "action": "横画轻收，最后一笔要压重一点、把它整个字拉回来",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "轻收／回锋收笔",
+            "pressure_profile": "顿笔起→轻收；末笔要重",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 9,
+            "title": "第9节 左偏旁及书写规律1",
+            "t": "00:44:32",
+            "evidence_count": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:横钩",
+      "name": "横钩",
+      "font": "硬笔",
+      "category": "钩画类",
+      "tags": [
+        "硬笔",
+        "钩画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 7,
+        "title": "第7节 勾画练习1",
+        "t": "00:26:41",
+        "evidence_count": 5
+      },
+      "actions": [
+        {
+          "id": "stroke:横钩:起笔",
+          "segment": "起笔",
+          "action": "横钩（字幕作「横沟」）起笔是顿笔，横画要带右上倾斜的弧度。",
+          "measurable": {
+            "direction": "右上倾斜",
+            "entry": "顿笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "起笔处的顿点"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:26:53",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:横钩:行笔",
+          "segment": "行笔",
+          "action": "沿着弧度往上走，弧度必须展现出来，这是横钩最难的地方。",
+          "measurable": {
+            "direction": "右上倾斜，沿弧度上行",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": "弧度要顺，不要写成直线",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:26:53",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:横钩:收笔",
+          "segment": "收笔",
+          "action": "收笔处一定要把这个字拉回来（拉正）。笔画要有韧性，不能一蹲就下来。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "收笔处往回拉，把字拉正",
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:28:42",
+            "evidence_count": 6
+          }
+        },
+        {
+          "id": "stroke:横钩:转折",
+          "segment": "转折",
+          "action": "到顶后往下压、按一下笔，是个蓄力的过程；笔停住了再出钩。这个「突然停住出钩」就是横钩的笔法动作。",
+          "measurable": {
+            "direction": "右上弧度到顶后转下按笔",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "到顶处下压按笔蓄力",
+            "speed_hint": null,
+            "stop_points": [
+              "按笔蓄力停住的那一点"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:28:11",
+            "evidence_count": 2
+          }
+        },
+        {
+          "id": "stroke:横钩:钩",
+          "segment": "钩",
+          "action": "停住之后往回走，从这里出钩——这才是横钩的写法；笔尖下探、回锋从中间出钩不是横钩。",
+          "measurable": {
+            "direction": "停住后往回走再出钩",
+            "entry": null,
+            "exit": "回锋收笔后往回出钩",
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:27:06",
+            "evidence_count": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:横斜钩",
+      "name": "横斜钩",
+      "font": "硬笔",
+      "category": "钩画类",
+      "tags": [
+        "硬笔",
+        "笔画",
+        "勾画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 8,
+        "title": "第8节 勾画训练2",
+        "t": "00:02:25",
+        "evidence_count": 6
+      },
+      "actions": [
+        {
+          "id": "stroke:横斜钩:起笔",
+          "segment": "起笔",
+          "action": "顿笔起笔，起笔后的横要右上倾斜。",
+          "measurable": {
+            "entry": "顿笔",
+            "direction": "右上倾斜"
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 8,
+            "title": "第8节 勾画训练2",
+            "t": "00:12:23",
+            "evidence_count": 5
+          }
+        },
+        {
+          "id": "stroke:横斜钩:行笔",
+          "segment": "行笔",
+          "action": "行笔过程一定要挺拔，像拉开的弓、劲儿一直在里面；挺不住笔画就软了。要灌住气、一口气写下来，一气呵成，中途不能改、不能变形、不能拉长腿。",
+          "measurable": {
+            "direction": "右上倾斜后折下",
+            "pressure_profile": "行笔饱满不塌",
+            "speed_hint": "一气呵成"
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 8,
+            "title": "第8节 勾画训练2",
+            "t": "00:12:18",
+            "evidence_count": 10
+          }
+        },
+        {
+          "id": "stroke:横斜钩:收笔",
+          "segment": "收笔",
+          "action": "收笔落点要伸展出去再出勾，这样笔画才有头有尾；横顿笔折下来就出钩会变成头重脚轻。",
+          "measurable": {
+            "exit": "伸展出去再出勾",
+            "pressure_profile": "收笔不轻"
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 8,
+            "title": "第8节 勾画训练2",
+            "t": "00:16:40",
+            "evidence_count": 5
+          }
+        },
+        {
+          "id": "stroke:横斜钩:转折",
+          "segment": "转折",
+          "action": "顿笔后按笔折下来，转折处要挺住、不能软。",
+          "measurable": {
+            "direction": "由右上转为折下"
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 8,
+            "title": "第8节 勾画训练2",
+            "t": "00:12:23",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:横斜钩:钩",
+          "segment": "钩",
+          "action": "出勾要挺、有力度，并控制好出勾的间距；撇点要有空间，往里收一点再出来，字才能挺住。",
+          "measurable": {
+            "exit": "挺拔出勾",
+            "stop_points": [
+              "出勾处"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 8,
+            "title": "第8节 勾画训练2",
+            "t": "00:12:33",
+            "evidence_count": 6
+          }
+        },
+        {
+          "id": "stroke:横斜钩:整笔",
+          "segment": "整笔",
+          "action": "横斜钩的三个要点：角度因字而异（飞字角度大、风字角度小）、行笔过程要挺拔一气呵成、收笔落点要伸展出去再出勾。",
+          "measurable": null,
+          "certainty": "verbatim",
+          "source": {
+            "part": 8,
+            "title": "第8节 勾画训练2",
+            "t": "00:13:42",
+            "evidence_count": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:横折",
+      "name": "横折",
+      "font": "硬笔",
+      "category": "折画类",
+      "tags": [
+        "硬笔",
+        "折画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 6,
+        "title": "第6节 折画训练",
+        "t": "00:00:51",
+        "evidence_count": 5
+      },
+      "actions": [
+        {
+          "id": "stroke:横折:起笔",
+          "segment": "起笔",
+          "action": "横折起笔：先顿笔，再往右上走；横要有倾斜度，还要带弧度。",
+          "measurable": {
+            "direction": "左→右（右上倾斜）",
+            "entry": "顿笔起笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "横的起笔处"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 6,
+            "title": "第6节 折画训练",
+            "t": "00:03:02",
+            "evidence_count": 5
+          }
+        },
+        {
+          "id": "stroke:横折:行笔",
+          "segment": "行笔",
+          "action": "横折折下来后的行笔：直还是弧要提前打算——下部没有笔画（如口）可以写得稍直，里面填了笔画就带一点弧度。",
+          "measurable": {
+            "direction": "左下",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 6,
+            "title": "第6节 折画训练",
+            "t": "00:07:31",
+            "evidence_count": 6
+          }
+        },
+        {
+          "id": "stroke:横折:收笔",
+          "segment": "收笔",
+          "action": "横折收笔：竖走完回锋收笔。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "回锋收笔",
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 6,
+            "title": "第6节 折画训练",
+            "t": "00:03:33",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:横折:转折",
+          "segment": "转折",
+          "action": "横折转折：三步关键词——先右下顿，再回到中间，然后向左下行笔；顿笔不宜过长，对比动作不要过大。",
+          "measurable": {
+            "direction": "右上 → 右下顿 → 回中 → 左下",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "转折处的顿点"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 6,
+            "title": "第6节 折画训练",
+            "t": "00:06:29",
+            "evidence_count": 8
+          }
+        },
+        {
+          "id": "stroke:横折:整笔",
+          "segment": "整笔",
+          "action": "横折整笔：横的倾斜度与弧度都要出来；转折的顿笔不宜过长、对比动作不要过大；写字要心平气和，不能带着情绪写。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": "心平气和，节奏平稳",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 6,
+            "title": "第6节 折画训练",
+            "t": "00:08:35",
+            "evidence_count": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:撇折",
+      "name": "撇折",
+      "font": "硬笔",
+      "category": "折画类",
+      "tags": [
+        "硬笔",
+        "折画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 6,
+        "title": "第6节 折画训练",
+        "t": "00:01:24",
+        "evidence_count": 5
+      },
+      "actions": [
+        {
+          "id": "stroke:撇折:起笔",
+          "segment": "起笔",
+          "action": "撇折起笔：顿笔撇下来，撇本身是由重到轻。",
+          "measurable": {
+            "direction": "上→左下",
+            "entry": "顿笔起笔",
+            "exit": null,
+            "pressure_profile": "重→轻",
+            "speed_hint": null,
+            "stop_points": [
+              "撇的起笔处"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 6,
+            "title": "第6节 折画训练",
+            "t": "00:17:18",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:撇折:行笔",
+          "segment": "行笔",
+          "action": "撇折整笔的按笔速度和厚度要由重到轻、再到重、再到轻。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "重→轻→重→轻",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 6,
+            "title": "第6节 折画训练",
+            "t": "00:20:02",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:撇折:收笔",
+          "segment": "收笔",
+          "action": "撇折收笔：撇的收笔处一定要轻、要提一下再顿笔；两个厚重笔画重叠会突出厚度，成一个小墨团。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "提笔（由重到轻）后顿笔",
+            "pressure_profile": "由重到轻",
+            "speed_hint": null,
+            "stop_points": [
+              "撇的收笔处"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 6,
+            "title": "第6节 折画训练",
+            "t": "00:21:44",
+            "evidence_count": 5
+          }
+        },
+        {
+          "id": "stroke:撇折:转折",
+          "segment": "转折",
+          "action": "撇折转折：撇下来之后顿笔，再折上去（提笔）；折上去的地方有一个重新起笔的动作，老师建议拆成两个笔画来写。",
+          "measurable": {
+            "direction": "左下 → 顿笔 → 提笔右上",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "折上去处的顿点"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 6,
+            "title": "第6节 折画训练",
+            "t": "00:01:24",
+            "evidence_count": 5
+          }
+        },
+        {
+          "id": "stroke:撇折:整笔",
+          "segment": "整笔",
+          "action": "撇折整笔：建议拆成两个笔画书写（撇 + 折，撇由重到轻再提笔走）；撇折后面通常接点、横、竖等笔画，轻重结合字才美观。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "重→轻→重→轻",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 6,
+            "title": "第6节 折画训练",
+            "t": "00:01:41",
+            "evidence_count": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:平捺",
+      "name": "平捺",
+      "font": "硬笔",
+      "category": "捺画类",
+      "tags": [
+        "硬笔",
+        "捺画",
+        "走之旁"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 5,
+        "title": "第5节 捺画训练",
+        "t": "00:02:13",
+        "evidence_count": 7
+      },
+      "actions": [
+        {
+          "id": "stroke:平捺:起笔",
+          "segment": "起笔",
+          "action": "起笔要有「右上的弧度」，平捺的弧度展现比长捺高得多，而且一定要展现出来；但弧度必须控制——一旦过头，前半部分全是弧度，整个走之旁就跑偏了，剩下的笔画全在替这个弧度做准备。",
+          "measurable": {
+            "direction": "起笔向右上方走一个较高的弧度",
+            "entry": "落笔后向右上走弧度（弧度要比长捺高）",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": "弧度不能写过头",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 5,
+            "title": "第5节 捺画训练",
+            "t": "00:17:00",
+            "evidence_count": 6
+          }
+        },
+        {
+          "id": "stroke:平捺:行笔",
+          "segment": "行笔",
+          "action": "行笔与长捺一样，要注意弧度；从起笔的弧度往下转过来之后就要进入弯度，呈「包容」姿态——上边无论写成什么样，下边都要接住，不要给后面的笔画留下非常大的压力。",
+          "measurable": {
+            "direction": "从右上弧度转为下行弯度",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 5,
+            "title": "第5节 捺画训练",
+            "t": "00:17:18",
+            "evidence_count": 7
+          }
+        },
+        {
+          "id": "stroke:平捺:收笔",
+          "segment": "收笔",
+          "action": "出捺角要随着弧度往上走，不能随着弧度直接往下走——很多同学写不出来，是因为不敢往上走，脑子里认为平捺就该直接下去。捺角出在准备往右上走的地方。有收有放：收回来一点即可，太放肆会把字整个撑开。",
+          "measurable": {
+            "direction": "随弧度上行时出捺角",
+            "entry": null,
+            "exit": "出捺角后回一点，不要放肆外扩",
+            "pressure_profile": "捺角处加力显厚重",
+            "speed_hint": null,
+            "stop_points": [
+              "捺角（准备往右上走的位置）"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 5,
+            "title": "第5节 捺画训练",
+            "t": "00:21:12",
+            "evidence_count": 11
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:竖",
+      "name": "竖",
+      "font": "硬笔",
+      "category": null,
+      "tags": [],
+      "certainty": "verbatim",
+      "source": {
+        "part": null,
+        "title": null,
+        "t": null,
+        "evidence_count": 0
+      },
+      "actions": [
+        {
+          "id": "stroke:竖:收笔",
+          "segment": "收笔",
+          "action": "偏旁里的竖要用垂露竖，收笔时重一点、回锋收笔，笔杆要挺",
+          "measurable": {
+            "direction": "竖向下行",
+            "entry": null,
+            "exit": "收笔点落在字的最低处",
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "收笔点（最低处）"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 9,
+            "title": "第9节 左偏旁及书写规律1",
+            "t": "00:24:39",
+            "evidence_count": 8
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:竖钩",
+      "name": "竖钩",
+      "font": "硬笔",
+      "category": "钩画类",
+      "tags": [
+        "硬笔",
+        "钩画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 7,
+        "title": "第7节 勾画练习1",
+        "t": "00:01:23",
+        "evidence_count": 3
+      },
+      "actions": [
+        {
+          "id": "stroke:竖钩:起笔",
+          "segment": "起笔",
+          "action": "顿笔起笔，竖身要挺直（挺直腰）再往下走，不能一上来就带弯。",
+          "measurable": {
+            "direction": "竖向下行",
+            "entry": "顿笔后稍向内收，再下行",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "顿笔处"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:04:05",
+            "evidence_count": 6
+          }
+        },
+        {
+          "id": "stroke:竖钩:行笔",
+          "segment": "行笔",
+          "action": "竖直下行，行笔的后半段要保持挺直。这是全笔画最难的一段：越往下半径越小，手腕活动余地越来越小，直挺挺地下来会觉得吃力。",
+          "measurable": {
+            "direction": "竖直向下",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": "写直挺挺地下来手感吃力，可略借一点弯度让手有活动空间",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:08:09",
+            "evidence_count": 6
+          }
+        },
+        {
+          "id": "stroke:竖钩:收笔",
+          "segment": "收笔",
+          "action": "出钩处要压住笔、顶下去再出钩，绝不能提笔。笔画重合处才是重笔，厚度才稳得住；下部写重写稳，字才压得住。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "回锋收笔后压笔出钩",
+            "pressure_profile": "出钩处保持重笔，不可提笔变薄",
+            "speed_hint": null,
+            "stop_points": [
+              "出钩处按笔的顿点"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:13:37",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:竖钩:转折",
+          "segment": "转折",
+          "action": "竖下来之后先「左带」一个很小的小弧度（往左下带一点），转变运笔方向，再转回来出钩。不能直接下来就甩出钩。",
+          "measurable": {
+            "direction": "竖直向下 → 往左下带一点 → 转回出钩",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "左带的小弧度处"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:01:34",
+            "evidence_count": 7
+          }
+        },
+        {
+          "id": "stroke:竖钩:钩",
+          "segment": "钩",
+          "action": "左带之后回到笔画中间，从这个笔画的中间出钩。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "下端向外出钩",
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:11:46",
+            "evidence_count": 6
+          }
+        },
+        {
+          "id": "stroke:竖钩:整笔",
+          "segment": "整笔",
+          "action": "三点合成一个竖钩：行笔后半段保持挺直 → 左带一个小弧度 → 压笔从中间出钩。",
+          "measurable": {
+            "direction": "竖直向下，左带后向左上出钩",
+            "entry": "顿笔",
+            "exit": "回锋收笔后压笔出钩",
+            "pressure_profile": "起笔稍重 → 行笔平稳 → 出钩处保持重笔",
+            "speed_hint": null,
+            "stop_points": [
+              "起笔顿点",
+              "左带小弧度",
+              "出钩顿点"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:07:16",
+            "evidence_count": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:竖撇",
+      "name": "竖撇",
+      "font": "硬笔",
+      "category": "撇画类",
+      "tags": [
+        "硬笔",
+        "撇画",
+        "川字"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 3,
+        "title": "第3节 竖画训练",
+        "t": "00:31:54",
+        "evidence_count": 21
+      },
+      "actions": [
+        {
+          "id": "stroke:竖撇:起笔",
+          "segment": "起笔",
+          "action": "川字里的竖撇先顿笔起笔，起笔之后就要开始往左走。",
+          "measurable": {
+            "direction": "顿笔后先向下略偏左",
+            "entry": "右下顿笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "起笔处的右下顿点"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 3,
+            "title": "第3节 竖画训练",
+            "t": "00:31:54",
+            "evidence_count": 5
+          }
+        },
+        {
+          "id": "stroke:竖撇:行笔",
+          "segment": "行笔",
+          "action": "竖撇的行笔要含蓄：既想往左走，又稍微竖一点，半推半就地把它撇出去。不能一下直直撇出去，那样整个字就会歪了斜了。",
+          "measurable": {
+            "direction": "先略向左下，到 2/3 处转出去撇",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 3,
+            "title": "第3节 竖画训练",
+            "t": "00:35:43",
+            "evidence_count": 15
+          }
+        },
+        {
+          "id": "stroke:竖撇:收笔",
+          "segment": "收笔",
+          "action": "收笔与长撇一样是出锋，但要缓慢出锋，保证笔画厚度扎实、稳固；绝不能甩笔。",
+          "measurable": {
+            "direction": "向左下收尖",
+            "entry": null,
+            "exit": "出锋（缓慢出锋）",
+            "pressure_profile": "出锋前保持厚度",
+            "speed_hint": "缓慢",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 4,
+            "title": "第4节 撇画与提画训练",
+            "t": "00:13:26",
+            "evidence_count": 5
+          }
+        },
+        {
+          "id": "stroke:竖撇:转折",
+          "segment": "转折",
+          "action": "到笔画 2/3 处由竖转撇：先往左走（略偏左），再转出去撇出去，这一段必须连贯，不能写成两截。",
+          "measurable": {
+            "direction": "由下行转为向左下撇出",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "笔画 2/3 处的转折点"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 4,
+            "title": "第4节 撇画与提画训练",
+            "t": "00:10:12",
+            "evidence_count": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:竖弯钩",
+      "name": "竖弯钩",
+      "font": "硬笔",
+      "category": "钩画类",
+      "tags": [
+        "硬笔",
+        "笔画",
+        "勾画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 8,
+        "title": "第8节 勾画训练2",
+        "t": "00:02:00",
+        "evidence_count": 6
+      },
+      "actions": [
+        {
+          "id": "stroke:竖弯钩:起笔",
+          "segment": "起笔",
+          "action": "顿笔起笔，起笔要重——老师把竖弯钩的写法概括为「重起重收」，笔画相接时可以不重、直接接进去，分开写就一定要重起。",
+          "measurable": {
+            "entry": "顿笔重入",
+            "direction": "向下",
+            "pressure_profile": "起笔重"
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 8,
+            "title": "第8节 勾画训练2",
+            "t": "00:05:54",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:竖弯钩:行笔",
+          "segment": "行笔",
+          "action": "竖本身要挺直但要带点弧度，行笔时把弧度展现出来；写成直来直去就会出现一点小波折，转折处失去生气。",
+          "measurable": {
+            "direction": "下行后转右上",
+            "pressure_profile": "带弧度，不提不压",
+            "entry": null,
+            "exit": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 8,
+            "title": "第8节 勾画训练2",
+            "t": "00:06:22",
+            "evidence_count": 11
+          }
+        },
+        {
+          "id": "stroke:竖弯钩:转折",
+          "segment": "转折",
+          "action": "拐过来往右上走，先打出一个右上的趋势；转折处同样要有弧度，这样笔画才流畅。",
+          "measurable": {
+            "direction": "由下转向右上",
+            "exit": "带弧度地拐向右上"
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 8,
+            "title": "第8节 勾画训练2",
+            "t": "00:05:57",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:竖弯钩:钩",
+          "segment": "钩",
+          "action": "在即将往右上行笔的时候再出勾（圆弧要回得去，回得去之后再往右上走，然后出勾），不要一拐下来就直接甩勾；出勾一定要重。",
+          "measurable": {
+            "exit": "顺势转右上出钩",
+            "pressure_profile": null,
+            "direction": null,
+            "entry": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 8,
+            "title": "第8节 勾画训练2",
+            "t": "00:04:56",
+            "evidence_count": 12
+          }
+        },
+        {
+          "id": "stroke:竖弯钩:整笔",
+          "segment": "整笔",
+          "action": "竖弯钩的三个要点：两处弧度都要展现、何时出勾、重起重收。笔画相接时「重起」可忽略，分开写必须重起。",
+          "measurable": null,
+          "certainty": "verbatim",
+          "source": {
+            "part": 8,
+            "title": "第8节 勾画训练2",
+            "t": "00:06:17",
+            "evidence_count": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:竖折",
+      "name": "竖折",
+      "font": "硬笔",
+      "category": "折画类",
+      "tags": [
+        "硬笔",
+        "折画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 6,
+        "title": "第6节 折画训练",
+        "t": "00:01:16",
+        "evidence_count": 5
+      },
+      "actions": [
+        {
+          "id": "stroke:竖折:起笔",
+          "segment": "起笔",
+          "action": "竖折起笔：顿笔下来落笔起行，笔画要干净利落，有重有轻。",
+          "measurable": {
+            "direction": "上→下",
+            "entry": "顿笔起笔",
+            "exit": null,
+            "pressure_profile": "有重有轻",
+            "speed_hint": null,
+            "stop_points": [
+              "竖的起笔处"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 6,
+            "title": "第6节 折画训练",
+            "t": "00:10:24",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:竖折:行笔",
+          "segment": "行笔",
+          "action": "竖折行笔：分解开是一个收笔加一个起笔，连起来时轻轻一顿、两画相重合，衔接处显得稍重。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "衔接处稍重",
+            "speed_hint": null,
+            "stop_points": [
+              "两画重合处"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 6,
+            "title": "第6节 折画训练",
+            "t": "00:15:03",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:竖折:收笔",
+          "segment": "收笔",
+          "action": "竖折收笔：横画写完回锋收笔。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "回锋收笔",
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 6,
+            "title": "第6节 折画训练",
+            "t": "00:12:51",
+            "evidence_count": 2
+          }
+        },
+        {
+          "id": "stroke:竖折:转折",
+          "segment": "转折",
+          "action": "竖折转折：折向左下时要有明显的转笔动作（老师用毛笔的话术叫转锋），不能直接写下去。",
+          "measurable": {
+            "direction": "上 → 下 → 左下",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "转折处的顿点"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 6,
+            "title": "第6节 折画训练",
+            "t": "00:11:01",
+            "evidence_count": 5
+          }
+        },
+        {
+          "id": "stroke:竖折:整笔",
+          "segment": "整笔",
+          "action": "竖折整笔：两画都要有弧度；折的角度有两种（外对比下来往里收、往里边），要按字形来定，不能随心所欲。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 6,
+            "title": "第6节 折画训练",
+            "t": "00:15:28",
+            "evidence_count": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:竖折折钩",
+      "name": "竖折折钩",
+      "font": "硬笔",
+      "category": "钩画类",
+      "tags": [
+        "硬笔",
+        "笔画",
+        "勾画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 8,
+        "title": "第8节 勾画训练2",
+        "t": "00:01:46",
+        "evidence_count": 5
+      },
+      "actions": [
+        {
+          "id": "stroke:竖折折钩:起笔",
+          "segment": "起笔",
+          "action": "顿笔起笔，竖要直挺（稍微直一点）。",
+          "measurable": {
+            "entry": "顿笔",
+            "direction": "向下（直挺）"
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 8,
+            "title": "第8节 勾画训练2",
+            "t": "00:18:52",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:竖折折钩:行笔",
+          "segment": "行笔",
+          "action": "竖直挺下来 → 折过来右上倾斜一点 → 再来一个顿笔，准备包容。",
+          "measurable": {
+            "direction": "向下 → 右上倾斜"
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 8,
+            "title": "第8节 勾画训练2",
+            "t": "00:18:58",
+            "evidence_count": 6
+          }
+        },
+        {
+          "id": "stroke:竖折折钩:转折",
+          "segment": "转折",
+          "action": "折钩的「折」要展现出来：下来走横、上去再顿一下笔，多做一个笔势动作，再出个勾就更好看；直来直去会显得扎人、刺人。",
+          "measurable": {
+            "direction": "折向右下",
+            "stop_points": [
+              "折处"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 8,
+            "title": "第8节 勾画训练2",
+            "t": "00:26:36",
+            "evidence_count": 7
+          }
+        },
+        {
+          "id": "stroke:竖折折钩:钩",
+          "segment": "钩",
+          "action": "钩要有弧度：按笔包下来、稍微往外扩一点，形成包容，字才更稳固；钩要厚重，出勾时重笔出勾，不能随手一摔就过去。",
+          "measurable": {
+            "exit": "按笔包下来、往外扩一点后出勾",
+            "pressure_profile": "出勾重（厚重）"
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 8,
+            "title": "第8节 勾画训练2",
+            "t": "00:21:24",
+            "evidence_count": 13
+          }
+        },
+        {
+          "id": "stroke:竖折折钩:整笔",
+          "segment": "整笔",
+          "action": "竖折折钩的五个注意要点：勾的弧度、横的斜度、竖的倾斜度因字而异、折钩的「折」要展现、钩要厚重。",
+          "measurable": null,
+          "certainty": "verbatim",
+          "source": {
+            "part": 8,
+            "title": "第8节 勾画训练2",
+            "t": "00:22:18",
+            "evidence_count": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:提",
+      "name": "提",
+      "font": "硬笔",
+      "category": "提画类",
+      "tags": [
+        "硬笔",
+        "提画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 4,
+        "title": "第4节 撇画与提画训练",
+        "t": "00:00:53",
+        "evidence_count": 14
+      },
+      "actions": [
+        {
+          "id": "stroke:提:起笔",
+          "segment": "起笔",
+          "action": "右下顿笔起笔，随即把行笔方向由右下转到右上——与短撇正好相反（短撇由右到左，提由右到右上）。",
+          "measurable": {
+            "direction": null,
+            "entry": "顿笔（笔尖停一下再提）",
+            "exit": null,
+            "pressure_profile": "重起",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 4,
+            "title": "第4节 撇画与提画训练",
+            "t": "00:22:38",
+            "evidence_count": 7
+          }
+        },
+        {
+          "id": "stroke:提:行笔",
+          "segment": "行笔",
+          "action": "行笔过程很直，不需要带弧度；行笔速度要略快一点，用快速的起笔和快速的提笔把线条的流畅感展现出来。",
+          "measurable": {
+            "direction": "向左上（向右上）提起",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "重起→轻收",
+            "speed_hint": "提起要快，收笔要稍快",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 4,
+            "title": "第4节 撇画与提画训练",
+            "t": "00:21:04",
+            "evidence_count": 12
+          }
+        },
+        {
+          "id": "stroke:提:收笔",
+          "segment": "收笔",
+          "action": "提笔出去，由重到轻非常明显；不要太急着甩出去。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "轻收",
+            "pressure_profile": "重起轻收",
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 4,
+            "title": "第4节 撇画与提画训练",
+            "t": "00:21:38",
+            "evidence_count": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:弯钩",
+      "name": "弯钩",
+      "font": "硬笔",
+      "category": "钩画类",
+      "tags": [
+        "硬笔",
+        "钩画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 7,
+        "title": "第7节 勾画练习1",
+        "t": "00:01:56",
+        "evidence_count": 5
+      },
+      "actions": [
+        {
+          "id": "stroke:弯钩:起笔",
+          "segment": "起笔",
+          "action": "顿笔起笔，轻轻一顿就顺着顿笔的方向转下来。",
+          "measurable": {
+            "direction": "顿笔后转下来",
+            "entry": "顿笔（轻轻一顿，顺着顿笔就下来）",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "起笔处的顿点"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:16:19",
+            "evidence_count": 2
+          }
+        },
+        {
+          "id": "stroke:弯钩:行笔",
+          "segment": "行笔",
+          "action": "把行笔过程展现到一个弯度上。竖钩讲求挺势，弯钩讲求弯势；行笔要一气呵成、圆润饱满，中途不能停顿顿笔。",
+          "measurable": {
+            "direction": "下行转弯",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "行笔不停顿、不忽轻忽重，保持圆润饱满",
+            "speed_hint": "一气呵成，行笔过程中不能出现停顿",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:01:56",
+            "evidence_count": 9
+          }
+        },
+        {
+          "id": "stroke:弯钩:收笔",
+          "segment": "收笔",
+          "action": "起收一致：起笔点一定要对准收笔点（钩尖），对不齐弯钩就会歪。找法是先顿笔下来走，对齐了再出勾。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "回锋收笔，钩尖与起笔点上下对齐",
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "起笔点与收笔点（钩尖）"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:18:14",
+            "evidence_count": 7
+          }
+        },
+        {
+          "id": "stroke:弯钩:转折",
+          "segment": "转折",
+          "action": "转折处要圆转，弧度要一直圆过来，不能写成死角；弯度要弯得有风度，骨要直。",
+          "measurable": {
+            "direction": "下行转折成弧",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:03:27",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:弯钩:钩",
+          "segment": "钩",
+          "action": "对齐之后再出钩，出钩要顺畅，不要考虑太多。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "对齐后回锋出钩",
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:19:59",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:弯钩:整笔",
+          "segment": "整笔",
+          "action": "弯钩要同时做到三点：行笔顺畅无迟疑、笔画圆润饱满、起收一致。三点做到了，钩就跑不了。",
+          "measurable": {
+            "direction": "顿笔转下来，弯势下行",
+            "entry": "顿笔",
+            "exit": "回锋收笔，钩尖与起笔点对齐",
+            "pressure_profile": "全程不停顿，圆润饱满",
+            "speed_hint": "一气呵成，行进过程中不迟疑",
+            "stop_points": [
+              "起笔顿点",
+              "钩尖（与起笔点对齐）"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:21:04",
+            "evidence_count": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:卧钩",
+      "name": "卧钩",
+      "font": "硬笔",
+      "category": "钩画类",
+      "tags": [
+        "硬笔",
+        "钩画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 7,
+        "title": "第7节 勾画练习1",
+        "t": "00:31:51",
+        "evidence_count": 4
+      },
+      "actions": [
+        {
+          "id": "stroke:卧钩:起笔",
+          "segment": "起笔",
+          "action": "卧钩（字幕作「work沟」）用轻起笔，不用顿笔；轻起笔转下来。",
+          "measurable": {
+            "direction": "轻起笔后转下来",
+            "entry": "轻起笔（不用顿笔）",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:31:51",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:卧钩:行笔",
+          "segment": "行笔",
+          "action": "转下来之后要往右上走，弧度大约占 1/4 个圆。有了往右上的趋势再出钩，钩的圆润度才会更高。",
+          "measurable": {
+            "direction": "下行后转往右上",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:03:23",
+            "evidence_count": 7
+          }
+        },
+        {
+          "id": "stroke:卧钩:收笔",
+          "segment": "收笔",
+          "action": "出完钩提起来即可，但全过程要缓慢、沉稳，笔不能甩。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "出钩后提笔",
+            "pressure_profile": null,
+            "speed_hint": "缓慢地出去、慢慢地走，沉住气",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:35:45",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:卧钩:转折",
+          "segment": "转折",
+          "action": "在「马上要往右上走」的那段弧度上转折，转上去之后再出钩；不能下来就出钩。",
+          "measurable": {
+            "direction": "弧度上行至右上",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "即将往右上走的弧度转折处"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:33:00",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:卧钩:钩",
+          "segment": "钩",
+          "action": "出钩方向是回来之后往左上收，与行笔方向正好相反。不能往外扩、往外放，那叫放飞自我。",
+          "measurable": {
+            "direction": "回来之后往左上收",
+            "entry": null,
+            "exit": "回锋收笔后往左上收出钩",
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:33:38",
+            "evidence_count": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:斜钩",
+      "name": "斜钩",
+      "font": "硬笔",
+      "category": "钩画类",
+      "tags": [
+        "硬笔",
+        "钩画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 7,
+        "title": "第7节 勾画练习1",
+        "t": "00:02:01",
+        "evidence_count": 3
+      },
+      "actions": [
+        {
+          "id": "stroke:斜钩:起笔",
+          "segment": "起笔",
+          "action": "斜钩又叫割钩。起笔要顿笔，右下顿笔后再向右下行笔；这个角度不好掌握。",
+          "measurable": {
+            "direction": "右下顿笔后向右下行笔",
+            "entry": "右下顿笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "起笔处的右下顿点"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:02:01",
+            "evidence_count": 5
+          }
+        },
+        {
+          "id": "stroke:斜钩:行笔",
+          "segment": "行笔",
+          "action": "顺着斜线走，弧度要饱满。不能出现波折或中途的小折——波折是因为手拉不过去；去掉小折，让笔画完整地写下来。",
+          "measurable": {
+            "direction": "向右下，顺着斜线",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "弧度饱满，不忽轻忽重",
+            "speed_hint": "顺着斜线连续写完，不中断、不折断",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:21:26",
+            "evidence_count": 7
+          }
+        },
+        {
+          "id": "stroke:斜钩:收笔",
+          "segment": "收笔",
+          "action": "钩的高度要挺拔，不能写矮写胖。矮胖的第一印象就不好；出钩方向是最重要的一点。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "向上出钩，钩部高度挺拔",
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:24:18",
+            "evidence_count": 5
+          }
+        },
+        {
+          "id": "stroke:斜钩:转折",
+          "segment": "转折",
+          "action": "转变行笔方向时不能迟钝、犹豫，笔画必须流畅。",
+          "measurable": {
+            "direction": "右下斜势转向出钩方向",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": "方向转变处不迟疑、不停顿",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:22:01",
+            "evidence_count": 4
+          }
+        },
+        {
+          "id": "stroke:斜钩:钩",
+          "segment": "钩",
+          "action": "勾要往上出：可以笔直向上出，也可以往里收，但必须形成锐角。绝不能出钝角——一出一个钝角，整个字就散开了。",
+          "measurable": {
+            "direction": "向上出钩（或向内收）",
+            "entry": null,
+            "exit": "向上出钩成锐角，不可出钝角",
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 7,
+            "title": "第7节 勾画练习1",
+            "t": "00:23:01",
+            "evidence_count": 9
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:悬针竖",
+      "name": "悬针竖",
+      "font": "硬笔",
+      "category": "竖画类",
+      "tags": [
+        "楷书",
+        "竖画",
+        "用笔",
+        "硬笔"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 1,
+        "title": "第1节 基础知识与点画训练",
+        "t": "00:02:10",
+        "evidence_count": 10
+      },
+      "actions": [
+        {
+          "id": "stroke:悬针竖:起笔",
+          "segment": "起笔",
+          "action": "起笔与垂露竖完全一致：右下顿笔，顿后向左上回锋，回来之后从中间往下行笔。",
+          "measurable": {
+            "direction": "向右下顿笔，向左上回锋后向下行笔",
+            "entry": "右下顿笔，顿后向左上回锋回来",
+            "exit": null,
+            "pressure_profile": "轻顿",
+            "speed_hint": null,
+            "stop_points": [
+              "起笔处的右下顿点"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 3,
+            "title": "第3节 竖画训练",
+            "t": "00:16:11",
+            "evidence_count": 7
+          }
+        },
+        {
+          "id": "stroke:悬针竖:行笔",
+          "segment": "行笔",
+          "action": "中锋行笔。字幕以图中楷书悬针竖的用笔方法为例，指出其第三步即为中锋行笔；起笔与收笔步骤字幕没有念出，本节不补。",
+          "measurable": {
+            "direction": "竖向下行",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "由重到轻，渐轻（不能太突然，要有过程）",
+            "speed_hint": "顺带下来、很快；如果笔画轻得发飘就说明行笔速度慢了",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 1,
+            "title": "第1节 基础知识与点画训练",
+            "t": "00:02:06",
+            "evidence_count": 11
+          }
+        },
+        {
+          "id": "stroke:悬针竖:收笔",
+          "segment": "收笔",
+          "action": "收笔出尖：提笔出去，快速提笔才能出尖；提笔容易飘（往左飘或往右飘），必须稳住。切忌甩笔——不管笔画正不正就为出尖把笔甩出去，那样笔画会不正、字会歪掉。由重到轻也不能太突然，必须有过程。",
+          "measurable": {
+            "direction": "向下出尖",
+            "entry": null,
+            "exit": "提笔出尖（快速提笔）",
+            "pressure_profile": "由重到轻直至出尖",
+            "speed_hint": "比平常书写稍快；速度太慢出不了尖",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 3,
+            "title": "第3节 竖画训练",
+            "t": "00:18:37",
+            "evidence_count": 8
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:长横",
+      "name": "长横",
+      "font": "硬笔",
+      "category": "横画类",
+      "tags": [
+        "硬笔",
+        "横画"
+      ],
+      "certainty": "inferred",
+      "source": {
+        "part": 2,
+        "title": "第2节 横画练习",
+        "t": "00:02:34",
+        "evidence_count": 6
+      },
+      "actions": [
+        {
+          "id": "stroke:长横:起笔",
+          "segment": "起笔",
+          "action": "笔尖落纸先做一个向右下的顿笔，把这个顿笔动作完整做出来，再顺着笔势转向右上开始行笔。顿笔是书写动作而不是一个独立笔画，所以要轻、要完整，不能一说顿笔就使大劲。",
+          "measurable": {
+            "direction": "起笔处向右下顿笔，随后向右上行笔",
+            "entry": "右下顿笔（轻顿）",
+            "exit": null,
+            "pressure_profile": "顿笔处略重，随即转笔；顿笔不能过重",
+            "speed_hint": "起笔先顿住再转笔，动作放慢",
+            "stop_points": [
+              "起笔处的右下顿点"
+            ]
+          },
+          "certainty": "inferred",
+          "source": {
+            "part": 2,
+            "title": "第2节 横画练习",
+            "t": "00:02:21",
+            "evidence_count": 7
+          }
+        },
+        {
+          "id": "stroke:长横:行笔",
+          "segment": "行笔",
+          "action": "从顿笔处顺势往右上走，写出斜度；斜度之上再带出弧度，两者结合笔画才饱满。弧度要顺笔势自然带出，不是刻意改变用笔方向，也不必靠提笔。",
+          "measurable": {
+            "direction": "左→右上斜，与水平线形成夹角",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "重起→轻行→重收",
+            "speed_hint": "行笔加快会自然带出提笔；一直按着笔走会显得顿挫",
+            "stop_points": [
+              "起笔顿点即行笔起点"
+            ]
+          },
+          "certainty": "inferred",
+          "source": {
+            "part": 2,
+            "title": "第2节 横画练习",
+            "t": "00:02:34",
+            "evidence_count": 11
+          }
+        },
+        {
+          "id": "stroke:长横:收笔",
+          "segment": "收笔",
+          "action": "行笔到末端先做一个右下顿笔，再把笔尖回锋往回收；笔尖一收回来就顺势提起。顿笔加回锋是为了把右上斜出去的笔画拉正、把字拽回来。",
+          "measurable": {
+            "direction": "行笔末端向右下顿笔，笔尖随即向左回勾",
+            "entry": null,
+            "exit": "回锋收笔（回勾一下后空提）",
+            "pressure_profile": "收笔重",
+            "speed_hint": "顿笔后回勾要稳，再慢慢提起",
+            "stop_points": [
+              "行笔末端的右下顿点"
+            ]
+          },
+          "certainty": "inferred",
+          "source": {
+            "part": 2,
+            "title": "第2节 横画练习",
+            "t": "00:02:36",
+            "evidence_count": 7
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:长捺",
+      "name": "长捺",
+      "font": "硬笔",
+      "category": "捺画类",
+      "tags": [
+        "硬笔",
+        "捺画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 5,
+        "title": "第5节 捺画训练",
+        "t": "00:01:07",
+        "evidence_count": 6
+      },
+      "actions": [
+        {
+          "id": "stroke:长捺:起笔",
+          "segment": "起笔",
+          "action": "落笔之后先往右上方走一个小弧度——这是起笔处必须展现的笔势动作。弧度要轻微但明显，不能写大，也不能只在纸面形态上假装有弧度。但要分场合：捺基本都是跟别的笔画直接接上出的（笔画相接时），这时起笔可以略微忽略——硬做顿笔起笔反而不好看；把捺单独拿出来写时，仍然要有弧度，只是这个弧度与正常捺画的弧度方向相反。",
+          "measurable": {
+            "direction": "起笔处向右上方走一个小弧",
+            "entry": "落笔后向右上走小弧度（不是直着往下走）",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 5,
+            "title": "第5节 捺画训练",
+            "t": "00:02:07",
+            "evidence_count": 12
+          }
+        },
+        {
+          "id": "stroke:长捺:行笔",
+          "segment": "行笔",
+          "action": "行笔要直弯结合：先在直的基础上略微加一点弧度；弧度展现之后，行笔的 2/3 处做一个稍微直一点的动作，到 1/3 处再把弧度展现出来。写得太直字会非常呆板，写得太弯字会非常软；直弯结合才叫刚柔并济，笔画有骨头有肉。",
+          "measurable": {
+            "direction": "斜向右下",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "中后段渐重，到捺角处最重",
+            "speed_hint": null,
+            "stop_points": [
+              "捺角（行笔 1/3 处）"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 5,
+            "title": "第5节 捺画训练",
+            "t": "00:09:45",
+            "evidence_count": 10
+          }
+        },
+        {
+          "id": "stroke:长捺:收笔",
+          "segment": "收笔",
+          "action": "收笔处出捺角——这是第二个笔势发力点，要慢慢地做出来：轻轻起笔、抬笔出锋，不是甩笔。捺角处要使点劲、显厚重，显出整个字的厚重感和力度感。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": "捺角处轻轻起笔抬笔出锋（不是甩笔）",
+            "pressure_profile": "到捺角处最重，出锋后渐收",
+            "speed_hint": "慢慢地做出这个动作",
+            "stop_points": [
+              "捺角（第二个发力点）"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 5,
+            "title": "第5节 捺画训练",
+            "t": "00:11:55",
+            "evidence_count": 7
+          }
+        },
+        {
+          "id": "stroke:长捺:整笔",
+          "segment": "整笔",
+          "action": "整笔起、行、收三步都要有：起笔、收笔各是一个发力点，两个发力点都要能感觉到。如果一笔直直写下来，毫无疑问会发软。",
+          "measurable": {
+            "direction": null,
+            "entry": null,
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": [
+              "起笔发力点",
+              "捺角发力点"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 5,
+            "title": "第5节 捺画训练",
+            "t": "00:13:14",
+            "evidence_count": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:长撇",
+      "name": "长撇",
+      "font": "硬笔",
+      "category": "撇画类",
+      "tags": [
+        "硬笔",
+        "撇画"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 4,
+        "title": "第4节 撇画与提画训练",
+        "t": "00:00:37",
+        "evidence_count": 15
+      },
+      "actions": [
+        {
+          "id": "stroke:长撇:起笔",
+          "segment": "起笔",
+          "action": "右下顿笔起笔，顿得轻巧一点即可，然后直接往左下撇出去。",
+          "measurable": {
+            "direction": "顿笔后向左下撇出",
+            "entry": "右下顿笔（轻轻一顿）",
+            "exit": null,
+            "pressure_profile": "起笔处稍重，随即渐轻",
+            "speed_hint": null,
+            "stop_points": [
+              "起笔处的右下顿点"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 4,
+            "title": "第4节 撇画与提画训练",
+            "t": "00:03:25",
+            "evidence_count": 5
+          }
+        },
+        {
+          "id": "stroke:长撇:行笔",
+          "segment": "行笔",
+          "action": "由重到轻、渐轻渐细地撇出，弧度要顺笔势自然出来；找准方向后赶紧行笔，不要考虑太多。",
+          "measurable": {
+            "direction": "右上向左下",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "重→轻，渐轻渐细",
+            "speed_hint": "找准方向后迅速行笔，不要犹豫",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 4,
+            "title": "第4节 撇画与提画训练",
+            "t": "00:06:09",
+            "evidence_count": 6
+          }
+        },
+        {
+          "id": "stroke:长撇:收笔",
+          "segment": "收笔",
+          "action": "找准方向后缓慢提笔出锋；随着提笔，笔画的轻细程度自然展现出来。",
+          "measurable": {
+            "direction": "向左下收尖",
+            "entry": null,
+            "exit": "出锋（缓慢提笔）",
+            "pressure_profile": "轻→更轻",
+            "speed_hint": "提笔要缓慢",
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 4,
+            "title": "第4节 撇画与提画训练",
+            "t": "00:07:20",
+            "evidence_count": 6
+          }
+        },
+        {
+          "id": "stroke:长撇:整笔",
+          "segment": "整笔",
+          "action": "起笔顿笔 → 行笔渐轻渐细 → 收笔缓慢出锋，三个部分连成一条由重到轻的线；弧度不能写直。",
+          "measurable": {
+            "direction": "右上向左下",
+            "entry": "右下顿笔",
+            "exit": "缓慢提笔出锋",
+            "pressure_profile": "由重到轻",
+            "speed_hint": null,
+            "stop_points": [
+              "起笔处的右下顿点"
+            ]
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 4,
+            "title": "第4节 撇画与提画训练",
+            "t": "00:08:15",
+            "evidence_count": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:直撇",
+      "name": "直撇",
+      "font": "硬笔",
+      "category": "撇画类",
+      "tags": [
+        "硬笔",
+        "撇画",
+        "【老师强调】"
+      ],
+      "certainty": "verbatim",
+      "source": {
+        "part": 4,
+        "title": "第4节 撇画与提画训练",
+        "t": "00:16:53",
+        "evidence_count": 11
+      },
+      "actions": [
+        {
+          "id": "stroke:直撇:行笔",
+          "segment": "行笔",
+          "action": "顿笔后直直撇出，笔势挺拔、略微直；弧度不要刻意弯，一弯下去字就不好看。",
+          "measurable": {
+            "direction": "由右上向左下，略直",
+            "entry": "右下顿笔",
+            "exit": null,
+            "pressure_profile": null,
+            "speed_hint": null,
+            "stop_points": []
+          },
+          "certainty": "verbatim",
+          "source": {
+            "part": 4,
+            "title": "第4节 撇画与提画训练",
+            "t": "00:16:53",
+            "evidence_count": 7
+          }
+        }
+      ]
+    },
+    {
+      "id": "stroke:左肩横",
+      "name": "左肩横",
+      "font": "硬笔",
+      "category": "横画类",
+      "tags": [
+        "硬笔",
+        "横画"
+      ],
+      "certainty": "inferred",
+      "source": {
+        "part": 2,
+        "title": "第2节 横画练习",
+        "t": "00:26:14",
+        "evidence_count": 6
+      },
+      "actions": [
+        {
+          "id": "stroke:左肩横:起笔",
+          "segment": "起笔",
+          "action": "笔尖凌空入纸，触纸后轻轻往右上带出一个小尖头就直接走，不做右下顿笔。这是左肩横与长横、短横唯一的区别点。",
+          "measurable": {
+            "direction": "落纸后直接向右上",
+            "entry": "凌空入笔，轻起笔（笔尖触纸即往右上带）",
+            "exit": null,
+            "pressure_profile": "最轻",
+            "speed_hint": "触纸即走，不要停顿顿笔",
+            "stop_points": [
+              "起笔处的小尖头（无顿点）"
+            ]
+          },
+          "certainty": "inferred",
+          "source": {
+            "part": 2,
+            "title": "第2节 横画练习",
+            "t": "00:26:14",
+            "evidence_count": 5
+          }
+        },
+        {
+          "id": "stroke:左肩横:行笔",
+          "segment": "行笔",
+          "action": "行笔过程与短横一样，往右上走；因为起笔轻，笔尖带出去的是一个小尖头，形态轻巧干脆。",
+          "measurable": {
+            "direction": "左→右上",
+            "entry": null,
+            "exit": null,
+            "pressure_profile": "轻",
+            "speed_hint": "与短横一致",
+            "stop_points": []
+          },
+          "certainty": "inferred",
+          "source": {
+            "part": 2,
+            "title": "第2节 横画练习",
+            "t": "00:29:29",
+            "evidence_count": 3
+          }
+        },
+        {
+          "id": "stroke:左肩横:收笔",
+          "segment": "收笔",
+          "action": "收笔过程与长横、短横完全一样：末端右下顿笔，再回锋收笔。",
+          "measurable": {
+            "direction": "行笔末端向右下顿笔，笔尖回勾",
+            "entry": null,
+            "exit": "回锋收笔",
+            "pressure_profile": "收笔重",
+            "speed_hint": "顿笔后回勾再提起",
+            "stop_points": [
+              "行笔末端的右下顿点"
+            ]
+          },
+          "certainty": "inferred",
+          "source": {
+            "part": 2,
+            "title": "第2节 横画练习",
+            "t": "00:29:34",
+            "evidence_count": 3
           }
         }
       ]
