@@ -2733,7 +2733,7 @@ export const INK_TERMS = {
     {
       "term": "田字格",
       "font": "硬笔",
-      "original": null,
+      "original": "本分P（第9节）字幕把「田字格」错识为「凸五格 / 土五格」两形；经原视频音频逐音节核对，正字为「田字格」——中间音节与「字」的 MFCC-DTW 距离 3.52、末音节与「格」3.66/3.70，均落在同词距离基线中位 4.90 以内，首音节与「田」5.43 吻合、与「米」6.78/7.62 与「十」6.57/12.90 不吻合；同课程其余各处「田字格」字幕均拼写正确。",
       "in_whitelist": false,
       "terminology_uncertain": false,
       "certainty": "verbatim",
@@ -2989,18 +2989,6 @@ export const INK_TERMS = {
       "in_whitelist": true,
       "terminology_uncertain": false,
       "certainty": "verbatim",
-      "source": {
-        "part": 9,
-        "title": "第9节 左偏旁及书写规律1"
-      }
-    },
-    {
-      "term": "凸五格",
-      "font": "硬笔",
-      "original": "凸五格 / 土五格（字幕两种同音写法，指同一个练字格；全系列仅此 2 处、间隔 8 秒；本课程其余各处「米字格」「田字格」均被转写正确，故并非那两个词；无原视频可核画面）",
-      "in_whitelist": false,
-      "terminology_uncertain": true,
-      "certainty": "unknown",
       "source": {
         "part": 9,
         "title": "第9节 左偏旁及书写规律1"
