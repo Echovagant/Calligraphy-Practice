@@ -379,12 +379,12 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "立送笔尖",
+      "term": "力送笔尖",
       "font": "楷书",
       "original": "立送比肩",
       "in_whitelist": false,
       "terminology_uncertain": false,
-      "certainty": "unknown",
+      "certainty": "corrected",
       "source": {
         "part": 2,
         "title": "第2节 基础笔画撇捺"
@@ -2109,9 +2109,9 @@ export const INK_TERMS = {
     {
       "term": "行书",
       "font": "硬笔",
-      "original": "自行（00:01:23 处「后期发展为金草自行狂放」中为「行书」；00:01:45 处「行书则是自行流畅飞动」的「自行」疑为「书写」，未确证，保留原词）",
+      "original": "自行（字幕 ASR；「行书则是自行流畅飞动」「后期发展为金草自行狂放」两处的「自行」应为「书写」；同段「楷书也叫做正楷或是证书」的「证书」同属错识。术语「行书」本身取自 00:00:50「书法可以分为五种书体：篆书隶书草书楷书行书」，无误）",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "corrected",
       "source": {
         "part": 1,
@@ -2527,12 +2527,12 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "立送笔端",
+      "term": "力送笔端",
       "font": "硬笔",
-      "original": "立送笔端",
+      "original": "立送笔端 / 未送笔端 / 力送笔端（字幕 ASR 变体；立与力同音，软笔楷书课同一术语转写为「力送笔端」）",
       "in_whitelist": false,
-      "terminology_uncertain": true,
-      "certainty": "verbatim",
+      "terminology_uncertain": false,
+      "certainty": "corrected",
       "source": {
         "part": 4,
         "title": "第4节 撇画与提画训练"
@@ -2997,7 +2997,7 @@ export const INK_TERMS = {
     {
       "term": "凸五格",
       "font": "硬笔",
-      "original": "凸五格 / 土五格",
+      "original": "凸五格 / 土五格（字幕两种同音写法，指同一个练字格；全系列仅此 2 处、间隔 8 秒；本课程其余各处「米字格」「田字格」均被转写正确，故并非那两个词；无原视频可核画面）",
       "in_whitelist": false,
       "terminology_uncertain": true,
       "certainty": "unknown",
@@ -4387,12 +4387,12 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "出体（字幕作「除体」「处体」）",
+      "term": "草体",
       "font": "硬笔",
-      "original": "除体 / 处体",
+      "original": "除体 / 处体（字幕 ASR；句义为草书那种笔意连带、硬笔难以表现；草与除/处同音易错识）",
       "in_whitelist": false,
-      "terminology_uncertain": true,
-      "certainty": "inferred",
+      "terminology_uncertain": false,
+      "certainty": "corrected",
       "source": {
         "part": 26,
         "title": "第26节 字底及书写规律"
@@ -4557,10 +4557,10 @@ export const INK_TERMS = {
     {
       "term": "行书",
       "font": "楷书",
-      "original": null,
+      "original": "自行（字幕 ASR，此处应为「书写」；术语「行书」本身见 00:00:50 五种书体）",
       "in_whitelist": false,
       "terminology_uncertain": false,
-      "certainty": "verbatim",
+      "certainty": "corrected",
       "source": {
         "part": 1,
         "title": "第01节 中国书法基础知识-初识书法"
@@ -5265,10 +5265,10 @@ export const INK_TERMS = {
     {
       "term": "云头艳",
       "font": "楷书",
-      "original": null,
+      "original": "云头艳（字幕作「云头艳」；一得阁「云头艳」墨汁，官网有载）",
       "in_whitelist": false,
-      "terminology_uncertain": true,
-      "certainty": "inferred",
+      "terminology_uncertain": false,
+      "certainty": "verbatim",
       "source": {
         "part": 5,
         "title": "第05节 中国书法基础知识-墨"
@@ -6789,10 +6789,10 @@ export const INK_TERMS = {
     {
       "term": "左书",
       "font": "隶书",
-      "original": null,
+      "original": "左书（字幕作「左书」；隶书别称，与「八分」「佐书」同类）",
       "in_whitelist": false,
-      "terminology_uncertain": true,
-      "certainty": "unknown",
+      "terminology_uncertain": false,
+      "certainty": "verbatim",
       "source": {
         "part": 13,
         "title": "第13节 中国书法基础知识-隶书发展史"
@@ -8491,18 +8491,6 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "楚体",
-      "font": "行书",
-      "original": "出题 / 除体 / 楚体",
-      "in_whitelist": false,
-      "terminology_uncertain": false,
-      "certainty": "unknown",
-      "source": {
-        "part": 9,
-        "title": "雁塔圣教序第9节"
-      }
-    },
-    {
       "term": "转折",
       "font": "行书",
       "original": null,
@@ -9199,12 +9187,12 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "求妹",
+      "term": "遒媚",
       "font": "隶书",
-      "original": null,
+      "original": "求妹（字幕 ASR；遒与求、媚与妹全同音，「遒」为刚劲、「媚」为妩媚，正合「孔武有力但又非常的媚」）",
       "in_whitelist": false,
-      "terminology_uncertain": true,
-      "certainty": "verbatim",
+      "terminology_uncertain": false,
+      "certainty": "corrected",
       "source": {
         "part": 1,
         "title": "第1节 千里之行始于足下"
@@ -10099,11 +10087,11 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "方圆尖",
+      "term": "方圆兼",
       "font": "隶书",
-      "original": "方圆间",
+      "original": "方圆间 / 方圆兼 / 方圆尖 / 方圆肩（字幕四种同音写法；老师 00:45:02 原话作「方圆兼按安排」；方圆兼 = 方、圆、方圆兼三种形状）",
       "in_whitelist": false,
-      "terminology_uncertain": true,
+      "terminology_uncertain": false,
       "certainty": "corrected",
       "source": {
         "part": 5,
@@ -10279,12 +10267,12 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "篆书五点（方圆尖、变细、变粗）",
+      "term": "篆书五点（方圆兼、变细、变粗）",
       "font": "隶书",
-      "original": null,
+      "original": "方圆间 / 方圆兼 / 方圆尖 / 方圆肩（字幕四种同音写法；老师 00:45:02 原话作「方圆兼按安排」；方圆兼 = 方、圆、方圆兼三种形状）",
       "in_whitelist": false,
       "terminology_uncertain": false,
-      "certainty": "verbatim",
+      "certainty": "corrected",
       "source": {
         "part": 6,
         "title": "第6节 心摹手追"
@@ -10426,18 +10414,6 @@ export const INK_TERMS = {
       "term": "侧锋取势",
       "font": "隶书",
       "original": "册封取势",
-      "in_whitelist": false,
-      "terminology_uncertain": false,
-      "certainty": "corrected",
-      "source": {
-        "part": 7,
-        "title": "第7节 集众法之大成"
-      }
-    },
-    {
-      "term": "方圆相间",
-      "font": "隶书",
-      "original": "方圆间",
       "in_whitelist": false,
       "terminology_uncertain": false,
       "certainty": "corrected",
@@ -11551,21 +11527,9 @@ export const INK_TERMS = {
       }
     },
     {
-      "term": "九字头",
+      "term": "臼字头",
       "font": "隶书",
-      "original": "字幕全篇多作「揪字头」「揪字套」「旧字头」；老师 01:51:31–01:51:59 被同学问得自认读音有误，并在黑板上把名字改成了「旧字头」。本节开头 00:00:08 老师自己说的是「九字头」，两者只差九／旧一字，无法从字幕判定最终定名。",
-      "in_whitelist": false,
-      "terminology_uncertain": true,
-      "certainty": "corrected",
-      "source": {
-        "part": 16,
-        "title": "第8节 头头是道3"
-      }
-    },
-    {
-      "term": "学字头",
-      "font": "隶书",
-      "original": "字幕作「穴字头」",
+      "original": "臼字头 / 臼字头 / 臼字头 / 臼字头（字幕四种同音写法，指同一个字头；老师 01:51:31 被同学指出读音有误，01:51:58–01:51:59 在黑板上改定为此名，ASR 记作「臼字头」；「臼」与「旧/九/揪」同音）",
       "in_whitelist": false,
       "terminology_uncertain": false,
       "certainty": "corrected",

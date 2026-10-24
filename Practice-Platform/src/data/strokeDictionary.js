@@ -6831,7 +6831,7 @@ export const STROKE_DICTIONARY = {
         {
           "id": "stroke:向内收的竖画:行笔",
           "segment": "行笔",
-          "action": "两竖略向内斜、带一点小弧度；九字头两边的竖画也必须向内收。",
+          "action": "两竖略向内斜、带一点小弧度；臼字头两边的竖画也必须向内收。",
           "measurable": {
             "direction": "略向内斜",
             "entry": null,

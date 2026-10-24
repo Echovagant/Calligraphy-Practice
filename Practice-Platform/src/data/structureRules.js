@@ -13695,7 +13695,7 @@ export const STRUCTURE_RULES = {
       "subtypes": [
         "完（宝盖头）",
         "守（宝盖头）",
-        "举（九字头）",
+        "举（臼字头）",
         "学（学字头）"
       ],
       "examples": [
