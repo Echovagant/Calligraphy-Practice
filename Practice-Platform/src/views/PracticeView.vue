@@ -1046,13 +1046,14 @@ onUnmounted(() => {
 }
 
 .canvas-wrapper {
-  position: relative;
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   /* overflow: clip 而不是 hidden —— hidden 会建立可滚动容器，
      浏览器 scrollIntoView（下拉定位）能把画布内容整体滚出容器（实测上移 467px）；
-     clip 保留圆角裁切但不可滚动。 */
+     clip 保留圆角裁切但不可滚动。
+     注意：这里不要加 position:relative —— 笔顺轨迹层已用 Teleport 挂进 fabric 自己的容器，
+     加了会改变 fabric 容器的定位基准，把画布顶到容器外面去。 */
   overflow: clip;
   /* 画布跟随设备尺寸，不再固定 800×600 */
   width: 100%;
