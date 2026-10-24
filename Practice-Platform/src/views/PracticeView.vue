@@ -87,6 +87,12 @@
               这一笔是「{{ guideCurrent.type }}」
               <span v-if="guideCategoryName" class="guide-category">{{ guideCategoryName }}</span>
             </p>
+            <div v-if="guideStructureGuide" class="guide-structure">
+              <div class="guide-structure-head">{{ guideStructureGuide.label }}要点</div>
+              <ul class="guide-structure-points">
+                <li v-for="(pt, i) in guideStructureGuide.points" :key="i">{{ pt }}</li>
+              </ul>
+            </div>
             <p v-if="guideResult" :class="['guide-result', guideResult.ok ? 'ok' : 'bad']">
               {{ guideResult.reason }}
             </p>
@@ -273,6 +279,8 @@ import { useStrokeOrder } from '../composables/useStrokeOrder.js';
 import { strokeCount as strokeCountOf } from '../data/strokeOrderIndex.js';
 import { STROKE_TYPES } from '../data/strokeTypes.js';
 import { strokeTypeCategory } from '../data/strokeTypeMap.js';
+import { characterStructure } from '../data/characterStructures.js';
+import { structureGuide } from '../data/structureGuides.js';
 import { transformStroke } from '../utils/ink/strokeMatch.js';
 
 // 引入状态管理
@@ -445,6 +453,10 @@ const guideCategoryName = computed(() => {
 });
 
 const guideTarget = ref('');
+
+/** 当前字的间架结构（依 IDS 分解判定）与对应的结构书写要领 */
+const guideStructure = computed(() => characterStructure(guideChar.value));
+const guideStructureGuide = computed(() => structureGuide(guideStructure.value));
 
 /** 开始引导一个字的笔顺 */
 const startGuide = async (ch) => {
@@ -999,6 +1011,22 @@ onUnmounted(() => {
 .guide-type {
   font-size: 13px;
   margin: 0;
+}
+.guide-structure {
+  border-left: 2px solid #d8d3c6;
+  padding-left: 8px;
+}
+.guide-structure-head {
+  font-size: 12px;
+  color: #6b6259;
+  margin-bottom: 2px;
+}
+.guide-structure-points {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #4a443c;
 }
 .guide-category {
   color: #888;
