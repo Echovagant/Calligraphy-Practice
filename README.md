@@ -14,7 +14,7 @@
 [![Redis](https://img.shields.io/badge/Redis-6%2B-d82c20?style=flat-square)](https://redis.io/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-8B4513?style=flat-square)](LICENSE)
 
-[功能特性](#功能特性) · [界面预览](#界面预览) · [工程特点](#工程特点) · [技术栈](#技术栈) · [快速开始](#快速开始)
+[功能特性](#功能特性) · [界面预览](#界面预览) · [技术栈](#技术栈) · [快速开始](#快速开始) · [目录](#目录)
 
 </div>
 
@@ -22,7 +22,7 @@
 
 ## 功能特性
 
-**毛笔练习** — 自研笔输入层：压感笔的**笔压真实改变笔迹粗细**（鼠标按运笔速度映射粗细，按住 Shift 可加粗），**手掌搭在屏上不会误画**；画布随屏幕尺寸与像素密度自适应，宣纸底色配方格 / 田字格 / 横线三种格线。撤销以「一笔」为单位，切后台或刷新回来笔迹还在；**写完一笔即给出该笔画的起笔、行笔、收笔写法与顿点位置**。
+**毛笔练习** — 自研笔输入层：压感笔的**笔压真实改变笔迹粗细**（鼠标按运笔速度映射粗细，按住 Shift 可加粗），**手掌搭在屏上不会误画**；画布随屏幕尺寸与像素密度自适应，宣纸底色可选米色 / 白色 / 淡绿，格子样式可设无格 / 方格 / 田字格。撤销以「一笔」为单位，切后台或刷新回来笔迹还在；**写完一笔即给出该笔画的起笔、行笔、收笔写法与顿点位置**。
 
 **笔顺引导** — 选一个字，画布上直接画出规范笔顺轨迹并标出**当前这一笔的落笔点**；写完一笔自动判定落笔位置、走向、收笔位置与形状偏离，通过就推进到下一笔，不通过就指出差在哪。同时给出这一笔属于哪一类笔画（可点开该类的起笔 / 行笔 / 收笔拆解），以及这个字所属间架结构的书写要领（重心、中宫、收放、部件穿插）。覆盖 9574 个常用汉字。
 
@@ -75,7 +75,17 @@
 
 ---
 
-## 工程特点
+## 技术栈
+
+| | 技术选型 |
+|---|---|
+| **前端** | Vue 3.5 · Vite 7 · Vue Router 4 · Pinia 3 · Element Plus 2.11（按需引入）· fabric.js 6 · Three.js |
+| **后端** | Spring Boot 3.2.5 · Spring Security · Spring Data JPA（Jakarta）· JWT（jjwt）· MapStruct · Lombok |
+| **存储** | MySQL 8.0（用户 / 作品 / 社区 / 审核）· Redis 6+（令牌黑名单、会话、身份缓存）· 本地文件（图片、头像） |
+| **契约** | OpenAPI 3.1 单一真相源 · 56 个端点 · 自研一致性检查器 · 人读版见 [`docs/api-contract.md`](docs/api-contract.md) |
+| **工程** | JUnit 5 + MockMvc 契约测试（229 项）· ESLint + Prettier · Maven 3.9 / Node 20.19+ |
+
+### 工程化
 
 **契约即门禁** — 前后端共用一份 OpenAPI 3.1 契约（[`Practice-Platform/openapi/contract.yaml`](Practice-Platform/openapi/contract.yaml)），配一个自研检查器做三方比对：**前端实际调用点 ↔ 契约声明 ↔ 后端已注册路由**。任何一端单方面改动都会在 `npm run build` 前被拦下（路径、参数名、端点缺失、桩实现都会被点名）。人读版契约见 [`docs/api-contract.md`](docs/api-contract.md)。
 
@@ -88,18 +98,6 @@
 **101 项前端测试** — 笔输入层的宽度曲线、笔画几何、手掌状态机、笔画栈、草稿存储、笔画走向判别、笔顺匹配的落笔与走向判定都是纯函数，逐个用例锁住行为（`npm test`）。
 
 **按需加载的前端** — Element Plus 逐组件按需引入，首屏 JS gzip 后约 189 kB、CSS 约 8 kB（gzip）。
-
----
-
-## 技术栈
-
-| | 技术选型 |
-|---|---|
-| **前端** | Vue 3.5 · Vite 7 · Vue Router 4 · Pinia 3 · Element Plus 2.11（按需引入）· fabric.js 6 · Three.js |
-| **后端** | Spring Boot 3.2.5 · Spring Security · Spring Data JPA（Jakarta）· JWT（jjwt）· MapStruct · Lombok |
-| **存储** | MySQL 8.0（用户 / 作品 / 社区 / 审核）· Redis 6+（令牌黑名单、身份缓存）· 本地文件（图片、头像） |
-| **契约** | OpenAPI 3.1 单一真相源 · 56 个端点 · 自研一致性检查器 · 人读版见 [`docs/api-contract.md`](docs/api-contract.md) |
-| **工程** | JUnit 5 + MockMvc 契约测试（229 项）· ESLint + Prettier · Maven 3.9 / Node 20.19+ |
 
 ---
 
@@ -158,8 +156,7 @@ npm install
 npm run dev
 ```
 
-`vite.config.js` 已把 `/api` 代理到 `http://localhost:8083`，前后端一起跑即可联调。
-打开 <http://localhost:5174/>。
+`vite.config.js` 已把 `/api` 代理到 `http://localhost:8083`，前后端一起跑即可联调。打开 <http://localhost:5174/>。
 
 > `npm run build` 会先跑一遍契约一致性检查（`contract:check`），不一致就直接失败。
 
@@ -175,9 +172,16 @@ UPDATE users SET role='SUPER_ADMIN' WHERE username='你的用户名';
 
 ---
 
-## 关于本项目
+## 目录
 
-项目定位、面向人群与设计取向见 [`docs/about.md`](docs/about.md)。
+| 位置 | 内容 |
+|---|---|
+| `README.md` | 本文件：功能、界面、技术栈与启动方式 |
+| `docs/about.md` | 项目定位、面向人群与设计取向 |
+| `docs/api-contract.md` | 人读版接口契约：56 个端点的请求与响应字段 |
+| `docs/screenshots/` | README 与文档用的界面截图 |
+| `Practice-Platform/` | 前端：Vue 3 + Vite（`src/` 源码、`scripts/check-contract.mjs` 契约检查器、`openapi/contract.yaml` 契约） |
+| `SpringBoot-Platform/` | 后端：Spring Boot（`src/main/java/` 源码、`config/local-secrets.properties.example` 密钥模板） |
 
 ---
 
