@@ -284,7 +284,11 @@ html, body {
 
 /* 应用容器 */
 .app-container {
+  /* 100vh 在 iOS Safari 上是「地址栏藏起来时的大视口」，
+     比实际可见区高出一截，页面会多出一屏空白滚动。100dvh 才是可见高度，
+     老浏览器不认 dvh，所以两条都写。 */
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -295,8 +299,9 @@ html, body {
   background-color: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(5px);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 0 2rem;
-  height: 60px;
+  /* 圆角屏 / home 指示条一侧留出安全区（iPad 上一般取 0，iPhone 上才非 0） */
+  padding: 0 max(2rem, env(safe-area-inset-left)) 0 max(2rem, env(safe-area-inset-right));
+  min-height: 60px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -469,6 +474,10 @@ html, body {
 .app-main {
   flex: 1;
   padding: 2rem;
+  /* 底部安全区：home 指示条那一截别被内容压住 */
+  padding-left: max(2rem, env(safe-area-inset-left));
+  padding-right: max(2rem, env(safe-area-inset-right));
+  padding-bottom: max(2rem, env(safe-area-inset-bottom));
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
@@ -480,6 +489,15 @@ html, body {
   box-shadow: none;
   border: none;
   outline: none;
+}
+
+/* 触摸设备：顶栏链接也是可点目标，手指点不准 */
+@media (pointer: coarse) {
+  .top-nav-item {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
 }
 
 /* 宽屏页面（管理后台）：解除 1200px 限宽 */

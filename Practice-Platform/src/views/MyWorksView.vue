@@ -558,6 +558,13 @@ onMounted(() => {
   opacity: 1;
 }
 
+/* 触摸设备没有 hover：操作层常显，否则要点两下才出按钮 */
+@media (pointer: coarse) {
+  .work-overlay {
+    opacity: 1;
+  }
+}
+
 .work-actions {
   display: flex;
   gap: 0.5rem;

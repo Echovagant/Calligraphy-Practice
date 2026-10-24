@@ -6,8 +6,22 @@
     </div>
 
     <div class="practice-layout">
+      <!-- 窄屏（iPad 竖屏 / 小平板）：工具面板收成一条把手，点开才展开。
+           竖屏下工具栏内容有一千多像素高，不收起来就看不到画布。 -->
+      <button
+        v-if="isNarrow"
+        type="button"
+        class="tool-toggle"
+        :aria-expanded="toolsOpen"
+        @click="toolsOpen = !toolsOpen"
+      >
+        <span class="tool-toggle__label">工具</span>
+        <span class="tool-toggle__hint">笔刷 · 笔画提示 · 笔顺引导 · 背景 · 操作</span>
+        <span class="tool-toggle__state">{{ toolsOpen ? '收起' : '展开' }}</span>
+      </button>
+
       <!-- 工具面板 -->
-      <div class="tool-panel">
+      <div class="tool-panel" :class="{ 'tool-panel--collapsed': isNarrow && !toolsOpen }">
         <div class="tool-section">
           <h3 class="tool-title">笔刷设置</h3>
           <div class="tool-group">
@@ -713,7 +727,26 @@ const endPractice = async () => {
   practicedChars.value = [];
 };
 
+/**
+ * 窄屏适配（iPad 竖屏 810–834px、小平板）。
+ * 桌面/横屏时工具面板与画布并排；窄屏时改成「画布在上 + 工具面板收成把手」，
+ * 因为工具面板内容有一千多像素高，并排会把画布挤到屏幕之外。
+ */
+const isNarrow = ref(false);
+const toolsOpen = ref(true);
+let narrowQuery = null;
+
+const syncNarrow = (matches) => {
+  isNarrow.value = matches;
+  // 窄屏默认收起，宽屏默认展开（用户也可以自己开合）
+  toolsOpen.value = !matches;
+};
+
 onMounted(() => {
+  narrowQuery = window.matchMedia('(max-width: 900px)');
+  syncNarrow(narrowQuery.matches);
+  narrowQuery.addEventListener('change', (e) => syncNarrow(e.matches));
+
   nextTick(() => {
     // 从store加载设置
     practiceStore.loadLocalSettings();
@@ -732,6 +765,7 @@ onUnmounted(() => {
   endPractice();
   // 草稿立刻落盘，别让切页面丢笔迹
   flushDraft();
+  narrowQuery?.removeEventListener('change', syncNarrow);
 });
 </script>
 
@@ -1156,25 +1190,106 @@ onUnmounted(() => {
   }
 }
 
-/* 响应式设计 */
-@media (max-width: 768px) {
+/* 工具面板把手（只在窄屏出现） */
+.tool-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 48px;
+  padding: 0.75rem 1rem;
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(139, 69, 19, 0.18);
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  font: inherit;
+  color: #333;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tool-toggle__label {
+  font-weight: 700;
+  color: #8b4513;
+  flex: none;
+}
+
+.tool-toggle__hint {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12px;
+  color: #666;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tool-toggle__state {
+  flex: none;
+  font-size: 13px;
+  color: #8b4513;
+}
+
+/**
+ * 窄屏（iPad 竖屏 810–834px、小平板 744px）：
+ * 断点从 768 提到 900 —— iPad 竖屏宽度都在 768 以上，
+ * 走原来的桌面布局时 flex 会换行，把画布挤到 1700px 高的工具栏下面。
+ * 这里改成：画布在上（order:-1），工具面板收成把手。
+ */
+@media (max-width: 900px) {
   .practice-layout {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .canvas-area {
+    order: -1;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 
   .tool-panel {
     width: 100%;
-    max-width: 400px;
-  }
-
-  .canvas-area {
     max-width: 100%;
   }
 
-  /* 手机端只读，不给书写入口 */
+  /* 收起时不占位，画布与把手直接贴在一起 */
+  .tool-panel--collapsed {
+    display: none;
+  }
+
+  /* 竖屏也要给手指留够高度：dvh 是可见高度，vh 会把地址栏算进去 */
   .canvas-wrapper {
-    height: min(58vh, 480px);
+    height: min(56vh, 620px);
+    height: min(56dvh, 620px);
+  }
+}
+
+/* 手机：画布再矮一点，工具照样点得中 */
+@media (max-width: 600px) {
+  .canvas-wrapper {
+    height: min(46vh, 420px);
+    height: min(46dvh, 420px);
+  }
+}
+
+/**
+ * 触屏横屏（iPad 放桌上写）：画布底边要留在屏幕里。
+ * 竖屏那 85px 的标题区在横屏是浪费 —— 副标题收起来，
+ * 画布高度从 72dvh 收到 68dvh，底边正好不越过屏幕下沿。
+ * 桌面（pointer: fine）不受影响。
+ */
+@media (pointer: coarse) and (min-width: 901px) {
+  .practice-header .section-subtitle {
+    display: none;
+  }
+
+  .canvas-wrapper {
+    height: min(68vh, 720px);
+    height: min(68dvh, 720px);
   }
 }
 </style>

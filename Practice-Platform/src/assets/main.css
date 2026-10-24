@@ -11,6 +11,111 @@ body {
   color: #333;
   /* 页面底色跟水墨背景的宣纸色一致，别用冷灰 —— 卡片是白的，压在纸上才有层次 */
   background-color: #f4efe2;
+  /* iPad 上长按会弹出「拷贝 / 查找 / 放大镜」浮层，盖住笔迹和画布。
+     输入框要保留粘贴菜单，所以下面单独放开。 */
+  -webkit-touch-callout: none;
+}
+
+input,
+textarea {
+  -webkit-touch-callout: default;
+}
+
+/**
+ * 触摸设备上的可点目标抬到 44px。
+ * Element Plus 默认 small=24px / normal=32px / large=40px，
+ * 在 iPad 上手指点不准 —— 这里直接覆盖它的尺寸变量，
+ * 组件自己算的高度就跟着变了（按钮、下拉、输入框、标签、单选按钮组…）。
+ * 选择器用 html:root 而不是 :root，是为了压过 Element Plus 自己的 :root。
+ */
+@media (pointer: coarse) {
+  html:root {
+    --el-component-size-small: 44px;
+    --el-component-size: 44px;
+    --el-component-size-large: 48px;
+  }
+
+  /* 下面这些类规则都带 body 前缀：Element Plus 的按需样式是运行时注入的，
+     晚于 main.css，同优先级的类规则会被它盖掉（:root 变量不受影响，
+     因为上面用 html:root 提了优先级）。 */
+
+  /* 滑块把手只有 20px，手指抓不住 —— 命中区放大到 44px，视觉大小不变 */
+  body .el-slider {
+    height: 44px;
+  }
+
+  body .el-slider__button-wrapper {
+    width: 44px;
+    height: 44px;
+    top: -19px;
+  }
+
+  /* 数字框的加减键：宽度 32/24px，跟着输入框一起抬到 44 */
+  body .el-input-number .el-input__wrapper {
+    min-height: 44px;
+    padding-left: 48px;
+    padding-right: 48px;
+  }
+
+  body .el-input-number .el-input-number__decrease,
+  body .el-input-number .el-input-number__increase {
+    width: 44px;
+  }
+
+  /* 单选按钮组（宣纸色 / 格子样式 / 字帖布局）：高度是内边距撑的，改内边距 */
+  body .el-radio-button__inner {
+    padding: 15px 16px;
+  }
+
+  body .el-radio-button--small .el-radio-button__inner {
+    padding: 15px 16px;
+  }
+
+  /* 颜色选择器 */
+  body .el-color-picker {
+    width: 44px;
+    height: 44px;
+  }
+
+  body .el-color-picker__trigger {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* 按钮用的是自己的 --el-button-size，而且基类是硬编码的 height:32px，
+     两个都得覆盖 */
+  body .el-button {
+    --el-button-size: 44px;
+    height: 44px;
+  }
+
+  body .el-button--small {
+    --el-button-size: 44px;
+    height: 44px;
+  }
+
+  body .el-button--large {
+    --el-button-size: 48px;
+    height: 48px;
+  }
+
+  /* 画廊轮播箭头 */
+  body .el-carousel__arrow {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* 顶栏 logo 与文字链接 */
+  body .logo-link {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  body .top-nav-item {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
 }
 
 /* 书法风格主题色

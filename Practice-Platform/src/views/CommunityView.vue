@@ -1008,6 +1008,13 @@ onMounted(() => {
   cursor: pointer;
 }
 
+/* 触摸设备：点赞 / 回复数也是可点的，抬到 44px 才点得中 */
+@media (pointer: coarse) {
+  .stat-item {
+    min-height: 44px;
+  }
+}
+
 .stat-item.active {
   color: #f56c6c;
 }
