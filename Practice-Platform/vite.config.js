@@ -1,15 +1,41 @@
 import { fileURLToPath, URL } from 'node:url'
+import { copyFileSync, existsSync } from 'node:fs'
+import { join } from 'node:path'
 
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { visualizer } from 'rollup-plugin-visualizer'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
+/**
+ * GitHub Pages 的 SPA 深链接兜底。
+ *
+ * Pages 对不存在的路径返回 404.html。把构建好的 index.html 复制一份成 404.html，
+ * 浏览器加载它后 SPA 照常启动，路由按 location.pathname 解析出对应页面。
+ */
+const pagesSpaFallback = () => ({
+  name: 'pages-spa-404-fallback',
+  apply: 'build',
+  closeBundle() {
+    const outDir = join(process.cwd(), 'dist')
+    const index = join(outDir, 'index.html')
+    if (!existsSync(index)) return
+    copyFileSync(index, join(outDir, '404.html'))
+  }
+})
+
 // https://vite.dev/config/
-export default defineConfig(async ({ mode }) => ({
+export default defineConfig(async ({ mode }) => {
+  // base 从环境变量读：部署到子路径（GitHub Pages 的 /仓库名/）时要改。
+  // 见 .env.production 与 .env.example。
+  const env = loadEnv(mode, process.cwd(), '')
+
+  return {
+  base: env.VITE_BASE_PATH || '/',
   plugins: [
     vue(),
+    pagesSpaFallback(),
     // Element Plus 按需引入：模板里用到的 el-* 组件自动注册，并各自带样式。
     // 不要再 app.use(ElementPlus) 全量注册 —— 那是首包 860KB JS + 346KB CSS 的根源。
     Components({
@@ -97,4 +123,5 @@ export default defineConfig(async ({ mode }) => ({
     drop: mode === 'production' ? ['console', 'debugger'] : [],
     pure: mode === 'production' ? ['console.log', 'console.info', 'console.warn'] : []
   }
-}))
+  }
+})

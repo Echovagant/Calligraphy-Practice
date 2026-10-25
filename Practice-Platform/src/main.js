@@ -25,3 +25,20 @@ app.use(router)
 
 // 挂载应用
 app.mount('#app')
+
+/**
+ * 注册 Service Worker —— 离线壳与静态资源缓存。
+ *
+ * 只在生产构建里注册：开发时 vite 的模块是热更新的，
+ * 缓存住反而会让改动看不到。
+ * URL 用 BASE_URL 拼，部署到子路径（GitHub Pages 的 /仓库名/）才对得上。
+ */
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    const swUrl = `${import.meta.env.BASE_URL}sw.js`
+    navigator.serviceWorker.register(swUrl).catch((error) => {
+      // 注册失败不影响正常使用（只是没有离线能力），不要打断用户
+      console.warn('Service Worker 注册失败：', error)
+    })
+  })
+}

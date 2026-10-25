@@ -469,6 +469,9 @@ import { useCopybookStore } from '../stores/copybookStore';
 import { useUserStore } from '../stores/userStore';
 import { formatDifficulty } from '../utils/constants';
 import { downloadCanvasAsImage } from '../utils';
+// 随包发布的开源中文字体（楷/行/草）。
+// 放在本组件里而不是 main.js：字帖页不打开时就不下载这些 woff2。
+import '@/assets/fonts.css';
 
 // 状态管理
 const copybookStore = useCopybookStore();
@@ -741,15 +744,23 @@ const copybookConfig = computed({
   }
 });
 
-// 字体设置映射到真实字体族
+// 字体设置映射到真实字体族。
+// 楷/行/草用随包发布的开源字体（CP-WenKai / CP-LongCang / CP-MaoCao），
+// 系统字体只作为字集外的回退，避免出现豆腐块。
+// 隶/篆暂时仍用系统字体：找不到许可清晰且覆盖足够的开源替代。
 const FONT_FAMILIES = {
-  kai: "'KaiTi', 'STKaiti', 'SimSun', serif",
-  xing: "'STXingkai', 'KaiTi', 'SimSun', serif",
-  cao: "'STXingkai', 'KaiTi', 'SimSun', serif",
+  kai: "'CP-WenKai', 'Kaiti SC', 'STKaiti', 'Songti SC', 'SimSun', serif",
+  xing: "'CP-LongCang', 'Kaiti SC', 'STKaiti', 'Songti SC', 'SimSun', serif",
+  cao: "'CP-MaoCao', 'Kaiti SC', 'STKaiti', 'Songti SC', 'SimSun', serif",
   li: "'LiSu', 'SimSun', serif",
   zhuan: "'FZZhuan-LeiZhen-Z03', 'SimSun', serif"
 };
 const fontFamily = computed(() => FONT_FAMILIES[copybookConfig.value.font] || "'SimSun', serif");
+// document.fonts.load 只认字体栈里的第一个族名，后面的只是渲染回退，
+// 所以要单独取出首选族名来触发 webfont 加载。
+const primaryFontFamily = computed(
+  () => (FONT_FAMILIES[copybookConfig.value.font] || "'SimSun', serif").split(',')[0].trim()
+);
 
 const historyItems = computed(() => copybookStore.getHistory);
 const generatedCopybooks = computed(() => copybookStore.getGeneratedCopybooks);
@@ -889,8 +900,23 @@ const generateCopybook = async () => {
   }
 };
 
+// canvas 绘制不会等 webfont：字体没就绪时 ctx.font 拿不到真实字形，
+// 会用回退字体画字，于是「页面预览看着对、下载下来的 PNG 是错的」。
+// 所以画之前先把要用的那些字对应的字体分片加载完。
+const ensureFontLoaded = async (fontSize, family, text) => {
+  if (!document.fonts || typeof document.fonts.load !== 'function') return;
+  const spec = `${fontSize}px ${family}`;
+  try {
+    await document.fonts.load(spec, text || ' ');
+    await document.fonts.ready;
+  } catch (error) {
+    // 加载失败不能拖垮整个导出 —— 退回系统字体也比导不出强
+    console.warn('字体加载失败，导出将使用回退字体:', error);
+  }
+};
+
 // 把当前页的字渲染成 PNG 并下载
-const renderCurrentPage = () => {
+const renderCurrentPage = async () => {
   const chars = currentPageChars.value;
   const columns = 4;
   const rows = Math.ceil(chars.length / columns);
@@ -901,6 +927,13 @@ const renderCurrentPage = () => {
   canvas.height = rows * cell;
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('当前浏览器不支持 Canvas 导出');
+
+  // 先等字体就绪，再设置 ctx.font
+  await ensureFontLoaded(
+    copybookConfig.value.fontSize,
+    primaryFontFamily.value,
+    chars.join('')
+  );
 
   ctx.fillStyle = copybookConfig.value.paperColor || '#ffffff';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -934,14 +967,14 @@ const renderCurrentPage = () => {
 };
 
 // 下载字帖
-const downloadCopybook = () => {
+const downloadCopybook = async () => {
   if (!hasGenerated.value || currentPageChars.value.length === 0) {
     ElMessage.warning('请先生成字帖');
     return;
   }
 
   try {
-    const canvas = renderCurrentPage();
+    const canvas = await renderCurrentPage();
     downloadCanvasAsImage(canvas, `字帖_${Date.now()}.png`);
     ElMessage.success('字帖已下载');
   } catch (error) {

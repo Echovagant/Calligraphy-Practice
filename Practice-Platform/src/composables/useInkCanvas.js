@@ -23,6 +23,7 @@ import {
   averageSpeed,
   buildOutlinePath
 } from '../utils/ink/strokeGeometry.js';
+import { scaleStrokesUniformly } from '../utils/ink/strokeScale.js';
 import { createStrokeStore } from '../utils/ink/strokeStore.js';
 import { createDraftStore, draftKey } from '../utils/ink/draftStore.js';
 import { classifyStroke } from '../utils/ink/strokeClassifier.js';
@@ -284,17 +285,12 @@ export function useInkCanvas(options = {}) {
 
     // 骨架随尺寸等比缩放：横竖屏切换不丢笔迹、不变形
     if (lastSize.width && lastSize.height) {
-      const scaleX = cssWidth / lastSize.width;
-      const scaleY = cssHeight / lastSize.height;
-      if (Math.abs(scaleX - 1) > 1e-6 || Math.abs(scaleY - 1) > 1e-6) {
-        const scaled = store.strokes.map((stroke) => ({
-          ...stroke,
-          points: stroke.points.map((point) => ({
-            ...point,
-            x: point.x * scaleX,
-            y: point.y * scaleY
-          }))
-        }));
+      const scaled = scaleStrokesUniformly(store.strokes, lastSize, {
+        width: cssWidth,
+        height: cssHeight
+      });
+      // 尺寸没变时纯函数原样返回同一个数组引用 → 这里跳过无谓的 store.restore
+      if (scaled !== store.strokes) {
         store.restore({ strokes: scaled });
       }
     }

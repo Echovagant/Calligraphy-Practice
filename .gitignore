@@ -9,6 +9,11 @@ uploads/
 # 本地密钥（由 run-local.ps1 读入并注入环境变量，绝不入库）
 SpringBoot-Platform/config/local-secrets.properties
 
+# 本机专用的环境变量覆盖（可能含密钥，绝不入库）
+# .env.production 与 .env.example 是模板与构建配置，可以入库
+.env.local
+.env.*.local
+
 # Python 缓存
 __pycache__/
 *.pyc
