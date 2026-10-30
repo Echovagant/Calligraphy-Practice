@@ -16,9 +16,13 @@ import java.util.List;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    /** 本地开发环境允许的前端来源。不使用通配符，避免任意站点携带凭据访问接口。 */
-    public static final List<String> ALLOWED_ORIGINS =
-            List.of("http://localhost:5173", "http://localhost:5174");
+    /**
+     * 允许携带凭据跨域的前端来源（协议+域名+端口写全，逗号分隔），
+     * 由 {@code app.cors.allowed-origins} 配置，默认是本地开发端口。
+     * 不使用通配符，避免任意站点携带凭据访问接口。
+     */
+    @Value("${app.cors.allowed-origins:http://localhost:5173,http://localhost:5174}")
+    private List<String> allowedOrigins;
 
     /**
      * 上传文件的根目录。与 {@code FileUploadServiceImpl} 的 {@code file.upload-dir}
@@ -30,7 +34,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins(ALLOWED_ORIGINS.toArray(new String[0]))
+                .allowedOrigins(allowedOrigins.toArray(new String[0]))
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true)
@@ -59,11 +63,13 @@ public class WebConfig implements WebMvcConfigurer {
 
     /**
      * 提供给 Spring Security 过滤链复用的 CORS 配置源。
+     * 非 static：要读上面注入的 {@code allowedOrigins}，
+     * SecurityConfig 通过注入本 Bean 使用（不再静态直调）。
      */
     @Bean
-    public static CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(ALLOWED_ORIGINS);
+        config.setAllowedOrigins(allowedOrigins);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

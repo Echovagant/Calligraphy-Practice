@@ -1,0 +1,58 @@
+# 同源反代模板：静态前端 + /api 转发到 Spring Boot（默认 8083）。
+#
+# 放进 nginx 的 conf.d/ 后 reload。前端与接口同源，浏览器不再发起跨域，
+# 前端 .env.production 的 VITE_APP_BASE_API=/api 保持不变。
+# 域名与证书路径按实际替换（certbot / 云厂商证书均可）。
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name your-domain.example;
+
+    ssl_certificate     /etc/letsencrypt/live/your-domain.example/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/your-domain.example/privkey.pem;
+
+    # 前端静态产物（Practice-Platform 执行 npm run build 得到的 dist/，VITE_BASE_PATH=/）
+    root /opt/calligraphy/dist;
+    index index.html;
+
+    # SPA history 路由：未知路径回落到 index.html（与 GitHub Pages 的 404.html 兜底同一目的）
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # vite 产物带内容 hash，可以长缓存
+    location /assets/ {
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+    }
+    # 开源字体与笔顺数据（public/ 下的文件，不带 hash，缓存短一些）
+    location /fonts/ {
+        add_header Cache-Control "public, max-age=86400";
+        try_files $uri =404;
+    }
+    location /stroke-data/ {
+        add_header Cache-Control "public, max-age=86400";
+        try_files $uri =404;
+    }
+
+    # 后端接口同源转发
+    location /api/ {
+        proxy_pass http://127.0.0.1:8083;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        # 与后端 file.max-size=10485760（10MB）对齐，上传作品的请求体才过得来
+        client_max_body_size 10m;
+    }
+
+    # 上传的图片由后端以 /api/files/** 静态映射提供，走上面的 /api/ 即可，无需单独配置。
+}
+
+# http 跳 https
+server {
+    listen 80;
+    server_name your-domain.example;
+    return 301 https://$host$request_uri;
+}
