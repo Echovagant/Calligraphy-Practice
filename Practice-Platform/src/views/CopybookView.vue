@@ -5,6 +5,231 @@
       <p class="section-subtitle">生成个性化书法字帖，提升你的书写水平</p>
     </div>
 
+    <div class="copybook-layout">
+      <!-- 配置面板 -->
+      <div class="config-panel">
+        <el-form :model="copybookConfig" :rules="configRules" ref="configFormRef" label-width="100px">
+          <div class="config-section">
+            <h3 class="config-title">内容设置</h3>
+
+            <el-form-item label="输入文字" prop="text">
+              <el-input
+                :model-value="copybookConfig.text"
+                @update:modelValue="handleConfigChange('text', $event)"
+                type="textarea"
+                :rows="4"
+                placeholder="请输入要生成字帖的文字内容"
+              />
+              <div class="char-count">{{ copybookConfig.text.length }}/50</div>
+            </el-form-item>
+
+            <el-form-item label="示例文本">
+              <el-button size="small" @click="useSampleText">填入示例文本</el-button>
+              <span class="sample-hint">{{ sampleText }}</span>
+            </el-form-item>
+          </div>
+
+          <div class="config-section">
+            <h3 class="config-title">样式设置</h3>
+
+            <el-form-item label="字体选择" prop="font">
+              <el-select
+                :model-value="copybookConfig.font"
+                @update:modelValue="handleConfigChange('font', $event)"
+                placeholder="请选择字体"
+              >
+                <el-option label="楷书（默认）" value="kai" />
+                <el-option label="行书" value="xing" />
+                <el-option label="草书" value="cao" />
+                <el-option label="隶书" value="li" />
+                <el-option label="篆书" value="zhuan" />
+              </el-select>
+            </el-form-item>
+
+            <el-form-item label="布局方式" prop="layout">
+              <el-radio-group
+                :model-value="copybookConfig.layout"
+                @update:modelValue="handleConfigChange('layout', $event)"
+              >
+                <el-radio-button label="grid">方格布局</el-radio-button>
+                <el-radio-button label="line">横线布局</el-radio-button>
+                <el-radio-button label="blank">空白布局</el-radio-button>
+              </el-radio-group>
+            </el-form-item>
+
+            <el-form-item label="每页字数" prop="charsPerPage">
+              <el-slider
+                :model-value="copybookConfig.charsPerPage"
+                @update:modelValue="handleConfigChange('charsPerPage', $event)"
+                :min="10" :max="100" :step="5" show-input
+              />
+            </el-form-item>
+
+            <el-form-item label="字体大小" prop="fontSize">
+              <el-slider
+                :model-value="copybookConfig.fontSize"
+                @update:modelValue="handleConfigChange('fontSize', $event)"
+                :min="20" :max="100" :step="5" show-input
+              />
+            </el-form-item>
+          </div>
+
+          <div class="config-section">
+            <h3 class="config-title">纸张设置</h3>
+
+            <el-form-item label="纸张颜色" prop="paperColor">
+              <el-color-picker
+                :model-value="copybookConfig.paperColor"
+                @update:modelValue="handleConfigChange('paperColor', $event)"
+                :show-alpha="false"
+              />
+            </el-form-item>
+
+            <el-form-item label="网格颜色" prop="gridColor">
+              <el-color-picker
+                :model-value="copybookConfig.gridColor"
+                @update:modelValue="handleConfigChange('gridColor', $event)"
+                :show-alpha="false"
+              />
+            </el-form-item>
+          </div>
+
+          <div class="config-section">
+            <div class="action-buttons">
+              <el-button type="primary" @click="generateCopybook" :loading="isGenerating" class="generate-btn">
+                {{ isGenerating ? '生成中...' : '生成字帖' }}
+              </el-button>
+              <el-button type="success" @click="downloadCopybook" :disabled="!hasGenerated" class="download-btn">
+                下载字帖
+              </el-button>
+            </div>
+
+            <div class="history-buttons">
+              <el-button @click="showHistory = !showHistory" class="history-btn">
+                {{ showHistory ? '隐藏历史' : '查看历史' }}
+              </el-button>
+              <el-button @click="showGenerated = !showGenerated" class="history-btn">
+                {{ showGenerated ? '隐藏生成' : '查看生成' }}
+              </el-button>
+            </div>
+            </div>
+          </el-form>
+
+          <!-- 历史记录显示 -->
+          <div v-if="showHistory" class="history-panel">
+            <div class="history-header">
+              <h4>历史记录</h4>
+              <el-button size="small" type="danger" @click="clearHistory">清空历史</el-button>
+            </div>
+            <el-table v-if="historyItems.length > 0" :data="historyItems" style="width: 100%; margin-top: 10px;" size="small">
+              <el-table-column prop="title" label="标题" width="150"></el-table-column>
+              <el-table-column prop="createdAt" label="创建时间" width="180">
+                <template #default="scope">
+                  {{ new Date(scope.row.createdAt).toLocaleString() }}
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" width="120" fixed="right">
+                <template #default="scope">
+                  <el-button size="small" @click="loadFromHistory(scope.row)">加载</el-button>
+                  <el-button size="small" type="danger" @click="deleteHistoryItem(scope.row.id)">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+            <div v-else class="empty-history">暂无历史记录</div>
+          </div>
+
+          <!-- 生成记录显示 -->
+          <div v-if="showGenerated" class="generated-panel">
+            <div class="generated-header">
+              <h4>生成记录</h4>
+              <el-button size="small" type="danger" @click="clearGenerated">清空记录</el-button>
+            </div>
+            <el-table v-if="generatedCopybooks.length > 0" :data="generatedCopybooks" style="width: 100%; margin-top: 10px;" size="small">
+              <el-table-column prop="title" label="标题" width="150"></el-table-column>
+              <el-table-column prop="pageCount" label="页数" width="80"></el-table-column>
+              <el-table-column prop="createdAt" label="创建时间" width="180">
+                <template #default="scope">
+                  {{ new Date(scope.row.createdAt).toLocaleString() }}
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" width="120" fixed="right">
+                <template #default="scope">
+                  <el-button size="small" type="primary" @click="downloadCopybook">下载</el-button>
+                  <el-button size="small" type="danger" @click="deleteHistoryItem(scope.row.id)">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+            <div v-else class="empty-generated">暂无生成记录</div>
+          </div>
+        </div>
+
+      <!-- 预览区域 -->
+      <div class="preview-panel">
+        <div class="preview-header">
+          <h3 class="preview-title">预览</h3>
+          <div class="preview-controls">
+            <el-button-group>
+              <el-button @click="prevPage" :disabled="currentPage <= 1" :icon="ArrowLeft"></el-button>
+              <el-button disabled>{{ currentPage }} / {{ totalPages }}</el-button>
+              <el-button @click="nextPage" :disabled="currentPage >= totalPages" :icon="ArrowRight"></el-button>
+            </el-button-group>
+          </div>
+        </div>
+
+        <div class="preview-content">
+          <div v-if="!hasGenerated" class="empty-preview">
+            <el-icon class="empty-icon"><Notebook /></el-icon>
+            <p>请输入文字内容并点击生成字帖</p>
+          </div>
+          <div v-else class="copybook-preview">
+            <div
+              class="paper-preview"
+              :style="{ backgroundColor: copybookConfig.paperColor, fontFamily: fontFamily }"
+              ref="paperRef"
+            >
+              <!-- 网格或横线 -->
+              <div v-if="copybookConfig.layout === 'grid'" class="grid-container">
+                <div
+                  v-for="(char, index) in currentPageChars"
+                  :key="index"
+                  class="grid-cell"
+                  :style="{ borderColor: copybookConfig.gridColor }"
+                >
+                  <div class="char-preview" :style="{ fontSize: copybookConfig.fontSize + 'px' }">
+                    {{ char }}
+                  </div>
+                </div>
+              </div>
+
+              <div v-else-if="copybookConfig.layout === 'line'" class="line-container">
+                <div
+                  v-for="(char, index) in currentPageChars"
+                  :key="index"
+                  class="line-row"
+                >
+                  <div class="line" :style="{ backgroundColor: copybookConfig.gridColor }"></div>
+                  <div class="char-preview line-char" :style="{ fontSize: copybookConfig.fontSize + 'px' }">
+                    {{ char }}
+                  </div>
+                </div>
+              </div>
+
+              <div v-else class="blank-container">
+                <div
+                  v-for="(char, index) in currentPageChars"
+                  :key="index"
+                  class="blank-char"
+                >
+                  <div class="char-preview" :style="{ fontSize: copybookConfig.fontSize + 'px' }">
+                    {{ char }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- 字帖库：数据来自 GET /api/copybooks -->
     <div class="library-section">
       <div class="section-header">
@@ -232,231 +457,6 @@
       </div>
     </el-dialog>
 
-    <div class="copybook-layout">
-      <!-- 配置面板 -->
-      <div class="config-panel">
-        <el-form :model="copybookConfig" :rules="configRules" ref="configFormRef" label-width="100px">
-          <div class="config-section">
-            <h3 class="config-title">内容设置</h3>
-
-            <el-form-item label="输入文字" prop="text">
-              <el-input
-                :model-value="copybookConfig.text"
-                @update:modelValue="handleConfigChange('text', $event)"
-                type="textarea"
-                :rows="4"
-                placeholder="请输入要生成字帖的文字内容"
-              />
-              <div class="char-count">{{ copybookConfig.text.length }}/50</div>
-            </el-form-item>
-
-            <el-form-item label="示例文本">
-              <el-button size="small" @click="useSampleText">填入示例文本</el-button>
-              <span class="sample-hint">{{ sampleText }}</span>
-            </el-form-item>
-          </div>
-
-          <div class="config-section">
-            <h3 class="config-title">样式设置</h3>
-
-            <el-form-item label="字体选择" prop="font">
-              <el-select
-                :model-value="copybookConfig.font"
-                @update:modelValue="handleConfigChange('font', $event)"
-                placeholder="请选择字体"
-              >
-                <el-option label="楷书（默认）" value="kai" />
-                <el-option label="行书" value="xing" />
-                <el-option label="草书" value="cao" />
-                <el-option label="隶书" value="li" />
-                <el-option label="篆书" value="zhuan" />
-              </el-select>
-            </el-form-item>
-
-            <el-form-item label="布局方式" prop="layout">
-              <el-radio-group
-                :model-value="copybookConfig.layout"
-                @update:modelValue="handleConfigChange('layout', $event)"
-              >
-                <el-radio-button label="grid">方格布局</el-radio-button>
-                <el-radio-button label="line">横线布局</el-radio-button>
-                <el-radio-button label="blank">空白布局</el-radio-button>
-              </el-radio-group>
-            </el-form-item>
-
-            <el-form-item label="每页字数" prop="charsPerPage">
-              <el-slider
-                :model-value="copybookConfig.charsPerPage"
-                @update:modelValue="handleConfigChange('charsPerPage', $event)"
-                :min="10" :max="100" :step="5" show-input
-              />
-            </el-form-item>
-
-            <el-form-item label="字体大小" prop="fontSize">
-              <el-slider
-                :model-value="copybookConfig.fontSize"
-                @update:modelValue="handleConfigChange('fontSize', $event)"
-                :min="20" :max="100" :step="5" show-input
-              />
-            </el-form-item>
-          </div>
-
-          <div class="config-section">
-            <h3 class="config-title">纸张设置</h3>
-
-            <el-form-item label="纸张颜色" prop="paperColor">
-              <el-color-picker
-                :model-value="copybookConfig.paperColor"
-                @update:modelValue="handleConfigChange('paperColor', $event)"
-                :show-alpha="false"
-              />
-            </el-form-item>
-
-            <el-form-item label="网格颜色" prop="gridColor">
-              <el-color-picker
-                :model-value="copybookConfig.gridColor"
-                @update:modelValue="handleConfigChange('gridColor', $event)"
-                :show-alpha="false"
-              />
-            </el-form-item>
-          </div>
-
-          <div class="config-section">
-            <div class="action-buttons">
-              <el-button type="primary" @click="generateCopybook" :loading="isGenerating" class="generate-btn">
-                {{ isGenerating ? '生成中...' : '生成字帖' }}
-              </el-button>
-              <el-button type="success" @click="downloadCopybook" :disabled="!hasGenerated" class="download-btn">
-                下载字帖
-              </el-button>
-            </div>
-
-            <div class="history-buttons">
-              <el-button @click="showHistory = !showHistory" class="history-btn">
-                {{ showHistory ? '隐藏历史' : '查看历史' }}
-              </el-button>
-              <el-button @click="showGenerated = !showGenerated" class="history-btn">
-                {{ showGenerated ? '隐藏生成' : '查看生成' }}
-              </el-button>
-            </div>
-            </div>
-          </el-form>
-
-          <!-- 历史记录显示 -->
-          <div v-if="showHistory" class="history-panel">
-            <div class="history-header">
-              <h4>历史记录</h4>
-              <el-button size="small" type="danger" @click="clearHistory">清空历史</el-button>
-            </div>
-            <el-table v-if="historyItems.length > 0" :data="historyItems" style="width: 100%; margin-top: 10px;" size="small">
-              <el-table-column prop="title" label="标题" width="150"></el-table-column>
-              <el-table-column prop="createdAt" label="创建时间" width="180">
-                <template #default="scope">
-                  {{ new Date(scope.row.createdAt).toLocaleString() }}
-                </template>
-              </el-table-column>
-              <el-table-column label="操作" width="120" fixed="right">
-                <template #default="scope">
-                  <el-button size="small" @click="loadFromHistory(scope.row)">加载</el-button>
-                  <el-button size="small" type="danger" @click="deleteHistoryItem(scope.row.id)">删除</el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-            <div v-else class="empty-history">暂无历史记录</div>
-          </div>
-
-          <!-- 生成记录显示 -->
-          <div v-if="showGenerated" class="generated-panel">
-            <div class="generated-header">
-              <h4>生成记录</h4>
-              <el-button size="small" type="danger" @click="clearGenerated">清空记录</el-button>
-            </div>
-            <el-table v-if="generatedCopybooks.length > 0" :data="generatedCopybooks" style="width: 100%; margin-top: 10px;" size="small">
-              <el-table-column prop="title" label="标题" width="150"></el-table-column>
-              <el-table-column prop="pageCount" label="页数" width="80"></el-table-column>
-              <el-table-column prop="createdAt" label="创建时间" width="180">
-                <template #default="scope">
-                  {{ new Date(scope.row.createdAt).toLocaleString() }}
-                </template>
-              </el-table-column>
-              <el-table-column label="操作" width="120" fixed="right">
-                <template #default="scope">
-                  <el-button size="small" type="primary" @click="downloadCopybook">下载</el-button>
-                  <el-button size="small" type="danger" @click="deleteHistoryItem(scope.row.id)">删除</el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-            <div v-else class="empty-generated">暂无生成记录</div>
-          </div>
-        </div>
-
-      <!-- 预览区域 -->
-      <div class="preview-panel">
-        <div class="preview-header">
-          <h3 class="preview-title">预览</h3>
-          <div class="preview-controls">
-            <el-button-group>
-              <el-button @click="prevPage" :disabled="currentPage <= 1" :icon="ArrowLeft"></el-button>
-              <el-button disabled>{{ currentPage }} / {{ totalPages }}</el-button>
-              <el-button @click="nextPage" :disabled="currentPage >= totalPages" :icon="ArrowRight"></el-button>
-            </el-button-group>
-          </div>
-        </div>
-
-        <div class="preview-content">
-          <div v-if="!hasGenerated" class="empty-preview">
-            <el-icon class="empty-icon"><Notebook /></el-icon>
-            <p>请输入文字内容并点击生成字帖</p>
-          </div>
-          <div v-else class="copybook-preview">
-            <div
-              class="paper-preview"
-              :style="{ backgroundColor: copybookConfig.paperColor, fontFamily: fontFamily }"
-              ref="paperRef"
-            >
-              <!-- 网格或横线 -->
-              <div v-if="copybookConfig.layout === 'grid'" class="grid-container">
-                <div
-                  v-for="(char, index) in currentPageChars"
-                  :key="index"
-                  class="grid-cell"
-                  :style="{ borderColor: copybookConfig.gridColor }"
-                >
-                  <div class="char-preview" :style="{ fontSize: copybookConfig.fontSize + 'px' }">
-                    {{ char }}
-                  </div>
-                </div>
-              </div>
-
-              <div v-else-if="copybookConfig.layout === 'line'" class="line-container">
-                <div
-                  v-for="(char, index) in currentPageChars"
-                  :key="index"
-                  class="line-row"
-                >
-                  <div class="line" :style="{ backgroundColor: copybookConfig.gridColor }"></div>
-                  <div class="char-preview line-char" :style="{ fontSize: copybookConfig.fontSize + 'px' }">
-                    {{ char }}
-                  </div>
-                </div>
-              </div>
-
-              <div v-else class="blank-container">
-                <div
-                  v-for="(char, index) in currentPageChars"
-                  :key="index"
-                  class="blank-char"
-                >
-                  <div class="char-preview" :style="{ fontSize: copybookConfig.fontSize + 'px' }">
-                    {{ char }}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -1260,12 +1260,14 @@ const nextPage = () => {
 }
 
 /* 内容设置 / 预览 双栏：
-   栅格铺满整条内容列 —— 上面三块白卡与下面两栏共用同一组左右边界。 */
+   栅格铺满整条内容列 —— 上面三块白卡与下面两栏共用同一组左右边界。
+   两栏等高（align-items 默认 stretch），预览栏内部纵向撑开，
+   不再在表单下方留出四百多像素的空白。 */
 .copybook-layout {
   display: grid;
-  grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+  grid-template-columns: minmax(340px, 420px) minmax(0, 1fr);
   gap: var(--sp-5);
-  align-items: start;
+  align-items: stretch;
 }
 
 .config-panel {
@@ -1274,6 +1276,8 @@ const nextPage = () => {
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(90, 60, 30, 0.08);
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .config-section {
@@ -1284,6 +1288,19 @@ const nextPage = () => {
   margin-bottom: 0;
 }
 
+/* 表单本身占满面板高度，生成/下载这组主操作钉在面板底部 ——
+   不跟着上面表单项的多少上下漂。 */
+.config-panel > .el-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.config-panel > .el-form > .config-section:last-child {
+  margin-top: auto;
+  margin-bottom: 0;
+}
+
 .char-count {
   text-align: right;
   font-size: 0.8rem;
@@ -1291,10 +1308,18 @@ const nextPage = () => {
   margin-top: var(--sp-1);
 }
 
+/* 示例文本：提示文字挤在按钮右边只够放下几个字 —— 换到下一行整段可读 */
+.config-panel .el-form-item__content {
+  flex-wrap: wrap;
+}
+
 .sample-hint {
-  margin-left: var(--sp-3);
+  flex: 1 1 100%;
+  margin-left: 0;
+  margin-top: var(--sp-2);
   color: var(--el-text-color-secondary);
   font-size: 0.8rem;
+  line-height: 1.5;
 }
 
 .action-buttons {
@@ -1316,7 +1341,8 @@ const nextPage = () => {
   border-color: #cfd4cb;
 }
 
-/* 预览面板：左侧表单很长时跟着滚动，不再留一大片空白 */
+/* 预览面板：与左侧表单等高。纵向 flex + 内容区 flex:1，
+   纸张预览在剩余空间里居中，不再是「456px 的小盒子 + 下方一大片空」。 */
 .preview-panel {
   background-color: rgba(255, 255, 255, 0.95);
   padding: var(--sp-5);
@@ -1325,6 +1351,8 @@ const nextPage = () => {
   position: sticky;
   top: 76px;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .preview-header {
@@ -1343,6 +1371,7 @@ const nextPage = () => {
 }
 
 .preview-content {
+  flex: 1;
   min-height: 360px;
   display: flex;
   align-items: center;

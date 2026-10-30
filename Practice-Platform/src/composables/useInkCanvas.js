@@ -47,7 +47,9 @@ export function useInkCanvas(options = {}) {
     getGridType = () => 'square',
     getCharactersPerPage = () => 0,
     getDraftScope = () => ({}),
-    palmPolicy = PALM_POLICY.PEN_FIRST,
+    // 书写输入策略。可以直接给字符串，也可以给函数（返回策略名）——
+    // 给函数是为了让界面上的开关能实时生效，不用重建画布。
+    palmPolicy = PALM_POLICY.PEN_STRICT,
     onStrokeCommitted = null,
     onCanvasReady = null,
     onCapabilityDetected = null
@@ -82,6 +84,10 @@ export function useInkCanvas(options = {}) {
   let previewObject = null;
   let activePoints = [];
   let activePointerId = null;
+  /** 当前这一笔是谁画的：pen / touch / mouse。手掌抢占通道的判断要用 */
+  let activePointerType = null;
+  /** 最近一次被防误触挡下来的指针类型（用于界面上的输入状态提示） */
+  const lastBlockedPointer = ref(null);
   let resizeObserver = null;
   let shiftDown = false;
   let disposed = false;
@@ -324,18 +330,66 @@ export function useInkCanvas(options = {}) {
 
   // ---------------------------------------------------------------- 指针事件
 
+  /** 当前的书写输入策略（选项可以是字符串或返回字符串的函数） */
+  const resolvePolicy = () => (typeof palmPolicy === 'function' ? palmPolicy() : palmPolicy);
+
+  /**
+   * 放弃当前正在画的那一笔（不提交、不进撤销栈）。
+   * 用途：手掌先碰到屏幕占了落笔通道，笔随后按下时用它把手掌那一笔打断。
+   */
+  const abortActiveStroke = () => {
+    const instance = canvas.value;
+    if (previewObject && instance) {
+      instance.remove(previewObject);
+      previewObject = null;
+    }
+    activePoints = [];
+    if (activePointerId !== null) {
+      try {
+        instance?.upperCanvasEl?.releasePointerCapture(activePointerId);
+      } catch {
+        // 忽略：指针可能已经释放
+      }
+    }
+    activePointerId = null;
+    activePointerType = null;
+  };
+
   const onPointerDown = (event) => {
     const instance = canvas.value;
-    if (!instance || activePointerId !== null) return;
+    if (!instance) return;
+
+    const pointerType = event.pointerType || 'mouse';
+
+    // 已经有一笔在画：
+    //   - 当前是触摸、来了笔 → 手掌抢占了通道，把手掌那一笔打断，让笔接管。
+    //     这是 iPad 上「手搭在屏上笔就写不出来」的根因：
+    //     手掌先碰到屏幕被当成一次落笔，占住了 activePointerId，
+    //     笔随后按下时因为「已经有笔画了」被直接丢掉。
+    //   - 当前是笔、又来一个笔 → 忽略（多笔同时接触不现实）
+    //   - 当前是笔、来触摸 → 忽略（防误触的第一道闸）
+    if (activePointerId !== null) {
+      if (activePointerType === 'touch' && pointerType === 'pen') {
+        abortActiveStroke();
+      } else {
+        return;
+      }
+    }
+
     // preventDefault 会同时挡掉浏览器的兼容鼠标事件，避免双通道重复落笔
     if (typeof event.preventDefault === 'function') event.preventDefault();
     observePointer(event);
 
-    const decision = palmDecide(palmState, event, Date.now(), palmPolicy);
+    const decision = palmDecide(palmState, event, Date.now(), resolvePolicy());
     palmState = decision.nextState;
-    if (decision.action !== 'draw') return;
+    if (decision.action !== 'draw') {
+      // 被防误触挡下来（手掌搭屏）—— 记一笔，界面上可以提示「已忽略手掌」
+      if (pointerType === 'touch') lastBlockedPointer.value = 'touch';
+      return;
+    }
 
     activePointerId = event.pointerId;
+    activePointerType = pointerType;
     try {
       instance.upperCanvasEl.setPointerCapture(event.pointerId);
     } catch {
@@ -378,6 +432,7 @@ export function useInkCanvas(options = {}) {
       // 忽略
     }
     activePointerId = null;
+    activePointerType = null;
 
     if (previewObject) {
       instance.remove(previewObject);
@@ -591,6 +646,8 @@ export function useInkCanvas(options = {}) {
     canUndo,
     canRedo,
     lastStroke,
+    /** 最近一次被防误触挡下来的指针类型（'touch'），界面用它提示「已忽略手掌」 */
+    lastBlockedPointer,
     init,
     destroy,
     undo,

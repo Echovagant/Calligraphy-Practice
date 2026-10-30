@@ -87,4 +87,44 @@ describe('palmGuard', () => {
       }
     });
   });
+
+  describe('pen-strict（严格防误触：见过笔后触摸永久忽略）', () => {
+    it('笔 → 画，并记下见过笔', () => {
+      const result = decide(createPalmState(), { pointerType: 'pen' }, 1000, PALM_POLICY.PEN_STRICT);
+      expect(result.action).toBe('draw');
+      expect(result.nextState.penSeen).toBe(true);
+    });
+
+    it('没见过笔时触摸 → 画（用户没带笔，手指写字是合理的）', () => {
+      const result = decide(createPalmState(), { pointerType: 'touch' }, 1000, PALM_POLICY.PEN_STRICT);
+      expect(result.action).toBe('draw');
+    });
+
+    it('见过笔之后触摸 → 永久忽略（超过排他窗口也忽略）', () => {
+      // 排他窗口早就过了，但这是台有笔的设备，手掌搭屏不该画线
+      const state = { penSeen: true, penExclusiveUntil: 3000 };
+      const result = decide(state, { pointerType: 'touch' }, 99999, PALM_POLICY.PEN_STRICT);
+      expect(result.action).toBe('ignore');
+    });
+
+    it('鼠标仍然可以画', () => {
+      const state = { penSeen: true, penExclusiveUntil: 3000 };
+      const result = decide(state, { pointerType: 'mouse' }, 5000, PALM_POLICY.PEN_STRICT);
+      expect(result.action).toBe('draw');
+    });
+  });
+
+  describe('all-allowed（不防误触）', () => {
+    it('触摸 → 画', () => {
+      const state = { penSeen: true, penExclusiveUntil: 3000 };
+      const result = decide(state, { pointerType: 'touch' }, 1000, PALM_POLICY.ALL_ALLOWED);
+      expect(result.action).toBe('draw');
+    });
+
+    it('笔 → 画，并记下见过笔', () => {
+      const result = decide(createPalmState(), { pointerType: 'pen' }, 1000, PALM_POLICY.ALL_ALLOWED);
+      expect(result.action).toBe('draw');
+      expect(result.nextState.penSeen).toBe(true);
+    });
+  });
 });

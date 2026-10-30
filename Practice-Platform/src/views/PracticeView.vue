@@ -49,9 +49,6 @@
         </div>
 
         <div class="stage-top__right">
-          <span v-if="guideStatus === 'ready'" class="chip chip--guide">
-            {{ guideChar }} · {{ guideIndex < guideTotal ? `${guideIndex + 1}/${guideTotal} 笔` : `已完成 ${guideTotal} 笔` }}
-          </span>
           <span class="chip chip--count">共 {{ strokeCount }} 笔</span>
           <button
             type="button"
@@ -85,8 +82,10 @@
         </button>
       </nav>
 
-      <!-- 遮罩：面板打开时，点面板以外的地方关掉面板。不做暗化，保持画布可读 -->
-      <div v-if="activeTool" class="panel-scrim" @click="closeTool"></div>
+      <!-- 遮罩：只负责让面板外的界面「暗一点」的效果占位，不拦截指针 ——
+           面板开着也要能在画布上写字。真正关闭面板的判断在脚本里
+           （点工具轨 / 顶栏 / 底部条 / Esc 才关，点画布不关）。 -->
+      <div v-if="activeTool" class="panel-scrim"></div>
 
       <!-- 工具面板：从工具轨一侧浮出，盖在画布上，不挤压画布 -->
       <Transition name="panel">
@@ -251,6 +250,42 @@
               </div>
             </template>
 
+            <!-- 书写输入 -->
+            <template v-else-if="activeTool === 'input'">
+              <div class="tool-group">
+                <label class="tool-label">书写输入</label>
+                <el-radio-group v-model="inputPolicy" size="small" class="policy-group">
+                  <el-radio-button label="pen-strict">笔优先</el-radio-button>
+                  <el-radio-button label="pen-only">只用笔</el-radio-button>
+                  <el-radio-button label="all-allowed">不防误触</el-radio-button>
+                </el-radio-group>
+                <p class="tool-hint">
+                  <strong>笔优先</strong>：一旦检测到笔，触摸一律不落笔 —— 手掌搭在屏上照写不误，笔也一直能写。
+                </p>
+                <p class="tool-hint">
+                  <strong>只用笔</strong>：手指与鼠标都不落笔，纯笔书写。
+                </p>
+                <p class="tool-hint">
+                  <strong>不防误触</strong>：手指也能写，手掌接触时可能误画一条线。
+                </p>
+              </div>
+
+              <div class="input-status">
+                <div class="input-status__row">
+                  <span class="input-status__label">当前输入</span>
+                  <span class="input-status__value">{{ inputDeviceLabel }}</span>
+                </div>
+                <div class="input-status__row">
+                  <span class="input-status__label">压感</span>
+                  <span class="input-status__value">{{ capability.hasPressure ? '有（笔迹随力度变化）' : '无（按运笔速度变化）' }}</span>
+                </div>
+                <p v-if="palmBlocked" class="tool-hint tool-hint--warn">
+                  刚刚挡下一次手掌触摸 —— 笔没有被挡住，照常书写。
+                </p>
+                <p v-else class="tool-hint tool-hint--muted">{{ inputHint }}</p>
+              </div>
+            </template>
+
             <!-- 字帖 -->
             <template v-else-if="activeTool === 'book'">
               <div v-if="currentCopybook" class="current-copybook">
@@ -307,6 +342,22 @@
           </div>
         </section>
       </Transition>
+
+      <!-- 笔顺引导的画布内浮层：进度与操作常驻在画面上方，
+           引导面板收起后依然能看进度、换笔、结束 —— 可以边看引导边写字。 -->
+      <div v-if="guideStatus === 'ready'" class="guide-hud">
+        <div class="guide-hud__head">
+          <span class="guide-hud__char">{{ guideChar }}</span>
+          <span class="guide-hud__progress">
+            {{ guideIndex < guideTotal ? `第 ${guideIndex + 1} 笔 / 共 ${guideTotal} 笔` : `已完成 ${guideTotal} 笔` }}
+          </span>
+        </div>
+        <div class="guide-hud__actions">
+          <button type="button" class="hud-btn" @click="guideBack">上一笔</button>
+          <button type="button" class="hud-btn" @click="guideReset">重写</button>
+          <button type="button" class="hud-btn hud-btn--stop" @click="stopGuide">结束</button>
+        </div>
+      </div>
 
       <!-- 底部操作条：高频动作常驻，不用展开面板 -->
       <div class="action-dock">
@@ -367,6 +418,7 @@ import {
   Guide,
   Picture,
   Document,
+  Pointer,
   Close,
   FullScreen,
   House
@@ -378,6 +430,7 @@ import { downloadCanvasAsImage } from '../utils';
 import { getToken, copybookAPI } from '../utils/api';
 import { useInkCanvas } from '../composables/useInkCanvas.js';
 import { useImmersiveMode } from '../composables/useImmersiveMode.js';
+import { PALM_POLICY } from '../utils/ink/palmGuard.js';
 import { STROKE_DICTIONARY, findStroke } from '../data/strokeDictionary.js';
 import { useStrokeOrder } from '../composables/useStrokeOrder.js';
 import { strokeCount as strokeCountOf } from '../data/strokeOrderIndex.js';
@@ -427,6 +480,16 @@ const gridType = computed({
   set: (value) => practiceStore.updatePracticeSettings({ gridType: value })
 });
 
+/**
+ * 书写输入策略（防误触）。
+ * 决定「谁可以落笔」：笔、触摸、鼠标各自算不算数。
+ * 存进练习设置里，跟着笔刷设置一起持久化。
+ */
+const inputPolicy = computed({
+  get: () => practiceStore.practiceSettings.inputPolicy || PALM_POLICY.PEN_STRICT,
+  set: (value) => practiceStore.updatePracticeSettings({ inputPolicy: value })
+});
+
 // 当前参考的字帖（由推荐字帖选择而来）
 const currentCopybook = computed(() => practiceStore.currentCopybook);
 
@@ -465,6 +528,7 @@ const {
   canUndo,
   canRedo,
   lastStroke,
+  lastBlockedPointer,
   undo,
   redo,
   clear: clearInk,
@@ -478,6 +542,8 @@ const {
   getBrushColor: () => brushColor.value,
   getBrushOpacity: () => brushOpacity.value,
   getGridType: () => gridType.value,
+  // 传函数而不是字符串：面板里的开关改完立刻生效，不用重建画布
+  palmPolicy: () => inputPolicy.value,
   getCharactersPerPage: () =>
     currentCopybook.value?.charactersPerPage || currentCopybook.value?.characterCount || 0,
   getDraftScope: () => ({
@@ -570,6 +636,9 @@ const startGuide = async (ch) => {
     ElMessage.warning(guideError.value || '这个字没有笔顺数据');
     return;
   }
+  // 选完字就收面板：引导的进度与操作已经移到画布上的浮层，
+  // 收掉面板才能边看引导边写字。
+  closeTool();
   // 练习页整屏不滚动（.app-container--immersive 锁死高度），
   // 下拉定位不会再把整页顶走，这里不需要再补偿滚动位置。
   await nextTick();
@@ -817,7 +886,8 @@ const TOOLS = [
   { id: 'guide', label: '笔顺引导', icon: Guide },
   { id: 'book', label: '字帖', icon: Document },
   { id: 'stroke', label: '笔画提示', icon: EditPen },
-  { id: 'paper', label: '纸面', icon: Picture }
+  { id: 'paper', label: '纸面', icon: Picture },
+  { id: 'input', label: '书写', icon: Pointer }
 ];
 
 const activeTool = ref(null);
@@ -825,6 +895,23 @@ const activeTool = ref(null);
 const activeToolLabel = computed(
   () => TOOLS.find((tool) => tool.id === activeTool.value)?.label || ''
 );
+
+/** 当前是笔、手指还是鼠标 */
+const inputDeviceLabel = computed(() => {
+  switch (capability.value.pointerType) {
+    case 'pen':
+      return '手写笔';
+    case 'touch':
+      return '手指（触摸）';
+    case 'mouse':
+      return '鼠标';
+    default:
+      return '尚未检测到输入设备';
+  }
+});
+
+/** 刚才有没有挡下过手掌触摸 */
+const palmBlocked = computed(() => lastBlockedPointer.value === 'touch');
 
 /** 笔刷按钮上的徽标 = 当前笔刷本身（颜色 + 粗细），改完不用看面板也知道结果 */
 const brushBadgeStyle = computed(() => ({
@@ -838,6 +925,36 @@ const toggleTool = (id) => {
 
 const closeTool = () => {
   activeTool.value = null;
+};
+
+/**
+ * 面板什么时候该自己关掉。
+ *
+ * 关键取舍：**点画布会关面板，但那一笔照常写** ——
+ * 画布的 pointerdown 先跑（落笔），document 的监听后跑（收面板），两件事不冲突。
+ * 面板开着也能在画布右侧写字。
+ *
+ * Element Plus 的下拉 / 颜色面板 / 日期面板是 teleport 到 body 的，
+ * 不在 .tool-panel 里 —— 必须一起放进白名单，否则点选项时面板先被收走。
+ */
+const PANEL_OWNERS = [
+  '.tool-panel',
+  '.tool-rail',
+  '.stage-top',
+  '.action-dock',
+  '.guide-hud',
+  '.el-popper',
+  '.el-overlay',
+  '.el-message-box'
+];
+
+const handleDocumentPointerDown = (event) => {
+  if (!activeTool.value) return;
+  const target = event.target;
+  if (!(target instanceof Element)) return;
+  // 点在这些区域之外 → 收面板
+  if (PANEL_OWNERS.some((selector) => target.closest(selector))) return;
+  closeTool();
 };
 
 /**
@@ -900,6 +1017,7 @@ onMounted(() => {
   window.addEventListener('pointerup', handlePointerUp);
   window.addEventListener('pointercancel', handlePointerUp);
   window.addEventListener('keydown', handleKeyDown);
+  document.addEventListener('pointerdown', handleDocumentPointerDown);
 });
 
 // 组件卸载时清理
@@ -910,6 +1028,7 @@ onUnmounted(() => {
   window.removeEventListener('pointerup', handlePointerUp);
   window.removeEventListener('pointercancel', handlePointerUp);
   window.removeEventListener('keydown', handleKeyDown);
+  document.removeEventListener('pointerdown', handleDocumentPointerDown);
   if (brushCollapseTimer) clearTimeout(brushCollapseTimer);
 });
 </script>
@@ -1025,13 +1144,6 @@ button.chip:hover {
   border-left: 1px solid rgba(139, 69, 19, 0.18);
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.chip--guide {
-  background: rgba(214, 72, 60, 0.1);
-  border-color: rgba(214, 72, 60, 0.3);
-  color: #9c3629;
-  font-weight: 600;
 }
 
 .chip--count {
@@ -1155,6 +1267,8 @@ button.chip:hover {
   inset: 0;
   z-index: 4;
   background: transparent;
+  /* 不拦指针 —— 面板开着也要能在画布上写字 */
+  pointer-events: none;
 }
 
 .tool-panel {
@@ -1506,6 +1620,121 @@ button.chip:hover {
   color: #c0392b;
 }
 
+/* ---------------- 笔顺引导的画布内浮层 ---------------- */
+
+/* 引导开启后浮在画面上方：进度与「上一笔 / 重写 / 结束」都在这里，
+   引导面板收起后照样能操作 —— 可以边看引导边写字。 */
+.guide-hud {
+  position: absolute;
+  top: 62px;
+  right: 14px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(139, 69, 19, 0.18);
+  box-shadow: 0 6px 20px rgba(60, 45, 30, 0.16);
+  transition: opacity 0.22s ease;
+}
+
+.guide-hud__head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.guide-hud__char {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--primary-color);
+  font-family: 'SimSun', serif;
+}
+
+.guide-hud__progress {
+  font-size: 12px;
+  color: #6b6259;
+  white-space: nowrap;
+}
+
+.guide-hud__actions {
+  display: flex;
+  gap: 6px;
+}
+
+.hud-btn {
+  height: 30px;
+  padding: 0 0.7rem;
+  border-radius: 7px;
+  border: 1px solid rgba(139, 69, 19, 0.22);
+  background: #fff;
+  color: #4a4038;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.hud-btn:hover {
+  background: rgba(139, 69, 19, 0.1);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.hud-btn--stop {
+  color: #a83a2c;
+  border-color: rgba(168, 58, 44, 0.32);
+}
+
+.hud-btn--stop:hover {
+  background: rgba(168, 58, 44, 0.1);
+  border-color: #a83a2c;
+  color: #a83a2c;
+}
+
+/* ---------------- 书写输入状态 ---------------- */
+
+.policy-group {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.input-status {
+  margin-top: var(--sp-4);
+  padding: var(--sp-3);
+  border-radius: 8px;
+  background: rgba(243, 236, 231, 0.5);
+  border: 1px solid rgba(139, 69, 19, 0.12);
+}
+
+.input-status__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: 3px 0;
+}
+
+.input-status__label {
+  font-size: 12px;
+  color: #6b6259;
+  flex: none;
+}
+
+.input-status__value {
+  font-size: 12px;
+  color: #3a332c;
+  text-align: right;
+}
+
+.tool-hint--warn {
+  color: #8f6524;
+}
+
 /* ---------------- 底部操作条 ---------------- */
 
 .action-dock {
@@ -1581,6 +1810,11 @@ button.chip:hover {
 .practice-stage.is-writing .tool-rail,
 .practice-stage.is-writing .action-dock {
   opacity: 0.16;
+}
+
+/* 引导浮层不跟着压暗 —— 边写边看引导进度正是它存在的理由 */
+.practice-stage.is-writing .guide-hud {
+  opacity: 1;
 }
 
 .practice-stage.is-writing .tool-panel {
@@ -1744,6 +1978,28 @@ button.chip:hover {
 
   .chip--count {
     display: none;
+  }
+
+  /* 引导浮层在窄屏改为横排，贴着画面上沿，不压画布中央 */
+  .guide-hud {
+    top: 52px;
+    left: 8px;
+    right: 8px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 6px 8px;
+    border-radius: 10px;
+  }
+
+  .guide-hud__char {
+    font-size: 19px;
+  }
+
+  .hud-btn {
+    height: 34px;
+    padding: 0 0.55rem;
   }
 }
 

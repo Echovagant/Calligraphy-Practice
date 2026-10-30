@@ -60,6 +60,7 @@ textarea {
   body .el-input-number .el-input-number__decrease,
   body .el-input-number .el-input-number__increase {
     width: 44px;
+    height: 44px;
   }
 
   /* 单选按钮组（宣纸色 / 格子样式 / 字帖布局）：高度是内边距撑的，改内边距 */
@@ -129,6 +130,11 @@ textarea {
      不吃 --el-component-size，所以上面覆盖组件尺寸变量对它无效 —— 这里直接补。 */
   body .el-select__wrapper,
   body .el-select--small .el-select__wrapper {
+    min-height: 44px;
+  }
+
+  /* 复选框：同样写死了 32px 高 */
+  body .el-checkbox {
     min-height: 44px;
   }
 
