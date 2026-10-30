@@ -90,6 +90,12 @@ const router = createRouter({
       }
     },
     {
+      path: '/device-lab',
+      name: 'device-lab',
+      component: () => import('../views/DeviceLabView.vue'),
+      meta: { title: '设备诊断' }
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: () => import('../views/NotFoundView.vue'),

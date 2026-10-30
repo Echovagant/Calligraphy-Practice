@@ -10,7 +10,7 @@ export const PALM_POLICY = {
   /** 默认：iPad。有笔优先，见过笔后短时间内忽略触摸 */
   PEN_FIRST: 'pen-first',
   /** 手机布局：只允许笔，触摸与鼠标一律忽略 */
-  TOUCH_ONLY: 'touch-only'
+  PEN_ONLY: 'pen-only'
 };
 
 /** 见过笔之后，多长时间内忽略触摸 */
@@ -37,7 +37,7 @@ export function decide(state, event, now = 0, policy = PALM_POLICY.PEN_FIRST) {
   const current = state || createPalmState();
   const pointerType = normalizePointerType(event && event.pointerType);
 
-  if (policy === PALM_POLICY.TOUCH_ONLY) {
+  if (policy === PALM_POLICY.PEN_ONLY) {
     if (pointerType !== 'pen') {
       return { action: 'ignore', nextState: { ...current } };
     }

@@ -55,25 +55,36 @@ describe('palmGuard', () => {
     });
   });
 
-  describe('touch-only（手机布局）', () => {
+  describe('pen-only（手机布局：只允许笔）', () => {
     it('触摸 → 忽略', () => {
-      const result = decide(createPalmState(), { pointerType: 'touch' }, 1000, PALM_POLICY.TOUCH_ONLY);
+      const result = decide(createPalmState(), { pointerType: 'touch' }, 1000, PALM_POLICY.PEN_ONLY);
       expect(result.action).toBe('ignore');
     });
 
     it('鼠标 → 忽略', () => {
-      const result = decide(createPalmState(), { pointerType: 'mouse' }, 1000, PALM_POLICY.TOUCH_ONLY);
+      const result = decide(createPalmState(), { pointerType: 'mouse' }, 1000, PALM_POLICY.PEN_ONLY);
       expect(result.action).toBe('ignore');
     });
 
     it('笔 → 画', () => {
-      const result = decide(createPalmState(), { pointerType: 'pen' }, 1000, PALM_POLICY.TOUCH_ONLY);
+      const result = decide(createPalmState(), { pointerType: 'pen' }, 1000, PALM_POLICY.PEN_ONLY);
       expect(result.action).toBe('draw');
     });
 
     it('pointerType 缺失也按鼠标处理 → 忽略', () => {
-      const result = decide(createPalmState(), {}, 1000, PALM_POLICY.TOUCH_ONLY);
+      const result = decide(createPalmState(), {}, 1000, PALM_POLICY.PEN_ONLY);
       expect(result.action).toBe('ignore');
+    });
+
+    it('策略名与行为一致：pen-only 下 pen 之外全部忽略', () => {
+      for (const pointerType of ['touch', 'mouse', undefined]) {
+        const result = decide(createPalmState(), { pointerType }, 1000, PALM_POLICY.PEN_ONLY);
+        if (pointerType === 'pen') {
+          expect(result.action).toBe('draw');
+        } else {
+          expect(result.action).toBe('ignore');
+        }
+      }
     });
   });
 });
