@@ -52,10 +52,10 @@ function collectSample(e, phase) {
     id: e.pointerId,
     x: Math.round(e.clientX),
     y: Math.round(e.clientY),
-    p: e.pressure,
-    tx: e.tiltX ?? null,
-    ty: e.tiltY ?? null,
-    tw: e.twist ?? null
+    pressure: e.pressure,
+    tiltX: e.tiltX ?? null,
+    tiltY: e.tiltY ?? null,
+    twist: e.twist ?? null
   }
   const coalesced =
     typeof e.getCoalescedEvents === 'function' ? e.getCoalescedEvents() : null
@@ -66,7 +66,7 @@ function collectSample(e, phase) {
         t: Math.round(ce.timeStamp),
         x: Math.round(ce.clientX),
         y: Math.round(ce.clientY),
-        p: ce.pressure,
+        pressure: ce.pressure,
         coalesced: true
       })
     }
@@ -264,6 +264,10 @@ function generateReport() {
   readSafeArea()
   readCallout()
   viewport.value = readViewport()
+  // 忘了先点「开始测量」也不让 storage 段是空的
+  if (!storageResult.value) {
+    storageResult.value = measureStorageQuota(window.localStorage)
+  }
   reportJson.value = JSON.stringify(buildReport(), null, 2)
   copyState.value = ''
 }
@@ -408,7 +412,7 @@ const pressureVerdict = () => {
       <h3>事件日志（新在上；只记 down / up / cancel / lostpointercapture）</h3>
       <ul class="event-log">
         <li v-for="(ev, i) in eventLog" :key="i" :class="{ cancel: ev.kind === 'pointercancel' }">
-          {{ ev.t }}ms · {{ ev.kind }} · {{ ev.type }}#{{ ev.id }} · p={{ ev.pressure }}
+          {{ ev.t }}ms · {{ ev.kind }} · {{ ev.type }}#{{ ev.id }} · pressure={{ ev.pressure }}
         </li>
         <li v-if="eventLog.length === 0" class="empty">（还没有事件）</li>
       </ul>
