@@ -229,7 +229,9 @@ export function useInkCanvas(options = {}) {
       return;
     }
 
-    const gridColor = '#dddddd';
+    // 网格颜色：画布整屏铺满后格子比原来大了三倍，
+    // 原来的 #dddddd 在宣纸底上几乎看不见，压深一档才读得出格线。
+    const gridColor = '#c9c6bb';
     const objects = [];
 
     const makeLine = (x1, y1, x2, y2, strokeWidth) => {

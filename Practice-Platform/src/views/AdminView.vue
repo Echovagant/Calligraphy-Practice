@@ -1448,4 +1448,77 @@ onMounted(async () => {
 .detail-body {
   min-height: 100px;
 }
+
+/* ============================================================
+   窄屏适配
+   侧边栏原本固定 240px：390px 宽的手机上内容区只剩 150px，
+   标题被挤成一列单字、整页横向溢出 165px。
+   窄屏改成「顶部横排导航 + 内容占满宽度」。
+   ============================================================ */
+@media (max-width: 900px) {
+  .admin-container {
+    flex-direction: column;
+    min-height: 100dvh;
+  }
+
+  .admin-sidebar {
+    width: 100%;
+    flex: none;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .sidebar-header {
+    flex: none;
+    padding: 0 0.75rem 0 0;
+    border-bottom: none;
+    border-right: 1px solid #4a3c33;
+  }
+
+  .sidebar-header h2 {
+    font-size: 1rem;
+    white-space: nowrap;
+  }
+
+  .sidebar-nav {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    gap: 0.25rem;
+    padding: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .sidebar-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .admin-nav-item {
+    flex: none;
+    gap: 0.4rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
+  /* 管理员信息与退出按钮：全站顶栏的用户菜单里已经有一份，窄屏不再重复占地方 */
+  .sidebar-footer {
+    display: none;
+  }
+
+  .main-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .content-area {
+    padding: 1rem;
+  }
+
+  .tab-content {
+    padding: 1rem;
+  }
+}
 </style>

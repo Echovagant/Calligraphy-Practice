@@ -859,37 +859,57 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* ============================================================
+   社区页版式
+   - 页面容器与全站内容列共用一条左右边界
+   - 间距刻度：4 / 8 / 12 / 16 / 24 / 32 / 48，组内小、组间大
+   ============================================================ */
 .community-container {
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+
   display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 2rem;
-  padding: 2rem 0;
+  grid-template-columns: minmax(0, 1fr) clamp(240px, 22vw, 320px);
+  gap: var(--sp-5);
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-block: var(--sp-2);
   align-items: start;
 }
 
+/* 页头：左对齐 + 墨线 */
 .community-header {
   grid-column: 1 / -1;
-  text-align: center;
-  margin-bottom: 2rem;
+  padding-left: var(--sp-3);
+  border-left: 3px solid var(--primary-color);
+  margin-bottom: var(--sp-2);
 }
 
 .section-title {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
   color: #333;
   font-family: 'SimSun', serif;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--sp-1);
 }
 
 .section-subtitle {
-  color: #666;
+  color: var(--el-text-color-secondary);
 }
 
 /* 社区内容区域 */
 .community-main {
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.95);
   border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
+  box-shadow: 0 2px 12px rgba(90, 60, 30, 0.08);
+  padding: var(--sp-5);
+  min-width: 0;
 }
 
 /* 讨论区样式 */
@@ -897,76 +917,88 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+  padding-bottom: var(--sp-2);
+  border-bottom: 1px solid rgba(139, 69, 19, 0.14);
 }
 
 .discussion-header h3 {
   margin: 0;
   color: #333;
+  font-family: 'SimSun', serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.06em;
 }
 
 .search-filter {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
 }
 
 .search-input {
-  width: 260px;
+  flex: 1 1 220px;
+  min-width: 0;
+  max-width: 280px;
 }
 
 .filter-select {
+  flex: 0 0 140px;
   width: 140px;
 }
 
 .state-alert {
-  margin-bottom: 1rem;
+  margin-bottom: var(--sp-4);
 }
 
 .discussions-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--sp-3);
   min-height: 120px;
 }
 
 .discussion-item {
-  padding: 1.5rem;
-  background-color: #f8f9fa;
+  padding: var(--sp-4);
+  background-color: rgba(243, 236, 231, 0.5);
+  border: 1px solid rgba(139, 69, 19, 0.1);
   border-radius: 8px;
-  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
 .discussion-item:hover {
-  background-color: #f0f2f5;
+  background-color: rgba(240, 231, 224, 0.8);
 }
 
 .discussion-title-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-2);
+  flex-wrap: wrap;
 }
 
 .discussion-title {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   margin: 0;
   color: #333;
+  font-family: 'SimSun', serif;
 }
 
 .discussion-excerpt {
-  color: #666;
-  margin-bottom: 1rem;
-  line-height: 1.6;
+  color: var(--el-text-color-secondary);
+  margin-bottom: var(--sp-3);
+  line-height: 1.7;
 }
 
 .discussion-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-bottom: 1rem;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
 }
 
 .tag-item {
@@ -977,12 +1009,15 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--sp-2) var(--sp-4);
+  flex-wrap: wrap;
 }
 
 .author-info {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: var(--sp-3);
+  min-width: 0;
 }
 
 .author-name {
@@ -991,14 +1026,14 @@ onMounted(() => {
 }
 
 .post-time {
-  color: #6b6259;
+  color: var(--el-text-color-secondary);
   font-size: 0.9rem;
 }
 
 .discussion-stats {
   display: flex;
-  gap: 1.5rem;
-  color: #6b6259;
+  gap: var(--sp-4);
+  color: var(--el-text-color-secondary);
 }
 
 .stat-item {
@@ -1013,96 +1048,109 @@ onMounted(() => {
   .stat-item {
     min-height: 44px;
   }
+
+  .tag-item {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
 }
 
+/* 选中态用站点的朱砂色：Element Plus 默认红 #f56c6c 在白底只有 3.0:1 */
 .stat-item.active {
-  color: #f56c6c;
+  color: var(--el-color-danger);
 }
 
 .discussion-actions {
   display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
 }
 
 /* 侧栏 */
 .community-sidebar {
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.95);
   border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
+  box-shadow: 0 2px 12px rgba(90, 60, 30, 0.08);
+  padding: var(--sp-5);
+  min-width: 0;
 }
 
 .sidebar-section {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--sp-5);
 }
 
 .sidebar-section:last-child {
   margin-bottom: 0;
 }
 
+/* 侧栏分区标题：左侧墨线 */
 .section-header {
-  margin: 0 0 1rem;
+  margin: 0 0 var(--sp-3);
   color: #333;
-  border-left: 3px solid var(--el-color-primary);
-  padding-left: 0.5rem;
+  font-family: 'SimSun', serif;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  border-left: 3px solid var(--primary-color);
+  padding-left: var(--sp-2);
 }
 
 .announcement-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--sp-2);
   min-height: 60px;
 }
 
 .announcement-item {
-  padding: 0.75rem;
-  background-color: #f8f9fa;
+  padding: var(--sp-3);
+  background-color: rgba(243, 236, 231, 0.5);
   border-radius: 6px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .announcement-item:hover {
-  background-color: #f0f2f5;
+  background-color: rgba(240, 231, 224, 0.8);
 }
 
 .announcement-title {
-  margin: 0 0 0.25rem;
+  margin: 0 0 var(--sp-1);
   color: #333;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
 }
 
 .announcement-date {
-  color: #6b6259;
-  font-size: 0.85rem;
+  color: var(--el-text-color-secondary);
+  font-size: 0.82rem;
 }
 
 .active-users {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--sp-3);
 }
 
 .user-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--sp-3);
 }
 
 .user-name {
   color: #333;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
 }
 
 .user-rank {
-  color: #6b6259;
+  color: var(--el-text-color-secondary);
   font-size: 0.8rem;
 }
 
 .tags-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: var(--sp-2);
 }
 
 /* 详情与回复 */
@@ -1120,43 +1168,44 @@ onMounted(() => {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 1rem;
-  color: #6b6259;
-  margin-top: 1rem;
+  gap: var(--sp-4);
+  color: var(--el-text-color-secondary);
+  margin-top: var(--sp-4);
   font-size: 0.9rem;
 }
 
 .reply-section {
-  margin-top: 1.5rem;
+  margin-top: var(--sp-5);
   border-top: 1px solid #ebeef5;
-  padding-top: 1rem;
+  padding-top: var(--sp-4);
 }
 
 .reply-header {
-  margin: 0 0 0.75rem;
+  margin: 0 0 var(--sp-3);
   color: #333;
 }
 
 .reply-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--sp-3);
   min-height: 60px;
   max-height: 360px;
   overflow-y: auto;
 }
 
 .reply-item {
-  padding: 0.75rem;
-  background-color: #f8f9fa;
+  padding: var(--sp-3);
+  background-color: rgba(243, 236, 231, 0.5);
   border-radius: 6px;
 }
 
 .reply-head {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-2);
+  flex-wrap: wrap;
 }
 
 .reply-author {
@@ -1166,38 +1215,78 @@ onMounted(() => {
 
 .reply-content {
   color: #555;
-  margin: 0 0 0.5rem;
+  margin: 0 0 var(--sp-2);
   line-height: 1.6;
   white-space: pre-wrap;
 }
 
 .reply-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--sp-2);
 }
 
 .load-more {
-  margin-top: 0.75rem;
+  margin-top: var(--sp-3);
 }
 
 .reply-editor {
-  margin-top: 1rem;
+  margin-top: var(--sp-4);
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.75rem;
+  gap: var(--sp-3);
 }
 
 /* 分页 */
 .pagination {
-  margin-top: 1.5rem;
+  margin-top: var(--sp-5);
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 @media (max-width: 900px) {
   .community-container {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .community-main,
+  .community-sidebar {
+    padding: var(--sp-4);
+  }
+
+  .filter-select {
+    flex: 1 1 130px;
+    width: auto;
+  }
+
+  .discussion-stats {
+    gap: var(--sp-3);
+  }
+
+  .pagination {
+    justify-content: center;
+  }
+
+  .pagination :deep(.el-pagination) {
+    flex-wrap: wrap;
+    row-gap: var(--sp-2);
+    justify-content: center;
+  }
+
+  .pagination :deep(.el-pagination__jump),
+  .pagination :deep(.el-pagination__sizes) {
+    margin-left: 0;
+  }
+}
+
+/* 系统开启「减少动态效果」时：保留状态反馈，去掉位移 */
+@media (prefers-reduced-motion: reduce) {
+  .discussion-item:hover,
+  .announcement-item:hover {
+    transform: none !important;
   }
 }
 </style>

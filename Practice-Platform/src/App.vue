@@ -1,8 +1,14 @@
 <template>
   <el-config-provider :locale="zhCn">
-    <div class="app-container">
-      <!-- WebGL水墨背景 -->
-      <InkBackground />
+    <div
+      class="app-container"
+      :class="{
+        'app-container--immersive': isImmersiveRoute,
+        'app-container--focus': isImmersiveRoute && immersive
+      }"
+    >
+      <!-- WebGL水墨背景。练习页整屏被画布盖住，背景只白白烧 GPU —— 直接不渲染 -->
+      <InkBackground v-if="!isImmersiveRoute" />
 
       <!-- 导航栏 -->
       <header class="app-header">
@@ -122,12 +128,14 @@ import { useRouter, useRoute } from 'vue-router';
 import zhCn from 'element-plus/es/locale/lang/zh-cn';
 import { useUserStore } from './stores/userStore';
 import { USER_TYPES } from './utils/constants';
+import { useImmersiveMode } from './composables/useImmersiveMode';
 import InkBackground from './components/InkBackground.vue';
 
 const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
 const showDropdown = ref(false);
+const { immersive } = useImmersiveMode();
 
 // 页脚年份跟着当前时间走，别写死
 const currentYear = new Date().getFullYear();
@@ -135,6 +143,9 @@ const currentYear = new Date().getFullYear();
 // 管理后台是宽表 + 侧栏的双栏布局，塞在 1200px 的内容容器里会被挤到
 // 表格内部横滚，最右侧的审核操作列看不见。宽屏页面放开限宽。
 const isWideLayout = computed(() => route.path.startsWith('/admin'));
+
+// 练习页要整屏：解除内容容器的限宽与留白，顶栏页脚按需收起。
+const isImmersiveRoute = computed(() => route.path.startsWith('/practice'));
 
 // 计算属性
 const isLoggedIn = computed(() => userStore.isLoggedIn);
@@ -473,19 +484,19 @@ html, body {
 /* 主要内容区域 */
 .app-main {
   flex: 1;
-  padding: 2rem;
-  /* 底部安全区：home 指示条那一截别被内容压住 */
+  /* 上下留白由各页面自己的容器提供（.home-container 等都有 padding: 2rem 0）。
+     这里再叠一层 margin + padding，顶部会空出 6rem —— 白白吃掉一屏高度。 */
+  padding: 0 2rem;
   padding-left: max(2rem, env(safe-area-inset-left));
   padding-right: max(2rem, env(safe-area-inset-right));
-  padding-bottom: max(2rem, env(safe-area-inset-bottom));
+  /* 底部安全区：home 指示条那一截别被内容压住 */
+  padding-bottom: env(safe-area-inset-bottom);
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
   background-color: transparent;
   backdrop-filter: none;
   border-radius: 0;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
   box-shadow: none;
   border: none;
   outline: none;
@@ -503,6 +514,39 @@ html, body {
 /* 宽屏页面（管理后台）：解除 1200px 限宽 */
 .app-main--wide {
   max-width: none;
+}
+
+/* ================================================================
+   练习页：整屏工作区
+   练习页的画布要占满视口，所以整条外壳改成竖向撑开：
+   容器锁死 100dvh 不再滚动，内容区去掉所有限宽与留白，
+   页脚收起来。顶栏保留（导航一致性），专注模式下再收起顶栏。
+   ================================================================ */
+.app-container--immersive {
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.app-container--immersive .app-header {
+  flex: none;
+}
+
+.app-container--immersive .app-main {
+  flex: 1;
+  min-height: 0;
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.app-container--immersive .app-footer {
+  display: none;
+}
+
+/* 专注模式：顶栏也收起来，画布独占整屏 */
+.app-container--focus .app-header {
+  display: none;
 }
 
 /* 页脚样式 */
@@ -533,22 +577,54 @@ html, body {
 /* 响应式设计 */
 @media (max-width: 768px) {
   .app-header {
-    padding: 0 1rem;
-    flex-direction: column;
+    /* 窄屏顶栏原来竖排三行（logo / 导航 / 用户），要占 179px ——
+       换成两行：第一行 logo + 用户，第二行导航。 */
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
     height: auto;
-    padding: 1rem;
+    padding: 0.55rem 1rem;
+    gap: 0.25rem 1rem;
+  }
+
+  .logo {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .logo-text {
+    font-size: 1.15rem;
+    letter-spacing: 1px;
+  }
+
+  .user-actions {
+    flex: none;
+    gap: 0.75rem;
   }
 
   .nav-menu {
-    margin: 1rem 0;
-    flex-wrap: wrap;
-    justify-content: center;
+    order: 3;
+    width: 100%;
+    margin: 0;
+    gap: 1rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  /* 导航项不许被压窄 —— 压窄后「首页」会折成两行一个字 */
+  .nav-menu .top-nav-item {
+    flex: none;
+    white-space: nowrap;
+  }
+
+  .nav-menu::-webkit-scrollbar {
+    display: none;
   }
 
   .app-main {
-    padding: 1rem;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
+    padding: 0 1rem;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }
 </style>

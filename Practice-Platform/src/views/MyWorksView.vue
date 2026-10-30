@@ -438,45 +438,64 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* ============================================================
+   我的作品页版式
+   - 页面容器与全站内容列共用一条左右边界
+     （原来这里多套了一层 2rem 内边距，整页比别的页窄 64px）
+   - 间距刻度：4 / 8 / 12 / 16 / 24 / 32 / 48，组内小、组间大
+   ============================================================ */
 .my-works-container {
-  padding: 2rem;
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+
+  width: 100%;
   max-width: 1200px;
-  margin: 0 auto;
+  margin-inline: auto;
+  padding-block: var(--sp-2);
 }
 
+/* 页头：左对齐 + 墨线 */
 .page-header {
-  text-align: center;
-  margin-bottom: 2rem;
+  padding-left: var(--sp-3);
+  border-left: 3px solid var(--primary-color);
+  margin-bottom: var(--sp-6);
 }
 
 .page-title {
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
   color: #333;
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--sp-1);
   font-family: 'SimSun', serif;
+  letter-spacing: 0.08em;
 }
 
 .page-subtitle {
-  color: #666;
-  font-size: 1rem;
+  color: var(--el-text-color-secondary);
+  font-size: 0.95rem;
 }
 
+/* 筛选条：与提示文字算一组，组内 8px、组外 24px */
 .filter-section {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 0.5rem;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-2);
   flex-wrap: wrap;
   align-items: center;
 }
 
 .filter-hint {
-  color: #6b6259;
+  color: var(--el-text-color-secondary);
   font-size: 0.85rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--sp-5);
 }
 
 .state-alert {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--sp-5);
 }
 
 .search-input {
@@ -488,33 +507,34 @@ onMounted(() => {
   min-width: 150px;
 }
 
+/* 作品网格 */
 .works-area {
   min-height: 12rem;
 }
 
 .works-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--sp-5);
 }
 
 .work-item {
   background-color: rgba(255, 255, 255, 0.95);
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px rgba(90, 60, 30, 0.08);
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .work-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 .work-image-wrapper {
   position: relative;
   overflow: hidden;
-  height: 300px;
+  height: 200px;
   /* 作品图完整展示不裁切（contain），留白用纸色填 */
   background-color: #f0eee9;
 }
@@ -523,7 +543,6 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  transition: transform 0.3s;
 }
 
 .work-image-placeholder {
@@ -535,7 +554,7 @@ onMounted(() => {
   font-size: 0.9rem;
 }
 
-/* 作品图不再跟着 hover 放大 —— 卡片本身的 2px 抬升就是唯一的动效 */
+/* 作品图不跟着 hover 放大 —— 卡片本身的 2px 抬升就是唯一的动效 */
 .work-item:hover .work-image {
   transform: none;
 }
@@ -567,66 +586,73 @@ onMounted(() => {
 
 .work-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .work-info {
-  padding: 1rem;
+  padding: var(--sp-4);
 }
 
 .work-title {
-  font-size: 1.2rem;
-  margin: 0 0 0.5rem 0;
+  font-size: 1.05rem;
+  margin: 0 0 var(--sp-2) 0;
   color: #333;
+  font-family: 'SimSun', serif;
 }
 
 .status-tag {
-  margin-right: 0.5rem;
+  margin-right: var(--sp-2);
 }
 
 .work-stats {
   display: flex;
-  gap: 1rem;
-  margin: 0.6rem 0 0.5rem 0;
-  color: #666;
+  gap: var(--sp-4);
+  margin: var(--sp-3) 0 var(--sp-2) 0;
+  color: var(--el-text-color-secondary);
 }
 
 .stat-item {
   display: flex;
   align-items: center;
   gap: 0.3rem;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
 }
 
 .work-meta {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #6b6259;
+  color: var(--el-text-color-secondary);
   font-size: 0.8rem;
 }
 
+/* 空状态：与列表态同一套内边距 */
 .empty-state {
   text-align: center;
-  padding: 4rem 2rem;
+  padding: var(--sp-6) var(--sp-5);
+  background-color: rgba(255, 255, 255, 0.6);
+  border-radius: 8px;
 }
 
 .pagination-container {
-  margin-top: 2rem;
+  margin-top: var(--sp-6);
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 /* 详情对话框样式 */
 .work-detail {
   display: flex;
-  gap: 2rem;
+  gap: var(--sp-5);
   flex-wrap: wrap;
 }
 
 .detail-image-wrapper {
   flex: 1;
-  min-width: 300px;
+  min-width: 260px;
 }
 
 .detail-image {
@@ -647,50 +673,46 @@ onMounted(() => {
 
 .detail-info {
   flex: 1;
-  min-width: 300px;
+  min-width: 260px;
 }
 
 .detail-title {
-  font-size: 1.8rem;
-  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  margin-bottom: var(--sp-4);
   color: #333;
   font-family: 'SimSun', serif;
 }
 
 .detail-meta {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  color: #8B4513;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-4);
+  color: var(--primary-color);
 }
 
 .detail-description {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--sp-5);
   line-height: 1.6;
-  color: #666;
+  color: var(--el-text-color-secondary);
   white-space: pre-wrap;
   word-break: break-word;
 }
 
 .detail-stats {
   display: flex;
-  gap: 1.5rem;
-  color: #666;
+  gap: var(--sp-5);
+  color: var(--el-text-color-secondary);
 }
 
 .detail-stat-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--sp-2);
   font-size: 1rem;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .my-works-container {
-    padding: 1rem;
-  }
-
   .filter-section {
     flex-direction: column;
     align-items: stretch;
@@ -699,14 +721,30 @@ onMounted(() => {
   .search-input,
   .filter-select {
     width: 100%;
-  }
-
-  .works-grid {
-    grid-template-columns: 1fr;
+    min-width: 0;
   }
 
   .work-detail {
     flex-direction: column;
+  }
+
+  /* 分页控件在窄屏换行，别把页面撑出横向滚动条 */
+  .pagination-container :deep(.el-pagination) {
+    flex-wrap: wrap;
+    row-gap: var(--sp-2);
+    justify-content: center;
+  }
+
+  .pagination-container :deep(.el-pagination__jump),
+  .pagination-container :deep(.el-pagination__sizes) {
+    margin-left: 0;
+  }
+}
+
+/* 系统开启「减少动态效果」时：保留状态反馈，去掉位移 */
+@media (prefers-reduced-motion: reduce) {
+  .work-item:hover {
+    transform: none !important;
   }
 }
 </style>

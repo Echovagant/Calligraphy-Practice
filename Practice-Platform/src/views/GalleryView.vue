@@ -1,8 +1,21 @@
 <template>
   <div class="gallery-container">
     <div class="gallery-header">
-      <h2 class="section-title">作品展示</h2>
-      <p class="section-subtitle">欣赏书法爱好者的优秀作品，获得灵感</p>
+      <div class="gallery-heading">
+        <h2 class="section-title">作品展示</h2>
+        <p class="section-subtitle">欣赏书法爱好者的优秀作品，获得灵感</p>
+      </div>
+      <!-- 上传入口放在页头这一行：原来是右下角悬浮按钮，
+           会压在第 3 张卡的正文上，遮住内容。 -->
+      <div class="upload-button-container">
+        <el-button
+          type="primary"
+          :icon="Plus"
+          @click="openUploadDialog"
+        >
+          上传作品
+        </el-button>
+      </div>
     </div>
 
     <!-- 筛选和搜索 -->
@@ -132,18 +145,6 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       />
-    </div>
-
-    <!-- 上传按钮：右下角拇指区，做成全圆角胶囊 -->
-    <div class="upload-button-container">
-      <el-button
-        type="primary"
-        :icon="Plus"
-        class="floating-upload-btn"
-        @click="openUploadDialog"
-      >
-        上传作品
-      </el-button>
     </div>
 
     <!-- 作品详情对话框 -->
@@ -551,66 +552,94 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* ============================================================
+   作品展示页版式
+   - 页面容器与全站内容列共用一条左右边界
+   - 间距刻度：4 / 8 / 12 / 16 / 24 / 32 / 48，组内小、组间大
+   ============================================================ */
 .gallery-container {
-  padding: 2rem 0;
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-block: var(--sp-2);
 }
 
+/* 页头：左对齐 + 墨线；右侧放主操作 */
 .gallery-header {
-  text-align: center;
-  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--sp-5);
+  flex-wrap: wrap;
+  padding-left: var(--sp-3);
+  border-left: 3px solid var(--primary-color);
+  margin-bottom: var(--sp-6);
 }
 
 .section-title {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
   color: #333;
   font-family: 'SimSun', serif;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--sp-1);
 }
 
 .section-subtitle {
-  color: #666;
+  color: var(--el-text-color-secondary);
 }
 
-/* 筛选区域 */
+/* 上传入口：页头右侧的常规按钮，不再悬浮遮挡卡片正文 */
+.upload-button-container {
+  flex-shrink: 0;
+}
+
+/* 筛选和搜索 */
 .filter-section {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
-  gap: 1rem;
+  margin-bottom: var(--sp-2);
+  gap: var(--sp-3);
   flex-wrap: wrap;
 }
 
 .search-bar {
   flex: 1;
-  min-width: 300px;
+  min-width: 240px;
 }
 
 .filter-options {
   display: flex;
-  gap: 1rem;
+  gap: var(--sp-3);
 }
 
 .filter-hint {
-  color: #6b6259;
+  color: var(--el-text-color-secondary);
   font-size: 0.85rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--sp-6);
 }
 
 .state-alert {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--sp-5);
 }
 
-/* 作品网格 */
+/* 作品网格：卡片尺寸收敛，一屏能看多张 */
 .works-area {
   min-height: 12rem;
 }
 
 .works-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--sp-5);
 }
 
 .work-card {
@@ -631,7 +660,7 @@ onMounted(() => {
 }
 
 .work-thumbnail {
-  height: 240px;
+  height: 180px;
   position: relative;
   overflow: hidden;
   /* 作品图用 contain 完整展示，不裁切 —— 画廊不该替作者裁掉半张字。
@@ -643,7 +672,6 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  transition: transform 0.3s;
 }
 
 .work-image-placeholder {
@@ -655,7 +683,7 @@ onMounted(() => {
   font-size: 0.9rem;
 }
 
-/* 作品图不再跟着 hover 放大 —— 卡片本身的 2px 抬升就是唯一的动效 */
+/* 作品图不跟着 hover 放大 —— 卡片本身的 2px 抬升就是唯一的动效 */
 .work-card:hover .work-image {
   transform: none;
 }
@@ -665,7 +693,7 @@ onMounted(() => {
   right: 10px;
   bottom: 10px;
   display: flex;
-  gap: 0.8rem;
+  gap: var(--sp-3);
   /* 作品图改成 contain 后，这个浮层会落到图片旁边的衬纸上，
      白字压浅色纸看不清 —— 给它自己的深色底，别再指望背后是图。 */
   padding: 3px 10px;
@@ -682,12 +710,12 @@ onMounted(() => {
 }
 
 .work-info {
-  padding: 1.5rem;
+  padding: var(--sp-4);
 }
 
 .work-title {
-  font-size: 1.2rem;
-  margin-bottom: 1rem;
+  font-size: 1.05rem;
+  margin-bottom: var(--sp-2);
   color: #333;
   font-family: 'SimSun', serif;
 }
@@ -696,41 +724,48 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
 }
 
 .author-info {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--sp-2);
+  min-width: 0;
 }
 
 .author-avatar {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   object-fit: cover;
+  flex-shrink: 0;
 }
 
 .author-avatar-fallback {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: #8B4513;
+  background-color: var(--primary-color);
   color: #fff;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .author-name {
-  font-size: 0.9rem;
-  color: #666;
+  font-size: 0.88rem;
+  color: var(--el-text-color-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .work-stats {
   display: flex;
-  gap: 1rem;
-  font-size: 0.9rem;
-  color: #6b6259;
+  gap: var(--sp-3);
+  font-size: 0.85rem;
+  color: var(--el-text-color-secondary);
+  flex-shrink: 0;
 }
 
 .stat-item {
@@ -740,61 +775,39 @@ onMounted(() => {
 }
 
 .work-desc {
-  color: #666;
-  font-size: 0.9rem;
+  color: var(--el-text-color-secondary);
+  font-size: 0.88rem;
   line-height: 1.6;
-  margin-bottom: 1rem;
+  margin-bottom: var(--sp-2);
 }
 
 .work-date {
   font-size: 0.8rem;
-  color: #6b6259;
+  color: var(--el-text-color-secondary);
   text-align: right;
 }
 
-/* 空状态 */
+/* 空状态：与列表态同一套内边距，空了整块不塌 */
 .empty-state {
   text-align: center;
-  padding: 4rem 2rem;
-  color: #6b6259;
+  padding: var(--sp-6) var(--sp-5);
+  background-color: rgba(255, 255, 255, 0.6);
+  border-radius: 8px;
+  color: var(--el-text-color-secondary);
 }
 
 /* 分页 */
 .pagination {
   display: flex;
   justify-content: center;
-  margin-top: 2rem;
-}
-
-/* 上传按钮 */
-.upload-button-container {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-}
-
-.floating-upload-btn {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
-  /* 全圆角胶囊：4 个汉字塞不进 50px 的正圆按钮，文字会溢出圆外 */
-  height: 48px;
-  padding: 0 1.25rem;
-  border-radius: 24px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  /* 只过渡位移与颜色 —— transition: all 会连宽高一起动，掉帧 */
-  transition: transform 0.3s, background-color 0.3s, border-color 0.3s;
-}
-
-.floating-upload-btn:hover {
-  background-color: var(--el-color-primary-dark-2);
-  border-color: var(--el-color-primary-dark-2);
-  transform: translateY(-2px);
+  margin-top: var(--sp-6);
+  flex-wrap: wrap;
 }
 
 /* 作品详情 */
 .work-detail {
   display: flex;
-  gap: 2rem;
+  gap: var(--sp-5);
 }
 
 .detail-image {
@@ -821,7 +834,7 @@ onMounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--sp-5);
 }
 
 .detail-header {
@@ -833,13 +846,13 @@ onMounted(() => {
 .detail-meta {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--sp-5);
 }
 
 .author-section {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--sp-4);
 }
 
 .author-avatar-large {
@@ -860,13 +873,13 @@ onMounted(() => {
 }
 
 .publish-date {
-  color: #6b6259;
+  color: var(--el-text-color-secondary);
   font-size: 0.9rem;
 }
 
 .detail-stats {
   display: flex;
-  gap: 2rem;
+  gap: var(--sp-6);
 }
 
 .stat-box {
@@ -876,27 +889,27 @@ onMounted(() => {
 .stat-number {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #8B4513;
+  color: var(--primary-color);
 }
 
 .stat-label {
-  color: #666;
+  color: var(--el-text-color-secondary);
   font-size: 0.9rem;
 }
 
 .detail-description h4 {
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--sp-2);
   color: #333;
 }
 
 .detail-description p {
   line-height: 1.8;
-  color: #666;
+  color: var(--el-text-color-secondary);
 }
 
 .detail-actions {
   display: flex;
-  gap: 1rem;
+  gap: var(--sp-3);
   margin-top: auto;
 }
 
@@ -914,7 +927,7 @@ onMounted(() => {
 }
 
 .comment-item {
-  padding: 0.8rem 0;
+  padding: var(--sp-3) 0;
   border-bottom: 1px solid #f0f0f0;
 }
 
@@ -933,31 +946,54 @@ onMounted(() => {
 }
 
 .comment-date {
-  color: #6b6259;
+  color: var(--el-text-color-secondary);
   font-size: 0.8rem;
 }
 
 /* 上传 */
 .upload-preview {
   display: block;
-  margin-top: 0.8rem;
+  margin-top: var(--sp-3);
   max-width: 220px;
   border-radius: 6px;
 }
 
+/* 触摸设备：作品卡也是可点目标 */
+@media (pointer: coarse) {
+  .work-card {
+    min-height: 44px;
+  }
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
+  .gallery-header {
+    align-items: flex-start;
+  }
+
   .filter-section {
     flex-direction: column;
     align-items: stretch;
   }
 
   .filter-options {
+    justify-content: flex-start;
+  }
+
+  .search-bar {
+    min-width: 0;
+  }
+
+  /* 分页控件在窄屏换行，别把页面撑出横向滚动条 */
+  .pagination :deep(.el-pagination) {
+    flex-wrap: wrap;
+    row-gap: var(--sp-2);
     justify-content: center;
   }
 
-  .works-grid {
-    grid-template-columns: 1fr;
+  .pagination :deep(.el-pagination__jump),
+  .pagination :deep(.el-pagination__sizes) {
+    margin-left: 0;
   }
 
   .work-detail {
@@ -971,7 +1007,7 @@ onMounted(() => {
   .detail-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1rem;
+    gap: var(--sp-3);
   }
 
   .author-section {
@@ -980,6 +1016,29 @@ onMounted(() => {
 
   .detail-stats {
     justify-content: space-around;
+  }
+}
+
+@media (max-width: 480px) {
+  .work-info {
+    padding: var(--sp-3);
+  }
+
+  .work-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-2);
+  }
+
+  .work-date {
+    text-align: left;
+  }
+}
+
+/* 系统开启「减少动态效果」时：保留状态反馈，去掉位移 */
+@media (prefers-reduced-motion: reduce) {
+  .work-card:hover {
+    transform: none !important;
   }
 }
 </style>

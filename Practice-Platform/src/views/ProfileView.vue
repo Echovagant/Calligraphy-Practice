@@ -551,36 +551,52 @@ const uploadAvatarRequest = async ({ file, onSuccess, onError }) => {
 </script>
 
 <style scoped>
+/* ============================================================
+   个人资料页版式
+   - 页面容器与全站内容列共用一条左右边界
+   - 页头左对齐 + 墨线（与首页/字帖/作品/社区同一套）
+   ============================================================ */
 .profile-container {
-  padding: 2rem;
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+
+  width: 100%;
   max-width: 1200px;
-  margin: 0 auto;
+  margin-inline: auto;
+  padding-block: var(--sp-2);
 }
 
 .profile-header {
-  text-align: center;
-  margin-bottom: 2rem;
+  padding-left: var(--sp-3);
+  border-left: 3px solid var(--primary-color);
+  margin-bottom: var(--sp-6);
 }
 
 .profile-title {
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
   color: #333;
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--sp-1);
   font-family: 'SimSun', serif;
+  letter-spacing: 0.08em;
 }
 
 .profile-subtitle {
-  color: #666;
-  font-size: 1rem;
+  color: var(--el-text-color-secondary);
+  font-size: 0.95rem;
 }
 
 .profile-content {
   display: flex;
-  gap: 2rem;
+  gap: var(--sp-6);
   background-color: rgba(255, 255, 255, 0.95);
-  border-radius: 12px;
-  padding: 2rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: var(--sp-6);
+  box-shadow: 0 2px 12px rgba(90, 60, 30, 0.08);
 }
 
 .profile-sidebar {
@@ -687,13 +703,9 @@ const uploadAvatarRequest = async ({ file, onSuccess, onError }) => {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .profile-container {
-    padding: 1rem;
-  }
-
   .profile-content {
     flex-direction: column;
-    padding: 1rem;
+    padding: var(--sp-4);
   }
 
   .profile-sidebar {

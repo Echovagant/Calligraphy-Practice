@@ -301,6 +301,18 @@ onUnmounted(() => {
   padding: 2rem;
 }
 
+/* 协议复选框的文字默认不换行 —— 窄屏下会把整页撑出 20px 的横向滚动。
+   放开换行，勾选框本身保持对齐。 */
+:deep(.el-checkbox) {
+  height: auto;
+  white-space: normal;
+}
+
+:deep(.el-checkbox__label) {
+  white-space: normal;
+  line-height: 1.5;
+}
+
 .register-form-wrapper {
   background-color: rgba(255, 255, 255, 0.95);
   padding: 2.5rem;
@@ -364,6 +376,13 @@ onUnmounted(() => {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+  /* 窄屏顶栏要占两行，80vh + 顶栏 + 页脚会超出一屏，
+     页面底部多出一段没有意义的空白滚动。 */
+  .register-container {
+    min-height: auto;
+    padding: 1.5rem 1rem;
+  }
+
   .register-form-wrapper {
     padding: 1.5rem;
     margin: 1rem;

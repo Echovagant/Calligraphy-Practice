@@ -526,107 +526,132 @@ const getCalendarDayTooltip = (day) => {
 </script>
 
 <style scoped>
+/* ============================================================
+   练习记录页版式
+   - 页面容器与全站内容列共用一条左右边界
+     （原来这里多套了一层 2rem 内边距，整页比别的页窄 64px）
+   - 间距刻度：4 / 8 / 12 / 16 / 24 / 32 / 48，组内小、组间大
+   ============================================================ */
 .my-practices-container {
-  padding: 2rem;
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+
+  width: 100%;
   max-width: 1200px;
-  margin: 0 auto;
+  margin-inline: auto;
+  padding-block: var(--sp-2);
 }
 
+/* 页头：左对齐 + 墨线 */
 .page-header {
-  text-align: center;
-  margin-bottom: 2rem;
+  padding-left: var(--sp-3);
+  border-left: 3px solid var(--primary-color);
+  margin-bottom: var(--sp-6);
 }
 
 .page-title {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+  margin-bottom: var(--sp-1);
   color: #333;
   font-family: 'SimSun', serif;
+  letter-spacing: 0.08em;
 }
 
 .page-subtitle {
-  color: #666;
-  font-size: 1rem;
+  color: var(--el-text-color-secondary);
+  font-size: 0.95rem;
 }
 
+/* 统计条：四个指标一条横排，窄屏折成两列 —— 不再是「四张卡挤成 3+1」 */
 .stats-overview {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-6);
 }
 
 .stat-card {
   background-color: rgba(255, 255, 255, 0.95);
-  padding: 1.5rem;
-  border-radius: 12px;
+  padding: var(--sp-5) var(--sp-4);
+  border-radius: 8px;
   text-align: center;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #8B4513;
+  box-shadow: 0 2px 12px rgba(90, 60, 30, 0.08);
+  border: 1px solid rgba(139, 69, 19, 0.1);
 }
 
 .stat-number {
-  font-size: 2rem;
+  font-size: 1.9rem;
   font-weight: bold;
-  color: #8B4513;
-  margin-bottom: 0.5rem;
+  color: var(--primary-color);
+  margin-bottom: var(--sp-1);
+  line-height: 1.2;
 }
 
 .stat-label {
-  color: #666;
-  font-size: 0.9rem;
+  color: var(--el-text-color-secondary);
+  font-size: 0.85rem;
 }
 
+/* 筛选条：与提示文字算一组，组内 12px、组外 24px */
 .filter-section {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 0.5rem;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-2);
   flex-wrap: wrap;
   align-items: center;
 }
 
 .filter-hint {
-  color: #6b6259;
+  color: var(--el-text-color-secondary);
   font-size: 0.8rem;
-  margin: 0 0 1.5rem;
+  margin: 0 0 var(--sp-5);
 }
 
 .date-picker {
-  width: 300px;
+  flex: 0 0 320px;
+  width: 320px;
 }
 
 .filter-select {
+  flex: 0 0 150px;
   min-width: 150px;
 }
 
 .filter-input {
-  width: 220px;
+  flex: 1 1 200px;
+  min-width: 160px;
+  max-width: 280px;
 }
 
 .state-alert {
-  margin-bottom: 1rem;
+  margin-bottom: var(--sp-4);
 }
 
 .practice-content {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: var(--sp-5);
 }
 
 .section-title {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: #333;
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid #8B4513;
+  margin-bottom: var(--sp-4);
+  padding-bottom: var(--sp-2);
+  border-bottom: 1px solid rgba(139, 69, 19, 0.16);
 }
 
 .calendar-section {
   background-color: rgba(255, 255, 255, 0.95);
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  padding: var(--sp-5);
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(90, 60, 30, 0.08);
 }
 
 .calendar-wrapper {
@@ -680,9 +705,9 @@ const getCalendarDayTooltip = (day) => {
 
 .table-section {
   background-color: rgba(255, 255, 255, 0.95);
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  padding: var(--sp-5);
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(90, 60, 30, 0.08);
 }
 
 .table-wrapper {
@@ -739,13 +764,16 @@ const getCalendarDayTooltip = (day) => {
 }
 
 /* 响应式设计 */
-@media (max-width: 768px) {
-  .my-practices-container {
-    padding: 1rem;
-  }
-
+@media (max-width: 1024px) {
+  /* 四张统计卡在平板上折成两列，不留 3+1 的孤儿 */
   .stats-overview {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-overview {
+    gap: var(--sp-3);
   }
 
   .filter-section {
@@ -756,11 +784,19 @@ const getCalendarDayTooltip = (day) => {
   .date-picker,
   .filter-select,
   .filter-input {
+    flex: 1 1 auto;
     width: 100%;
+    max-width: none;
   }
 
   .calendar-heatmap {
     min-width: 600px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-overview {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 </style>

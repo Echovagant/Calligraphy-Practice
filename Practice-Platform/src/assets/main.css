@@ -115,6 +115,28 @@ textarea {
   body .top-nav-item {
     padding-left: 6px;
     padding-right: 6px;
+    /* 两字的链接（首页）只有 38px 宽，横向不够手指点 */
+    min-width: 44px;
+    justify-content: center;
+  }
+
+  /* 顶栏用户下拉触发器 */
+  body .dropdown-trigger {
+    min-height: 44px;
+  }
+
+  /* 下拉框：Element Plus 的 .el-select__wrapper 写死了 min-height:32px（small 是 24px），
+     不吃 --el-component-size，所以上面覆盖组件尺寸变量对它无效 —— 这里直接补。 */
+  body .el-select__wrapper,
+  body .el-select--small .el-select__wrapper {
+    min-height: 44px;
+  }
+
+  /* 分页翻页箭头：Element Plus 默认 32×32 */
+  body .el-pagination .btn-prev,
+  body .el-pagination .btn-next {
+    min-width: 44px;
+    min-height: 44px;
   }
 }
 

@@ -254,135 +254,139 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* ============================================================
+   首页版式
+   - 页面容器与全站内容列同一条左右边界（.app-main 的内容列）
+   - 间距刻度：4 / 8 / 12 / 16 / 24 / 32 / 48
+     组内用小值，组间用大值
+   ============================================================ */
 .home-container {
-  padding: 2rem 0;
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-block: var(--sp-2);
 }
 
-/* 英雄区域样式 */
+/* 英雄区：左对齐到与全站一致的左边界。
+   原来这里是「居中大标题 + 副标题 + 居中按钮」的模板写法，
+   面板铺满内容列、内容却居中，看上去比下面的内容列还宽。 */
 .hero-section {
-  text-align: center;
-  padding: 4rem 2rem;
-  margin-bottom: 2rem;
-  background-color: rgba(245, 245, 240, 0.8);
-  border-radius: 8px;
+  padding: var(--sp-7) var(--sp-6);
+  margin-bottom: var(--sp-6);
+  background-color: rgba(245, 241, 228, 0.82);
+  border-left: 3px solid var(--primary-color);
+  border-radius: 0 8px 8px 0;
 }
 
 .hero-title {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
+  font-size: clamp(1.75rem, 1.15rem + 2.2vw, 2.75rem);
+  margin-bottom: var(--sp-4);
   color: #333;
   font-family: 'SimSun', serif;
-  letter-spacing: 3px;
+  letter-spacing: 0.1em;
+  line-height: 1.25;
 }
 
 .hero-subtitle {
-  font-size: 1.2rem;
-  margin-bottom: 2rem;
-  color: #666;
+  font-size: clamp(0.95rem, 0.9rem + 0.3vw, 1.1rem);
+  margin-bottom: var(--sp-5);
+  color: var(--el-text-color-secondary);
 }
 
 .hero-actions {
   display: flex;
-  gap: 1rem;
-  justify-content: center;
+  gap: var(--sp-3);
   flex-wrap: wrap;
 }
 
-/* 平台数据 */
+/* 平台数据：一条横向信息带，不再是三张等大的卡片 */
 .stats-section {
-  margin-bottom: 3rem;
+  margin-bottom: var(--sp-7);
 }
 
 .stats-area {
-  min-height: 6rem;
+  min-height: 5rem;
 }
 
 .stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-}
-
-/* 统计卡：做成「印章数字」的样子 ——
-   顶部一道朱砂细线（印章的边），数字用衬线体、不加粗、拉开字距，
-   三个数字压在一排白盒子上时就不会像三个一样的默认卡片。 */
-.stat-card {
-  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-5) var(--sp-7);
+  padding: var(--sp-4) var(--sp-5);
   background-color: rgba(255, 255, 255, 0.92);
-  border-radius: 4px;
-  padding: 1.75rem 1.5rem 1.5rem;
-  text-align: center;
+  border: 1px solid rgba(139, 69, 19, 0.12);
+  border-radius: 8px;
   box-shadow: 0 2px 10px rgba(90, 60, 30, 0.06);
 }
 
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 2.5rem;
-  height: 3px;
-  background-color: var(--el-color-danger);
-  border-radius: 0 0 2px 2px;
+/* 每个统计项：数字与标签同排、基线对齐，上方一道细墨线 */
+.stat-card {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  padding-top: var(--sp-3);
+  border-top: 2px solid rgba(139, 69, 19, 0.22);
 }
 
 .stat-number {
   font-family: 'SimSun', 'Songti SC', serif;
-  font-size: 2.75rem;
+  font-size: clamp(1.75rem, 1.35rem + 1.4vw, 2.5rem);
   font-weight: 400;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   line-height: 1.1;
   color: var(--primary-color);
 }
 
 .stat-label {
-  color: #6f6a63;
+  color: var(--el-text-color-secondary);
   font-size: 0.9rem;
-  letter-spacing: 0.12em;
-  margin-top: 0.6rem;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
 }
 
-/* 功能特点样式 */
+/* 平台特色：主次分明的网格 —— 一张主角卡竖跨两行，
+   两张次要卡并排，最后一张做通栏收尾。 */
 .features-section {
-  margin-bottom: 3rem;
+  margin-bottom: var(--sp-7);
 }
 
 .section-title {
-  text-align: center;
-  font-size: 2rem;
-  margin-bottom: 2rem;
+  font-size: clamp(1.25rem, 1.05rem + 0.7vw, 1.6rem);
+  margin-bottom: var(--sp-4);
   color: #333;
   font-family: 'SimSun', serif;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+  padding-left: var(--sp-3);
+  border-left: 3px solid var(--primary-color);
 }
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-5);
 }
 
+/* 卡片内部统一左对齐：图标 → 标题 → 说明 → 操作 */
 .feature-card {
   position: relative;
+  display: flex;
+  flex-direction: column;
   background-color: rgba(255, 255, 255, 0.92);
-  padding: 2rem 1.75rem 1.75rem;
-  border-radius: 4px;
-  text-align: center;
-  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
+  padding: var(--sp-5);
+  border-radius: 8px;
+  text-align: left;
+  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, border-color 0.3s;
   box-shadow: 0 2px 10px rgba(90, 60, 30, 0.06);
-}
-
-/* 左侧一道墨线，悬停时由上往下长出来 —— 四张卡唯一的区分标记 */
-.feature-card::before {
-  content: '';
-  position: absolute;
-  top: 1.25rem;
-  left: 0;
-  width: 3px;
-  height: 0;
-  background-color: var(--el-color-danger);
-  border-radius: 0 2px 2px 0;
-  transition: height 0.3s ease;
 }
 
 .feature-card:hover {
@@ -390,50 +394,89 @@ onMounted(() => {
   box-shadow: 0 8px 20px rgba(90, 60, 30, 0.12);
 }
 
-.feature-card:hover::before {
-  height: calc(100% - 2.5rem);
+/* 主角卡：竖跨两行，墨色底 + 更大的标题 */
+.feature-card:first-child {
+  grid-column: span 2;
+  grid-row: span 2;
+  background-color: rgba(243, 236, 231, 0.96);
+  box-shadow: 0 6px 22px rgba(90, 60, 30, 0.1);
+}
+
+.feature-card:nth-child(2),
+.feature-card:nth-child(3) {
+  grid-column: span 1;
+}
+
+.feature-card:nth-child(4) {
+  grid-column: span 2;
 }
 
 .feature-icon {
-  width: 56px;
-  height: 56px;
+  width: 40px;
+  height: 40px;
   display: block;
-  margin: 0 auto 1.1rem;
+  margin-bottom: var(--sp-4);
   color: var(--primary-color);
 }
 
+.feature-card:first-child .feature-icon {
+  width: 56px;
+  height: 56px;
+}
+
 .feature-title {
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   font-weight: 500;
-  letter-spacing: 0.08em;
-  margin-bottom: 0.6rem;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--sp-2);
   color: #3a342d;
   font-family: 'SimSun', 'Songti SC', serif;
 }
 
-.feature-desc {
-  color: #6f6a63;
-  font-size: 0.95rem;
-  line-height: 1.7;
-  margin-bottom: 1.4rem;
+.feature-card:first-child .feature-title {
+  font-size: 1.6rem;
 }
 
-/* 作品预览样式 */
+.feature-desc {
+  color: var(--el-text-color-secondary);
+  font-size: 0.92rem;
+  line-height: 1.7;
+  margin-bottom: var(--sp-4);
+}
+
+/* 操作按钮统一贴在卡片底部，四张卡的内边距与对齐方式一致 */
+.feature-card .el-button {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+/* 精选作品 / 热门字帖 */
 .preview-section {
-  margin-bottom: 3rem;
+  margin-bottom: var(--sp-7);
+}
+
+.copybooks-section {
+  margin-bottom: var(--sp-7);
 }
 
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-4);
+}
+
+/* 区块标题与「查看更多」并排时，两者的左边界要对齐 */
+.section-header .section-title {
+  margin-bottom: 0;
 }
 
 .view-more {
-  color: #8B4513;
+  color: var(--primary-color);
   text-decoration: none;
   transition: color 0.3s;
+  white-space: nowrap;
 }
 
 .view-more:hover {
@@ -446,15 +489,15 @@ onMounted(() => {
 
 .works-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--sp-5);
 }
 
 .work-card {
   background-color: rgba(255, 255, 255, 0.9);
   border-radius: 8px;
   overflow: hidden;
-  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, border-color 0.3s;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
@@ -464,7 +507,7 @@ onMounted(() => {
 }
 
 .work-thumbnail {
-  height: 200px;
+  height: 190px;
   overflow: hidden;
   /* 作品图完整展示不裁切（contain），留白用纸色填 */
   background-color: #f0eee9;
@@ -474,7 +517,6 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  transition: transform 0.3s;
 }
 
 .work-image-placeholder {
@@ -486,29 +528,20 @@ onMounted(() => {
   font-size: 0.9rem;
 }
 
-/* 作品图不再跟着 hover 放大 —— 卡片本身的 2px 抬升就是唯一的动效 */
-.work-card:hover .work-image {
-  transform: none;
-}
-
 .work-info {
-  padding: 1rem;
+  padding: var(--sp-4);
 }
 
 .work-title {
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.05rem;
+  margin-bottom: var(--sp-1);
   color: #333;
+  font-family: 'SimSun', serif;
 }
 
 .work-author {
-  font-size: 0.9rem;
-  color: #666;
-}
-
-/* 热门字帖 */
-.copybooks-section {
-  margin-bottom: 3rem;
+  font-size: 0.88rem;
+  color: var(--el-text-color-secondary);
 }
 
 .copybooks-area {
@@ -518,7 +551,7 @@ onMounted(() => {
 .copybooks-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1.5rem;
+  gap: var(--sp-5);
 }
 
 .copybook-card {
@@ -526,7 +559,7 @@ onMounted(() => {
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, border-color 0.3s;
 }
 
 .copybook-card:hover {
@@ -535,7 +568,7 @@ onMounted(() => {
 }
 
 .copybook-thumbnail {
-  height: 180px;
+  height: 170px;
   overflow: hidden;
   background-color: #f0eee9;
 }
@@ -559,44 +592,96 @@ onMounted(() => {
 }
 
 .copybook-info {
-  padding: 1rem;
+  padding: var(--sp-4);
 }
 
 .copybook-title {
-  font-size: 1.05rem;
-  margin: 0 0 0.4rem 0;
+  font-size: 1rem;
+  margin: 0 0 var(--sp-1) 0;
   color: #333;
+  font-family: 'SimSun', serif;
 }
 
 .copybook-desc {
   font-size: 0.85rem;
-  color: #666;
-  margin: 0 0 0.6rem 0;
-  line-height: 1.5;
+  color: var(--el-text-color-secondary);
+  margin: 0 0 var(--sp-3) 0;
+  line-height: 1.6;
 }
 
 .copybook-meta {
   display: flex;
-  gap: 0.8rem;
+  gap: var(--sp-3);
   font-size: 0.8rem;
-  color: #6b6259;
+  color: var(--el-text-color-secondary);
   flex-wrap: wrap;
 }
 
+/* 触摸设备：「查看更多」也是可点目标，抬到 44px 才点得中 */
+@media (pointer: coarse) {
+  .view-more {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}
+
 /* 响应式设计 */
-@media (max-width: 768px) {
-  .hero-title {
-    font-size: 2rem;
+@media (max-width: 960px) {
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .hero-actions {
-    flex-direction: column;
+  .feature-card:first-child {
+    grid-column: span 2;
+    grid-row: auto;
+  }
+
+  .feature-card:nth-child(4) {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    padding: var(--sp-6) var(--sp-5);
   }
 
   .section-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1rem;
+    gap: var(--sp-2);
+  }
+
+  .stats-grid {
+    gap: var(--sp-4) var(--sp-5);
+    padding: var(--sp-4);
+  }
+}
+
+@media (max-width: 480px) {
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: var(--sp-4);
+  }
+
+  .feature-card:first-child,
+  .feature-card:nth-child(4) {
+    grid-column: span 1;
+  }
+
+  .stats-grid {
+    flex-direction: column;
+    gap: var(--sp-4);
+  }
+}
+
+/* 系统开启「减少动态效果」时：保留状态反馈，去掉位移 */
+@media (prefers-reduced-motion: reduce) {
+  .feature-card:hover,
+  .work-card:hover,
+  .copybook-card:hover {
+    transform: none !important;
   }
 }
 </style>

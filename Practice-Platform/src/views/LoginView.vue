@@ -268,6 +268,13 @@ if (rememberedUsername) {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+  .login-container {
+    /* 窄屏顶栏要占两行，80vh + 顶栏 + 页脚会超出一屏，
+       页面底部多出一段没有意义的空白滚动。 */
+    min-height: auto;
+    padding: 1.5rem 1rem;
+  }
+
   .login-form-wrapper {
     padding: 1.5rem;
     margin: 1rem;

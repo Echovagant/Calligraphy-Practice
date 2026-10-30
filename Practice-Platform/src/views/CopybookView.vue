@@ -405,7 +405,7 @@
 
         <div class="preview-content">
           <div v-if="!hasGenerated" class="empty-preview">
-            <div class="empty-icon">📚</div>
+            <el-icon class="empty-icon"><Notebook /></el-icon>
             <p>请输入文字内容并点击生成字帖</p>
           </div>
           <div v-else class="copybook-preview">
@@ -464,7 +464,7 @@
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue';
+import { ArrowLeft, ArrowRight, Notebook } from '@element-plus/icons-vue';
 import { useCopybookStore } from '../stores/copybookStore';
 import { useUserStore } from '../stores/userStore';
 import { formatDifficulty } from '../utils/constants';
@@ -998,51 +998,91 @@ const nextPage = () => {
 </script>
 
 <style scoped>
+/* ============================================================
+   字帖生成页版式
+   - 页面容器与全站内容列共用一条左右边界（不再是「三块白卡一套宽、
+     下面双栏又一套宽」）
+   - 间距刻度：4 / 8 / 12 / 16 / 24 / 32 / 48，组内小、组间大
+   ============================================================ */
 .copybook-container {
-  padding: 2rem 0;
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-block: var(--sp-2);
 }
 
+/* 页头：左对齐 + 墨线，全站同一套写法 */
 .copybook-header {
-  text-align: center;
-  margin-bottom: 2rem;
+  padding-left: var(--sp-3);
+  border-left: 3px solid var(--primary-color);
+  margin-bottom: var(--sp-6);
 }
 
 .section-title {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
   color: #333;
   font-family: 'SimSun', serif;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--sp-1);
 }
 
 .section-subtitle {
-  color: #666;
+  color: var(--el-text-color-secondary);
 }
 
-/* 字帖库 */
+/* 三块白色卡片：同宽、同内边距、同圆角 */
 .library-section,
-.popular-section {
+.popular-section,
+.mine-section {
   background-color: rgba(255, 255, 255, 0.95);
-  padding: 1.5rem;
+  padding: var(--sp-5);
   border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
+  box-shadow: 0 2px 12px rgba(90, 60, 30, 0.08);
+  margin-bottom: var(--sp-5);
 }
 
+/* 卡片内的分区标题：标题与内容之间的距离比区块之间更小 */
+.config-title {
+  font-size: 1.05rem;
+  margin-bottom: var(--sp-4);
+  color: #333;
+  font-family: 'SimSun', serif;
+  letter-spacing: 0.06em;
+  padding-bottom: var(--sp-2);
+  border-bottom: 1px solid rgba(139, 69, 19, 0.14);
+}
+
+/* 标题 + 右侧操作的一行：分隔线画在整行下方 */
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--sp-3);
+  padding-bottom: var(--sp-2);
+  margin-bottom: var(--sp-4);
+  border-bottom: 1px solid rgba(139, 69, 19, 0.14);
+}
+
+.section-header .config-title {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .filter-bar {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--sp-3);
   flex-wrap: wrap;
-  margin-bottom: 1rem;
+  margin-bottom: var(--sp-4);
 }
 
 .filter-select {
@@ -1050,25 +1090,25 @@ const nextPage = () => {
 }
 
 .filter-hint {
-  color: #6b6259;
+  color: var(--el-text-color-secondary);
   font-size: 0.85rem;
 }
 
 .state-alert {
-  margin-bottom: 1rem;
+  margin-bottom: var(--sp-4);
 }
 
 .copybook-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1rem;
+  gap: var(--sp-4);
   min-height: 120px;
 }
 
 .copybook-card {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--sp-2);
 }
 
 .copybook-cover {
@@ -1083,7 +1123,7 @@ const nextPage = () => {
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #6b6259;
+  color: var(--el-text-color-secondary);
   font-size: 0.85rem;
 }
 
@@ -1098,7 +1138,7 @@ const nextPage = () => {
 
 .copybook-desc {
   margin: 0;
-  color: #666;
+  color: var(--el-text-color-secondary);
   font-size: 0.85rem;
   min-height: 2.4em;
   overflow: hidden;
@@ -1106,16 +1146,16 @@ const nextPage = () => {
 
 .copybook-meta {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--sp-2);
 }
 
 .copybook-stat {
-  color: #6b6259;
+  color: var(--el-text-color-secondary);
   font-size: 0.8rem;
 }
 
 .pagination-container {
-  margin-top: 1rem;
+  margin-top: var(--sp-4);
   display: flex;
   justify-content: center;
 }
@@ -1124,7 +1164,7 @@ const nextPage = () => {
 .popular-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--sp-2);
   min-height: 60px;
 }
 
@@ -1132,40 +1172,31 @@ const nextPage = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.6rem 0.8rem;
-  background-color: #f9f9f9;
-  border: 1px solid #eee;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  background-color: rgba(243, 236, 231, 0.5);
+  border: 1px solid rgba(139, 69, 19, 0.12);
   border-radius: 4px;
   cursor: pointer;
-  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
+  transition: background-color 0.3s, border-color 0.3s, color 0.3s;
 }
 
 .popular-item:hover {
-  border-color: #8B4513;
-  color: #8B4513;
+  border-color: var(--primary-color);
+  color: var(--primary-color);
 }
 
 .popular-count {
-  color: #6b6259;
+  color: var(--el-text-color-secondary);
   font-size: 0.8rem;
+  white-space: nowrap;
 }
 
 /* 我的字帖 */
-.mine-section {
-  background-color: rgba(255, 255, 255, 0.95);
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
 .my-copybook-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--sp-2);
   min-height: 60px;
 }
 
@@ -1173,11 +1204,11 @@ const nextPage = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: var(--sp-4);
   flex-wrap: wrap;
-  padding: 0.6rem 0.8rem;
-  background-color: var(--background-color);
-  border: 1px solid var(--border-color);
+  padding: var(--sp-3) var(--sp-4);
+  background-color: rgba(243, 236, 231, 0.5);
+  border: 1px solid rgba(139, 69, 19, 0.12);
   border-radius: 4px;
 }
 
@@ -1196,7 +1227,7 @@ const nextPage = () => {
 .my-copybook-meta {
   color: var(--el-text-color-secondary);
   font-size: 0.8rem;
-  margin-top: 0.2rem;
+  margin-top: var(--sp-1);
 }
 
 /* 字帖详情 */
@@ -1205,73 +1236,70 @@ const nextPage = () => {
 }
 
 .detail-title {
-  margin: 0 0 0.5rem;
+  margin: 0 0 var(--sp-2);
   color: #333;
 }
 
 .detail-desc {
-  margin: 0 0 1rem;
-  color: #666;
+  margin: 0 0 var(--sp-4);
+  color: var(--el-text-color-secondary);
 }
 
 .detail-row {
-  margin-bottom: 0.6rem;
+  margin-bottom: var(--sp-2);
 }
 
 .detail-label {
   font-weight: 600;
   color: #333;
-  margin-right: 0.5rem;
+  margin-right: var(--sp-2);
 }
 
 .detail-value {
-  color: #666;
+  color: var(--el-text-color-secondary);
 }
 
-/* 配置面板样式 */
+/* 内容设置 / 预览 双栏：
+   栅格铺满整条内容列 —— 上面三块白卡与下面两栏共用同一组左右边界。 */
 .copybook-layout {
-  display: flex;
-  gap: 2rem;
-  justify-content: center;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+  gap: var(--sp-5);
+  align-items: start;
 }
 
 .config-panel {
-  width: 380px;
   background-color: rgba(255, 255, 255, 0.95);
-  padding: 1.5rem;
+  padding: var(--sp-5);
   border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px rgba(90, 60, 30, 0.08);
+  min-width: 0;
 }
 
 .config-section {
-  margin-bottom: 2rem;
+  margin-bottom: var(--sp-6);
 }
 
-.config-title {
-  font-size: 1.1rem;
-  margin-bottom: 1rem;
-  color: #333;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 0.5rem;
+.config-section:last-child {
+  margin-bottom: 0;
 }
 
 .char-count {
   text-align: right;
   font-size: 0.8rem;
-  color: #6b6259;
-  margin-top: 0.5rem;
+  color: var(--el-text-color-secondary);
+  margin-top: var(--sp-1);
 }
 
 .sample-hint {
-  margin-left: 0.8rem;
-  color: #6b6259;
+  margin-left: var(--sp-3);
+  color: var(--el-text-color-secondary);
   font-size: 0.8rem;
 }
 
 .action-buttons {
   display: flex;
-  gap: 1rem;
+  gap: var(--sp-3);
 }
 
 .generate-btn,
@@ -1288,30 +1316,34 @@ const nextPage = () => {
   border-color: #cfd4cb;
 }
 
-/* 预览面板样式 */
+/* 预览面板：左侧表单很长时跟着滚动，不再留一大片空白 */
 .preview-panel {
   background-color: rgba(255, 255, 255, 0.95);
-  padding: 1.5rem;
+  padding: var(--sp-5);
   border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 600px;
+  box-shadow: 0 2px 12px rgba(90, 60, 30, 0.08);
+  position: sticky;
+  top: 76px;
+  min-width: 0;
 }
 
 .preview-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
 }
 
 .preview-title {
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   color: #333;
+  font-family: 'SimSun', serif;
+  letter-spacing: 0.06em;
 }
 
 .preview-content {
-  min-height: 400px;
+  min-height: 360px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1319,12 +1351,13 @@ const nextPage = () => {
 
 .empty-preview {
   text-align: center;
-  color: #6b6259;
+  color: var(--el-text-color-secondary);
 }
 
 .empty-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  font-size: 2.75rem;
+  margin-bottom: var(--sp-3);
+  color: rgba(139, 69, 19, 0.45);
 }
 
 .copybook-preview {
@@ -1333,10 +1366,10 @@ const nextPage = () => {
 
 .paper-preview {
   width: 100%;
-  min-height: 400px;
+  min-height: 360px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  padding: 2rem;
+  padding: var(--sp-5);
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
 }
 
@@ -1397,27 +1430,74 @@ const nextPage = () => {
   color: #333;
 }
 
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .copybook-layout {
-    flex-direction: column;
-    align-items: center;
+/* 触摸设备：筛选下拉与列表行都是可点目标，抬到 44px */
+@media (pointer: coarse) {
+  :deep(.filter-select .el-select__wrapper) {
+    min-height: 44px;
   }
 
-  .config-panel {
+  .popular-item,
+  .my-copybook-item {
+    min-height: 44px;
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 900px) {
+  .copybook-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-panel {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .library-section,
+  .popular-section,
+  .mine-section,
+  .config-panel,
+  .preview-panel {
+    padding: var(--sp-4);
+  }
+
+  .filter-select {
     width: 100%;
-    max-width: 400px;
+  }
+
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .preview-header {
     flex-direction: column;
-    gap: 1rem;
     align-items: flex-start;
   }
 
   .grid-container,
   .blank-container {
     grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-container,
+  .blank-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .paper-preview {
+    padding: var(--sp-3);
+  }
+}
+
+/* 系统开启「减少动态效果」时：保留状态反馈，去掉位移 */
+@media (prefers-reduced-motion: reduce) {
+  .popular-item,
+  .copybook-card:hover {
+    transform: none !important;
   }
 }
 </style>
